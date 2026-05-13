@@ -1,0 +1,56 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Admin.Rooms.EditModel
+
+@{
+    ViewData["Title"] = "Edit Room";
+}
+
+<h1>Edit Room</h1>
+
+<form method="post" class="mt-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Room.Id" />
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="Room.PropertyId" class="form-label">Property</label>
+            <select asp-for="Room.PropertyId" class="form-select" asp-items="Model.PropertyOptions"></select>
+            <span asp-validation-for="Room.PropertyId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Room.RoomTypeId" class="form-label">Room Type</label>
+            <select asp-for="Room.RoomTypeId" class="form-select" asp-items="Model.RoomTypeOptions"></select>
+            <span asp-validation-for="Room.RoomTypeId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label asp-for="Room.RoomNumber" class="form-label">Room Number</label>
+            <input asp-for="Room.RoomNumber" class="form-control" />
+            <span asp-validation-for="Room.RoomNumber" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="Room.Floor" class="form-label"></label>
+            <input asp-for="Room.Floor" class="form-control" />
+            <span asp-validation-for="Room.Floor" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="Room.Status" class="form-label"></label>
+            <select asp-for="Room.Status" class="form-select" asp-items="Model.RoomStatusOptions"></select>
+            <span asp-validation-for="Room.Status" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="Room.IsActive" class="form-check-input" />
+        <label asp-for="Room.IsActive" class="form-check-label">Active</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

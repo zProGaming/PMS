@@ -1,0 +1,43 @@
+@page
+@model Vantage.PMS.Pages.Admin.RoomTypes.IndexModel
+
+@{
+    ViewData["Title"] = "Room Types";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="mb-0">Room Types</h1>
+    <a class="btn btn-primary" asp-page="./Create">Create Room Type</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Property</th>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Max Occupancy</th>
+            <th>Base Rate</th>
+            <th>Active</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var roomType in Model.RoomTypes)
+        {
+            <tr>
+                <td>@roomType.Property?.Name</td>
+                <td>@roomType.Code</td>
+                <td>@roomType.Name</td>
+                <td>@roomType.MaxOccupancy</td>
+                <td>@roomType.BaseRate.ToString("N2")</td>
+                <td>@(roomType.IsActive ? "Yes" : "No")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@roomType.Id">Edit</a>
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="./Details" asp-route-id="@roomType.Id">Details</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="./Delete" asp-route-id="@roomType.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

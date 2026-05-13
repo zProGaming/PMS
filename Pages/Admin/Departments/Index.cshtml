@@ -1,0 +1,39 @@
+@page
+@model Vantage.PMS.Pages.Admin.Departments.IndexModel
+
+@{
+    ViewData["Title"] = "Departments";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="mb-0">Departments</h1>
+    <a class="btn btn-primary" asp-page="./Create">Create Department</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Property</th>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Active</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var department in Model.Departments)
+        {
+            <tr>
+                <td>@department.Property?.Name</td>
+                <td>@department.Code</td>
+                <td>@department.Name</td>
+                <td>@(department.IsActive ? "Yes" : "No")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@department.Id">Edit</a>
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="./Details" asp-route-id="@department.Id">Details</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="./Delete" asp-route-id="@department.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

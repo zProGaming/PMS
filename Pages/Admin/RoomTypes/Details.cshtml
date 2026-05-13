@@ -1,0 +1,34 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Admin.RoomTypes.DetailsModel
+
+@{
+    ViewData["Title"] = "Room Type Details";
+}
+
+<h1>Room Type Details</h1>
+
+<dl class="row mt-3">
+    <dt class="col-sm-3">Property</dt>
+    <dd class="col-sm-9">@Model.RoomType.Property?.Name</dd>
+
+    <dt class="col-sm-3">Code</dt>
+    <dd class="col-sm-9">@Model.RoomType.Code</dd>
+
+    <dt class="col-sm-3">Name</dt>
+    <dd class="col-sm-9">@Model.RoomType.Name</dd>
+
+    <dt class="col-sm-3">Description</dt>
+    <dd class="col-sm-9">@Model.RoomType.Description</dd>
+
+    <dt class="col-sm-3">Max Occupancy</dt>
+    <dd class="col-sm-9">@Model.RoomType.MaxOccupancy</dd>
+
+    <dt class="col-sm-3">Base Rate</dt>
+    <dd class="col-sm-9">@Model.RoomType.BaseRate.ToString("N2")</dd>
+
+    <dt class="col-sm-3">Active</dt>
+    <dd class="col-sm-9">@(Model.RoomType.IsActive ? "Yes" : "No")</dd>
+</dl>
+
+<a class="btn btn-primary" asp-page="./Edit" asp-route-id="@Model.RoomType.Id">Edit</a>
+<a class="btn btn-outline-secondary" asp-page="./Index">Back</a>

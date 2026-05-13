@@ -1,0 +1,72 @@
+@page
+@model Vantage.PMS.Pages.FrontOffice.Reservations.CreateModel
+
+@{
+    ViewData["Title"] = "Create Reservation";
+}
+
+<h1>Create Reservation</h1>
+
+<form method="post" class="mt-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="Reservation.GuestId" class="form-label">Guest</label>
+            <select asp-for="Reservation.GuestId" class="form-select" asp-items="Model.GuestOptions">
+                <option value="">Select guest</option>
+            </select>
+            <span asp-validation-for="Reservation.GuestId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Reservation.RoomId" class="form-label">Room</label>
+            <select asp-for="Reservation.RoomId" class="form-select" asp-items="Model.RoomOptions">
+                <option value="">Select room</option>
+            </select>
+            <span asp-validation-for="Reservation.RoomId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <label asp-for="Reservation.ArrivalDate" class="form-label">Check-in Date</label>
+            <input asp-for="Reservation.ArrivalDate" class="form-control" type="date" asp-format="{0:yyyy-MM-dd}" />
+            <span asp-validation-for="Reservation.ArrivalDate" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label asp-for="Reservation.DepartureDate" class="form-label">Check-out Date</label>
+            <input asp-for="Reservation.DepartureDate" class="form-control" type="date" asp-format="{0:yyyy-MM-dd}" />
+            <span asp-validation-for="Reservation.DepartureDate" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label asp-for="Reservation.RateAmount" class="form-label">Rate Amount</label>
+            <input asp-for="Reservation.RateAmount" class="form-control" type="number" min="0" step="0.01" />
+            <span asp-validation-for="Reservation.RateAmount" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label asp-for="Reservation.Status" class="form-label"></label>
+            <select asp-for="Reservation.Status" class="form-select" asp-items="Model.ReservationStatusOptions"></select>
+            <span asp-validation-for="Reservation.Status" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <label asp-for="Reservation.Adults" class="form-label"></label>
+            <input asp-for="Reservation.Adults" class="form-control" type="number" min="0" />
+            <span asp-validation-for="Reservation.Adults" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label asp-for="Reservation.Children" class="form-label"></label>
+            <input asp-for="Reservation.Children" class="form-control" type="number" min="0" />
+            <span asp-validation-for="Reservation.Children" class="text-danger"></span>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

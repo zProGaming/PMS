@@ -29,6 +29,8 @@ public class Reservation
 
     public DateTime DepartureDate { get; set; }
 
+    public decimal RateAmount { get; set; }
+
     public int Adults { get; set; }
 
     public int Children { get; set; }

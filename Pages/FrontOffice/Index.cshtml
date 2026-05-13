@@ -1,0 +1,67 @@
+@page
+@model Vantage.PMS.Pages.FrontOffice.IndexModel
+
+@{
+    ViewData["Title"] = "Front Office";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="mb-1">Front Office</h1>
+        <p class="text-muted mb-0">Today&apos;s rooms and guest movement.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary" asp-page="/FrontOffice/Reservations/Create">New Reservation</a>
+        <a class="btn btn-outline-primary" asp-page="/FrontOffice/Guests/Create">New Guest</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Total Rooms</div>
+            <div class="display-6">@Model.TotalRooms</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Available Rooms</div>
+            <div class="display-6">@Model.AvailableRooms</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Occupied Rooms</div>
+            <div class="display-6">@Model.OccupiedRooms</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Dirty Rooms</div>
+            <div class="display-6">@Model.DirtyRooms</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Arrivals Today</div>
+            <div class="display-6">@Model.ArrivalsToday</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Departures Today</div>
+            <div class="display-6">@Model.DeparturesToday</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">In-house Guests</div>
+            <div class="display-6">@Model.InHouseGuests</div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 d-flex gap-2">
+    <a class="btn btn-outline-secondary" asp-page="/FrontOffice/Reservations/Index">Manage Reservations</a>
+    <a class="btn btn-outline-secondary" asp-page="/FrontOffice/Guests/Index">Manage Guests</a>
+</div>

@@ -1,0 +1,37 @@
+@page
+@model Vantage.PMS.Pages.Admin.Hotels.IndexModel
+
+@{
+    ViewData["Title"] = "Hotels";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="mb-0">Hotels</h1>
+    <a class="btn btn-primary" asp-page="./Create">Create Hotel</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Legal Name</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var hotel in Model.Hotels)
+        {
+            <tr>
+                <td>@hotel.Code</td>
+                <td>@hotel.Name</td>
+                <td>@hotel.LegalName</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@hotel.Id">Edit</a>
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="./Details" asp-route-id="@hotel.Id">Details</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="./Delete" asp-route-id="@hotel.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

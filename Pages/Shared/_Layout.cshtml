@@ -26,6 +26,28 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="frontOfficeNavbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Front Office
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="frontOfficeNavbarDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-page="/FrontOffice/Index">Dashboard</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-page="/FrontOffice/Reservations/Index">Reservations</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-page="/FrontOffice/Guests/Index">Guests</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="adminNavbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Admin
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="adminNavbarDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Hotels/Index">Hotels</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Properties/Index">Properties</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Departments/Index">Departments</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-page="/Admin/RoomTypes/Index">Room Types</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Rooms/Index">Rooms</a></li>
+                            </ul>
+                        </li>
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

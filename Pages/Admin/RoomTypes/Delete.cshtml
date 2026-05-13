@@ -1,0 +1,29 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Admin.RoomTypes.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete Room Type";
+}
+
+<h1>Delete Room Type</h1>
+<p class="text-danger">Are you sure you want to delete this room type?</p>
+
+<dl class="row mt-3">
+    <dt class="col-sm-3">Property</dt>
+    <dd class="col-sm-9">@Model.RoomType.Property?.Name</dd>
+
+    <dt class="col-sm-3">Code</dt>
+    <dd class="col-sm-9">@Model.RoomType.Code</dd>
+
+    <dt class="col-sm-3">Name</dt>
+    <dd class="col-sm-9">@Model.RoomType.Name</dd>
+
+    <dt class="col-sm-3">Active</dt>
+    <dd class="col-sm-9">@(Model.RoomType.IsActive ? "Yes" : "No")</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="RoomType.Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>

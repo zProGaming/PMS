@@ -1,0 +1,33 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.FrontOffice.Guests.DetailsModel
+
+@{
+    ViewData["Title"] = "Guest Details";
+}
+
+<h1>Guest Details</h1>
+
+<dl class="row mt-3">
+    <dt class="col-sm-3">Name</dt>
+    <dd class="col-sm-9">@Model.Guest.FirstName @Model.Guest.LastName</dd>
+
+    <dt class="col-sm-3">Email</dt>
+    <dd class="col-sm-9">@Model.Guest.Email</dd>
+
+    <dt class="col-sm-3">Phone</dt>
+    <dd class="col-sm-9">@Model.Guest.PhoneNumber</dd>
+
+    <dt class="col-sm-3">Address</dt>
+    <dd class="col-sm-9">
+        @Model.Guest.AddressLine1<br />
+        @Model.Guest.AddressLine2<br />
+        @Model.Guest.City @Model.Guest.StateProvince @Model.Guest.PostalCode<br />
+        @Model.Guest.Country
+    </dd>
+
+    <dt class="col-sm-3">Created</dt>
+    <dd class="col-sm-9">@Model.Guest.CreatedAtUtc.ToString("g") UTC</dd>
+</dl>
+
+<a class="btn btn-primary" asp-page="./Edit" asp-route-id="@Model.Guest.Id">Edit</a>
+<a class="btn btn-outline-secondary" asp-page="./Index">Back</a>

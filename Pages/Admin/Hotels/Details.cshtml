@@ -1,0 +1,22 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Admin.Hotels.DetailsModel
+
+@{
+    ViewData["Title"] = "Hotel Details";
+}
+
+<h1>Hotel Details</h1>
+
+<dl class="row mt-3">
+    <dt class="col-sm-3">Code</dt>
+    <dd class="col-sm-9">@Model.Hotel.Code</dd>
+
+    <dt class="col-sm-3">Name</dt>
+    <dd class="col-sm-9">@Model.Hotel.Name</dd>
+
+    <dt class="col-sm-3">Legal Name</dt>
+    <dd class="col-sm-9">@Model.Hotel.LegalName</dd>
+</dl>
+
+<a class="btn btn-primary" asp-page="./Edit" asp-route-id="@Model.Hotel.Id">Edit</a>
+<a class="btn btn-outline-secondary" asp-page="./Index">Back</a>

@@ -1,0 +1,45 @@
+@page
+@model Vantage.PMS.Pages.FrontOffice.Reservations.IndexModel
+
+@{
+    ViewData["Title"] = "Reservations";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="mb-0">Reservations</h1>
+    <a class="btn btn-primary" asp-page="./Create">Create Reservation</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Confirmation</th>
+            <th>Guest</th>
+            <th>Room</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Rate</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var reservation in Model.Reservations)
+        {
+            <tr>
+                <td>@reservation.ConfirmationNumber</td>
+                <td>@reservation.Guest?.LastName, @reservation.Guest?.FirstName</td>
+                <td>@reservation.Room?.RoomNumber</td>
+                <td>@reservation.ArrivalDate.ToString("d")</td>
+                <td>@reservation.DepartureDate.ToString("d")</td>
+                <td>@reservation.RateAmount.ToString("N2")</td>
+                <td>@reservation.Status</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@reservation.Id">Edit</a>
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="./Details" asp-route-id="@reservation.Id">Details</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="./Delete" asp-route-id="@reservation.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
