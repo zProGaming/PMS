@@ -12,6 +12,8 @@ public class DetailsModel(ApplicationDbContext context) : PageModel
 
     public Reservation Reservation { get; set; } = default!;
 
+    public int? FolioId { get; set; }
+
     public async Task<IActionResult> OnGetAsync(int? id)
     {
         if (id is null)
@@ -33,6 +35,12 @@ public class DetailsModel(ApplicationDbContext context) : PageModel
         }
 
         Reservation = reservation;
+        FolioId = await _context.Folios
+            .AsNoTracking()
+            .Where(folio => folio.ReservationId == Reservation.Id)
+            .Select(folio => (int?)folio.Id)
+            .FirstOrDefaultAsync();
+
         return Page();
     }
 }

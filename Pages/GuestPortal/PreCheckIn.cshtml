@@ -1,0 +1,74 @@
+@page
+@model Vantage.PMS.Pages.GuestPortal.PreCheckInModel
+@{
+    ViewData["Title"] = "Pre-Check-In";
+}
+
+<h1 class="h3 mb-3">Pre-Check-In</h1>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-success">@Model.StatusMessage</div>
+}
+
+@if (Model.Access is null)
+{
+    <div class="alert alert-warning">Guest portal access is invalid or expired.</div>
+}
+else if (!Model.Setting.AllowPreCheckIn)
+{
+    <div class="alert alert-info">Pre-check-in is currently unavailable.</div>
+}
+else if (!Model.CanSubmitPreCheckIn)
+{
+    <div class="alert alert-info">Pre-check-in is available only before arrival for reserved bookings.</div>
+}
+else
+{
+    <form method="post" class="row g-3">
+        <input type="hidden" asp-for="Token" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="col-md-4">
+            <label asp-for="PreCheckIn.ArrivalTime" class="form-label">Expected arrival time</label>
+            <input asp-for="PreCheckIn.ArrivalTime" type="datetime-local" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="PreCheckIn.IdType" class="form-label">ID type</label>
+            <input asp-for="PreCheckIn.IdType" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="PreCheckIn.IdNumber" class="form-label">ID number</label>
+            <input asp-for="PreCheckIn.IdNumber" class="form-control" />
+        </div>
+        <div class="col-12">
+            <label asp-for="PreCheckIn.Address" class="form-label"></label>
+            <textarea asp-for="PreCheckIn.Address" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="PreCheckIn.Nationality" class="form-label"></label>
+            <input asp-for="PreCheckIn.Nationality" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label asp-for="PreCheckIn.Birthday" class="form-label"></label>
+            <input asp-for="PreCheckIn.Birthday" type="date" class="form-control" />
+        </div>
+        <div class="col-12">
+            <label asp-for="PreCheckIn.SpecialRequests" class="form-label"></label>
+            <textarea asp-for="PreCheckIn.SpecialRequests" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="col-12">
+            <div class="form-check">
+                <input asp-for="PreCheckIn.TermsAccepted" class="form-check-input" />
+                <label asp-for="PreCheckIn.TermsAccepted" class="form-check-label">I accept the guest portal terms and conditions.</label>
+            </div>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Submit Pre-Check-In</button>
+            <a asp-page="Home" asp-route-token="@Model.Token" class="btn btn-outline-secondary">Back</a>
+        </div>
+    </form>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

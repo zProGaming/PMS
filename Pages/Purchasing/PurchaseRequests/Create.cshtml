@@ -1,0 +1,21 @@
+@page
+@model Vantage.PMS.Pages.Purchasing.PurchaseRequests.CreateModel
+@{
+    ViewData["Title"] = "New Purchase Request";
+}
+
+<h1 class="h3 mb-3">New Purchase Request</h1>
+
+<form method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-4"><label asp-for="PurchaseRequest.RequestNumber" class="form-label"></label><input asp-for="PurchaseRequest.RequestNumber" class="form-control" readonly /></div>
+    <div class="col-md-4"><label asp-for="PurchaseRequest.DepartmentId" class="form-label">Department</label><select asp-for="PurchaseRequest.DepartmentId" asp-items="Model.DepartmentOptions" class="form-select"><option value="">General</option></select></div>
+    <div class="col-md-4"><label asp-for="PurchaseRequest.RequestedBy" class="form-label"></label><input asp-for="PurchaseRequest.RequestedBy" class="form-control" /></div>
+    <div class="col-md-4"><label asp-for="PurchaseRequest.RequestDate" class="form-label"></label><input asp-for="PurchaseRequest.RequestDate" type="date" class="form-control" /></div>
+    <div class="col-md-4"><label asp-for="PurchaseRequest.NeededDate" class="form-label"></label><input asp-for="PurchaseRequest.NeededDate" type="date" class="form-control" /></div>
+    <div class="col-12"><label asp-for="PurchaseRequest.Purpose" class="form-label"></label><textarea asp-for="PurchaseRequest.Purpose" class="form-control"></textarea></div>
+    <div class="col-12"><label asp-for="PurchaseRequest.Notes" class="form-label"></label><textarea asp-for="PurchaseRequest.Notes" class="form-control"></textarea></div>
+    <div class="col-12"><button class="btn btn-primary">Create</button> <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a></div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,12 @@
+@page
+@model Vantage.PMS.Pages.Reports.ExportModel
+
+@{
+    ViewData["Title"] = "Report Export";
+}
+
+<section class="vpms-empty-state">
+    <strong>Select a report to export.</strong>
+    <span>Open the Report Center and choose a report with CSV support.</span>
+    <a class="btn vpms-btn-primary mt-3" asp-page="/Reports/Center">Open Report Center</a>
+</section>

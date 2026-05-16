@@ -1,0 +1,51 @@
+@page
+@model Vantage.PMS.Pages.GuestPortal.MyFolioModel
+@{
+    ViewData["Title"] = "My Folio";
+}
+
+<h1 class="h3 mb-3">My Folio</h1>
+
+@if (Model.Access is null)
+{
+    <div class="alert alert-warning">Guest portal access is invalid or expired.</div>
+}
+else if (!Model.Setting.AllowFolioView)
+{
+    <div class="alert alert-info">Folio view is currently unavailable.</div>
+}
+else if (Model.Folio is null)
+{
+    <div class="alert alert-info">No folio is available yet.</div>
+}
+else
+{
+    <div class="alert alert-warning">Estimated folio only. Final charges are subject to front desk verification.</div>
+    <div class="row g-3 mb-3">
+        <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted small">Charges</div><div class="h3">@Model.Folio.TotalCharges.ToString("N2")</div></div></div></div>
+        <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted small">Payments</div><div class="h3">@Model.Folio.TotalPayments.ToString("N2")</div></div></div></div>
+        <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted small">Balance</div><div class="h3">@Model.Folio.Balance.ToString("N2")</div></div></div></div>
+    </div>
+    <h2 class="h5">Charges</h2>
+    <table class="table table-striped">
+        <thead><tr><th>Date</th><th>Description</th><th class="text-end">Amount</th></tr></thead>
+        <tbody>
+            @foreach (var item in Model.Folio.Items.Where(item => !item.IsVoided).OrderBy(item => item.PostingDate))
+            {
+                <tr><td>@item.PostingDate.ToString("g")</td><td>@item.Description</td><td class="text-end">@item.Amount.ToString("N2")</td></tr>
+            }
+        </tbody>
+    </table>
+    <h2 class="h5">Payments</h2>
+    <table class="table table-striped">
+        <thead><tr><th>Date</th><th>Method</th><th class="text-end">Amount</th></tr></thead>
+        <tbody>
+            @foreach (var payment in Model.Folio.Payments.OrderBy(payment => payment.PaymentDate))
+            {
+                <tr><td>@payment.PaymentDate.ToString("g")</td><td>@payment.PaymentMethod</td><td class="text-end">@payment.Amount.ToString("N2")</td></tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-page="Home" asp-route-token="@Model.Token" class="btn btn-outline-secondary">Back</a>

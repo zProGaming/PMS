@@ -1,0 +1,22 @@
+@page
+@model Vantage.PMS.Pages.Purchasing.PurchaseOrders.CreateModel
+@{
+    ViewData["Title"] = "New Purchase Order";
+}
+
+<h1 class="h3 mb-3">New Purchase Order</h1>
+
+<form method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-4"><label asp-for="PurchaseOrder.PONumber" class="form-label"></label><input asp-for="PurchaseOrder.PONumber" class="form-control" readonly /></div>
+    <div class="col-md-4"><label asp-for="PurchaseOrder.SupplierId" class="form-label">Supplier</label><select asp-for="PurchaseOrder.SupplierId" asp-items="Model.SupplierOptions" class="form-select"></select></div>
+    <div class="col-md-4"><label asp-for="PurchaseOrder.PreparedBy" class="form-label"></label><input asp-for="PurchaseOrder.PreparedBy" class="form-control" /></div>
+    <div class="col-md-4"><label asp-for="PurchaseOrder.OrderDate" class="form-label"></label><input asp-for="PurchaseOrder.OrderDate" type="date" class="form-control" /></div>
+    <div class="col-md-4"><label asp-for="PurchaseOrder.ExpectedDeliveryDate" class="form-label"></label><input asp-for="PurchaseOrder.ExpectedDeliveryDate" type="date" class="form-control" /></div>
+    <div class="col-md-2"><label asp-for="PurchaseOrder.TaxAmount" class="form-label"></label><input asp-for="PurchaseOrder.TaxAmount" class="form-control" /></div>
+    <div class="col-md-2"><label asp-for="PurchaseOrder.DiscountAmount" class="form-label"></label><input asp-for="PurchaseOrder.DiscountAmount" class="form-control" /></div>
+    <div class="col-12"><label asp-for="PurchaseOrder.Notes" class="form-label"></label><textarea asp-for="PurchaseOrder.Notes" class="form-control"></textarea></div>
+    <div class="col-12"><button class="btn btn-primary">Create</button> <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a></div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

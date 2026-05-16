@@ -1,0 +1,14 @@
+@page
+@model Vantage.PMS.Pages.Executive.GuestExperienceModel
+@{
+    ViewData["Title"] = "Guest Experience Intelligence";
+}
+<div class="page-header"><div><div class="page-kicker">Executive Intelligence</div><h1 class="page-title">Guest Experience Intelligence</h1><p class="page-subtitle">Guest ratings, open urgent requests, express checkout, request mix, and service recovery signals.</p></div><button class="btn vpms-btn-primary vpms-no-print" onclick="window.print()">Print</button></div>
+<div class="row g-3">
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Average Rating</div><div class="kpi-value">@Model.AverageRating.ToString("N1")</div><div class="kpi-note">Last 30 days</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Low Ratings</div><div class="kpi-value">@Model.LowRatings</div><div class="kpi-note">Unresolved rating 2 or lower</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Urgent Requests</div><div class="kpi-value">@Model.OpenUrgentRequests</div><div class="kpi-note">Open urgent service requests</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Completion Rate</div><div class="kpi-value">@Model.CompletionRate.ToString("N1")%</div><div class="kpi-note">Service request closure</div></div></div>
+</div>
+<section class="vpms-card vpms-print-document mt-4"><h2 class="h5">Common Request Types</h2>@if(Model.CommonRequests.Count == 0){<div class="vpms-empty-state">No guest service request data found for the last 30 days.</div>}else{<div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>Request Type</th><th class="text-end">Count</th></tr></thead><tbody>@foreach(var row in Model.CommonRequests){<tr><td>@row.RequestType</td><td class="text-end">@row.Count</td></tr>}</tbody></table></div>}</section>
+<section class="vpms-card mt-4"><h2 class="h5">Recommended Actions</h2><ul class="mb-0"><li>Review low ratings and document service recovery actions.</li><li>Prioritize urgent guest requests before they become reputation risks.</li><li>Complete pending express checkout requests. Pending count: @Model.PendingExpressCheckout.</li></ul></section>

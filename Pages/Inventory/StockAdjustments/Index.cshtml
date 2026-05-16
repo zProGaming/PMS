@@ -1,0 +1,28 @@
+@page
+@model Vantage.PMS.Pages.Inventory.StockAdjustments.IndexModel
+@{
+    ViewData["Title"] = "Stock Adjustments";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Stock Adjustments</h1>
+    <a asp-page="Create" class="btn btn-primary">New Adjustment</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead><tr><th>Adjustment #</th><th>Date</th><th>Status</th><th>Prepared By</th><th>Approved By</th><th class="text-end">Variance Amount</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var adjustment in Model.StockAdjustments)
+        {
+            <tr>
+                <td>@adjustment.AdjustmentNumber</td>
+                <td>@adjustment.AdjustmentDate.ToString("d")</td>
+                <td><span class="badge text-bg-secondary">@adjustment.Status</span></td>
+                <td>@adjustment.PreparedBy</td>
+                <td>@adjustment.ApprovedBy</td>
+                <td class="text-end">@adjustment.Items.Sum(item => item.VarianceAmount).ToString("C")</td>
+                <td class="text-end"><a asp-page="Details" asp-route-id="@adjustment.Id" class="btn btn-sm btn-outline-primary">Open</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

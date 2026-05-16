@@ -1,0 +1,58 @@
+@page
+@model Vantage.PMS.Pages.Revenue.RatePlans.CreateModel
+
+@{
+    ViewData["Title"] = "Create Rate Plan";
+}
+
+<h1>Create Rate Plan</h1>
+
+<form method="post" class="mt-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <label asp-for="RatePlan.Code" class="form-label"></label>
+            <input asp-for="RatePlan.Code" class="form-control" />
+            <span asp-validation-for="RatePlan.Code" class="text-danger"></span>
+        </div>
+        <div class="col-md-9 mb-3">
+            <label asp-for="RatePlan.Name" class="form-label"></label>
+            <input asp-for="RatePlan.Name" class="form-control" />
+            <span asp-validation-for="RatePlan.Name" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="RatePlan.Description" class="form-label"></label>
+        <textarea asp-for="RatePlan.Description" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="RatePlan.CancellationPolicy" class="form-label">Cancellation Policy</label>
+            <textarea asp-for="RatePlan.CancellationPolicy" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="RatePlan.DepositPolicy" class="form-label">Deposit Policy</label>
+            <textarea asp-for="RatePlan.DepositPolicy" class="form-control" rows="3"></textarea>
+        </div>
+    </div>
+    <div class="d-flex flex-wrap gap-3 mb-3">
+        <div class="form-check">
+            <input asp-for="RatePlan.IncludesBreakfast" class="form-check-input" />
+            <label asp-for="RatePlan.IncludesBreakfast" class="form-check-label">Includes breakfast</label>
+        </div>
+        <div class="form-check">
+            <input asp-for="RatePlan.IsCorporateRate" class="form-check-input" />
+            <label asp-for="RatePlan.IsCorporateRate" class="form-check-label">Corporate rate</label>
+        </div>
+        <div class="form-check">
+            <input asp-for="RatePlan.IsActive" class="form-check-input" />
+            <label asp-for="RatePlan.IsActive" class="form-check-label">Active</label>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

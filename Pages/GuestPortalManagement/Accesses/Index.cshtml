@@ -1,0 +1,39 @@
+@page
+@model Vantage.PMS.Pages.GuestPortalManagement.Accesses.IndexModel
+@{
+    ViewData["Title"] = "Guest Portal Accesses";
+}
+
+<h1 class="h3 mb-3">Guest Portal Accesses</h1>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Token</th>
+                <th>Reservation</th>
+                <th>Booking Request</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Active</th>
+                <th>Expires</th>
+                <th>Last Accessed</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var access in Model.Accesses)
+            {
+                <tr>
+                    <td><code>@access.AccessToken</code></td>
+                    <td>@access.Reservation?.ConfirmationNumber</td>
+                    <td>@access.BookingRequest?.BookingReference</td>
+                    <td>@access.GuestEmail</td>
+                    <td>@access.GuestPhone</td>
+                    <td>@(access.IsActive ? "Yes" : "No")</td>
+                    <td>@(access.ExpiresAt?.ToString("g") ?? "-")</td>
+                    <td>@(access.LastAccessedAt?.ToString("g") ?? "-")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

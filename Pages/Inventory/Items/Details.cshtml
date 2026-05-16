@@ -1,0 +1,86 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Inventory.Items.DetailsModel
+@{
+    ViewData["Title"] = "Inventory Item Details";
+    var stockStatusClass = Model.InventoryItem.CurrentStock <= 0 ? "out-of-stock" : Model.InventoryItem.CurrentStock <= Model.InventoryItem.ReorderLevel ? "low-stock" : "available";
+    var stockStatusText = Model.InventoryItem.CurrentStock <= 0 ? "Out of Stock" : Model.InventoryItem.CurrentStock <= Model.InventoryItem.ReorderLevel ? "Low Stock" : "OK";
+}
+
+<div class="vpms-page-header page-header">
+    <div>
+        <div class="page-kicker">Inventory Control</div>
+        <h1 class="vpms-page-title page-title">@Model.InventoryItem.ItemCode - @Model.InventoryItem.ItemName</h1>
+        <p class="vpms-page-subtitle page-subtitle">@Model.InventoryItem.InventoryCategory?.Name | @Model.InventoryItem.UnitOfMeasure</p>
+    </div>
+    <div class="vpms-actions d-flex flex-wrap gap-2">
+        <span class="vpms-status-badge status-@stockStatusClass">@stockStatusText</span>
+        <a asp-page="Index" class="btn btn-outline-secondary">Back</a>
+    </div>
+</div>
+
+<div class="vpms-detail-grid mb-4">
+    <div class="vpms-stat-card border rounded p-3"><div class="text-muted">Category</div><strong>@Model.InventoryItem.InventoryCategory?.Name</strong></div>
+    <div class="vpms-stat-card border rounded p-3"><div class="text-muted">Current Stock</div><strong>@Model.InventoryItem.CurrentStock.ToString("N2") @Model.InventoryItem.UnitOfMeasure</strong></div>
+    <div class="vpms-stat-card border rounded p-3"><div class="text-muted">Reorder Level</div><strong>@Model.InventoryItem.ReorderLevel.ToString("N2")</strong></div>
+    <div class="vpms-stat-card border rounded p-3"><div class="text-muted">Standard Cost</div><strong>@Model.InventoryItem.StandardCost.ToString("C")</strong></div>
+</div>
+
+<h2 class="h5">Recent Stock Movements</h2>
+<div class="vpms-table-wrapper table-responsive">
+<table class="table vpms-table table-sm table-striped">
+    <thead><tr><th>Date</th><th>Type</th><th class="text-end">Quantity</th><th class="text-end">Unit Cost</th><th>Department</th><th>Reference</th></tr></thead>
+    <tbody>
+        @foreach (var movement in Model.RecentMovements)
+        {
+            <tr>
+                <td>@movement.MovementDate.ToString("g")</td>
+                <td>@movement.MovementType</td>
+                <td class="text-end">@movement.Quantity.ToString("N2")</td>
+                <td class="text-end">@movement.UnitCost.ToString("C")</td>
+                <td>@movement.Department?.Name</td>
+                <td>@movement.ReferenceType #@movement.ReferenceId</td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>
+
+<h2 class="h5 mt-4">Purchase History</h2>
+<div class="vpms-table-wrapper table-responsive">
+<table class="table vpms-table table-sm table-striped">
+    <thead><tr><th>PO</th><th>Supplier</th><th>Date</th><th class="text-end">Qty</th><th class="text-end">Unit Cost</th><th class="text-end">Amount</th></tr></thead>
+    <tbody>
+        @foreach (var item in Model.PurchaseHistory)
+        {
+            <tr>
+                <td>@item.PurchaseOrder?.PONumber</td>
+                <td>@item.PurchaseOrder?.Supplier?.SupplierName</td>
+                <td>@item.PurchaseOrder?.OrderDate.ToString("d")</td>
+                <td class="text-end">@item.Quantity.ToString("N2")</td>
+                <td class="text-end">@item.UnitCost.ToString("C")</td>
+                <td class="text-end">@item.Amount.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>
+
+<h2 class="h5 mt-4">Receiving History</h2>
+<div class="vpms-table-wrapper table-responsive">
+<table class="table vpms-table table-sm table-striped">
+    <thead><tr><th>Receiving</th><th>Supplier</th><th>Date</th><th class="text-end">Qty</th><th class="text-end">Unit Cost</th><th class="text-end">Amount</th></tr></thead>
+    <tbody>
+        @foreach (var item in Model.ReceivingHistory)
+        {
+            <tr>
+                <td>@item.ReceivingRecord?.ReceivingNumber</td>
+                <td>@item.ReceivingRecord?.Supplier?.SupplierName</td>
+                <td>@item.ReceivingRecord?.ReceivedDate.ToString("d")</td>
+                <td class="text-end">@item.QuantityReceived.ToString("N2")</td>
+                <td class="text-end">@item.UnitCost.ToString("C")</td>
+                <td class="text-end">@item.Amount.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>

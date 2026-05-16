@@ -1,0 +1,113 @@
+@page
+@model Vantage.PMS.Pages.Housekeeping.IndexModel
+
+@{
+    ViewData["Title"] = "Housekeeping";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Housekeeping</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Room Readiness</div>
+        <h1 class="page-title">Housekeeping</h1>
+        <p class="page-subtitle">Monitor dirty, clean, inspected, maintenance, and out-of-order rooms.</p>
+    </div>
+    <a class="btn btn-primary" asp-page="/Housekeeping/Tasks/Create">Create Task</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4 col-lg-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Vacant Dirty</div>
+            <div class="kpi-value">@Model.VacantDirtyRooms</div>
+            <div class="kpi-note">Priority turnover</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Occupied Dirty</div>
+            <div class="kpi-value">@Model.OccupiedDirtyRooms</div>
+            <div class="kpi-note">Stayover attention</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Clean</div>
+            <div class="kpi-value">@Model.CleanRooms</div>
+            <div class="kpi-note">Awaiting inspection</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Inspected</div>
+            <div class="kpi-value">@Model.InspectedRooms</div>
+            <div class="kpi-note">Ready to release</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Out of Order</div>
+            <div class="kpi-value">@Model.OutOfOrderRooms</div>
+            <div class="kpi-note">Unavailable inventory</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-lg-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Maintenance</div>
+            <div class="kpi-value">@Model.MaintenanceRooms</div>
+            <div class="kpi-note">Engineering follow-up</div>
+        </div>
+    </div>
+</div>
+
+<div class="page-header">
+    <div>
+        <h2 class="h4 page-title">Room Rack</h2>
+        <p class="page-subtitle">Operational room cards with status, notes, and direct actions.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <span class="status-badge status-available">Available/Clean</span>
+        <span class="status-badge status-occupied">Occupied</span>
+        <span class="status-badge status-dirty">Dirty</span>
+        <span class="status-badge status-maintenance">Maintenance</span>
+        <span class="status-badge status-outoforder">Out of Order</span>
+    </div>
+</div>
+
+@if (Model.Rooms.Count == 0)
+{
+    <div class="empty-state">No rooms are configured yet.</div>
+}
+else
+{
+    <div class="room-rack">
+        @foreach (var room in Model.Rooms)
+        {
+            var roomStatusClass = room.Status.ToString().ToLowerInvariant();
+            <article class="room-card @roomStatusClass">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                    <div>
+                        <div class="fw-bold">Room @room.RoomNumber</div>
+                        <div class="text-muted small">@room.RoomType?.Name</div>
+                    </div>
+                    <span class="status-badge status-@roomStatusClass">@room.Status</span>
+                </div>
+                <div class="small text-muted mt-2">@room.Property?.Name</div>
+                @if (!string.IsNullOrWhiteSpace(room.StatusNotes))
+                {
+                    <div class="small mt-2">@room.StatusNotes</div>
+                }
+                <div class="d-flex gap-2 mt-3">
+                    <a class="btn btn-sm btn-outline-primary" asp-page="/Housekeeping/Rooms/UpdateStatus" asp-route-id="@room.Id">Update</a>
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="/Housekeeping/Tasks/Create" asp-route-roomId="@room.Id">Task</a>
+                </div>
+            </article>
+        }
+    </div>
+}

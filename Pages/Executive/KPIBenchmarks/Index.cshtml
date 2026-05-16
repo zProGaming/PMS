@@ -1,0 +1,27 @@
+@page
+@model Vantage.PMS.Pages.Executive.KPIBenchmarks.IndexModel
+@{
+    ViewData["Title"] = "KPI Benchmarks";
+}
+<div class="page-header"><div><div class="page-kicker">Executive Setup</div><h1 class="page-title">KPI Benchmarks</h1><p class="page-subtitle">Configure executive KPI targets, warning thresholds, critical thresholds, and effective dates.</p></div><a class="btn vpms-btn-secondary" asp-page="/Executive/KPIScorecard">KPI Scorecard</a></div>
+<section class="vpms-card mb-4">
+    <form method="post" asp-page-handler="Save">
+        <input type="hidden" asp-for="Input.Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row g-3">
+            <div class="col-md-3"><label class="form-label">Benchmark Name</label><input asp-for="Input.BenchmarkName" class="form-control" required /></div>
+            <div class="col-md-3"><label class="form-label">KPI</label><select asp-for="Input.KPIName" class="form-select" required><option value="">Select KPI</option>@foreach(var kpi in Model.Kpis){<option value="@kpi.KPIName">@kpi.KPIName</option>}</select></div>
+            <div class="col-md-2"><label class="form-label">Target</label><input asp-for="Input.TargetValue" class="form-control" /></div>
+            <div class="col-md-2"><label class="form-label">Warning</label><input asp-for="Input.WarningThreshold" class="form-control" /></div>
+            <div class="col-md-2"><label class="form-label">Critical</label><input asp-for="Input.CriticalThreshold" class="form-control" /></div>
+            <div class="col-md-3"><label class="form-label">Effective From</label><input asp-for="Input.EffectiveFrom" type="date" class="form-control" /></div>
+            <div class="col-md-3"><label class="form-label">Effective To</label><input asp-for="Input.EffectiveTo" type="date" class="form-control" /></div>
+            <div class="col-md-3"><label class="form-label">Notes</label><input asp-for="Input.Notes" class="form-control" /></div>
+            <div class="col-md-1 d-flex align-items-end"><div class="form-check"><input asp-for="Input.IsActive" class="form-check-input" /><label class="form-check-label">Active</label></div></div>
+            <div class="col-md-2 d-flex align-items-end"><button class="btn vpms-btn-primary w-100">Save</button></div>
+        </div>
+    </form>
+</section>
+<section class="vpms-card">
+    @if(Model.Benchmarks.Count == 0){<div class="vpms-empty-state">No KPI benchmarks are configured.</div>}else{<div class="vpms-table-wrapper"><table class="table vpms-table align-middle"><thead><tr><th>Benchmark</th><th>KPI</th><th class="text-end">Target</th><th class="text-end">Warning</th><th class="text-end">Critical</th><th>Effective</th><th>Status</th><th></th></tr></thead><tbody>@foreach(var row in Model.Benchmarks){<tr><td>@row.BenchmarkName</td><td>@row.KPIName</td><td class="text-end">@row.TargetValue.ToString("N2")</td><td class="text-end">@(row.WarningThreshold?.ToString("N2") ?? "-")</td><td class="text-end">@(row.CriticalThreshold?.ToString("N2") ?? "-")</td><td>@row.EffectiveFrom.ToString("MMM d, yyyy")</td><td><span class="status-badge">@(row.IsActive ? "Active" : "Inactive")</span></td><td class="text-end"><a class="btn btn-sm vpms-btn-secondary" asp-route-id="@row.Id">Edit</a><form method="post" asp-page-handler="Deactivate" asp-route-id="@row.Id" class="d-inline"><button class="btn btn-sm vpms-btn-secondary">Deactivate</button></form></td></tr>}</tbody></table></div>}
+</section>

@@ -1,0 +1,17 @@
+@page
+@model Vantage.PMS.Pages.Executive.DepartmentPerformanceModel
+@{
+    ViewData["Title"] = "Department Performance";
+}
+<div class="page-header"><div><div class="page-kicker">Executive Intelligence</div><h1 class="page-title">Department Performance</h1><p class="page-subtitle">USALI-style department revenue, cost, labor, profit, and budget variance.</p></div><div class="page-actions vpms-no-print"><button class="btn vpms-btn-primary" onclick="window.print()">Print</button><a class="btn vpms-btn-secondary" asp-page="/Reports/Export" asp-page-handler="Csv" asp-route-reportKey="department-performance" asp-route-dateRangeStart="@Model.StartDate.ToString("yyyy-MM-dd")" asp-route-dateRangeEnd="@Model.EndDate.ToString("yyyy-MM-dd")">Export CSV</a></div></div>
+<form method="get" class="vpms-card report-filter vpms-no-print mb-3"><div class="row g-3 align-items-end"><div class="col-md-4"><label class="form-label">From</label><input class="form-control" type="date" name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" /></div><div class="col-md-4"><label class="form-label">To</label><input class="form-control" type="date" name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" /></div><div class="col-md-4"><button class="btn vpms-btn-primary w-100">Run</button></div></div></form>
+<section class="vpms-card vpms-print-document">
+    @if (Model.Rows.Count == 0)
+    {
+        <div class="vpms-empty-state">No department performance data found. Post GL activity or seed demo data to populate this report.</div>
+    }
+    else
+    {
+        <div class="vpms-table-wrapper"><table class="table vpms-table align-middle"><thead><tr><th>Department</th><th class="text-end">Revenue</th><th class="text-end">Cost of Sales</th><th class="text-end">Payroll</th><th class="text-end">Other Expense</th><th class="text-end">Profit</th><th class="text-end">Margin</th><th class="text-end">Budget Var.</th></tr></thead><tbody>@foreach (var row in Model.Rows){<tr><td class="fw-semibold">@row.DepartmentName</td><td class="text-end">@row.Revenue.ToString("C")</td><td class="text-end">@row.CostOfSales.ToString("C")</td><td class="text-end">@row.PayrollCost.ToString("C")</td><td class="text-end">@row.OtherExpenses.ToString("C")</td><td class="text-end">@row.DepartmentProfit.ToString("C")</td><td class="text-end">@row.DepartmentProfitMargin.ToString("N1")%</td><td class="text-end">@(row.VarianceAmount?.ToString("C") ?? "-")</td></tr>}</tbody></table></div>
+    }
+</section>

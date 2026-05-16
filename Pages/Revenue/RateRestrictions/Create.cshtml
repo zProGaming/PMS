@@ -1,0 +1,66 @@
+@page
+@model Vantage.PMS.Pages.Revenue.RateRestrictions.CreateModel
+@{
+    ViewData["Title"] = "Create Rate Restriction";
+}
+
+<h1 class="h3 mb-3">Create Rate Restriction</h1>
+
+<form method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="col-md-4">
+        <label asp-for="RateRestriction.RatePlanId" class="form-label">Rate Plan</label>
+        <select asp-for="RateRestriction.RatePlanId" asp-items="Model.RatePlanOptions" class="form-select">
+            <option value="">All rate plans</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="RateRestriction.RoomTypeId" class="form-label">Room Type</label>
+        <select asp-for="RateRestriction.RoomTypeId" asp-items="Model.RoomTypeOptions" class="form-select">
+            <option value="">All room types</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="RateRestriction.RestrictionDate" class="form-label"></label>
+        <input asp-for="RateRestriction.RestrictionDate" type="date" class="form-control" />
+        <span asp-validation-for="RateRestriction.RestrictionDate" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="RateRestriction.MinimumLengthOfStay" class="form-label"></label>
+        <input asp-for="RateRestriction.MinimumLengthOfStay" class="form-control" />
+        <span asp-validation-for="RateRestriction.MinimumLengthOfStay" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="RateRestriction.MaximumLengthOfStay" class="form-label"></label>
+        <input asp-for="RateRestriction.MaximumLengthOfStay" class="form-control" />
+        <span asp-validation-for="RateRestriction.MaximumLengthOfStay" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="RateRestriction.Notes" class="form-label"></label>
+        <input asp-for="RateRestriction.Notes" class="form-control" />
+        <span asp-validation-for="RateRestriction.Notes" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <div class="form-check form-check-inline">
+            <input asp-for="RateRestriction.ClosedToArrival" class="form-check-input" />
+            <label asp-for="RateRestriction.ClosedToArrival" class="form-check-label"></label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input asp-for="RateRestriction.ClosedToDeparture" class="form-check-input" />
+            <label asp-for="RateRestriction.ClosedToDeparture" class="form-check-label"></label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input asp-for="RateRestriction.StopSell" class="form-check-input" />
+            <label asp-for="RateRestriction.StopSell" class="form-check-label"></label>
+        </div>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

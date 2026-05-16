@@ -1,0 +1,86 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Accounting.AccountsPayable.APInvoices.DetailsModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "AP Invoice Details";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Accounts Payable</div>
+        <h1 class="page-title">@Model.Invoice.InvoiceNumber</h1>
+        <p class="page-subtitle">@Model.Invoice.Supplier?.SupplierName · Due @Model.Invoice.DueDate.ToString("yyyy-MM-dd")</p>
+    </div>
+    <div class="page-actions">
+        @if (Model.Invoice.Status == APInvoiceStatus.Draft)
+        {
+            <form method="post" asp-page-handler="MarkForApproval" asp-route-id="@Model.Invoice.Id" class="d-inline"><button class="btn vpms-btn-secondary">Mark For Approval</button></form>
+        }
+        @if (Model.Invoice.Status is APInvoiceStatus.Draft or APInvoiceStatus.ForApproval)
+        {
+            <form method="post" asp-page-handler="Approve" asp-route-id="@Model.Invoice.Id" class="d-inline"><button class="btn vpms-btn-primary">Approve & Post</button></form>
+            <form method="post" asp-page-handler="Cancel" asp-route-id="@Model.Invoice.Id" class="d-inline"><button class="btn vpms-btn-danger">Cancel</button></form>
+        }
+        @if (Model.Invoice.Status is APInvoiceStatus.Approved or APInvoiceStatus.PartiallyPaid)
+        {
+            <a class="btn vpms-btn-primary" asp-page="/Accounting/AccountsPayable/PaymentVouchers/Create" asp-route-apInvoiceId="@Model.Invoice.Id">Create Voucher</a>
+        }
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info vpms-alert">@Model.StatusMessage</div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Status</span><strong class="kpi-value">@Model.Invoice.Status</strong><span class="kpi-meta">AP workflow</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Total</span><strong class="kpi-value">@Model.Invoice.TotalAmount.ToString("C")</strong><span class="kpi-meta">Gross invoice</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Paid</span><strong class="kpi-value">@Model.Invoice.AmountPaid.ToString("C")</strong><span class="kpi-meta">Voucher releases</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Balance</span><strong class="kpi-value">@Model.Invoice.Balance.ToString("C")</strong><span class="kpi-meta">Outstanding AP</span></div></div>
+</div>
+
+<section class="vpms-card mb-4">
+    <h2 class="h6">Invoice Lines</h2>
+    <div class="table-responsive">
+        <table class="table vpms-table align-middle">
+            <thead><tr><th>Description</th><th>GL Account</th><th>Inventory Item</th><th class="text-end">Qty</th><th class="text-end">Unit Cost</th><th class="text-end">Tax</th><th class="text-end">WHT</th><th class="text-end">Line Total</th></tr></thead>
+            <tbody>
+            @foreach (var line in Model.Invoice.Lines)
+            {
+                <tr>
+                    <td>@line.Description</td>
+                    <td>@line.GLAccount?.AccountCode @line.GLAccount?.AccountName</td>
+                    <td>@line.InventoryItem?.ItemName</td>
+                    <td class="text-end">@line.Quantity</td>
+                    <td class="text-end">@line.UnitCost.ToString("C")</td>
+                    <td class="text-end">@line.TaxAmount.ToString("C")</td>
+                    <td class="text-end">@line.WithholdingTaxAmount.ToString("C")</td>
+                    <td class="text-end">@line.LineTotal.ToString("C")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="vpms-card">
+    <h2 class="h6">Payment Vouchers</h2>
+    <div class="table-responsive">
+        <table class="table vpms-table align-middle">
+            <thead><tr><th>Voucher</th><th>Date</th><th>Status</th><th class="text-end">Amount</th><th class="text-end">Net</th></tr></thead>
+            <tbody>
+            @foreach (var voucher in Model.Invoice.PaymentVouchers.OrderByDescending(voucher => voucher.VoucherDate))
+            {
+                <tr>
+                    <td><a asp-page="/Accounting/AccountsPayable/PaymentVouchers/Details" asp-route-id="@voucher.Id">@voucher.VoucherNumber</a></td>
+                    <td>@voucher.VoucherDate.ToString("yyyy-MM-dd")</td>
+                    <td><span class="status-badge">@voucher.Status</span></td>
+                    <td class="text-end">@voucher.Amount.ToString("C")</td>
+                    <td class="text-end">@voucher.NetPaymentAmount.ToString("C")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

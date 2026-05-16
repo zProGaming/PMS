@@ -1,0 +1,46 @@
+@page
+@model Vantage.PMS.Pages.GuestPortal.HomeModel
+@{
+    ViewData["Title"] = "Guest Portal Home";
+}
+
+@if (Model.Access is null)
+{
+    <div class="alert alert-warning">Guest portal access is invalid or expired.</div>
+    <a asp-page="Index" class="btn btn-primary">Lookup Reservation</a>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">Welcome, @Model.GuestName</h1>
+        <a asp-page="Index" class="btn btn-outline-secondary">Lookup Another Stay</a>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Reference</dt>
+                <dd class="col-sm-9">@Model.Reference</dd>
+                <dt class="col-sm-3">Check-in</dt>
+                <dd class="col-sm-9">@Model.CheckInDate</dd>
+                <dt class="col-sm-3">Check-out</dt>
+                <dd class="col-sm-9">@Model.CheckOutDate</dd>
+                <dt class="col-sm-3">Room Type</dt>
+                <dd class="col-sm-9">@Model.RoomType</dd>
+                <dt class="col-sm-3">Room Number</dt>
+                <dd class="col-sm-9">@Model.RoomNumber</dd>
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9">@Model.Status</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-4"><a class="btn btn-outline-primary w-100" asp-page="PreCheckIn" asp-route-token="@Model.Access.AccessToken">Pre-Check-In</a></div>
+        <div class="col-md-4"><a class="btn btn-outline-primary w-100" asp-page="MyStay" asp-route-token="@Model.Access.AccessToken">My Stay</a></div>
+        <div class="col-md-4"><a class="btn btn-outline-primary w-100" asp-page="MyFolio" asp-route-token="@Model.Access.AccessToken">My Folio</a></div>
+        <div class="col-md-4"><a class="btn btn-outline-primary w-100" asp-page="ServiceRequest" asp-route-token="@Model.Access.AccessToken">Service Request</a></div>
+        <div class="col-md-4"><a class="btn btn-outline-primary w-100" asp-page="Feedback" asp-route-token="@Model.Access.AccessToken">Feedback</a></div>
+        <div class="col-md-4"><a class="btn btn-outline-primary w-100" asp-page="ExpressCheckout" asp-route-token="@Model.Access.AccessToken">Express Checkout</a></div>
+    </div>
+}

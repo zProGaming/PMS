@@ -1,0 +1,9 @@
+@page
+@model Vantage.PMS.Pages.Executive.Alerts.IndexModel
+@{
+    ViewData["Title"] = "Executive Alerts";
+}
+<div class="page-header"><div><div class="page-kicker">Executive Intelligence</div><h1 class="page-title">Executive Alerts</h1><p class="page-subtitle">Rule-based performance, financial risk, operational risk, guest experience, cost control, and system health alerts.</p></div><div class="page-actions vpms-no-print"><form method="post" asp-page-handler="Generate" class="d-inline"><button class="btn vpms-btn-secondary">Generate Alerts</button></form><button class="btn vpms-btn-primary" onclick="window.print()">Print</button><a class="btn vpms-btn-secondary" asp-page="/Reports/Export" asp-page-handler="Csv" asp-route-reportKey="executive-alerts">Export CSV</a></div></div>
+<section class="vpms-card vpms-print-document">
+    @if(Model.Alerts.Count == 0){<div class="vpms-empty-state">No executive alerts found.</div>}else{<div class="vpms-table-wrapper"><table class="table vpms-table align-middle"><thead><tr><th>Date</th><th>Alert</th><th>Module</th><th>Type</th><th>Severity</th><th>Recommended Action</th><th class="vpms-no-print"></th></tr></thead><tbody>@foreach(var alert in Model.Alerts){<tr><td>@alert.AlertDate.ToString("MMM d, yyyy")</td><td><a asp-page="/Executive/Alerts/Details" asp-route-id="@alert.Id">@alert.Title</a><div class="small text-muted">@alert.Message</div></td><td>@alert.Module</td><td>@alert.AlertType</td><td><span class="status-badge">@alert.Severity</span></td><td>@alert.RecommendedAction</td><td class="text-end vpms-no-print">@if(!alert.IsResolved){<form method="post" asp-page-handler="Resolve" asp-route-id="@alert.Id"><button class="btn btn-sm vpms-btn-secondary">Resolve</button></form>}else{<span class="status-badge">Resolved</span>}</td></tr>}</tbody></table></div>}
+</section>

@@ -1,0 +1,113 @@
+@page
+@model Vantage.PMS.Pages.Accounting.CashFlow.CashAccountSettings.IndexModel
+@{
+    ViewData["Title"] = "Cash Account Settings";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Accounting Setup</div>
+        <h1 class="page-title">Cash Account Settings</h1>
+        <p class="page-subtitle">Identify cash on hand, bank, e-wallet, and cash-equivalent GL accounts for cash flow reporting.</p>
+    </div>
+</div>
+
+<form method="post" asp-page-handler="Create" class="vpms-form-card mb-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3 align-items-end">
+        <div class="col-lg-4">
+            <label asp-for="Input.GLAccountId" class="form-label">GL Account</label>
+            <select asp-for="Input.GLAccountId" asp-items="Model.AccountOptions" class="form-select">
+                <option value="">Select account</option>
+            </select>
+            <span asp-validation-for="Input.GLAccountId" class="text-danger"></span>
+        </div>
+        <div class="col-lg-6">
+            <label asp-for="Input.Notes" class="form-label">Notes</label>
+            <input asp-for="Input.Notes" class="form-control" placeholder="Optional classification note" />
+        </div>
+        <div class="col-lg-2">
+            <button class="btn vpms-btn-primary w-100" type="submit">Add Account</button>
+        </div>
+        <div class="col-12 d-flex flex-wrap gap-4">
+            <div class="form-check">
+                <input asp-for="Input.IsCashOnHand" class="form-check-input" />
+                <label asp-for="Input.IsCashOnHand" class="form-check-label">Cash on hand</label>
+            </div>
+            <div class="form-check">
+                <input asp-for="Input.IsCashInBank" class="form-check-input" />
+                <label asp-for="Input.IsCashInBank" class="form-check-label">Cash in bank</label>
+            </div>
+            <div class="form-check">
+                <input asp-for="Input.IsEWallet" class="form-check-input" />
+                <label asp-for="Input.IsEWallet" class="form-check-label">E-wallet</label>
+            </div>
+            <div class="form-check">
+                <input asp-for="Input.IsCashEquivalent" class="form-check-input" />
+                <label asp-for="Input.IsCashEquivalent" class="form-check-label">Cash equivalent</label>
+            </div>
+        </div>
+    </div>
+</form>
+
+<section class="vpms-card">
+    @if (!Model.Settings.Any())
+    {
+        <div class="vpms-empty-state">
+            <h2>No cash accounts configured</h2>
+            <p>Configure GL accounts such as 1000 Cash on Hand, 1010 Cash in Bank, and 1020 E-Wallet Clearing before final cash flow reporting.</p>
+        </div>
+    }
+    else
+    {
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table align-middle">
+                <thead>
+                    <tr>
+                        <th>GL Account</th>
+                        <th>Classification</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var setting in Model.Settings)
+                {
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">@setting.AccountName</div>
+                            <div class="text-muted small">@setting.GLAccount?.AccountType</div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-3">
+                                <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="isCashOnHand" value="true" checked="@setting.IsCashOnHand" form="cash-setting-@setting.Id" /> On hand</label>
+                                <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="isCashInBank" value="true" checked="@setting.IsCashInBank" form="cash-setting-@setting.Id" /> Bank</label>
+                                <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="isEWallet" value="true" checked="@setting.IsEWallet" form="cash-setting-@setting.Id" /> E-wallet</label>
+                                <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="isCashEquivalent" value="true" checked="@setting.IsCashEquivalent" form="cash-setting-@setting.Id" /> Equivalent</label>
+                                <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="isActive" value="true" checked="@setting.IsActive" form="cash-setting-@setting.Id" /> Active</label>
+                            </div>
+                        </td>
+                        <td><span class="status-badge @(setting.IsActive ? "status-paid" : "status-cancelled")">@(setting.IsActive ? "Active" : "Inactive")</span></td>
+                        <td><input class="form-control form-control-sm" name="notes" value="@setting.Notes" form="cash-setting-@setting.Id" /></td>
+                        <td class="text-end">
+                            <form id="cash-setting-@setting.Id" method="post" asp-page-handler="Update" asp-route-id="@setting.Id" class="d-inline">
+                                <input type="hidden" name="isCashOnHand" value="false" />
+                                <input type="hidden" name="isCashInBank" value="false" />
+                                <input type="hidden" name="isEWallet" value="false" />
+                                <input type="hidden" name="isCashEquivalent" value="false" />
+                                <input type="hidden" name="isActive" value="false" />
+                                <button class="btn btn-sm vpms-btn-secondary" type="submit">Save</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

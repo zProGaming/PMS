@@ -1,0 +1,54 @@
+@model dynamic
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label class="form-label" for="SeasonalRate_RatePlanId">Rate Plan</label>
+        <select class="form-select" id="SeasonalRate_RatePlanId" name="SeasonalRate.RatePlanId">
+            @foreach (var item in Model.RatePlanOptions)
+            {
+                <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label class="form-label" for="SeasonalRate_RoomTypeId">Room Type</label>
+        <select class="form-select" id="SeasonalRate_RoomTypeId" name="SeasonalRate.RoomTypeId">
+            @foreach (var item in Model.RoomTypeOptions)
+            {
+                <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+            }
+        </select>
+    </div>
+</div>
+<div class="mb-3">
+    <label class="form-label" for="SeasonalRate_SeasonName">Season Name</label>
+    <input class="form-control" id="SeasonalRate_SeasonName" name="SeasonalRate.SeasonName" value="@Model.SeasonalRate.SeasonName" />
+</div>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label class="form-label" for="SeasonalRate_StartDate">Start Date</label>
+        <input class="form-control" id="SeasonalRate_StartDate" name="SeasonalRate.StartDate" type="date" value="@Model.SeasonalRate.StartDate.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-md-6 mb-3">
+        <label class="form-label" for="SeasonalRate_EndDate">End Date</label>
+        <input class="form-control" id="SeasonalRate_EndDate" name="SeasonalRate.EndDate" type="date" value="@Model.SeasonalRate.EndDate.ToString("yyyy-MM-dd")" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label class="form-label" for="SeasonalRate_Rate">Rate</label>
+        <input class="form-control" id="SeasonalRate_Rate" name="SeasonalRate.Rate" type="number" min="0" step="0.01" value="@Model.SeasonalRate.Rate" />
+    </div>
+    <div class="col-md-4 mb-3">
+        <label class="form-label" for="SeasonalRate_ExtraAdultRate">Extra Adult</label>
+        <input class="form-control" id="SeasonalRate_ExtraAdultRate" name="SeasonalRate.ExtraAdultRate" type="number" min="0" step="0.01" value="@Model.SeasonalRate.ExtraAdultRate" />
+    </div>
+    <div class="col-md-4 mb-3">
+        <label class="form-label" for="SeasonalRate_ExtraChildRate">Extra Child</label>
+        <input class="form-control" id="SeasonalRate_ExtraChildRate" name="SeasonalRate.ExtraChildRate" type="number" min="0" step="0.01" value="@Model.SeasonalRate.ExtraChildRate" />
+    </div>
+</div>
+<div class="form-check mb-3">
+    <input name="SeasonalRate.IsActive" type="hidden" value="false" />
+    <input class="form-check-input" id="SeasonalRate_IsActive" name="SeasonalRate.IsActive" type="checkbox" value="true" checked="@Model.SeasonalRate.IsActive" />
+    <label class="form-check-label" for="SeasonalRate_IsActive">Active</label>
+</div>

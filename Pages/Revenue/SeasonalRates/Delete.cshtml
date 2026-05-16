@@ -1,0 +1,11 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Revenue.SeasonalRates.DeleteModel
+@{
+    ViewData["Title"] = "Delete Seasonal Rate";
+}
+<h1>Delete Seasonal Rate</h1>
+<div class="alert alert-warning">Delete seasonal rate <strong>@Model.SeasonalRate.SeasonName</strong>?</div>
+<form method="post">
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>

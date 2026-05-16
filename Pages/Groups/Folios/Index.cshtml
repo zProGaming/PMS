@@ -1,0 +1,68 @@
+@page
+@model Vantage.PMS.Pages.Groups.Folios.IndexModel
+@{
+    ViewData["Title"] = "Group Folios";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Group Collections</div>
+        <h1 class="page-title">Group Master Folios</h1>
+        <p class="page-subtitle">Monitor group master, paymaster, and pseudo room folios with posted charges, payments, and balances.</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/Groups/Index">Group Bookings</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Groups/Reports/Index">Group Reports</a>
+    </div>
+</div>
+
+<section class="vpms-card">
+    @if (Model.GroupFolios.Count == 0)
+    {
+        <div class="vpms-empty-state">No group master folios have been created yet.</div>
+    }
+    else
+    {
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table align-middle">
+                <thead>
+                <tr>
+                    <th>Folio</th>
+                    <th>Group</th>
+                    <th>Pseudo Room</th>
+                    <th>Billing Name</th>
+                    <th>Status</th>
+                    <th class="text-end">Charges</th>
+                    <th class="text-end">Payments</th>
+                    <th class="text-end">Balance</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var folio in Model.GroupFolios)
+                {
+                    var charges = folio.Folio?.Items.Where(item => !item.IsVoided).Sum(item => item.Amount) ?? 0;
+                    var payments = folio.Folio?.Payments.Sum(item => item.Amount) ?? 0;
+                    <tr>
+                        <td>
+                            <strong>@folio.FolioName</strong>
+                            <div class="small text-muted">Linked folio @(folio.Folio?.FolioNumber ?? "Virtual")</div>
+                        </td>
+                        <td><a asp-page="/Groups/Details" asp-route-id="@folio.GroupBookingId">@folio.GroupBooking?.GroupName</a></td>
+                        <td>@(folio.PseudoRoom?.PseudoRoomCode ?? "None")</td>
+                        <td>@folio.BillingName</td>
+                        <td><span class="status-badge">@folio.Status</span></td>
+                        <td class="text-end">@charges.ToString("C")</td>
+                        <td class="text-end">@payments.ToString("C")</td>
+                        <td class="text-end fw-semibold">@((charges - payments).ToString("C"))</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm vpms-btn-secondary" asp-page="/Groups/Details" asp-route-id="@folio.GroupBookingId">Open Group</a>
+                            <a class="btn btn-sm vpms-btn-secondary" asp-page="/Groups/Print" asp-route-type="group-master-folio" asp-route-id="@folio.GroupBookingId">Print</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

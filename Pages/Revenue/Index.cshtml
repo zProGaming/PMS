@@ -1,0 +1,63 @@
+@page
+@model Vantage.PMS.Pages.Revenue.IndexModel
+@{
+    ViewData["Title"] = "Revenue Dashboard";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Revenue</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Revenue Management</div>
+        <h1 class="page-title">Revenue Dashboard</h1>
+        <p class="page-subtitle">Business date @Model.BusinessDate.ToString("yyyy-MM-dd"). Track occupancy, ADR, RevPAR, and future demand.</p>
+    </div>
+    <a asp-page="/Revenue/Calendar/Index" class="btn btn-outline-primary">Revenue Calendar</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="kpi-card"><div class="kpi-label">Occupancy Today</div><div class="kpi-value">@Model.OccupancyToday.ToString("N1")%</div><div class="kpi-note">Current business date</div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card"><div class="kpi-label">Occupancy This Month</div><div class="kpi-value">@Model.OccupancyThisMonth.ToString("N1")%</div><div class="kpi-note">Month-to-date room nights</div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card"><div class="kpi-label">Room Revenue Today</div><div class="kpi-value">@Model.RoomRevenueToday.ToString("C")</div><div class="kpi-note">Posted room revenue</div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card"><div class="kpi-label">Room Revenue This Month</div><div class="kpi-value">@Model.RoomRevenueThisMonth.ToString("C")</div><div class="kpi-note">Month-to-date</div></div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="kpi-card"><div class="kpi-label">ADR Today</div><div class="kpi-value">@Model.AdrToday.ToString("C")</div><div class="kpi-note">Average daily rate</div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card"><div class="kpi-label">ADR This Month</div><div class="kpi-value">@Model.AdrThisMonth.ToString("C")</div><div class="kpi-note">Month-to-date ADR</div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card"><div class="kpi-label">RevPAR Today</div><div class="kpi-value">@Model.RevParToday.ToString("C")</div><div class="kpi-note">Revenue per available room</div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card"><div class="kpi-label">RevPAR This Month</div><div class="kpi-value">@Model.RevParThisMonth.ToString("C")</div><div class="kpi-note">Month-to-date RevPAR</div></div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="kpi-card"><div class="kpi-label">Available Rooms Today</div><div class="kpi-value">@Model.AvailableRoomsToday</div><div class="kpi-note">Sellable availability</div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card"><div class="kpi-label">Out of Order Rooms</div><div class="kpi-value">@Model.OutOfOrderRoomsToday</div><div class="kpi-note">Blocked inventory</div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card"><div class="kpi-label">Reservations Next 7 Days</div><div class="kpi-value">@Model.ReservationsNextSevenDays</div><div class="kpi-note">On the books</div></div>
+    </div>
+</div>

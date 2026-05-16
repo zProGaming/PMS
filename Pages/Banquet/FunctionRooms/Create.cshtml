@@ -1,0 +1,56 @@
+@page
+@model Vantage.PMS.Pages.Banquet.FunctionRooms.CreateModel
+
+@{
+    ViewData["Title"] = "Create Function Room";
+}
+
+<h1>Create Function Room</h1>
+
+<form method="post" class="mt-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="FunctionRoom.Name" class="form-label"></label>
+            <input asp-for="FunctionRoom.Name" class="form-control" />
+            <span asp-validation-for="FunctionRoom.Name" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="FunctionRoom.Location" class="form-label"></label>
+            <input asp-for="FunctionRoom.Location" class="form-control" />
+            <span asp-validation-for="FunctionRoom.Location" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="FunctionRoom.Capacity" class="form-label"></label>
+            <input asp-for="FunctionRoom.Capacity" class="form-control" />
+            <span asp-validation-for="FunctionRoom.Capacity" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="FunctionRoom.Rate" class="form-label"></label>
+            <input asp-for="FunctionRoom.Rate" class="form-control" />
+            <span asp-validation-for="FunctionRoom.Rate" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="FunctionRoom.IsActive" class="form-check-input" />
+        <label asp-for="FunctionRoom.IsActive" class="form-check-label">Active</label>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FunctionRoom.Notes" class="form-label"></label>
+        <textarea asp-for="FunctionRoom.Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="FunctionRoom.Notes" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

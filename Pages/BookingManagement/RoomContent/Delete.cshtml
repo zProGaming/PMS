@@ -1,0 +1,21 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.BookingManagement.RoomContent.DeleteModel
+@{
+    ViewData["Title"] = "Delete Room Content";
+}
+
+<h1 class="h3 mb-3">Delete Room Content</h1>
+<div class="alert alert-warning">Delete this public room content?</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Room Type</dt>
+    <dd class="col-sm-9">@(Model.RoomContent.RoomType?.Code ?? "Unknown")</dd>
+    <dt class="col-sm-3">Display Name</dt>
+    <dd class="col-sm-9">@Model.RoomContent.DisplayName</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="RoomContent.Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>

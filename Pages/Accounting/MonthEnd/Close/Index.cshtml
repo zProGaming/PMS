@@ -1,0 +1,74 @@
+@page
+@model Vantage.PMS.Pages.Accounting.MonthEnd.Close.IndexModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "Month-End Close";
+}
+
+<div class="page-header">
+    <div><div class="page-kicker">Month-End</div><h1 class="page-title">Month-End Close</h1><p class="page-subtitle">Accounting period close checklist and controlled period closing.</p></div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info vpms-alert">@Model.StatusMessage</div>
+}
+
+<form method="get" class="vpms-card mb-3">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4"><label asp-for="AccountingPeriodId" class="form-label">Accounting Period</label><select asp-for="AccountingPeriodId" asp-items="Model.PeriodOptions" class="form-select"></select></div>
+        <div class="col-md-2"><button class="btn vpms-btn-secondary" type="submit">Load</button></div>
+    </div>
+</form>
+
+@if (Model.SelectedPeriod is not null)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Period</span><strong class="kpi-value">@Model.SelectedPeriod.PeriodName</strong><span class="kpi-meta">@Model.SelectedPeriod.StartDate.ToString("yyyy-MM-dd") to @Model.SelectedPeriod.EndDate.ToString("yyyy-MM-dd")</span></div></div>
+        <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Status</span><strong class="kpi-value">@Model.SelectedPeriod.Status</strong><span class="kpi-meta">Period control</span></div></div>
+        <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Checklist Progress</span><strong class="kpi-value">@Model.ProgressPercent%</strong><span class="kpi-meta">Completed or N/A</span></div></div>
+    </div>
+
+    <div class="vpms-table-wrapper mb-4">
+        <table class="table vpms-table align-middle">
+            <thead><tr><th>Module</th><th>Checklist Item</th><th>Status</th><th>Completed By</th><th>Completed At</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var item in Model.Checklist)
+            {
+                <tr>
+                    <td>@item.Module</td>
+                    <td class="fw-semibold">@item.ChecklistItem</td>
+                    <td><span class="status-badge">@item.Status</span></td>
+                    <td>@item.CompletedBy</td>
+                    <td>@item.CompletedAt?.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td class="text-end">
+                        <form method="post" asp-page-handler="SetStatus" asp-route-id="@item.Id" class="d-inline">
+                            <input type="hidden" name="status" value="@MonthEndChecklistStatus.Completed" />
+                            <button class="btn btn-sm vpms-btn-primary">Complete</button>
+                        </form>
+                        <form method="post" asp-page-handler="SetStatus" asp-route-id="@item.Id" class="d-inline">
+                            <input type="hidden" name="status" value="@MonthEndChecklistStatus.NotApplicable" />
+                            <button class="btn btn-sm vpms-btn-secondary">N/A</button>
+                        </form>
+                        <form method="post" asp-page-handler="SetStatus" asp-route-id="@item.Id" class="d-inline">
+                            <input type="hidden" name="status" value="@MonthEndChecklistStatus.IssueFound" />
+                            <button class="btn btn-sm vpms-btn-warning">Issue</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.SelectedPeriod.Status == AccountingPeriodStatus.Open)
+    {
+        <form method="post" asp-page-handler="Close" asp-route-accountingPeriodId="@Model.SelectedPeriod.Id" class="vpms-card">
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="overrideIncomplete" value="true" id="overrideIncomplete" />
+                <label class="form-check-label" for="overrideIncomplete">Finance manager override incomplete checklist</label>
+            </div>
+            <button class="btn vpms-btn-primary" type="submit">Close Accounting Period</button>
+        </form>
+    }
+}

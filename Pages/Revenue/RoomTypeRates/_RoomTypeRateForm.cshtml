@@ -1,0 +1,50 @@
+@model dynamic
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label class="form-label" for="RoomTypeRate_RatePlanId">Rate Plan</label>
+        <select class="form-select" id="RoomTypeRate_RatePlanId" name="RoomTypeRate.RatePlanId">
+            @foreach (var item in Model.RatePlanOptions)
+            {
+                <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label class="form-label" for="RoomTypeRate_RoomTypeId">Room Type</label>
+        <select class="form-select" id="RoomTypeRate_RoomTypeId" name="RoomTypeRate.RoomTypeId">
+            @foreach (var item in Model.RoomTypeOptions)
+            {
+                <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+            }
+        </select>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label class="form-label" for="RoomTypeRate_BaseRate">Base Rate</label>
+        <input class="form-control" id="RoomTypeRate_BaseRate" name="RoomTypeRate.BaseRate" type="number" min="0" step="0.01" value="@Model.RoomTypeRate.BaseRate" />
+    </div>
+    <div class="col-md-4 mb-3">
+        <label class="form-label" for="RoomTypeRate_ExtraAdultRate">Extra Adult</label>
+        <input class="form-control" id="RoomTypeRate_ExtraAdultRate" name="RoomTypeRate.ExtraAdultRate" type="number" min="0" step="0.01" value="@Model.RoomTypeRate.ExtraAdultRate" />
+    </div>
+    <div class="col-md-4 mb-3">
+        <label class="form-label" for="RoomTypeRate_ExtraChildRate">Extra Child</label>
+        <input class="form-control" id="RoomTypeRate_ExtraChildRate" name="RoomTypeRate.ExtraChildRate" type="number" min="0" step="0.01" value="@Model.RoomTypeRate.ExtraChildRate" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label class="form-label" for="RoomTypeRate_EffectiveFrom">Effective From</label>
+        <input class="form-control" id="RoomTypeRate_EffectiveFrom" name="RoomTypeRate.EffectiveFrom" type="date" value="@Model.RoomTypeRate.EffectiveFrom.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-md-6 mb-3">
+        <label class="form-label" for="RoomTypeRate_EffectiveTo">Effective To</label>
+        <input class="form-control" id="RoomTypeRate_EffectiveTo" name="RoomTypeRate.EffectiveTo" type="date" value="@Model.RoomTypeRate.EffectiveTo.ToString("yyyy-MM-dd")" />
+    </div>
+</div>
+<div class="form-check mb-3">
+    <input name="RoomTypeRate.IsActive" type="hidden" value="false" />
+    <input class="form-check-input" id="RoomTypeRate_IsActive" name="RoomTypeRate.IsActive" type="checkbox" value="true" checked="@Model.RoomTypeRate.IsActive" />
+    <label class="form-check-label" for="RoomTypeRate_IsActive">Active</label>
+</div>

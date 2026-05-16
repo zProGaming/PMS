@@ -1,0 +1,64 @@
+@page
+@model Vantage.PMS.Pages.Inventory.Items.IndexModel
+@{
+    ViewData["Title"] = "Inventory Items";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Inventory Items</h1>
+    <a asp-page="Create" class="btn btn-primary">New Item</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Item Code</th>
+            <th>Item Name</th>
+            <th>Category</th>
+            <th>UOM</th>
+            <th class="text-end">Current Stock</th>
+            <th class="text-end">Reorder</th>
+            <th class="text-end">Par</th>
+            <th class="text-end">Standard Cost</th>
+            <th>Active</th>
+            <th>Stock</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            var lowStock = item.CurrentStock <= item.ReorderLevel;
+            <tr>
+                <td>@item.ItemCode</td>
+                <td>@item.ItemName</td>
+                <td>@item.InventoryCategory?.Name</td>
+                <td>@item.UnitOfMeasure</td>
+                <td class="text-end">@item.CurrentStock.ToString("N2")</td>
+                <td class="text-end">@item.ReorderLevel.ToString("N2")</td>
+                <td class="text-end">@item.ParStockLevel.ToString("N2")</td>
+                <td class="text-end">@item.StandardCost.ToString("C")</td>
+                <td>@(item.IsActive ? "Yes" : "No")</td>
+                <td>
+                    @if (item.CurrentStock <= 0)
+                    {
+                        <span class="badge text-bg-danger">Out</span>
+                    }
+                    else if (lowStock)
+                    {
+                        <span class="badge text-bg-warning">Low</span>
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-success">OK</span>
+                    }
+                </td>
+                <td class="text-end">
+                    <a asp-page="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                    <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    <a asp-page="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

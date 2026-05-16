@@ -1,0 +1,63 @@
+@page
+@model Vantage.PMS.Pages.Executive.DailyFlashModel
+@{
+    ViewData["Title"] = "Daily Flash Report";
+    var s = Model.Summary;
+}
+
+<div class="page-header">
+    <div><div class="page-kicker">Executive Reports</div><h1 class="page-title">Daily Flash Report</h1><p class="page-subtitle">Business date operating, revenue, finance, and risk summary.</p></div>
+    <div class="page-actions vpms-no-print"><button class="btn vpms-btn-primary" onclick="window.print()">Print</button><span class="btn vpms-btn-secondary disabled">CSV export planned</span></div>
+</div>
+
+<form method="get" class="vpms-card report-filter vpms-no-print mb-3">
+    <div class="row g-3 align-items-end"><div class="col-md-8"><label class="form-label">Business Date</label><input class="form-control" type="date" name="BusinessDate" value="@Model.BusinessDate.ToString("yyyy-MM-dd")" /></div><div class="col-md-4"><button class="btn vpms-btn-primary w-100">Run</button></div></div>
+</form>
+
+<section class="vpms-print-document">
+    <div class="vpms-card mb-3">
+        <div class="d-flex justify-content-between"><div><strong>@s.HotelName</strong><div class="text-muted">Daily Flash Report</div></div><div>@Model.BusinessDate.ToString("MMMM d, yyyy")</div></div>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Occupancy</div><div class="kpi-value">@s.OccupancyPercentage.ToString("N1")%</div><div class="kpi-note">@s.OccupiedRooms occupied / @s.TotalRooms rooms</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">ADR</div><div class="kpi-value">@s.ADR.ToString("C")</div><div class="kpi-note">Average daily rate</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">RevPAR</div><div class="kpi-value">@s.RevPAR.ToString("C")</div><div class="kpi-note">Room yield</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value">@s.TotalRevenue.ToString("C")</div><div class="kpi-note">Business date</div></div></div>
+    </div>
+    <div class="row g-4 mt-1">
+        <div class="col-lg-8">
+            <section class="vpms-card">
+                <h2 class="h5">Daily Operating Summary</h2>
+                <div class="vpms-table-wrapper">
+                    <table class="table vpms-table">
+                        <tbody>
+                            <tr><th>Room Revenue</th><td class="text-end">@s.TotalRoomRevenue.ToString("C")</td><th>Arrivals</th><td class="text-end">@s.Arrivals</td></tr>
+                            <tr><th>F&B Revenue</th><td class="text-end">@s.TotalFBRevenue.ToString("C")</td><th>Departures</th><td class="text-end">@s.Departures</td></tr>
+                            <tr><th>Banquet Revenue</th><td class="text-end">@s.TotalBanquetRevenue.ToString("C")</td><th>In-House Guests</th><td class="text-end">@s.InHouseGuests</td></tr>
+                            <tr><th>Payments Collected</th><td class="text-end">@s.TotalPayments.ToString("C")</td><th>No-Shows / Cancellations</th><td class="text-end">@s.NoShows / @s.Cancellations</td></tr>
+                            <tr><th>AR Balance</th><td class="text-end">@s.ARBalance.ToString("C")</td><th>Dirty / Out of Order Rooms</th><td class="text-end">@s.DirtyRooms / @s.OutOfOrderRooms</td></tr>
+                            <tr><th>Open Guest Requests</th><td class="text-end">@s.OpenServiceRequests</td><th>Banquet Events Today</th><td class="text-end">@s.BanquetEventsToday</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+        <div class="col-lg-4">
+            <section class="vpms-card">
+                <h2 class="h5">Critical Alerts</h2>
+                @if (Model.Alerts.Count == 0)
+                {
+                    <div class="vpms-empty-state">No unresolved critical alerts.</div>
+                }
+                else
+                {
+                    @foreach (var alert in Model.Alerts)
+                    {
+                        <div class="border-bottom py-2"><strong>@alert.Title</strong><div class="small text-muted">@alert.Message</div></div>
+                    }
+                }
+            </section>
+        </div>
+    </div>
+    <p class="text-muted small mt-3">Management report for internal decision-making. Accounting mappings and statutory reports must be reviewed by authorized finance personnel.</p>
+</section>

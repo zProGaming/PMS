@@ -1,0 +1,159 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Reports.StatementOfCashFlowsModel
+@using Vantage.PMS.Models.Accounting
+@using Vantage.PMS.ViewModels.Reports
+@{
+    ViewData["Title"] = "Statement of Cash Flows";
+    string SectionTitle(CashFlowSection section) => section switch
+    {
+        CashFlowSection.Operating => "Operating Activities",
+        CashFlowSection.Investing => "Investing Activities",
+        CashFlowSection.Financing => "Financing Activities",
+        CashFlowSection.BeginningCash => "Beginning Cash",
+        CashFlowSection.EndingCash => "Ending Cash",
+        _ => "Cash Reconciliation"
+    };
+    var csvUrl = Url.Page("/Reports/Export", "Csv", new
+    {
+        reportKey = "statement-of-cash-flows",
+        dateRangeStart = Model.StartDate.ToString("yyyy-MM-dd"),
+        dateRangeEnd = Model.EndDate.ToString("yyyy-MM-dd")
+    });
+}
+
+<div class="page-header vpms-no-print">
+    <div>
+        <div class="page-kicker">Accounting Reports</div>
+        <h1 class="page-title">Statement of Cash Flows</h1>
+        <p class="page-subtitle">Direct-method cash movement from posted journal entries and configured cash flow mappings.</p>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info vpms-no-print">@Model.StatusMessage</div>
+}
+
+<form method="get" class="vpms-card mb-3 vpms-report-filters">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Date From</label>
+            <input name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" type="date" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Date To</label>
+            <input name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" type="date" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Accounting Period</label>
+            <select asp-for="AccountingPeriodId" asp-items="Model.PeriodOptions" class="form-select">
+                <option value="">Custom date range</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Method</label>
+            <select asp-for="Method" asp-items="Html.GetEnumSelectList<CashFlowMethod>()" class="form-select"></select>
+        </div>
+        <div class="col-md-1">
+            <button class="btn vpms-btn-primary w-100" type="submit">Run</button>
+        </div>
+    </div>
+</form>
+
+@await Html.PartialAsync("_ReportActions", new ReportActionsViewModel
+{
+    CsvAvailable = true,
+    CsvUrl = csvUrl,
+    HtmlAvailable = true,
+    HtmlUrl = Url.Page("/Accounting/Reports/StatementOfCashFlows", new { startDate = Model.StartDate.ToString("yyyy-MM-dd"), endDate = Model.EndDate.ToString("yyyy-MM-dd"), method = Model.Method }),
+    BackUrl = Url.Page("/Reports/Center")
+})
+
+<section class="vpms-print-document vpms-report-page">
+    @await Html.PartialAsync("_ReportHeader", new ReportHeaderViewModel
+    {
+        ReportTitle = "Statement of Cash Flows",
+        ReportCategory = "Accounting",
+        DateRangeStart = Model.StartDate,
+        DateRangeEnd = Model.EndDate,
+        GeneratedBy = User.Identity?.Name,
+        Disclaimer = "This Statement of Cash Flows is generated from configured cash flow mappings and posted journal entries. Review classifications with the hotel accountant before official use."
+    })
+
+    @if (Model.Result.Warnings.Any())
+    {
+        <div class="vpms-report-disclaimer vpms-no-print">
+            @foreach (var warning in Model.Result.Warnings)
+            {
+                <div>@warning</div>
+            }
+        </div>
+    }
+
+    @if (Model.Method == CashFlowMethod.Indirect)
+    {
+        <div class="vpms-empty-state">
+            <h2>Indirect method is planned</h2>
+            <p>Direct method is currently available for generated cash flow reporting.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3 mb-3 vpms-no-print">
+            <div class="col-md-2"><div class="vpms-stat-card"><span>Beginning Cash</span><strong>@Model.Result.BeginningCashBalance.ToString("C")</strong></div></div>
+            <div class="col-md-2"><div class="vpms-stat-card"><span>Operating Cash Flow</span><strong>@Model.Result.NetCashFromOperatingActivities.ToString("C")</strong></div></div>
+            <div class="col-md-2"><div class="vpms-stat-card"><span>Investing Cash Flow</span><strong>@Model.Result.NetCashFromInvestingActivities.ToString("C")</strong></div></div>
+            <div class="col-md-2"><div class="vpms-stat-card"><span>Financing Cash Flow</span><strong>@Model.Result.NetCashFromFinancingActivities.ToString("C")</strong></div></div>
+            <div class="col-md-2"><div class="vpms-stat-card"><span>Net Cash Change</span><strong>@Model.Result.NetIncreaseDecreaseInCash.ToString("C")</strong></div></div>
+            <div class="col-md-2"><div class="vpms-stat-card"><span>Ending Cash</span><strong>@Model.Result.EndingCashBalance.ToString("C")</strong></div></div>
+        </div>
+
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table vpms-report-table">
+                <thead>
+                    <tr>
+                        <th>Cash flow line</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var sectionGroup in Model.Result.Lines.GroupBy(line => line.CashFlowSection).OrderBy(group => group.Key))
+                {
+                    <tr class="table-light">
+                        <th colspan="2">@SectionTitle(sectionGroup.Key)</th>
+                    </tr>
+                    @foreach (var line in sectionGroup.OrderBy(item => item.SortOrder))
+                    {
+                        <tr class="@(line.IsSubtotal ? "fw-semibold" : "")">
+                            <td>@line.LineName</td>
+                            <td class="text-end">@line.Amount.ToString("C")</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="vpms-report-totals">
+            <div><span>Beginning Cash and Cash Equivalents</span><strong>@Model.Result.BeginningCashBalance.ToString("C")</strong></div>
+            <div><span>Net Increase / Decrease in Cash</span><strong>@Model.Result.NetIncreaseDecreaseInCash.ToString("C")</strong></div>
+            <div><span>Ending Cash and Cash Equivalents</span><strong>@Model.Result.EndingCashBalance.ToString("C")</strong></div>
+            <div><span>Reconciliation Difference</span><strong>@Model.Result.ReconciliationDifference.ToString("C")</strong></div>
+        </div>
+    }
+
+    @await Html.PartialAsync("_ReportFooter", new ReportFooterViewModel
+    {
+        FooterText = "Generated by Vantage PMS. Use browser print to save as PDF.",
+        ShowComplianceNote = true
+    })
+</section>
+
+<form method="post" asp-page-handler="Snapshot" class="vpms-actions vpms-no-print mt-3">
+    <input type="hidden" name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+    <input type="hidden" name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+    <input type="hidden" name="Method" value="@Model.Method" />
+    <button class="btn vpms-btn-secondary" type="submit">Generate Cash Flow Snapshot</button>
+    <a class="btn vpms-btn-secondary" asp-page="/Accounting/Reports/CashMovement" asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd")" asp-route-endDate="@Model.EndDate.ToString("yyyy-MM-dd")">View Cash Movement</a>
+    <a class="btn vpms-btn-secondary" asp-page="/Accounting/Banking/BankReconciliations/Index">Bank Reconciliation</a>
+</form>

@@ -1,0 +1,124 @@
+@page "{eventId:int}"
+@model Vantage.PMS.Pages.Banquet.BEOs.DetailsModel
+
+@{
+    ViewData["Title"] = "Banquet Event Order";
+    var eventStatusClass = Model.BanquetEvent.EventStatus.ToString().ToLowerInvariant();
+    var beoStatusClass = Model.BanquetEventOrder.Status.ToString().ToLowerInvariant();
+}
+
+<div class="vpms-page-header page-header">
+    <div>
+        <div class="page-kicker">Banquet Event Order</div>
+        <h1 class="vpms-page-title page-title">BEO - @Model.BanquetEvent.EventName</h1>
+        <p class="vpms-page-subtitle page-subtitle">
+            @Model.BanquetEvent.EventDate.ToString("d") |
+            @Model.BanquetEvent.StartTime.ToString(@"hh\:mm") - @Model.BanquetEvent.EndTime.ToString(@"hh\:mm") |
+            @Model.BanquetEvent.FunctionRoom?.Name
+        </p>
+    </div>
+    <div class="vpms-actions d-flex flex-wrap gap-2">
+        <span class="vpms-status-badge status-@beoStatusClass">@Model.BanquetEventOrder.Status</span>
+        <form method="post" asp-page-handler="SetStatus" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.ForApproval" class="d-inline">
+            <button type="submit" class="btn btn-outline-primary">Mark BEO For Approval</button>
+        </form>
+        <form method="post" asp-page-handler="SetStatus" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.Approved" class="d-inline">
+            <button type="submit" class="btn btn-outline-success">Approve BEO</button>
+        </form>
+        <form method="post" asp-page-handler="SetStatus" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.Distributed" class="d-inline">
+            <button type="submit" class="btn btn-outline-secondary">Mark BEO Distributed</button>
+        </form>
+        <form method="post" asp-page-handler="SetStatus" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.Revised" class="d-inline">
+            <button type="submit" class="btn btn-outline-warning">Revise BEO</button>
+        </form>
+        <a class="btn btn-outline-secondary" asp-page="/Banquet/Charges/Index" asp-route-eventId="@Model.BanquetEvent.Id">Charges</a>
+        <a class="btn btn-outline-secondary" asp-page="./Index">BEOs</a>
+    </div>
+</div>
+
+<div class="vpms-detail-grid mb-4">
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Client</div>
+            <div class="fs-5">@Model.BanquetEvent.ClientName</div>
+            <div class="small text-muted">@Model.BanquetEvent.ContactNumber @Model.BanquetEvent.Email</div>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Expected / Guaranteed</div>
+            <div class="fs-5">@Model.BanquetEvent.ExpectedPax / @Model.BanquetEvent.GuaranteedPax</div>
+            <div class="small text-muted">Actual @(Model.BanquetEvent.ActualPax?.ToString() ?? "-")</div>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Event Status</div>
+            <span class="vpms-status-badge status-@eventStatusClass">@Model.BanquetEvent.EventStatus</span>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Charges</div>
+            <div class="fs-5">@Model.BanquetEvent.Charges.Where(charge => !charge.IsVoided).Sum(charge => charge.Amount).ToString("C")</div>
+    </div>
+</div>
+
+<form method="post" class="vpms-form-card mt-3">
+    <input type="hidden" asp-for="BanquetEventOrder.Id" />
+    <input type="hidden" asp-for="BanquetEventOrder.BanquetEventId" />
+    <input type="hidden" asp-for="BanquetEventOrder.CreatedAt" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <label asp-for="BanquetEventOrder.BEODate" class="form-label">BEO Date</label>
+            <input asp-for="BanquetEventOrder.BEODate" type="date" class="form-control" />
+            <span asp-validation-for="BanquetEventOrder.BEODate" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label asp-for="BanquetEventOrder.Status" class="form-label"></label>
+            <select asp-for="BanquetEventOrder.Status" class="form-select" asp-items="Model.StatusOptions"></select>
+            <span asp-validation-for="BanquetEventOrder.Status" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label asp-for="BanquetEventOrder.PreparedBy" class="form-label">Prepared By</label>
+            <input asp-for="BanquetEventOrder.PreparedBy" class="form-control" />
+            <span asp-validation-for="BanquetEventOrder.PreparedBy" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label asp-for="BanquetEventOrder.ApprovedBy" class="form-label">Approved By</label>
+            <input asp-for="BanquetEventOrder.ApprovedBy" class="form-control" />
+            <span asp-validation-for="BanquetEventOrder.ApprovedBy" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="BanquetEventOrder.MenuDetails" class="form-label">Menu Details</label>
+        <textarea asp-for="BanquetEventOrder.MenuDetails" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
+        <label asp-for="BanquetEventOrder.SetupInstructions" class="form-label">Setup Instructions</label>
+        <textarea asp-for="BanquetEventOrder.SetupInstructions" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
+        <label asp-for="BanquetEventOrder.EquipmentRequirements" class="form-label">Equipment Requirements</label>
+        <textarea asp-for="BanquetEventOrder.EquipmentRequirements" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
+        <label asp-for="BanquetEventOrder.ServiceInstructions" class="form-label">Service Instructions</label>
+        <textarea asp-for="BanquetEventOrder.ServiceInstructions" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
+        <label asp-for="BanquetEventOrder.KitchenInstructions" class="form-label">Kitchen Instructions</label>
+        <textarea asp-for="BanquetEventOrder.KitchenInstructions" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
+        <label asp-for="BanquetEventOrder.BillingInstructions" class="form-label">Billing Instructions</label>
+        <textarea asp-for="BanquetEventOrder.BillingInstructions" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
+        <label asp-for="BanquetEventOrder.SpecialInstructions" class="form-label">Special Instructions</label>
+        <textarea asp-for="BanquetEventOrder.SpecialInstructions" class="form-control" rows="3"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save BEO</button>
+    <a class="btn btn-outline-secondary" asp-page="/Banquet/Events/Details" asp-route-id="@Model.BanquetEvent.Id">Back to Event</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

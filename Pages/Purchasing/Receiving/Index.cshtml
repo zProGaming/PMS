@@ -1,0 +1,29 @@
+@page
+@model Vantage.PMS.Pages.Purchasing.Receiving.IndexModel
+@{
+    ViewData["Title"] = "Receiving Records";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Receiving Records</h1>
+    <a asp-page="Create" class="btn btn-primary">New Receiving</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead><tr><th>Receiving #</th><th>PO</th><th>Supplier</th><th>Date</th><th>Received By</th><th>Status</th><th class="text-end">Amount</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var record in Model.ReceivingRecords)
+        {
+            <tr>
+                <td>@record.ReceivingNumber</td>
+                <td>@record.PurchaseOrder?.PONumber</td>
+                <td>@record.Supplier?.SupplierName</td>
+                <td>@record.ReceivedDate.ToString("d")</td>
+                <td>@record.ReceivedBy</td>
+                <td><span class="badge text-bg-secondary">@record.Status</span></td>
+                <td class="text-end">@record.Items.Sum(item => item.Amount).ToString("C")</td>
+                <td class="text-end"><a asp-page="Details" asp-route-id="@record.Id" class="btn btn-sm btn-outline-primary">Open</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

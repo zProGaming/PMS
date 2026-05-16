@@ -1,0 +1,38 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.FoodBeverage.Outlets.EditModel
+
+@{
+    ViewData["Title"] = "Edit Outlet";
+}
+
+<h1>Edit Outlet</h1>
+
+<form method="post" class="mt-3">
+    <input type="hidden" asp-for="Outlet.Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="Outlet.Name" class="form-label"></label>
+            <input asp-for="Outlet.Name" class="form-control" />
+            <span asp-validation-for="Outlet.Name" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Outlet.OutletType" class="form-label">Outlet Type</label>
+            <select asp-for="Outlet.OutletType" class="form-select" asp-items="Model.OutletTypeOptions"></select>
+            <span asp-validation-for="Outlet.OutletType" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="Outlet.IsActive" class="form-check-input" />
+        <label asp-for="Outlet.IsActive" class="form-check-label">Active</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

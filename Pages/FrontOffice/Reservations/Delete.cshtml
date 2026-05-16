@@ -2,11 +2,11 @@
 @model Vantage.PMS.Pages.FrontOffice.Reservations.DeleteModel
 
 @{
-    ViewData["Title"] = "Delete Reservation";
+    ViewData["Title"] = "Cancel Reservation";
 }
 
-<h1>Delete Reservation</h1>
-<p class="text-danger">Are you sure you want to delete this reservation?</p>
+<h1>Cancel Reservation</h1>
+<p class="text-danger">This will cancel the reservation without deleting audit history.</p>
 
 <dl class="row mt-3">
     <dt class="col-sm-3">Confirmation</dt>
@@ -27,6 +27,6 @@
 
 <form method="post">
     <input type="hidden" asp-for="Reservation.Id" />
-    <button type="submit" class="btn btn-danger">Delete</button>
-    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+    <button type="submit" class="btn btn-danger">Cancel Reservation</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Back</a>
 </form>

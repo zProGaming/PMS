@@ -1,0 +1,20 @@
+@page
+@model Vantage.PMS.Pages.Reports.PlaceholderModel
+
+@{
+    ViewData["Title"] = Model.ReportName;
+}
+
+<div class="vpms-page-header">
+    <div>
+        <div class="page-kicker">@Model.Category</div>
+        <h1 class="vpms-page-title">@Model.ReportName</h1>
+        <p class="vpms-page-subtitle">Report configuration placeholder.</p>
+    </div>
+    <a class="btn vpms-btn-secondary" asp-page="/Reports/Center">Back to Report Center</a>
+</div>
+
+<section class="vpms-empty-state">
+    <strong>@Model.Message</strong>
+    <span>No records or configured report route is available yet. Seed demo data from System &gt; Demo Setup or create source records first.</span>
+</section>

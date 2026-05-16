@@ -1,0 +1,103 @@
+@page
+@model Vantage.PMS.Pages.Finance.Payments.IndexModel
+
+@{
+    ViewData["Title"] = "Payments";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/Finance/Index">Finance</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Payments</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Finance Control</div>
+        <h1 class="page-title">Payments</h1>
+        <p class="page-subtitle">Central payment landing page for guest folio settlements and finance review.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn vpms-btn-primary" asp-page="/FrontOffice/Folios/Index">Folios</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Finance/CashierShifts/Index">Cashier Shifts</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="kpi-label">Today</div>
+            <div class="kpi-value">@Model.TodayPayments.ToString("C")</div>
+            <div class="kpi-note">Completed payments</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="kpi-label">Month to Date</div>
+            <div class="kpi-value">@Model.MonthToDatePayments.ToString("C")</div>
+            <div class="kpi-note">Completed payments this month</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="kpi-label">Pending Review</div>
+            <div class="kpi-value">@Model.PendingPayments</div>
+            <div class="kpi-note">Pending or authorized</div>
+        </div>
+    </div>
+</div>
+
+<section class="vpms-card">
+    @if (Model.Payments.Count == 0)
+    {
+        <div class="vpms-empty-state">
+            <strong>No payments found.</strong>
+            <span>Post a folio payment or seed demo data to populate this register.</span>
+        </div>
+    }
+    else
+    {
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table align-middle">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Guest / Folio</th>
+                    <th>Room</th>
+                    <th>Method</th>
+                    <th>Reference</th>
+                    <th>Status</th>
+                    <th class="text-end">Amount</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var payment in Model.Payments)
+                {
+                    var guestName = payment.Folio?.Guest is null ? "Guest not linked" : $"{payment.Folio.Guest.FirstName} {payment.Folio.Guest.LastName}".Trim();
+                    <tr>
+                        <td>@payment.PaymentDate.ToString("MMM d, yyyy")</td>
+                        <td>
+                            <strong>@guestName</strong>
+                            <div class="small text-muted">@payment.Folio?.FolioNumber</div>
+                        </td>
+                        <td>@(payment.Folio?.Reservation?.Room?.RoomNumber ?? "Unassigned")</td>
+                        <td>@payment.PaymentMethod</td>
+                        <td>@(payment.ReferenceNumber ?? "-")</td>
+                        <td><span class="status-badge">@payment.Status</span></td>
+                        <td class="text-end fw-semibold">@payment.Amount.ToString("C")</td>
+                        <td class="text-end">
+                            @if (payment.FolioId > 0)
+                            {
+                                <a class="btn btn-sm vpms-btn-secondary" asp-page="/FrontOffice/Folios/Details" asp-route-id="@payment.FolioId">Open Folio</a>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

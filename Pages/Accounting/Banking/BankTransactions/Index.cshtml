@@ -1,0 +1,44 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Banking.BankTransactions.IndexModel
+@{
+    ViewData["Title"] = "Bank Transactions";
+}
+
+<div class="page-header">
+    <div><div class="page-kicker">Banking</div><h1 class="page-title">Bank Transactions</h1><p class="page-subtitle">Manual bank entries and voucher-generated bank movements.</p></div>
+</div>
+
+<form method="post" asp-page-handler="Create" class="vpms-form-card mb-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-3"><label asp-for="Input.BankAccountId" class="form-label">Bank Account</label><select asp-for="Input.BankAccountId" asp-items="Model.BankAccountOptions" class="form-select"><option value="">Select account</option></select></div>
+        <div class="col-md-2"><label asp-for="Input.TransactionDate" class="form-label">Date</label><input asp-for="Input.TransactionDate" type="date" class="form-control" /></div>
+        <div class="col-md-3"><label asp-for="Input.Description" class="form-label">Description</label><input asp-for="Input.Description" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="Input.ReferenceNumber" class="form-label">Reference</label><input asp-for="Input.ReferenceNumber" class="form-control" /></div>
+        <div class="col-md-1"><label asp-for="Input.DebitAmount" class="form-label">Debit</label><input asp-for="Input.DebitAmount" class="form-control" /></div>
+        <div class="col-md-1"><label asp-for="Input.CreditAmount" class="form-label">Credit</label><input asp-for="Input.CreditAmount" class="form-control" /></div>
+        <div class="col-12"><label asp-for="Input.Notes" class="form-label">Notes</label><input asp-for="Input.Notes" class="form-control" /></div>
+    </div>
+    <div class="vpms-actions mt-3"><button class="btn vpms-btn-primary" type="submit">Add Transaction</button></div>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Date</th><th>Bank</th><th>Description</th><th>Reference</th><th>Source</th><th class="text-end">Debit</th><th class="text-end">Credit</th><th>Reconciled</th></tr></thead>
+        <tbody>
+        @foreach (var transaction in Model.Transactions)
+        {
+            <tr>
+                <td>@transaction.TransactionDate.ToString("yyyy-MM-dd")</td>
+                <td>@transaction.BankAccount?.AccountName</td>
+                <td>@transaction.Description</td>
+                <td>@transaction.ReferenceNumber</td>
+                <td>@transaction.SourceModule</td>
+                <td class="text-end">@transaction.DebitAmount.ToString("C")</td>
+                <td class="text-end">@transaction.CreditAmount.ToString("C")</td>
+                <td><span class="status-badge @(transaction.IsReconciled ? "status-paid" : "status-pending")">@(transaction.IsReconciled ? "Yes" : "No")</span></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,68 @@
+@page
+@model Vantage.PMS.Pages.Reports.DailyRevenueModel
+
+@{
+    ViewData["Title"] = "Daily Revenue Report";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="mb-1">Daily Revenue Report</h1>
+        <p class="text-muted mb-0">Business date: @Model.BusinessDate.ToString("D")</p>
+    </div>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Reports</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Room Charges</div>
+            <div class="display-6">@Model.RoomCharges.ToString("N2")</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Other Charges</div>
+            <div class="display-6">@Model.OtherCharges.ToString("N2")</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Payments</div>
+            <div class="display-6">@Model.Payments.ToString("N2")</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Outstanding Balances</div>
+            <div class="display-6">@Model.OutstandingBalances.ToString("N2")</div>
+        </div>
+    </div>
+</div>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Metric</th>
+            <th class="text-end">Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Room charges</td>
+            <td class="text-end">@Model.RoomCharges.ToString("N2")</td>
+        </tr>
+        <tr>
+            <td>Other charges</td>
+            <td class="text-end">@Model.OtherCharges.ToString("N2")</td>
+        </tr>
+        <tr>
+            <td>Payments</td>
+            <td class="text-end">@Model.Payments.ToString("N2")</td>
+        </tr>
+        <tr>
+            <td>Outstanding balances</td>
+            <td class="text-end">@Model.OutstandingBalances.ToString("N2")</td>
+        </tr>
+    </tbody>
+</table>

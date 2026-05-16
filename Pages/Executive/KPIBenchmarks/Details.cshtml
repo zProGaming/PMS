@@ -1,0 +1,7 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Executive.KPIBenchmarks.DetailsModel
+@{
+    ViewData["Title"] = "KPI Benchmark Details";
+}
+<div class="page-header"><div><div class="page-kicker">Executive Setup</div><h1 class="page-title">KPI Benchmark Details</h1><p class="page-subtitle">Target and threshold configuration details.</p></div><a class="btn vpms-btn-secondary" asp-page="/Executive/KPIBenchmarks/Index">Back</a></div>
+@if(Model.Benchmark is not null){<section class="vpms-card"><dl class="row"><dt class="col-md-3">Benchmark</dt><dd class="col-md-9">@Model.Benchmark.BenchmarkName</dd><dt class="col-md-3">KPI</dt><dd class="col-md-9">@Model.Benchmark.KPIName</dd><dt class="col-md-3">Target</dt><dd class="col-md-9">@Model.Benchmark.TargetValue.ToString("N2")</dd><dt class="col-md-3">Warning / Critical</dt><dd class="col-md-9">@(Model.Benchmark.WarningThreshold?.ToString("N2") ?? "-") / @(Model.Benchmark.CriticalThreshold?.ToString("N2") ?? "-")</dd><dt class="col-md-3">Effective</dt><dd class="col-md-9">@Model.Benchmark.EffectiveFrom.ToString("MMM d, yyyy") - @(Model.Benchmark.EffectiveTo?.ToString("MMM d, yyyy") ?? "Open")</dd><dt class="col-md-3">Status</dt><dd class="col-md-9">@(Model.Benchmark.IsActive ? "Active" : "Inactive")</dd><dt class="col-md-3">Notes</dt><dd class="col-md-9">@Model.Benchmark.Notes</dd></dl></section>}

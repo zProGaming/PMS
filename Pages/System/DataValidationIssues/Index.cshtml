@@ -1,0 +1,150 @@
+@page
+@using Vantage.PMS.Models.SystemAdministration
+@model Vantage.PMS.Pages.System.DataValidationIssues.IndexModel
+
+@{
+    ViewData["Title"] = "Data Validation Issues";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">System Health</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Data Validation Issues</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">System Health</div>
+        <h1 class="page-title">Data Validation Issues</h1>
+        <p class="page-subtitle">Operational and finance data exceptions found by the Vantage PMS validation scan.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <form method="post" asp-page-handler="RunScan">
+            <button class="btn vpms-btn-primary" type="submit">Run Validation Scan</button>
+        </form>
+        <a class="btn vpms-btn-secondary" asp-page="/System/HealthCheck/Index">System Health</a>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="kpi-label">Open Issues</div>
+            <div class="kpi-value">@Model.OpenIssues</div>
+            <div class="kpi-note">Unresolved validation items</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="kpi-label">Critical</div>
+            <div class="kpi-value">@Model.CriticalIssues</div>
+            <div class="kpi-note">Needs urgent review</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="kpi-label">High</div>
+            <div class="kpi-value">@Model.HighIssues</div>
+            <div class="kpi-note">High-priority exceptions</div>
+        </div>
+    </div>
+</div>
+
+<section class="vpms-card p-3 mb-4">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label" asp-for="Module">Module</label>
+            <input class="form-control" asp-for="Module" placeholder="Finance, Accounting, Front Office" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" asp-for="Severity">Severity</label>
+            <select class="form-select" asp-for="Severity" asp-items="Html.GetEnumSelectList<SystemSeverity>()">
+                <option value="">All severities</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <div class="form-check mt-4">
+                <input class="form-check-input" asp-for="IncludeResolved" />
+                <label class="form-check-label" asp-for="IncludeResolved">Include resolved</label>
+            </div>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button class="btn vpms-btn-primary flex-fill" type="submit">Filter</button>
+            <a class="btn vpms-btn-secondary flex-fill" asp-page="/System/DataValidationIssues/Index">Reset</a>
+        </div>
+    </form>
+</section>
+
+<section class="vpms-card">
+    @if (Model.Issues.Count == 0)
+    {
+        <div class="vpms-empty-state">
+            <strong>No validation issues found.</strong>
+            <span>Run a validation scan or adjust filters to review resolved issues.</span>
+        </div>
+    }
+    else
+    {
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table align-middle">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Severity</th>
+                    <th>Module</th>
+                    <th>Entity</th>
+                    <th>Issue</th>
+                    <th>Recommended Fix</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var issue in Model.Issues)
+                {
+                    <tr>
+                        <td>@issue.IssueDate.ToString("MMM d, yyyy")</td>
+                        <td><span class="status-badge">@issue.Severity</span></td>
+                        <td>@issue.Module</td>
+                        <td>
+                            <strong>@issue.EntityName</strong>
+                            <div class="small text-muted">ID @(issue.EntityId?.ToString() ?? "n/a")</div>
+                        </td>
+                        <td>
+                            <div class="fw-semibold">@issue.IssueType</div>
+                            <div class="small text-muted">@issue.Description</div>
+                        </td>
+                        <td>@issue.RecommendedFix</td>
+                        <td>
+                            @if (issue.IsResolved)
+                            {
+                                <span class="status-badge">Resolved</span>
+                                <div class="small text-muted">@issue.ResolvedBy</div>
+                            }
+                            else
+                            {
+                                <span class="status-badge">Open</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            @if (!issue.IsResolved)
+                            {
+                                <form method="post" asp-page-handler="Resolve" asp-route-id="@issue.Id" class="d-inline">
+                                    <button class="btn btn-sm vpms-btn-secondary" type="submit">Resolve</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

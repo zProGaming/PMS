@@ -1,0 +1,37 @@
+@page
+@model Vantage.PMS.Pages.Finance.DocumentNumberSequences.IndexModel
+@using Vantage.PMS.Models.Finance
+@{
+    ViewData["Title"] = "Document Number Sequences";
+}
+
+<h1 class="h3 mb-3">Document Number Sequences</h1>
+
+<form method="post" asp-page-handler="Save" class="row g-3 border rounded p-3 mb-4">
+    <input type="hidden" asp-for="Sequence.Id" />
+    <div class="col-md-3"><label asp-for="Sequence.DocumentType" class="form-label"></label><select asp-for="Sequence.DocumentType" asp-items="Html.GetEnumSelectList<FinanceDocumentType>()" class="form-select"></select></div>
+    <div class="col-md-2"><label asp-for="Sequence.Prefix" class="form-label"></label><input asp-for="Sequence.Prefix" class="form-control" /></div>
+    <div class="col-md-2"><label asp-for="Sequence.NextNumber" class="form-label"></label><input asp-for="Sequence.NextNumber" class="form-control" /></div>
+    <div class="col-md-2"><label asp-for="Sequence.PaddingLength" class="form-label"></label><input asp-for="Sequence.PaddingLength" class="form-control" /></div>
+    <div class="col-md-2 align-self-end"><div class="form-check"><input asp-for="Sequence.IsActive" class="form-check-input" /><label asp-for="Sequence.IsActive" class="form-check-label"></label></div></div>
+    <div class="col-md-1 align-self-end"><button class="btn btn-primary w-100">Save</button></div>
+</form>
+
+<table class="table table-striped table-hover">
+    <thead><tr><th>Type</th><th>Prefix</th><th>Next Number</th><th>Padding</th><th>Active</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var sequence in Model.Sequences)
+        {
+            <tr>
+                <td>@sequence.DocumentType</td>
+                <td>@sequence.Prefix</td>
+                <td>@sequence.NextNumber</td>
+                <td>@sequence.PaddingLength</td>
+                <td>@(sequence.IsActive ? "Yes" : "No")</td>
+                <td class="text-end"><a asp-page="Index" asp-route-id="@sequence.Id" class="btn btn-sm btn-outline-secondary">Edit</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

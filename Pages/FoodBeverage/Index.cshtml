@@ -1,0 +1,112 @@
+@page
+@model Vantage.PMS.Pages.FoodBeverage.IndexModel
+
+@{
+    ViewData["Title"] = "F&B Service POS";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">F&amp;B Service</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">F&amp;B Service</div>
+        <h1 class="page-title">POS Dashboard</h1>
+        <p class="page-subtitle">Business date @Model.BusinessDate.ToString("D"). Monitor open checks, table activity, kitchen flow, and sales.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary" asp-page="/FoodBeverage/Orders/Create">New Order</a>
+        <a class="btn btn-outline-secondary" asp-page="/FoodBeverage/Orders/Index">Orders</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Open Orders</div>
+            <div class="kpi-value">@Model.OpenOrders</div>
+            <div class="kpi-note">Active guest checks</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Tables Occupied</div>
+            <div class="kpi-value">@Model.TablesOccupied</div>
+            <div class="kpi-note">Dining room load</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Room Service</div>
+            <div class="kpi-value">@Model.RoomServiceOrders</div>
+            <div class="kpi-note">In-room dining</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Sent to Kitchen</div>
+            <div class="kpi-value">@Model.OrdersSentToKitchen</div>
+            <div class="kpi-note">Production queue</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Paid Today</div>
+            <div class="kpi-value">@Model.PaidOrdersToday</div>
+            <div class="kpi-note">Closed checks</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Sales Today</div>
+            <div class="kpi-value">@Model.TotalFoodBeverageSalesToday.ToString("C")</div>
+            <div class="kpi-note">Paid and room-charged</div>
+        </div>
+    </div>
+</div>
+
+<section class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Recent Open Orders</span>
+        <a class="btn btn-sm btn-outline-primary" asp-page="/FoodBeverage/Orders/Index">View All</a>
+    </div>
+    @if (Model.RecentOpenOrders.Count == 0)
+    {
+        <div class="empty-state m-3">No open POS orders.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Outlet</th>
+                        <th>Type</th>
+                        <th>Table</th>
+                        <th>Status</th>
+                        <th class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.RecentOpenOrders)
+                    {
+                        var orderStatusClass = order.OrderStatus.ToString().ToLowerInvariant();
+                        <tr>
+                            <td><a asp-page="/FoodBeverage/Orders/Details" asp-route-id="@order.Id">@order.OrderNumber</a></td>
+                            <td>@order.Outlet?.Name</td>
+                            <td>@order.OrderType</td>
+                            <td>@(order.DiningTable?.TableName ?? "-")</td>
+                            <td><span class="status-badge status-@orderStatusClass">@order.OrderStatus</span></td>
+                            <td class="text-end">@order.TotalAmount.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

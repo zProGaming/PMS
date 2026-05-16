@@ -1,0 +1,44 @@
+@page
+@model Vantage.PMS.Pages.Banquet.BEOs.IndexModel
+
+@{
+    ViewData["Title"] = "Banquet Event Orders";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="mb-1">Banquet Event Orders</h1>
+        <p class="text-muted mb-0">Operational instructions for upcoming and past events.</p>
+    </div>
+    <a class="btn btn-outline-secondary" asp-page="/Banquet/Events/Index">Events</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Event Date</th>
+            <th>Event</th>
+            <th>Function Room</th>
+            <th>BEO Date</th>
+            <th>Status</th>
+            <th>Prepared By</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var banquetEvent in Model.BanquetEvents)
+        {
+            <tr>
+                <td>@banquetEvent.EventDate.ToString("d")</td>
+                <td>@banquetEvent.EventName</td>
+                <td>@banquetEvent.FunctionRoom?.Name</td>
+                <td>@banquetEvent.BanquetEventOrder?.BEODate.ToString("d")</td>
+                <td>@(banquetEvent.BanquetEventOrder?.Status.ToString() ?? "Not Prepared")</td>
+                <td>@banquetEvent.BanquetEventOrder?.PreparedBy</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-page="./Details" asp-route-eventId="@banquetEvent.Id">Open BEO</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

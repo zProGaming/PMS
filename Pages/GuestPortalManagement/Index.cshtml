@@ -1,0 +1,38 @@
+@page
+@model Vantage.PMS.Pages.GuestPortalManagement.IndexModel
+@{
+    ViewData["Title"] = "Guest Portal Dashboard";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Guest Portal</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Guest Experience</div>
+        <h1 class="page-title">Guest Portal Dashboard</h1>
+        <p class="page-subtitle">Pre-arrival submissions, service requests, feedback, and express checkout workload.</p>
+    </div>
+    <a asp-page="/GuestPortalManagement/Settings/Index" class="btn btn-outline-primary">Settings</a>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-2"><div class="kpi-card"><div class="kpi-label">Pre-check-ins</div><div class="kpi-value">@Model.PreCheckInsToday</div><div class="kpi-note">Submitted today</div></div></div>
+    <div class="col-md-2"><div class="kpi-card"><div class="kpi-label">Open Requests</div><div class="kpi-value">@Model.OpenServiceRequests</div><div class="kpi-note">Guest service queue</div></div></div>
+    <div class="col-md-2"><div class="kpi-card"><div class="kpi-label">Urgent Requests</div><div class="kpi-value">@Model.UrgentServiceRequests</div><div class="kpi-note">Priority attention</div></div></div>
+    <div class="col-md-2"><div class="kpi-card"><div class="kpi-label">Express Pending</div><div class="kpi-value">@Model.PendingExpressCheckoutRequests</div><div class="kpi-note">Checkout requests</div></div></div>
+    <div class="col-md-2"><div class="kpi-card"><div class="kpi-label">Feedback</div><div class="kpi-value">@Model.FeedbackThisMonth</div><div class="kpi-note">This month</div></div></div>
+    <div class="col-md-2"><div class="kpi-card"><div class="kpi-label">Avg Rating</div><div class="kpi-value">@Model.AverageFeedbackRatingThisMonth.ToString("N1")</div><div class="kpi-note">This month</div></div></div>
+</div>
+
+<div class="quick-action-grid mt-4">
+    <a class="quick-action-card" asp-page="/GuestPortalManagement/PreCheckIns/Index"><strong>Pre-Check-In</strong><small>Review guest submissions</small></a>
+    <a class="quick-action-card" asp-page="/GuestPortalManagement/ServiceRequests/Index"><strong>Service Requests</strong><small>Assign and complete requests</small></a>
+    <a class="quick-action-card" asp-page="/GuestPortalManagement/ExpressCheckout/Index"><strong>Express Checkout</strong><small>Review folio readiness</small></a>
+    <a class="quick-action-card" asp-page="/GuestPortalManagement/Feedback/Index"><strong>Guest Feedback</strong><small>Resolve and track ratings</small></a>
+    <a class="quick-action-card" asp-page="/GuestPortalManagement/Accesses/Index"><strong>Portal Access</strong><small>Lookup tokens and activity</small></a>
+</div>

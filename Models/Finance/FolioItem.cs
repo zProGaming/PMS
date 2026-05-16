@@ -8,13 +8,25 @@ public class FolioItem
 
     public Folio? Folio { get; set; }
 
-    public DateTime PostedAtUtc { get; set; } = DateTime.UtcNow;
+    public int? ChargeCodeId { get; set; }
+
+    public ChargeCode? ChargeCodeDefinition { get; set; }
 
     public string Description { get; set; } = string.Empty;
 
-    public string? ReferenceNumber { get; set; }
+    public string ChargeCode { get; set; } = string.Empty;
+
+    public decimal Quantity { get; set; } = 1;
+
+    public decimal UnitPrice { get; set; }
 
     public decimal Amount { get; set; }
 
+    public DateTime PostingDate { get; set; } = DateTime.Now;
+
+    public string PostedBy { get; set; } = string.Empty;
+
     public bool IsVoided { get; set; }
+
+    public bool IsLocked { get; set; }
 }

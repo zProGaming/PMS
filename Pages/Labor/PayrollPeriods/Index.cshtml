@@ -1,0 +1,81 @@
+@page
+@model Vantage.PMS.Pages.Labor.PayrollPeriods.IndexModel
+@{
+    ViewData["Title"] = "Payroll Periods";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Labor Costing</div>
+        <h1 class="page-title">Payroll Periods</h1>
+        <p class="page-subtitle">Approve, post, and close PMS-side payroll cost periods.</p>
+    </div>
+    <div class="page-actions"><a class="btn vpms-btn-secondary" asp-page="/Labor/Import/Index">Import Placeholder</a></div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage)) { <div class="alert alert-success">@Model.StatusMessage</div> }
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage)) { <div class="alert alert-danger">@Model.ErrorMessage</div> }
+
+<form method="post" asp-page-handler="Create" class="vpms-card mb-4">
+    <h2 class="h5">Create Payroll Period</h2>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3"><label class="form-label">Period Name</label><input asp-for="Input.PeriodName" class="form-control" placeholder="May 2026 Payroll" required /></div>
+        <div class="col-md-2"><label class="form-label">Start Date</label><input asp-for="Input.StartDate" type="date" class="form-control" /></div>
+        <div class="col-md-2"><label class="form-label">End Date</label><input asp-for="Input.EndDate" type="date" class="form-control" /></div>
+        <div class="col-md-2"><label class="form-label">Pay Date</label><input asp-for="Input.PayDate" type="date" class="form-control" /></div>
+        <div class="col-md-2"><label class="form-label">Notes</label><input asp-for="Input.Notes" class="form-control" /></div>
+        <div class="col-md-1"><button type="submit" class="btn vpms-btn-primary w-100">Create</button></div>
+    </div>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Period</th><th>Date Range</th><th>Status</th><th class="text-end">Entries</th><th class="text-end">Gross</th><th>Journal</th><th class="text-end">Actions</th></tr></thead>
+        <tbody>
+        @foreach (var period in Model.Periods)
+        {
+            <tr>
+                <td><a class="fw-semibold" asp-page="Details" asp-route-id="@period.Id">@period.PeriodName</a><div class="text-muted small">Pay date @(period.PayDate?.ToString("yyyy-MM-dd") ?? "not set")</div></td>
+                <td>@period.StartDate.ToString("yyyy-MM-dd") - @period.EndDate.ToString("yyyy-MM-dd")</td>
+                <td><span class="status-badge">@period.Status</span></td>
+                <td class="text-end">@period.Entries.Count</td>
+                <td class="text-end">@period.Entries.Sum(entry => entry.GrossPay).ToString("C")</td>
+                <td>@(period.JournalEntry?.JournalNumber ?? "Not posted")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm vpms-btn-secondary" asp-page="Details" asp-route-id="@period.Id">Details</a>
+                    @if (period.Status == Vantage.PMS.Models.Labor.PayrollPeriodStatus.Draft)
+                    {
+                        <form method="post" asp-page-handler="Submit" asp-route-id="@period.Id" class="d-inline"><button class="btn btn-sm vpms-btn-secondary">Submit</button></form>
+                    }
+                    @if (period.Status is Vantage.PMS.Models.Labor.PayrollPeriodStatus.Draft or Vantage.PMS.Models.Labor.PayrollPeriodStatus.ForApproval)
+                    {
+                        <form method="post" asp-page-handler="Approve" asp-route-id="@period.Id" class="d-inline"><button class="btn btn-sm vpms-btn-primary">Approve</button></form>
+                    }
+                    @if (period.Status == Vantage.PMS.Models.Labor.PayrollPeriodStatus.Approved)
+                    {
+                        <form method="post" asp-page-handler="Post" asp-route-id="@period.Id" class="d-inline"><button class="btn btn-sm vpms-btn-primary">Post</button></form>
+                    }
+                    @if (period.Status == Vantage.PMS.Models.Labor.PayrollPeriodStatus.Posted)
+                    {
+                        <form method="post" asp-page-handler="Close" asp-route-id="@period.Id" class="d-inline"><button class="btn btn-sm vpms-btn-secondary">Close</button></form>
+                    }
+                    @if (period.Status is Vantage.PMS.Models.Labor.PayrollPeriodStatus.Draft or Vantage.PMS.Models.Labor.PayrollPeriodStatus.ForApproval or Vantage.PMS.Models.Labor.PayrollPeriodStatus.Approved)
+                    {
+                        <form method="post" asp-page-handler="Cancel" asp-route-id="@period.Id" class="d-inline"><button class="btn btn-sm vpms-btn-warning">Cancel</button></form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.Periods.Count == 0)
+{
+    <div class="vpms-empty-state mt-3">No payroll periods yet.</div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

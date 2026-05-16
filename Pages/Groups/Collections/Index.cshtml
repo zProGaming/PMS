@@ -1,0 +1,110 @@
+@page
+@model Vantage.PMS.Pages.Groups.Collections.IndexModel
+
+@{
+    ViewData["Title"] = "Group Collections";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/Groups/Index">Group Bookings</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Group Collections</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Group Finance</div>
+        <h1 class="page-title">Group Collections</h1>
+        <p class="page-subtitle">Collection summary for group deposits, allocations, master folio balances, and outstanding balances.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn vpms-btn-primary" asp-page="/Groups/Folios/Index">Group Folios</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Groups/Index">Group Bookings</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-label">Deposits</div>
+            <div class="kpi-value">@Model.TotalDeposits.ToString("C")</div>
+            <div class="kpi-note">Received and active</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-label">Allocated</div>
+            <div class="kpi-value">@Model.TotalAllocated.ToString("C")</div>
+            <div class="kpi-note">Applied to folios or reservations</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-label">Outstanding</div>
+            <div class="kpi-value">@Model.TotalOutstanding.ToString("C")</div>
+            <div class="kpi-note">After available deposits</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-label">Groups at Risk</div>
+            <div class="kpi-value">@Model.GroupsWithOutstandingBalance</div>
+            <div class="kpi-note">With open collection balance</div>
+        </div>
+    </div>
+</div>
+
+<section class="vpms-card">
+    @if (Model.Groups.Count == 0)
+    {
+        <div class="vpms-empty-state">
+            <strong>No group collection records found.</strong>
+            <span>Create group bookings and deposits to monitor group collection status.</span>
+        </div>
+    }
+    else
+    {
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table align-middle">
+                <thead>
+                <tr>
+                    <th>Group</th>
+                    <th>Stay Dates</th>
+                    <th>Status</th>
+                    <th class="text-end">Pickup</th>
+                    <th class="text-end">Deposits</th>
+                    <th class="text-end">Allocated</th>
+                    <th class="text-end">Available</th>
+                    <th class="text-end">Folio Balance</th>
+                    <th class="text-end">Outstanding</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var group in Model.Groups)
+                {
+                    <tr>
+                        <td>
+                            <strong>@group.GroupName</strong>
+                            <div class="small text-muted">@group.GroupCode</div>
+                        </td>
+                        <td>@group.ArrivalDate.ToString("MMM d") - @group.DepartureDate.ToString("MMM d, yyyy")</td>
+                        <td><span class="status-badge">@group.BookingStatus</span></td>
+                        <td class="text-end">@group.RoomsPickedUp / @group.RoomsBlocked</td>
+                        <td class="text-end">@group.DepositTotal.ToString("C")</td>
+                        <td class="text-end">@group.AllocatedTotal.ToString("C")</td>
+                        <td class="text-end">@group.AvailableDeposit.ToString("C")</td>
+                        <td class="text-end">@group.GroupFolioBalance.ToString("C")</td>
+                        <td class="text-end fw-semibold">@group.OutstandingBalance.ToString("C")</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm vpms-btn-secondary" asp-page="/Groups/Details" asp-route-id="@group.GroupBookingId">Open Group</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

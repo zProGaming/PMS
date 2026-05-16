@@ -1,0 +1,218 @@
+@page
+@model Vantage.PMS.Pages.System.DemoPresentation.IndexModel
+@{
+    ViewData["Title"] = "Demo Presentation";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">System</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Demo Presentation</li>
+    </ol>
+</nav>
+
+<div class="vpms-page-header">
+    <div>
+        <div class="page-kicker">Vantage PMS</div>
+        <h1 class="vpms-page-title">Enterprise Hotel Property Management System</h1>
+        <p class="vpms-page-subtitle">Presentation guide for Vantage Grand Hotel demos, owner walkthroughs, and investor previews.</p>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-primary" asp-page="/Index">Start at Dashboard</a>
+        @if (User.IsInRole(Vantage.PMS.Authorization.PmsRoles.SystemAdmin))
+        {
+            <a class="btn vpms-btn-secondary" asp-page="/Admin/DemoSetup/Index">Demo Setup</a>
+        }
+    </div>
+</div>
+
+@if (!Model.HasDemoData)
+{
+    <div class="alert alert-info vpms-alert" role="alert">
+        Demo data has not been installed yet. Go to <a asp-page="/Admin/DemoSetup/Index">System &gt; Demo Setup</a> as a SystemAdmin to seed the demo hotel.
+    </div>
+}
+
+<section class="vpms-card mb-4">
+    <div class="card-body">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-8">
+                <div class="page-kicker">Demo Hotel</div>
+                <h2 class="h3 mb-2">Vantage Grand Hotel</h2>
+                <p class="lead mb-3">Modern comfort. Smarter hotel operations.</p>
+                <p class="text-muted mb-0">Quezon City, Philippines · Vantage Hospitality · Prepared for professional guided demos and QA test runs.</p>
+            </div>
+            <div class="col-lg-4">
+                <div class="vpms-section-card">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Demo Rooms</span>
+                        <strong>@Model.Status.Rooms</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Demo Reservations</span>
+                        <strong>@Model.Status.Reservations</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">POS Orders</span>
+                        <strong>@Model.Status.PosOrders</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Management Insights</span>
+                        <strong>@Model.Status.ManagementInsights</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="row g-4">
+    <div class="col-xl-7">
+        <section class="vpms-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h2 class="h5 mb-1">Module Readiness Checklist</h2>
+                        <p class="text-muted mb-0">Rule-based readiness from existing records. Ready means enough sample records exist for a demo flow.</p>
+                    </div>
+                </div>
+                <div class="vpms-table-wrapper">
+                    <table class="table vpms-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Module</th>
+                                <th class="text-end">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.ReadinessItems)
+                            {
+                                <tr>
+                                    <td>@item.Module</td>
+                                    <td class="text-end"><span class="@IndexModel.BadgeClass(item.Status)">@item.Status</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-xl-5">
+        <section class="vpms-card h-100">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Quick Launch Links</h2>
+                <div class="d-grid gap-2">
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/Index">Enterprise Dashboard</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/FrontOffice/Index">Front Office</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/Housekeeping/Index">Room Rack and Housekeeping</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/Finance/Index">Finance Dashboard</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/Executive/Index">Owner / GM Executive Dashboard</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/Executive/MonthlyOwnerReport">Monthly Owner Report</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/Executive/OwnerPackages/Index">Owner Report Package</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/FoodBeverage/Index">F&amp;B Service POS</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/FoodBeverageKitchen/Index">Kitchen Display</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/Banquet/Index">Banquet Dashboard</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/Revenue/Index">Revenue Management</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/Booking/Index">Public Booking Engine</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/GuestPortal/Index">Guest Portal</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/Inventory/Index">Inventory</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/AccountsReceivable/Aging/Index">AR Aging</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/ManagementAI/Index">Management AI</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/System/HealthCheck/Index">System Health Check</a>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<section class="vpms-card mt-4">
+    <div class="card-body">
+        <h2 class="h5 mb-3">Suggested Demo Script</h2>
+        <ol class="mb-0 demo-script-list">
+            <li>Start at Enterprise Dashboard.</li>
+            <li>Show occupancy, arrivals, departures, room status, revenue, and alerts.</li>
+            <li>Open Front Office and demonstrate reservation/check-in.</li>
+            <li>Open Room Rack and show visual room operations.</li>
+            <li>Open Folio and show charge/payment/balance.</li>
+            <li>Open POS and charge F&amp;B to guest room.</li>
+            <li>Open Kitchen Display and update food status.</li>
+            <li>Open Housekeeping and update room readiness.</li>
+            <li>Open Banquet and show the BEO.</li>
+            <li>Open Revenue Calendar and rate controls.</li>
+            <li>Open Booking Engine public page.</li>
+            <li>Open Guest Portal public page.</li>
+            <li>Open Inventory and show receiving/stock movement.</li>
+            <li>Open Finance and AR Aging.</li>
+            <li>Open Owner / GM Executive Dashboard and review KPIs, alerts, and department performance.</li>
+            <li>Open Monthly Owner Report or Owner Report Package for management committee review.</li>
+            <li>Open Management AI and generate daily summary.</li>
+            <li>Open System Health Check and Audit Logs.</li>
+        </ol>
+    </div>
+</section>
+
+<section class="row g-4 mt-1">
+    <div class="col-md-6 col-xl-4">
+        <div class="vpms-section-card h-100">
+            <h3 class="h6">Executive Overview</h3>
+            <p class="text-muted mb-0">Position Vantage PMS as a unified hotel operations platform covering rooms, finance, F&amp;B, banquet, revenue, guest experience, inventory, and management insights.</p>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="vpms-section-card h-100">
+            <h3 class="h6">Front Office Demo Flow</h3>
+            <p class="text-muted mb-0">Reservation lookup, arrival handling, check-in, room status, folio charging, payment posting, and checkout readiness.</p>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="vpms-section-card h-100">
+            <h3 class="h6">Housekeeping Demo Flow</h3>
+            <p class="text-muted mb-0">Room rack, dirty/clean/inspected states, task assignments, guest service requests, and readiness for arrivals.</p>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="vpms-section-card h-100">
+            <h3 class="h6">Finance Demo Flow</h3>
+            <p class="text-muted mb-0">Folio controls, cashiering, AR aging, accounting reports, audit logs, and month-end readiness.</p>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="vpms-section-card h-100">
+            <h3 class="h6">Owner/GM Executive Review</h3>
+            <p class="text-muted mb-0">Show executive dashboard KPIs, department performance, revenue intelligence, finance controls, alerts, snapshots, and owner report package print view.</p>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="vpms-section-card h-100">
+            <h3 class="h6">F&amp;B Demo Flow</h3>
+            <p class="text-muted mb-0">POS order creation, kitchen display, paid orders, room charges, and F&amp;B revenue visibility.</p>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="vpms-section-card h-100">
+            <h3 class="h6">Banquet Demo Flow</h3>
+            <p class="text-muted mb-0">Event calendar, function rooms, packages, charges, and professional BEO operational instructions.</p>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="vpms-section-card h-100">
+            <h3 class="h6">Revenue Demo Flow</h3>
+            <p class="text-muted mb-0">Rate plans, room type rates, restrictions, inventory controls, promo codes, and booking engine pricing.</p>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="vpms-section-card h-100">
+            <h3 class="h6">Guest Experience Demo Flow</h3>
+            <p class="text-muted mb-0">Public booking request, guest portal lookup, pre-check-in, service request, folio estimate, and express checkout request.</p>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <div class="vpms-section-card h-100">
+            <h3 class="h6">Inventory and Purchasing Demo Flow</h3>
+            <p class="text-muted mb-0">Stock on hand, low stock, purchase request, PO approval, receiving, and stock movement history.</p>
+        </div>
+    </div>
+</section>

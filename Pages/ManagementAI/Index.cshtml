@@ -1,0 +1,161 @@
+@page
+@model Vantage.PMS.Pages.ManagementAI.IndexModel
+@{
+    ViewData["Title"] = "AI Management Dashboard";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Management AI</li>
+    </ol>
+</nav>
+
+<div class="hero-command mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <div class="page-kicker">Management AI</div>
+            <h1 class="display-6 fw-bold mb-2">Executive hotel intelligence</h1>
+            <p class="mb-0 text-muted">MVP uses rule-based recommendations. External AI integration is disabled.</p>
+        </div>
+        <div class="d-flex align-items-start gap-2">
+            <form method="post" asp-page-handler="Generate">
+                <button type="submit" class="btn btn-primary">Generate Today's Summary</button>
+            </form>
+            <form method="post" asp-page-handler="Export">
+                <button type="submit" class="btn btn-outline-light">Export Summary</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Daily Snapshot</div>
+        <h2 class="h4 page-title">Rule-based Summary</h2>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+@if (Model.Summary is null)
+{
+    <div class="alert alert-warning">
+        No management summary has been generated yet. Use <strong>Generate Today's Summary</strong> to create the first dashboard snapshot.
+    </div>
+}
+else
+{
+    <div class="card mb-3 summary-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between">
+                <h2 class="h5">Daily Hotel Summary</h2>
+                <span class="badge text-bg-light">@Model.Summary.BusinessDate.ToString("MMM d, yyyy")</span>
+            </div>
+            <p class="mb-0">@Model.Summary.SummaryText</p>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Occupancy</div><div class="kpi-value">@Model.Summary.OccupancyPercentage.ToString("0.#")%</div><div class="kpi-note">Current hotel load</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Room Revenue</div><div class="kpi-value">@Model.Summary.RoomRevenue.ToString("C")</div><div class="kpi-note">Today</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">F&amp;B Revenue</div><div class="kpi-value">@Model.Summary.FBRevenue.ToString("C")</div><div class="kpi-note">Today</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Banquet Revenue</div><div class="kpi-value">@Model.Summary.BanquetRevenue.ToString("C")</div><div class="kpi-note">Today</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value">@Model.Summary.TotalRevenue.ToString("C")</div><div class="kpi-note">Rooms + F&amp;B + banquet</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Total Payments</div><div class="kpi-value">@Model.Summary.TotalPayments.ToString("C")</div><div class="kpi-note">Collected today</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Guest Balances</div><div class="kpi-value">@Model.Summary.OutstandingGuestBalances.ToString("C")</div><div class="kpi-note">Outstanding folios</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Balance</div><div class="kpi-value">@Model.Summary.ARBalance.ToString("C")</div><div class="kpi-note">City ledger</div></div></div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Operations</div>
+                <div class="card-body">
+                    <div class="row text-center g-2">
+                        <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">Arrivals</div><strong>@Model.Summary.ArrivalsToday</strong></div></div>
+                        <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">Departures</div><strong>@Model.Summary.DeparturesToday</strong></div></div>
+                        <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">In-house</div><strong>@Model.Summary.InHouseGuests</strong></div></div>
+                        <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">Dirty</div><strong>@Model.Summary.DirtyRooms</strong></div></div>
+                        <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">Out of order</div><strong>@Model.Summary.OutOfOrderRooms</strong></div></div>
+                        <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">Available</div><strong>@Model.Summary.AvailableRooms</strong></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Work Queues</div>
+                <div class="card-body">
+                    <div class="row text-center g-2">
+                        <div class="col-6"><div class="border rounded p-2"><div class="text-muted small">Open service requests</div><strong>@Model.Summary.OpenServiceRequests</strong></div></div>
+                        <div class="col-6"><div class="border rounded p-2"><div class="text-muted small">Housekeeping tasks</div><strong>@Model.Summary.PendingHousekeepingTasks</strong></div></div>
+                        <div class="col-6"><div class="border rounded p-2"><div class="text-muted small">Low stock items</div><strong>@Model.Summary.LowStockItems</strong></div></div>
+                        <div class="col-6"><div class="border rounded p-2"><div class="text-muted small">Pending approvals</div><strong>@Model.Summary.PendingApprovals</strong></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-danger text-white">Critical Insights</div>
+            <div class="list-group list-group-flush">
+                @if (Model.CriticalInsights.Count == 0)
+                {
+                    <div class="list-group-item text-muted">No unresolved critical insights.</div>
+                }
+                @foreach (var insight in Model.CriticalInsights)
+                {
+                    <a class="list-group-item list-group-item-action" asp-page="/ManagementAI/Insights/Index">
+                        <strong>@insight.Title</strong>
+                        <div class="small text-muted">@insight.RelatedModule - @insight.Summary</div>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header bg-warning">High Priority Insights</div>
+            <div class="list-group list-group-flush">
+                @if (Model.HighPriorityInsights.Count == 0)
+                {
+                    <div class="list-group-item text-muted">No unresolved high priority insights.</div>
+                }
+                @foreach (var insight in Model.HighPriorityInsights)
+                {
+                    <a class="list-group-item list-group-item-action" asp-page="/ManagementAI/Insights/Index">
+                        <strong>@insight.Title</strong>
+                        <div class="small text-muted">@insight.RelatedModule - @insight.Summary</div>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-header">Recommended Actions</div>
+    <div class="card-body">
+        @if (Model.RecommendedActions.Count == 0)
+        {
+            <p class="text-muted mb-0">Generate today's summary to view recommended actions.</p>
+        }
+        else
+        {
+            <ul class="mb-0">
+                @foreach (var action in Model.RecommendedActions)
+                {
+                    <li>@action</li>
+                }
+            </ul>
+        }
+    </div>
+</div>

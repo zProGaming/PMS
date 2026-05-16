@@ -1,0 +1,24 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Reports.APAgingModel
+@{
+    ViewData["Title"] = "AP Aging";
+}
+<div class="page-header">
+    <div><div class="page-kicker">Accounts Payable Report</div><h1 class="page-title">AP Aging</h1><p class="page-subtitle">Open supplier invoices grouped by aging bucket as of @Model.AsOfDate.ToString("yyyy-MM-dd").</p></div>
+    <div class="page-actions no-print"><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div>
+</div>
+<form method="get" class="vpms-card mb-3 no-print">
+    <div class="row g-3 align-items-end"><div class="col-md-3"><label class="form-label">As of</label><input name="asOfDate" type="date" value="@Model.AsOfDate.ToString("yyyy-MM-dd")" class="form-control" /></div><div class="col-md-2"><button class="btn vpms-btn-secondary">Run</button></div></div>
+</form>
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Supplier</th><th class="text-end">Current</th><th class="text-end">1-30</th><th class="text-end">31-60</th><th class="text-end">61-90</th><th class="text-end">Over 90</th><th class="text-end">Total</th></tr></thead>
+        <tbody>
+        @foreach (var row in Model.Rows)
+        {
+            <tr><td class="fw-semibold">@row.SupplierName</td><td class="text-end">@row.Current.ToString("C")</td><td class="text-end">@row.Days1To30.ToString("C")</td><td class="text-end">@row.Days31To60.ToString("C")</td><td class="text-end">@row.Days61To90.ToString("C")</td><td class="text-end">@row.Over90.ToString("C")</td><td class="text-end fw-semibold">@row.Total.ToString("C")</td></tr>
+        }
+        </tbody>
+        <tfoot><tr><th>Total</th><th class="text-end">@Model.Rows.Sum(row => row.Current).ToString("C")</th><th class="text-end">@Model.Rows.Sum(row => row.Days1To30).ToString("C")</th><th class="text-end">@Model.Rows.Sum(row => row.Days31To60).ToString("C")</th><th class="text-end">@Model.Rows.Sum(row => row.Days61To90).ToString("C")</th><th class="text-end">@Model.Rows.Sum(row => row.Over90).ToString("C")</th><th class="text-end">@Model.Rows.Sum(row => row.Total).ToString("C")</th></tr></tfoot>
+    </table>
+</div>

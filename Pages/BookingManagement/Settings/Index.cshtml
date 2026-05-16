@@ -1,0 +1,79 @@
+@page
+@model Vantage.PMS.Pages.BookingManagement.Settings.IndexModel
+@{
+    ViewData["Title"] = "Booking Engine Settings";
+}
+
+<h1 class="h3 mb-3">Booking Engine Settings</h1>
+
+<form method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Setting.Id" />
+    <input type="hidden" asp-for="Setting.CreatedAt" />
+
+    <div class="col-md-6">
+        <label asp-for="Setting.HotelName" class="form-label"></label>
+        <input asp-for="Setting.HotelName" class="form-control" />
+        <span asp-validation-for="Setting.HotelName" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Setting.BookingEngineTitle" class="form-label"></label>
+        <input asp-for="Setting.BookingEngineTitle" class="form-control" />
+    </div>
+    <div class="col-12">
+        <label asp-for="Setting.WelcomeMessage" class="form-label"></label>
+        <textarea asp-for="Setting.WelcomeMessage" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Setting.ContactEmail" class="form-label"></label>
+        <input asp-for="Setting.ContactEmail" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Setting.ContactNumber" class="form-label"></label>
+        <input asp-for="Setting.ContactNumber" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Setting.DefaultRatePlanId" class="form-label">Default Rate Plan</label>
+        <select asp-for="Setting.DefaultRatePlanId" asp-items="Model.RatePlanOptions" class="form-select">
+            <option value="">First active rate plan</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Setting.DepositPercentage" class="form-label"></label>
+        <input asp-for="Setting.DepositPercentage" class="form-control" type="number" min="0" max="100" step="0.01" />
+    </div>
+    <div class="col-md-9 d-flex align-items-end gap-3 flex-wrap">
+        <div class="form-check">
+            <input asp-for="Setting.RequireDeposit" class="form-check-input" />
+            <label asp-for="Setting.RequireDeposit" class="form-check-label"></label>
+        </div>
+        <div class="form-check">
+            <input asp-for="Setting.AllowPromoCodes" class="form-check-input" />
+            <label asp-for="Setting.AllowPromoCodes" class="form-check-label"></label>
+        </div>
+        <div class="form-check">
+            <input asp-for="Setting.AllowSpecialRequests" class="form-check-input" />
+            <label asp-for="Setting.AllowSpecialRequests" class="form-check-label"></label>
+        </div>
+        <div class="form-check">
+            <input asp-for="Setting.IsBookingEngineEnabled" class="form-check-input" />
+            <label asp-for="Setting.IsBookingEngineEnabled" class="form-check-label"></label>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Setting.TermsAndConditions" class="form-label"></label>
+        <textarea asp-for="Setting.TermsAndConditions" class="form-control" rows="5"></textarea>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Setting.PrivacyPolicy" class="form-label"></label>
+        <textarea asp-for="Setting.PrivacyPolicy" class="form-control" rows="5"></textarea>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+        <a asp-page="/BookingManagement/Index" class="btn btn-outline-secondary">Dashboard</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,36 @@
+@page
+@model Vantage.PMS.Pages.AccountsReceivable.Aging.IndexModel
+@{
+    ViewData["Title"] = "AR Aging";
+}
+
+<h1 class="h3 mb-3">AR Aging</h1>
+
+<table class="table table-striped table-hover align-middle">
+    <thead><tr><th>AR Account</th><th class="text-end">Current</th><th class="text-end">1-30</th><th class="text-end">31-60</th><th class="text-end">61-90</th><th class="text-end">Over 90</th><th class="text-end">Total</th></tr></thead>
+    <tbody>
+        @foreach (var row in Model.Rows)
+        {
+            <tr>
+                <td>@row.AccountName</td>
+                <td class="text-end">@row.Current.ToString("C")</td>
+                <td class="text-end">@row.Days1To30.ToString("C")</td>
+                <td class="text-end">@row.Days31To60.ToString("C")</td>
+                <td class="text-end">@row.Days61To90.ToString("C")</td>
+                <td class="text-end">@row.Over90.ToString("C")</td>
+                <td class="text-end">@row.Total.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <th>Grand Total</th>
+            <th class="text-end">@Model.CurrentTotal.ToString("C")</th>
+            <th class="text-end">@Model.Days1To30Total.ToString("C")</th>
+            <th class="text-end">@Model.Days31To60Total.ToString("C")</th>
+            <th class="text-end">@Model.Days61To90Total.ToString("C")</th>
+            <th class="text-end">@Model.Over90Total.ToString("C")</th>
+            <th class="text-end">@Model.GrandTotal.ToString("C")</th>
+        </tr>
+    </tfoot>
+</table>

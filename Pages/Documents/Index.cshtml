@@ -1,0 +1,70 @@
+@page
+@model Vantage.PMS.Pages.Documents.IndexModel
+@{
+    ViewData["Title"] = "Printable Documents";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/Reports/Index">Reports</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Printable Documents</li>
+    </ol>
+</nav>
+
+<div class="vpms-page-header">
+    <div>
+        <div class="page-kicker">Documents</div>
+        <h1 class="vpms-page-title">Printable Documents</h1>
+        <p class="vpms-page-subtitle">Client-demo-ready browser print templates for hotel operations, finance, F&amp;B, banquet, purchasing, and management summaries.</p>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/System/DocumentTemplateSettings/Index">Template Settings</a>
+    </div>
+</div>
+
+<div class="alert alert-info vpms-alert">
+    Print and Save as PDF use the browser print dialog. No external PDF service is configured in the MVP.
+</div>
+
+<div class="row g-4">
+    @foreach (var documentSection in Model.Sections)
+    {
+        <div class="col-lg-6 col-xxl-4">
+            <section class="vpms-card h-100">
+                <div class="card-body">
+                    <h2 class="h5">@documentSection.Title</h2>
+                    <div class="list-group list-group-flush">
+                        @foreach (var link in documentSection.Links)
+                        {
+                            <div class="list-group-item px-0 d-flex justify-content-between align-items-center gap-3">
+                                <div>
+                                    <strong>@link.Title</strong>
+                                    @if (!link.IsAvailable)
+                                    {
+                                        <div class="text-muted small">No sample record is available yet. Seed demo data from System &gt; Demo Setup or create a record first.</div>
+                                    }
+                                </div>
+                                @if (link.IsAvailable)
+                                {
+                                    if (link.Page is not null)
+                                    {
+                                        <a class="btn btn-sm vpms-btn-secondary" href="@link.Page">Open</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="btn btn-sm vpms-btn-secondary" asp-page="/Documents/Print" asp-route-template="@link.Template" asp-route-id="@link.SampleId">Open</a>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="vpms-status-badge status-draft">No sample</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+        </div>
+    }
+</div>

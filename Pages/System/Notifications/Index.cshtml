@@ -1,0 +1,63 @@
+@page
+@using Vantage.PMS.Models.SystemAdministration
+@model Vantage.PMS.Pages.System.Notifications.IndexModel
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Notifications</h1>
+    <form method="post" asp-page-handler="Generate">
+        <button type="submit" class="btn btn-outline-primary">Refresh Alerts</button>
+    </form>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+<div class="list-group">
+    @if (Model.Notifications.Count == 0)
+    {
+        <div class="list-group-item text-muted">No notifications.</div>
+    }
+    @foreach (var notification in Model.Notifications)
+    {
+        <div class="list-group-item">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <span class="badge bg-@SeverityClass(notification.Severity)">@notification.Severity</span>
+                    <strong>@notification.Title</strong>
+                    <span class="text-muted small">@notification.NotificationType</span>
+                </div>
+                <span class="text-muted small">@notification.CreatedAt.ToString("g")</span>
+            </div>
+            <p class="mb-2">@notification.Message</p>
+            <div class="d-flex justify-content-between">
+                <span class="text-muted small">@notification.RelatedModule @notification.RelatedReferenceType</span>
+                @if (!notification.IsRead)
+                {
+                    <form method="post" asp-page-handler="MarkRead" asp-route-id="@notification.Id">
+                        <button class="btn btn-sm btn-outline-success" type="submit">Mark Read</button>
+                    </form>
+                }
+                else
+                {
+                    <span class="badge bg-success">Read</span>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@functions {
+    private static string SeverityClass(SystemSeverity severity) => severity switch
+    {
+        SystemSeverity.Critical => "danger",
+        SystemSeverity.High => "warning text-dark",
+        SystemSeverity.Medium => "primary",
+        SystemSeverity.Low => "info text-dark",
+        _ => "secondary"
+    };
+}

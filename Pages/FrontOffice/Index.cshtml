@@ -5,10 +5,18 @@
     ViewData["Title"] = "Front Office";
 }
 
-<div class="d-flex align-items-center justify-content-between mb-4">
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Front Office</li>
+    </ol>
+</nav>
+
+<div class="page-header">
     <div>
-        <h1 class="mb-1">Front Office</h1>
-        <p class="text-muted mb-0">Today&apos;s rooms and guest movement.</p>
+        <div class="page-kicker">Rooms &amp; Guests</div>
+        <h1 class="page-title">Front Office</h1>
+        <p class="page-subtitle">Today&apos;s rooms, reservations, arrivals, departures, and in-house guests.</p>
     </div>
     <div class="d-flex gap-2">
         <a class="btn btn-primary" asp-page="/FrontOffice/Reservations/Create">New Reservation</a>
@@ -18,50 +26,87 @@
 
 <div class="row g-3">
     <div class="col-md-3">
-        <div class="border rounded p-3 h-100">
-            <div class="text-muted small">Total Rooms</div>
-            <div class="display-6">@Model.TotalRooms</div>
+        <div class="kpi-card">
+            <div class="kpi-label">Total Rooms</div>
+            <div class="kpi-value">@Model.TotalRooms</div>
+            <div class="kpi-note">Active inventory</div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="border rounded p-3 h-100">
-            <div class="text-muted small">Available Rooms</div>
-            <div class="display-6">@Model.AvailableRooms</div>
+        <div class="kpi-card">
+            <div class="kpi-label">Available Rooms</div>
+            <div class="kpi-value">@Model.AvailableRooms</div>
+            <div class="kpi-note">Ready to sell</div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="border rounded p-3 h-100">
-            <div class="text-muted small">Occupied Rooms</div>
-            <div class="display-6">@Model.OccupiedRooms</div>
+        <div class="kpi-card">
+            <div class="kpi-label">Occupied Rooms</div>
+            <div class="kpi-value">@Model.OccupiedRooms</div>
+            <div class="kpi-note">Current house count</div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="border rounded p-3 h-100">
-            <div class="text-muted small">Dirty Rooms</div>
-            <div class="display-6">@Model.DirtyRooms</div>
+        <div class="kpi-card">
+            <div class="kpi-label">Dirty Rooms</div>
+            <div class="kpi-value">@Model.DirtyRooms</div>
+            <div class="kpi-note">Needs housekeeping</div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="border rounded p-3 h-100">
-            <div class="text-muted small">Arrivals Today</div>
-            <div class="display-6">@Model.ArrivalsToday</div>
+        <div class="kpi-card">
+            <div class="kpi-label">Arrivals Today</div>
+            <div class="kpi-value">@Model.ArrivalsToday</div>
+            <div class="kpi-note">Reserved arrivals</div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="border rounded p-3 h-100">
-            <div class="text-muted small">Departures Today</div>
-            <div class="display-6">@Model.DeparturesToday</div>
+        <div class="kpi-card">
+            <div class="kpi-label">Departures Today</div>
+            <div class="kpi-value">@Model.DeparturesToday</div>
+            <div class="kpi-note">Checked-in due-outs</div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="border rounded p-3 h-100">
-            <div class="text-muted small">In-house Guests</div>
-            <div class="display-6">@Model.InHouseGuests</div>
+        <div class="kpi-card">
+            <div class="kpi-label">In-house Guests</div>
+            <div class="kpi-value">@Model.InHouseGuests</div>
+            <div class="kpi-note">Checked in now</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-label">Tentative Groups</div>
+            <div class="kpi-value">@Model.TentativeGroups</div>
+            <div class="kpi-note">Awaiting confirmation</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-label">Groups Arriving</div>
+            <div class="kpi-value">@Model.ConfirmedGroupsArrivingThisWeek</div>
+            <div class="kpi-note">Confirmed this week</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-label">Group Rooms</div>
+            <div class="kpi-value">@Model.GroupRoomsPickedUp / @Model.GroupRoomsBlocked</div>
+            <div class="kpi-note">Picked up / blocked</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <div class="kpi-label">Pseudo Folios</div>
+            <div class="kpi-value">@Model.PseudoRoomOpenFolios</div>
+            <div class="kpi-note">Open paymaster folios</div>
         </div>
     </div>
 </div>
 
-<div class="mt-4 d-flex gap-2">
-    <a class="btn btn-outline-secondary" asp-page="/FrontOffice/Reservations/Index">Manage Reservations</a>
-    <a class="btn btn-outline-secondary" asp-page="/FrontOffice/Guests/Index">Manage Guests</a>
+<div class="quick-action-grid mt-4">
+    <a class="quick-action-card" asp-page="/FrontOffice/Reservations/Index"><strong>Manage Reservations</strong><small>Search, check in, check out, and folios</small></a>
+    <a class="quick-action-card" asp-page="/Groups/Index"><strong>Group Bookings</strong><small>Blocks, rooming lists, and master folios</small></a>
+    <a class="quick-action-card" asp-page="/FrontOffice/Guests/Index"><strong>Manage Guests</strong><small>Guest profiles and contact details</small></a>
+    <a class="quick-action-card" asp-page="/FrontOffice/RoomRack/Index"><strong>Room Rack</strong><small>Physical rooms, status, and in-house links</small></a>
 </div>

@@ -1,0 +1,156 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Reports.CashMovementModel
+@using Vantage.PMS.Models.Accounting
+@using Vantage.PMS.ViewModels.Reports
+@{
+    ViewData["Title"] = "Cash Movement Report";
+    var csvUrl = Url.Page("/Reports/Export", "Csv", new
+    {
+        reportKey = "cash-movement-report",
+        dateRangeStart = Model.StartDate.ToString("yyyy-MM-dd"),
+        dateRangeEnd = Model.EndDate.ToString("yyyy-MM-dd")
+    });
+}
+
+<div class="page-header vpms-no-print">
+    <div>
+        <div class="page-kicker">Accounting Reports</div>
+        <h1 class="page-title">Cash Movement Report</h1>
+        <p class="page-subtitle">Cash inflows and outflows classified by source, offset account, and cash flow category.</p>
+    </div>
+</div>
+
+<form method="get" class="vpms-card mb-3 vpms-report-filters">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-2">
+            <label class="form-label">Date From</label>
+            <input name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" type="date" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Date To</label>
+            <input name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" type="date" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label asp-for="CashAccountId" class="form-label">Cash account</label>
+            <select asp-for="CashAccountId" asp-items="Model.CashAccountOptions" class="form-select">
+                <option value="">All cash accounts</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Section" class="form-label">Section</label>
+            <select asp-for="Section" asp-items="Html.GetEnumSelectList<CashFlowSection>()" class="form-select">
+                <option value="">All sections</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="CategoryId" class="form-label">Category</label>
+            <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-select">
+                <option value="">All categories</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="SourceModule" class="form-label">Source</label>
+            <select asp-for="SourceModule" asp-items="Html.GetEnumSelectList<SourceModule>()" class="form-select">
+                <option value="">All sources</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Mapping</label>
+            <select name="MappingStatus" class="form-select">
+                <option value="">All</option>
+                <option value="mapped" selected="@(Model.MappingStatus == "mapped")">Mapped</option>
+                <option value="unmapped" selected="@(Model.MappingStatus == "unmapped")">Unmapped</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button class="btn vpms-btn-primary w-100" type="submit">Run</button>
+        </div>
+    </div>
+</form>
+
+@await Html.PartialAsync("_ReportActions", new ReportActionsViewModel
+{
+    CsvAvailable = true,
+    CsvUrl = csvUrl,
+    HtmlAvailable = true,
+    HtmlUrl = Url.Page("/Accounting/Reports/CashMovement", new { startDate = Model.StartDate.ToString("yyyy-MM-dd"), endDate = Model.EndDate.ToString("yyyy-MM-dd") }),
+    BackUrl = Url.Page("/Accounting/Reports/StatementOfCashFlows", new { startDate = Model.StartDate.ToString("yyyy-MM-dd"), endDate = Model.EndDate.ToString("yyyy-MM-dd") })
+})
+
+<section class="vpms-print-document vpms-report-page">
+    @await Html.PartialAsync("_ReportHeader", new ReportHeaderViewModel
+    {
+        ReportTitle = "Cash Movement Report",
+        ReportCategory = "Accounting",
+        DateRangeStart = Model.StartDate,
+        DateRangeEnd = Model.EndDate,
+        GeneratedBy = User.Identity?.Name,
+        Disclaimer = "This report is generated from posted journal entries and configured cash flow mappings."
+    })
+
+    @if (!Model.Rows.Any())
+    {
+        <div class="vpms-empty-state">
+            <h2>No cash movements found</h2>
+            <p>No posted journal entries involving configured cash accounts were found for the selected filters.</p>
+        </div>
+    }
+    else
+    {
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table vpms-report-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Journal</th>
+                        <th>Source</th>
+                        <th>Cash Account</th>
+                        <th>Offset Account</th>
+                        <th>Description</th>
+                        <th class="text-end">Inflow</th>
+                        <th class="text-end">Outflow</th>
+                        <th>Classification</th>
+                        <th>Mapping</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var row in Model.Rows)
+                {
+                    <tr>
+                        <td>@row.JournalDate.ToString("MMM d, yyyy")</td>
+                        <td>@row.JournalNumber</td>
+                        <td>@row.SourceModule / @row.SourceTransactionType</td>
+                        <td>@row.CashAccountCode - @row.CashAccountName</td>
+                        <td>@row.OffsetAccountCode @row.OffsetAccountName</td>
+                        <td>@row.Description</td>
+                        <td class="text-end">@row.CashInflow.ToString("C")</td>
+                        <td class="text-end">@row.CashOutflow.ToString("C")</td>
+                        <td>@row.CashFlowSection / @row.CashFlowCategoryName</td>
+                        <td>
+                            <span class="status-badge @(row.IsMapped ? "status-paid" : "status-pending")">@row.MappingStatus</span>
+                            @if (!row.IsMapped)
+                            {
+                                <a class="btn btn-sm vpms-btn-secondary ms-2 vpms-no-print" asp-page="/Accounting/CashFlow/MappingRules/Index" asp-route-glAccountId="@row.OffsetAccountId" asp-route-sourceModule="@row.SourceModule" asp-route-sourceTransactionType="@row.SourceTransactionType">Map</a>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="6">Totals</th>
+                        <th class="text-end">@Model.Rows.Sum(row => row.CashInflow).ToString("C")</th>
+                        <th class="text-end">@Model.Rows.Sum(row => row.CashOutflow).ToString("C")</th>
+                        <th colspan="2" class="text-end">Net @Model.Rows.Sum(row => row.Amount).ToString("C")</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }
+
+    @await Html.PartialAsync("_ReportFooter", new ReportFooterViewModel
+    {
+        FooterText = "Generated by Vantage PMS.",
+        ShowComplianceNote = true
+    })
+</section>

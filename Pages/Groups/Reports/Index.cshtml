@@ -1,0 +1,179 @@
+@page
+@model Vantage.PMS.Pages.Groups.Reports.IndexModel
+@{
+    ViewData["Title"] = "Group Reports";
+}
+
+<div class="page-header vpms-print-hide">
+    <div>
+        <div class="page-kicker">Group Billing Reports</div>
+        <h1 class="page-title">Group Booking and Pseudo Room Reports</h1>
+        <p class="page-subtitle">Group room block, pickup, collection, pseudo room folio, and charge routing readiness.</p>
+    </div>
+    <div class="page-actions">
+        <button type="button" class="btn vpms-btn-primary" onclick="window.print()">Print</button>
+        <a class="btn vpms-btn-secondary" asp-page="/Groups/Index">Group Bookings</a>
+    </div>
+</div>
+
+<article class="vpms-print-document vpms-report-page">
+    <header class="vpms-report-header">
+        <div>
+            <div class="vpms-report-kicker">Vantage PMS</div>
+            <h1 class="vpms-report-title">Group Booking and Pseudo Room Reports</h1>
+            <div class="vpms-report-meta">Generated @DateTime.Now.ToString("MMM d, yyyy h:mm tt")</div>
+        </div>
+    </header>
+
+    <section class="vpms-card vpms-print-section mb-4">
+        <h2 class="h5">Group Booking List</h2>
+        @if (Model.Groups.Count == 0)
+        {
+            <div class="vpms-empty-state">No group bookings found.</div>
+        }
+        else
+        {
+            <div class="vpms-table-wrapper">
+                <table class="table vpms-table vpms-report-table align-middle">
+                    <thead><tr><th>Group</th><th>Dates</th><th>Status</th><th class="text-end">Blocked</th><th class="text-end">Picked Up</th><th class="text-end">Outstanding</th></tr></thead>
+                    <tbody>
+                    @foreach (var group in Model.Groups)
+                    {
+                        var blocked = group.RoomBlocks.Sum(item => item.RoomsBlocked);
+                        var pickedUp = group.RoomBlocks.Sum(item => item.RoomsPickedUp);
+                        var summary = Model.CollectionSummaries.TryGetValue(group.Id, out var value) ? value : new Vantage.PMS.Services.GroupCollectionSummary();
+                        <tr>
+                            <td><a asp-page="/Groups/Details" asp-route-id="@group.Id">@group.GroupCode - @group.GroupName</a><div class="small text-muted">@group.SalesAccount?.AccountName</div></td>
+                            <td>@group.ArrivalDate.ToString("MMM d") - @group.DepartureDate.ToString("MMM d, yyyy")</td>
+                            <td><span class="status-badge">@group.BookingStatus</span></td>
+                            <td class="text-end">@blocked</td>
+                            <td class="text-end">@pickedUp</td>
+                            <td class="text-end">@summary.OutstandingBalance.ToString("C")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="vpms-card vpms-print-section mb-4">
+        <h2 class="h5">Group Room Block and Pickup Report</h2>
+        @if (Model.RoomBlocks.Count == 0)
+        {
+            <div class="vpms-empty-state">No group room blocks found.</div>
+        }
+        else
+        {
+            <div class="vpms-table-wrapper">
+                <table class="table vpms-table vpms-report-table align-middle">
+                    <thead><tr><th>Date</th><th>Group</th><th>Room Type</th><th class="text-end">Blocked</th><th class="text-end">Picked Up</th><th class="text-end">Released</th><th class="text-end">Remaining</th><th class="text-end">Rate</th></tr></thead>
+                    <tbody>
+                    @foreach (var block in Model.RoomBlocks)
+                    {
+                        var remaining = Math.Max(0, block.RoomsBlocked - block.RoomsPickedUp - block.RoomsReleased);
+                        <tr>
+                            <td>@block.BlockDate.ToString("MMM d, yyyy")</td>
+                            <td>@block.GroupBooking?.GroupCode</td>
+                            <td>@block.RoomType?.Code</td>
+                            <td class="text-end">@block.RoomsBlocked</td>
+                            <td class="text-end">@block.RoomsPickedUp</td>
+                            <td class="text-end">@block.RoomsReleased</td>
+                            <td class="text-end">@remaining</td>
+                            <td class="text-end">@block.RateAmount.ToString("C")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="vpms-card vpms-print-section mb-4">
+        <h2 class="h5">Group Master Folio Report</h2>
+        @if (Model.GroupFolios.Count == 0)
+        {
+            <div class="vpms-empty-state">No group folios found.</div>
+        }
+        else
+        {
+            <div class="vpms-table-wrapper">
+                <table class="table vpms-table vpms-report-table align-middle">
+                    <thead><tr><th>Folio</th><th>Group</th><th>Pseudo Room</th><th>Status</th><th class="text-end">Charges</th><th class="text-end">Payments</th><th class="text-end">Balance</th></tr></thead>
+                    <tbody>
+                    @foreach (var folio in Model.GroupFolios)
+                    {
+                        var charges = folio.Folio?.Items.Where(item => !item.IsVoided).Sum(item => item.Amount) ?? 0;
+                        var payments = folio.Folio?.Payments.Sum(item => item.Amount) ?? 0;
+                        <tr>
+                            <td>@folio.FolioName</td>
+                            <td>@folio.GroupBooking?.GroupCode</td>
+                            <td>@folio.PseudoRoom?.PseudoRoomCode</td>
+                            <td>@folio.Status</td>
+                            <td class="text-end">@charges.ToString("C")</td>
+                            <td class="text-end">@payments.ToString("C")</td>
+                            <td class="text-end">@((charges - payments).ToString("C"))</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="vpms-card vpms-print-section mb-4">
+        <h2 class="h5">Pseudo Room Folio Report</h2>
+        @if (Model.PseudoRooms.Count == 0)
+        {
+            <div class="vpms-empty-state">No pseudo rooms found.</div>
+        }
+        else
+        {
+            <div class="vpms-table-wrapper">
+                <table class="table vpms-table vpms-report-table align-middle">
+                    <thead><tr><th>Code</th><th>Name</th><th>Type</th><th>Linked Group</th><th>Status</th></tr></thead>
+                    <tbody>
+                    @foreach (var pseudo in Model.PseudoRooms)
+                    {
+                        <tr>
+                            <td>@pseudo.PseudoRoomCode</td>
+                            <td>@pseudo.PseudoRoomName</td>
+                            <td>@pseudo.PseudoRoomType</td>
+                            <td>@pseudo.LinkedGroupBooking?.GroupName</td>
+                            <td>@(pseudo.IsActive ? "Active" : "Inactive")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="vpms-card vpms-print-section">
+        <h2 class="h5">Charge Routing Report</h2>
+        @if (Model.RoutingRules.Count == 0)
+        {
+            <div class="vpms-empty-state">No charge routing rules found.</div>
+        }
+        else
+        {
+            <div class="vpms-table-wrapper">
+                <table class="table vpms-table vpms-report-table align-middle">
+                    <thead><tr><th>Source Group</th><th>Category</th><th>Route To</th><th>Target</th><th>Status</th></tr></thead>
+                    <tbody>
+                    @foreach (var rule in Model.RoutingRules)
+                    {
+                        <tr>
+                            <td>@rule.GroupBooking?.GroupName</td>
+                            <td>@rule.SourceChargeCategory</td>
+                            <td>@rule.RouteToType</td>
+                            <td>@(rule.TargetGroupFolio?.FolioName ?? rule.TargetPseudoRoom?.PseudoRoomCode ?? "Configured folio")</td>
+                            <td>@(rule.IsActive ? "Active" : "Inactive")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</article>

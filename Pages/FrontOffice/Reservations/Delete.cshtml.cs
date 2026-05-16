@@ -45,7 +45,7 @@ public class DeleteModel(ApplicationDbContext context) : PageModel
         var reservation = await _context.Reservations.FindAsync(id);
         if (reservation is not null)
         {
-            _context.Reservations.Remove(reservation);
+            reservation.Status = ReservationStatus.Cancelled;
             await _context.SaveChangesAsync();
         }
 

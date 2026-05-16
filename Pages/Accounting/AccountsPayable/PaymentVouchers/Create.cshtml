@@ -1,0 +1,32 @@
+@page
+@model Vantage.PMS.Pages.Accounting.AccountsPayable.PaymentVouchers.CreateModel
+@using Vantage.PMS.Models.Finance
+@{
+    ViewData["Title"] = "Create Payment Voucher";
+}
+
+<div class="page-header">
+    <div><div class="page-kicker">Accounts Payable</div><h1 class="page-title">Create Payment Voucher</h1><p class="page-subtitle">Prepare supplier payment for approval and release.</p></div>
+</div>
+
+<form method="post" class="vpms-form-card">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-3"><label asp-for="Input.VoucherNumber" class="form-label">Voucher Number</label><input asp-for="Input.VoucherNumber" class="form-control" /></div>
+        <div class="col-md-3"><label asp-for="Input.VoucherDate" class="form-label">Voucher Date</label><input asp-for="Input.VoucherDate" type="date" class="form-control" /></div>
+        <div class="col-md-6"><label asp-for="Input.APInvoiceId" class="form-label">AP Invoice</label><select asp-for="Input.APInvoiceId" asp-items="Model.APInvoiceOptions" class="form-select"><option value="">Manual supplier payment</option></select></div>
+        <div class="col-md-4"><label asp-for="Input.SupplierId" class="form-label">Supplier</label><select asp-for="Input.SupplierId" asp-items="Model.SupplierOptions" class="form-select"><option value="">Select supplier</option></select></div>
+        <div class="col-md-2"><label asp-for="Input.PaymentMethod" class="form-label">Method</label><select asp-for="Input.PaymentMethod" asp-items="Html.GetEnumSelectList<FinancePaymentMethod>()" class="form-select"></select></div>
+        <div class="col-md-2"><label asp-for="Input.Amount" class="form-label">Gross Amount</label><input asp-for="Input.Amount" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="Input.WithholdingTaxAmount" class="form-label">WHT</label><input asp-for="Input.WithholdingTaxAmount" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="Input.NetPaymentAmount" class="form-label">Net Payment</label><input asp-for="Input.NetPaymentAmount" class="form-control" /></div>
+        <div class="col-md-4"><label asp-for="Input.BankAccountName" class="form-label">Bank Account Name</label><input asp-for="Input.BankAccountName" class="form-control" /></div>
+        <div class="col-md-4"><label asp-for="Input.BankReferenceNumber" class="form-label">Bank Reference</label><input asp-for="Input.BankReferenceNumber" class="form-control" /></div>
+        <div class="col-md-4"><label asp-for="Input.CheckNumber" class="form-label">Check Number</label><input asp-for="Input.CheckNumber" class="form-control" /></div>
+        <div class="col-12"><label asp-for="Input.Notes" class="form-label">Notes</label><textarea asp-for="Input.Notes" rows="3" class="form-control"></textarea></div>
+    </div>
+    <div class="vpms-actions mt-3">
+        <button class="btn vpms-btn-primary" type="submit">Save Voucher</button>
+        <a asp-page="Index" class="btn vpms-btn-secondary">Cancel</a>
+    </div>
+</form>

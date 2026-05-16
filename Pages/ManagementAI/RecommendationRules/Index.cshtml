@@ -1,0 +1,103 @@
+@page
+@using Vantage.PMS.Models.ManagementAI
+@model Vantage.PMS.Pages.ManagementAI.RecommendationRules.IndexModel
+@{
+    ViewData["Title"] = "AI Recommendation Rules";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-1">Recommendation Rules</h1>
+        <p class="text-muted mb-0">Descriptive rules for management users. Core MVP rule logic remains in the service layer.</p>
+    </div>
+    <a class="btn btn-outline-secondary" asp-page="/ManagementAI/Index">Dashboard</a>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+<form method="post" asp-page-handler="Create" class="card card-body mb-3">
+    <h2 class="h5">Create Rule</h2>
+    <div class="row g-3">
+        <div class="col-md-3">
+            <label class="form-label" asp-for="NewRule.RuleName">Rule name</label>
+            <input class="form-control" asp-for="NewRule.RuleName" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" asp-for="NewRule.Module">Module</label>
+            <input class="form-control" asp-for="NewRule.Module" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" asp-for="NewRule.Severity">Severity</label>
+            <select class="form-select" asp-for="NewRule.Severity" asp-items="Html.GetEnumSelectList<ManagementInsightSeverity>()"></select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <div class="form-check">
+                <input class="form-check-input" asp-for="NewRule.IsActive" />
+                <label class="form-check-label" asp-for="NewRule.IsActive">Active</label>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <label class="form-label" asp-for="NewRule.ConditionDescription">Condition</label>
+            <textarea class="form-control" asp-for="NewRule.ConditionDescription" rows="2"></textarea>
+        </div>
+        <div class="col-md-12">
+            <label class="form-label" asp-for="NewRule.RecommendationText">Recommendation</label>
+            <textarea class="form-control" asp-for="NewRule.RecommendationText" rows="2"></textarea>
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary">Create Rule</button>
+        </div>
+    </div>
+</form>
+
+@foreach (var rule in Model.Rules)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="post" asp-page-handler="Update" asp-route-id="@rule.Id">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Rule name</label>
+                        <input class="form-control" name="ruleName" value="@rule.RuleName" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Module</label>
+                        <input class="form-control" name="module" value="@rule.Module" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Severity</label>
+                        <select class="form-select" name="severity">
+                            @foreach (var severity in Enum.GetValues<ManagementInsightSeverity>())
+                            {
+                                <option value="@severity" selected="@(severity == rule.Severity)">@severity</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="isActive" value="true" checked="@rule.IsActive" />
+                            <label class="form-check-label">Active</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Condition</label>
+                        <textarea class="form-control" name="conditionDescription" rows="2">@rule.ConditionDescription</textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Recommendation</label>
+                        <textarea class="form-control" name="recommendationText" rows="2">@rule.RecommendationText</textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-outline-primary">Save</button>
+                    </div>
+                </div>
+            </form>
+            <form method="post" asp-page-handler="Delete" asp-route-id="@rule.Id" class="mt-2">
+                <button type="submit" class="btn btn-outline-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+}

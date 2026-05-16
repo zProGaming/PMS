@@ -1,0 +1,40 @@
+@page
+@model Vantage.PMS.Pages.ManagementAI.ActionLog.IndexModel
+@{
+    ViewData["Title"] = "AI Action Log";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">AI Action Log</h1>
+    <a class="btn btn-outline-secondary" asp-page="/ManagementAI/Index">Dashboard</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Action Date</th>
+                <th>Action</th>
+                <th>Module</th>
+                <th>Description</th>
+                <th>Performed By</th>
+                <th>Related Insight</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Model.ActionLogs)
+            {
+                <tr>
+                    <td>@log.ActionDate.ToString("g")</td>
+                    <td>@log.ActionType</td>
+                    <td>@log.Module</td>
+                    <td>@log.Description</td>
+                    <td>@log.PerformedBy</td>
+                    <td>@log.RelatedInsight?.Title</td>
+                    <td>@log.Notes</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

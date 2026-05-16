@@ -1,0 +1,111 @@
+@page
+@using Vantage.PMS.Models.Reports
+@using Vantage.PMS.Services
+@model Vantage.PMS.Pages.Reports.CenterModel
+
+@{
+    ViewData["Title"] = "Report Center";
+    var categories = Model.Reports
+        .GroupBy(report => report.ReportCategory)
+        .OrderBy(group => group.Key)
+        .ToList();
+    var canManageReports = Vantage.PMS.Authorization.PmsRoles.ReportAdministration.Any(User.IsInRole);
+}
+
+<div class="vpms-page-header">
+    <div>
+        <div class="page-kicker">Reports</div>
+        <h1 class="vpms-page-title">Report Center</h1>
+        <p class="vpms-page-subtitle">Centralized printing, CSV export, and browser PDF access for Vantage PMS reports.</p>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/Documents/Index">Printable Documents</a>
+        @if (canManageReports)
+        {
+            <a class="btn vpms-btn-secondary" asp-page="/Reports/ExportLogs/Index">Export Logs</a>
+            <a class="btn vpms-btn-secondary" asp-page="/Reports/TemplateSettings/Index">Template Settings</a>
+        }
+    </div>
+</div>
+
+<section class="vpms-report-filters vpms-card mb-4">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label" for="search">Search</label>
+            <input class="form-control" id="search" name="search" value="@Model.Search" placeholder="Search reports, categories, or descriptions" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="category">Category</label>
+            <select class="form-select" id="category" asp-for="Category" asp-items="Html.GetEnumSelectList<ReportCategory>()">
+                <option value="">All categories</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button class="btn vpms-btn-primary flex-fill" type="submit">Filter</button>
+            <a class="btn vpms-btn-secondary flex-fill" asp-page="/Reports/Center">Reset</a>
+        </div>
+    </form>
+</section>
+
+@if (Model.Reports.Count == 0)
+{
+    <section class="vpms-empty-state">
+        <strong>No reports found.</strong>
+        <span>Adjust the filters or confirm your role has report access.</span>
+    </section>
+}
+else
+{
+    <div class="vpms-report-center">
+        @foreach (var category in categories)
+        {
+            <section class="vpms-section-card vpms-report-category">
+                <div class="vpms-report-category-header">
+                    <div>
+                        <h2>@ReportCatalogService.FormatCategory(category.Key)</h2>
+                        <p>@category.Count() report@(category.Count() == 1 ? "" : "s") available or planned.</p>
+                    </div>
+                    <span class="vpms-badge">@category.Key</span>
+                </div>
+                <div class="vpms-report-card-grid">
+                    @foreach (var report in category)
+                    {
+                        var placeholderUrl = Url.Page("/Reports/Placeholder", new { reportName = report.ReportName, category = ReportCatalogService.FormatCategory(report.ReportCategory) });
+                        var openUrl = report.IsAvailable ? report.RoutePath : placeholderUrl;
+                        var csvUrl = report.SupportsCsvExport
+                            ? Url.Page("/Reports/Export", "Csv", new { reportKey = report.ReportKey })
+                            : null;
+                        <article class="vpms-report-card">
+                            <div class="vpms-report-card-body">
+                                <div class="vpms-report-card-kicker">@ReportCatalogService.FormatCategory(report.ReportCategory)</div>
+                                <h3>@report.ReportName</h3>
+                                <p>@report.Description</p>
+                            </div>
+                            <div class="vpms-report-capabilities" aria-label="Report capabilities">
+                                <span class="@(report.SupportsPrint ? "is-on" : "is-muted")">Print</span>
+                                <span class="@(report.SupportsPdfViaBrowserPrint ? "is-on" : "is-muted")">Browser PDF</span>
+                                <span class="@(report.SupportsCsvExport ? "is-on" : "is-muted")">CSV</span>
+                                <span class="@(report.SupportsHtmlExport ? "is-on" : "is-muted")">HTML</span>
+                            </div>
+                            <div class="vpms-report-card-actions">
+                                <a class="btn vpms-btn-primary btn-sm" href="@openUrl">Open</a>
+                                @if (!string.IsNullOrWhiteSpace(csvUrl))
+                                {
+                                    <a class="btn vpms-btn-secondary btn-sm" href="@csvUrl">CSV</a>
+                                }
+                                else
+                                {
+                                    <span class="btn vpms-btn-secondary btn-sm disabled">CSV planned</span>
+                                }
+                            </div>
+                            @if (!report.IsAvailable)
+                            {
+                                <div class="vpms-report-unavailable">Report not yet available.</div>
+                            }
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+    </div>
+}

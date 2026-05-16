@@ -1,0 +1,13 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Reports.APInvoiceRegisterModel
+@{
+    ViewData["Title"] = "AP Invoice Register";
+}
+<div class="page-header"><div><div class="page-kicker">Accounts Payable Report</div><h1 class="page-title">AP Invoice Register</h1><p class="page-subtitle">@Model.StartDate.ToString("yyyy-MM-dd") to @Model.EndDate.ToString("yyyy-MM-dd")</p></div><div class="page-actions no-print"><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div></div>
+<form method="get" class="vpms-card mb-3 no-print"><div class="row g-3 align-items-end"><div class="col-md-3"><label class="form-label">From</label><input name="startDate" type="date" value="@Model.StartDate.ToString("yyyy-MM-dd")" class="form-control" /></div><div class="col-md-3"><label class="form-label">To</label><input name="endDate" type="date" value="@Model.EndDate.ToString("yyyy-MM-dd")" class="form-control" /></div><div class="col-md-2"><button class="btn vpms-btn-secondary">Run</button></div></div></form>
+<div class="vpms-table-wrapper"><table class="table vpms-table align-middle"><thead><tr><th>Date</th><th>Invoice</th><th>Supplier</th><th>Status</th><th class="text-end">Subtotal</th><th class="text-end">Tax</th><th class="text-end">WHT</th><th class="text-end">Total</th><th class="text-end">Balance</th></tr></thead><tbody>
+@foreach (var invoice in Model.Invoices)
+{
+    <tr><td>@invoice.InvoiceDate.ToString("yyyy-MM-dd")</td><td>@invoice.InvoiceNumber</td><td>@invoice.Supplier?.SupplierName</td><td><span class="status-badge">@invoice.Status</span></td><td class="text-end">@invoice.SubTotal.ToString("C")</td><td class="text-end">@invoice.TaxAmount.ToString("C")</td><td class="text-end">@invoice.WithholdingTaxAmount.ToString("C")</td><td class="text-end">@invoice.TotalAmount.ToString("C")</td><td class="text-end">@invoice.Balance.ToString("C")</td></tr>
+}
+</tbody></table></div>

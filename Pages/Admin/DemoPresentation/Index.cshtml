@@ -1,0 +1,27 @@
+@page
+@model Vantage.PMS.Pages.Admin.DemoPresentation.IndexModel
+@{
+    ViewData["Title"] = "Demo Presentation";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/Admin/Hotels/Index">Admin</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Demo Presentation</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Administration</div>
+        <h1 class="page-title">Demo Presentation</h1>
+        <p class="page-subtitle">Presentation support area for guided Vantage PMS walkthroughs.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <p class="mb-0 text-muted">Use the module dashboards and QA checklist for live walkthroughs. A curated scripted demo flow can be added here later.</p>
+    </div>
+</div>

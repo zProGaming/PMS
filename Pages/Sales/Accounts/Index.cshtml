@@ -1,0 +1,49 @@
+@page
+@model Vantage.PMS.Pages.Sales.Accounts.IndexModel
+
+@{
+    ViewData["Title"] = "Sales Accounts";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="mb-1">Sales Accounts</h1>
+        <p class="text-muted mb-0">Corporate and group accounts.</p>
+    </div>
+    <a class="btn btn-primary" asp-page="./Create">Create Account</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Account</th>
+            <th>Type</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th class="text-end">Credit Limit</th>
+            <th>Active</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var account in Model.SalesAccounts)
+        {
+            <tr>
+                <td>
+                    <div><a asp-page="./Details" asp-route-id="@account.Id">@account.AccountName</a></div>
+                    <div class="text-muted small">@account.ContactPersons.Count contact(s)</div>
+                </td>
+                <td>@account.AccountType</td>
+                <td>@account.Phone</td>
+                <td>@account.Email</td>
+                <td class="text-end">@account.CreditLimit.ToString("N2")</td>
+                <td>@(account.IsActive ? "Yes" : "No")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="/Sales/ContactPersons/Index" asp-route-accountId="@account.Id">Contacts</a>
+                    <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@account.Id">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="./Delete" asp-route-id="@account.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

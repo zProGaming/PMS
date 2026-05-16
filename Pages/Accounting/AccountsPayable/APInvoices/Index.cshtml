@@ -1,0 +1,55 @@
+@page
+@model Vantage.PMS.Pages.Accounting.AccountsPayable.APInvoices.IndexModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "AP Invoices";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Accounts Payable</div>
+        <h1 class="page-title">AP Invoices</h1>
+        <p class="page-subtitle">Supplier invoices linked to purchase orders, receiving records, and GL posting.</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn vpms-btn-primary" asp-page="Create">Create AP Invoice</a>
+    </div>
+</div>
+
+<form method="get" class="vpms-card mb-3">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select" asp-items="Html.GetEnumSelectList<APInvoiceStatus>()">
+                <option value="">All</option>
+            </select>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">Search</label>
+            <input name="search" value="@Model.Search" class="form-control" placeholder="Invoice number or supplier" />
+        </div>
+        <div class="col-md-2"><button class="btn vpms-btn-secondary" type="submit">Filter</button></div>
+    </div>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Invoice</th><th>Supplier</th><th>Invoice Date</th><th>Due Date</th><th>Status</th><th class="text-end">Total</th><th class="text-end">Paid</th><th class="text-end">Balance</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var invoice in Model.Invoices)
+        {
+            <tr>
+                <td class="fw-semibold">@invoice.InvoiceNumber</td>
+                <td>@invoice.Supplier?.SupplierName</td>
+                <td>@invoice.InvoiceDate.ToString("yyyy-MM-dd")</td>
+                <td>@invoice.DueDate.ToString("yyyy-MM-dd")</td>
+                <td><span class="status-badge">@invoice.Status</span></td>
+                <td class="text-end">@invoice.TotalAmount.ToString("C")</td>
+                <td class="text-end">@invoice.AmountPaid.ToString("C")</td>
+                <td class="text-end fw-semibold">@invoice.Balance.ToString("C")</td>
+                <td class="text-end"><a class="btn btn-sm vpms-btn-secondary" asp-page="Details" asp-route-id="@invoice.Id">Details</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

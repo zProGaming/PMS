@@ -1,0 +1,38 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.FoodBeverage.MenuCategories.EditModel
+
+@{
+    ViewData["Title"] = "Edit Menu Category";
+}
+
+<h1>Edit Menu Category</h1>
+
+<form method="post" class="mt-3">
+    <input type="hidden" asp-for="MenuCategory.Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+        <div class="col-md-8 mb-3">
+            <label asp-for="MenuCategory.Name" class="form-label"></label>
+            <input asp-for="MenuCategory.Name" class="form-control" />
+            <span asp-validation-for="MenuCategory.Name" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="MenuCategory.SortOrder" class="form-label">Sort Order</label>
+            <input asp-for="MenuCategory.SortOrder" class="form-control" />
+            <span asp-validation-for="MenuCategory.SortOrder" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="MenuCategory.IsActive" class="form-check-input" />
+        <label asp-for="MenuCategory.IsActive" class="form-check-label">Active</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

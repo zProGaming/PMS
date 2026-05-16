@@ -1,0 +1,45 @@
+@page
+@model Vantage.PMS.Pages.GuestPortal.FeedbackModel
+@{
+    ViewData["Title"] = "Feedback";
+}
+
+<h1 class="h3 mb-3">Feedback</h1>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-success">@Model.StatusMessage</div>
+}
+
+@if (Model.Access is null)
+{
+    <div class="alert alert-warning">Guest portal access is invalid or expired.</div>
+}
+else if (!Model.Setting.AllowFeedback)
+{
+    <div class="alert alert-info">Feedback is currently unavailable.</div>
+}
+else
+{
+    <form method="post" class="row g-3">
+        <input type="hidden" asp-for="Token" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="col-md-4">
+            <label asp-for="Feedback.Rating" class="form-label">Rating</label>
+            <input asp-for="Feedback.Rating" class="form-control" type="number" min="1" max="5" />
+            <span asp-validation-for="Feedback.Rating" class="text-danger"></span>
+        </div>
+        <div class="col-12">
+            <label asp-for="Feedback.Comments" class="form-label"></label>
+            <textarea asp-for="Feedback.Comments" class="form-control" rows="4"></textarea>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+            <a asp-page="Home" asp-route-token="@Model.Token" class="btn btn-outline-secondary">Back</a>
+        </div>
+    </form>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,21 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.BookingManagement.AddOns.DeleteModel
+@{
+    ViewData["Title"] = "Delete Booking Add-on";
+}
+
+<h1 class="h3 mb-3">Delete Booking Add-on</h1>
+<div class="alert alert-warning">Delete this booking add-on?</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Name</dt>
+    <dd class="col-sm-9">@Model.AddOn.Name</dd>
+    <dt class="col-sm-3">Price</dt>
+    <dd class="col-sm-9">@Model.AddOn.Price.ToString("C")</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="AddOn.Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>

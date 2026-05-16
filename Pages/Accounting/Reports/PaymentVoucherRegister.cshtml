@@ -1,0 +1,13 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Reports.PaymentVoucherRegisterModel
+@{
+    ViewData["Title"] = "Payment Voucher Register";
+}
+<div class="page-header"><div><div class="page-kicker">Accounts Payable Report</div><h1 class="page-title">Payment Voucher Register</h1><p class="page-subtitle">@Model.StartDate.ToString("yyyy-MM-dd") to @Model.EndDate.ToString("yyyy-MM-dd")</p></div><div class="page-actions no-print"><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div></div>
+<form method="get" class="vpms-card mb-3 no-print"><div class="row g-3 align-items-end"><div class="col-md-3"><label class="form-label">From</label><input name="startDate" type="date" value="@Model.StartDate.ToString("yyyy-MM-dd")" class="form-control" /></div><div class="col-md-3"><label class="form-label">To</label><input name="endDate" type="date" value="@Model.EndDate.ToString("yyyy-MM-dd")" class="form-control" /></div><div class="col-md-2"><button class="btn vpms-btn-secondary">Run</button></div></div></form>
+<div class="vpms-table-wrapper"><table class="table vpms-table align-middle"><thead><tr><th>Date</th><th>Voucher</th><th>Supplier</th><th>Invoice</th><th>Method</th><th>Status</th><th class="text-end">Amount</th><th class="text-end">WHT</th><th class="text-end">Net</th></tr></thead><tbody>
+@foreach (var voucher in Model.Vouchers)
+{
+    <tr><td>@voucher.VoucherDate.ToString("yyyy-MM-dd")</td><td>@voucher.VoucherNumber</td><td>@voucher.Supplier?.SupplierName</td><td>@voucher.APInvoice?.InvoiceNumber</td><td>@voucher.PaymentMethod</td><td><span class="status-badge">@voucher.Status</span></td><td class="text-end">@voucher.Amount.ToString("C")</td><td class="text-end">@voucher.WithholdingTaxAmount.ToString("C")</td><td class="text-end">@voucher.NetPaymentAmount.ToString("C")</td></tr>
+}
+</tbody></table></div>

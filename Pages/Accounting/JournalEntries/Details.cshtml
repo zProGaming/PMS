@@ -1,0 +1,54 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Accounting.JournalEntries.DetailsModel
+@{
+    ViewData["Title"] = "Journal Entry Details";
+}
+<div class="page-header">
+    <div><div class="page-kicker">Accounting</div><h1 class="page-title">@Model.JournalEntry?.JournalNumber</h1><p class="page-subtitle">@Model.JournalEntry?.Description</p></div>
+    <div class="page-actions">
+        @if (Model.JournalEntry?.Status == Vantage.PMS.Models.Accounting.JournalEntryStatus.Draft)
+        {
+            <form method="post" asp-page-handler="Post" class="d-inline"><button class="btn vpms-btn-primary" type="submit">Post Journal</button></form>
+        }
+        @if (Model.JournalEntry?.Status == Vantage.PMS.Models.Accounting.JournalEntryStatus.Posted)
+        {
+            <form method="post" asp-page-handler="Reverse" class="d-flex gap-2">
+                <input name="reason" class="form-control" placeholder="Reversal reason" required />
+                <button class="btn vpms-btn-warning" type="submit">Reverse</button>
+            </form>
+        }
+    </div>
+</div>
+@if (Model.Errors.Count > 0)
+{
+    <div class="alert alert-danger">@string.Join(" ", Model.Errors)</div>
+}
+@if (Model.JournalEntry is not null)
+{
+    <section class="vpms-card mb-4">
+        <div class="row g-3">
+            <div class="col-md-3"><strong>Date</strong><div>@Model.JournalEntry.JournalDate.ToString("yyyy-MM-dd")</div></div>
+            <div class="col-md-3"><strong>Status</strong><div><span class="status-badge">@Model.JournalEntry.Status</span></div></div>
+            <div class="col-md-3"><strong>Source</strong><div>@Model.JournalEntry.SourceModule / @Model.JournalEntry.SourceTransactionType</div></div>
+            <div class="col-md-3"><strong>Posted</strong><div>@Model.JournalEntry.PostedAt?.ToString("g")</div></div>
+        </div>
+    </section>
+    <div class="vpms-table-wrapper">
+        <table class="table vpms-table">
+            <thead><tr><th>Account</th><th>Department</th><th>Description</th><th class="text-end">Debit</th><th class="text-end">Credit</th></tr></thead>
+            <tbody>
+            @foreach (var line in Model.JournalEntry.Lines)
+            {
+                <tr>
+                    <td>@line.GLAccount?.AccountCode - @line.GLAccount?.AccountName</td>
+                    <td>@line.USALIDepartment?.Name</td>
+                    <td>@line.Description</td>
+                    <td class="text-end">@line.DebitAmount.ToString("C")</td>
+                    <td class="text-end">@line.CreditAmount.ToString("C")</td>
+                </tr>
+            }
+            </tbody>
+            <tfoot><tr><th colspan="3">Total</th><th class="text-end">@Model.JournalEntry.TotalDebits.ToString("C")</th><th class="text-end">@Model.JournalEntry.TotalCredits.ToString("C")</th></tr></tfoot>
+        </table>
+    </div>
+}

@@ -1,0 +1,48 @@
+@page
+@model Vantage.PMS.Pages.Housekeeping.Tasks.IndexModel
+
+@{
+    ViewData["Title"] = "Housekeeping Tasks";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="mb-0">Housekeeping Tasks</h1>
+    <a class="btn btn-primary" asp-page="./Create">Create Task</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Room</th>
+            <th>Assigned To</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Started</th>
+            <th>Completed</th>
+            <th>Notes</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var task in Model.Tasks)
+        {
+            <tr>
+                <td>@task.Room?.RoomNumber</td>
+                <td>@task.AssignedTo</td>
+                <td>@task.TaskStatus</td>
+                <td>@task.Priority</td>
+                <td>@(task.StartedAt?.ToString("g") ?? "-")</td>
+                <td>@(task.CompletedAt?.ToString("g") ?? "-")</td>
+                <td>@task.Notes</td>
+                <td class="text-end">
+                    @if (task.TaskStatus != Vantage.PMS.Models.Housekeeping.HousekeepingTaskStatus.Completed)
+                    {
+                        <form method="post" asp-page-handler="Complete" asp-route-id="@task.Id" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-success">Complete</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

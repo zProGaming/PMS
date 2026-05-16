@@ -1,0 +1,53 @@
+@page
+@model Vantage.PMS.Pages.Finance.ChargeCodes.IndexModel
+@using Vantage.PMS.Models.Finance
+@{
+    ViewData["Title"] = "Charge Codes";
+}
+
+<h1 class="h3 mb-3">Charge Codes</h1>
+
+<form method="post" asp-page-handler="Save" class="row g-3 border rounded p-3 mb-4">
+    <input type="hidden" asp-for="ChargeCode.Id" />
+    <input type="hidden" asp-for="ChargeCode.CreatedAt" />
+    <input type="hidden" asp-for="ChargeCode.CreatedBy" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-2"><label asp-for="ChargeCode.Code" class="form-label"></label><input asp-for="ChargeCode.Code" class="form-control" /></div>
+    <div class="col-md-3"><label asp-for="ChargeCode.Name" class="form-label"></label><input asp-for="ChargeCode.Name" class="form-control" /></div>
+    <div class="col-md-3"><label asp-for="ChargeCode.ChargeCategory" class="form-label"></label><select asp-for="ChargeCode.ChargeCategory" asp-items="Html.GetEnumSelectList<ChargeCategory>()" class="form-select"></select></div>
+    <div class="col-md-2"><label asp-for="ChargeCode.DefaultAmount" class="form-label"></label><input asp-for="ChargeCode.DefaultAmount" class="form-control" /></div>
+    <div class="col-md-2 align-self-end"><button class="btn btn-primary w-100">Save</button></div>
+    <div class="col-12"><label asp-for="ChargeCode.Description" class="form-label"></label><textarea asp-for="ChargeCode.Description" class="form-control"></textarea></div>
+    <div class="col-md-3"><div class="form-check"><input asp-for="ChargeCode.IsTaxable" class="form-check-input" /><label asp-for="ChargeCode.IsTaxable" class="form-check-label"></label></div></div>
+    <div class="col-md-3"><div class="form-check"><input asp-for="ChargeCode.IsServiceChargeable" class="form-check-input" /><label asp-for="ChargeCode.IsServiceChargeable" class="form-check-label"></label></div></div>
+    <div class="col-md-3"><div class="form-check"><input asp-for="ChargeCode.IsActive" class="form-check-input" /><label asp-for="ChargeCode.IsActive" class="form-check-label"></label></div></div>
+</form>
+
+<table class="table table-striped table-hover align-middle">
+    <thead><tr><th>Code</th><th>Name</th><th>Category</th><th>Taxable</th><th>Service Charge</th><th class="text-end">Default</th><th>Active</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var item in Model.ChargeCodes)
+        {
+            <tr>
+                <td>@item.Code</td>
+                <td>@item.Name</td>
+                <td>@item.ChargeCategory</td>
+                <td>@(item.IsTaxable ? "Yes" : "No")</td>
+                <td>@(item.IsServiceChargeable ? "Yes" : "No")</td>
+                <td class="text-end">@item.DefaultAmount?.ToString("C")</td>
+                <td>@(item.IsActive ? "Yes" : "No")</td>
+                <td class="text-end">
+                    <a asp-page="Index" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    @if (item.IsActive)
+                    {
+                        <form method="post" asp-page-handler="Deactivate" asp-route-id="@item.Id" class="d-inline">
+                            <button class="btn btn-sm btn-outline-danger">Deactivate</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

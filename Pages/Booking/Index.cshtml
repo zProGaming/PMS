@@ -1,0 +1,58 @@
+@page
+@model Vantage.PMS.Pages.Booking.IndexModel
+@{
+    ViewData["Title"] = Model.Setting.BookingEngineTitle;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h1 class="h3 mb-2">@Model.Setting.BookingEngineTitle</h1>
+        @if (!string.IsNullOrWhiteSpace(Model.Setting.WelcomeMessage))
+        {
+            <p class="text-muted">@Model.Setting.WelcomeMessage</p>
+        }
+
+        @if (!Model.Setting.IsBookingEngineEnabled)
+        {
+            <div class="alert alert-warning">Online booking is currently unavailable. Please contact the hotel directly.</div>
+        }
+        else
+        {
+            <form method="post" class="card">
+                <div class="card-body row g-3">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="col-md-6">
+                        <label asp-for="Input.CheckInDate" class="form-label">Check-in date</label>
+                        <input asp-for="Input.CheckInDate" type="date" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Input.CheckOutDate" class="form-label">Check-out date</label>
+                        <input asp-for="Input.CheckOutDate" type="date" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Input.AdultCount" class="form-label">Adults</label>
+                        <input asp-for="Input.AdultCount" type="number" min="1" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Input.ChildCount" class="form-label">Children</label>
+                        <input asp-for="Input.ChildCount" type="number" min="0" class="form-control" />
+                    </div>
+                    @if (Model.Setting.AllowPromoCodes)
+                    {
+                        <div class="col-md-4">
+                            <label asp-for="Input.PromoCode" class="form-label">Promo code</label>
+                            <input asp-for="Input.PromoCode" class="form-control" />
+                        </div>
+                    }
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Search Availability</button>
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

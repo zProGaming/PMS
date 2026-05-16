@@ -1,0 +1,106 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Banquet.Events.DetailsModel
+
+@{
+    ViewData["Title"] = "Banquet Event Details";
+    var statusClass = Model.BanquetEvent.EventStatus.ToString().ToLowerInvariant();
+}
+
+<div class="vpms-page-header page-header">
+    <div>
+        <div class="page-kicker">Banquet Operations</div>
+        <h1 class="vpms-page-title page-title">@Model.BanquetEvent.EventName</h1>
+        <p class="vpms-page-subtitle page-subtitle">
+            @Model.BanquetEvent.EventDate.ToString("D") |
+            @Model.BanquetEvent.StartTime.ToString(@"hh\:mm") - @Model.BanquetEvent.EndTime.ToString(@"hh\:mm") |
+            @Model.BanquetEvent.ClientName
+        </p>
+    </div>
+    <div class="vpms-actions d-flex flex-wrap gap-2">
+        <span class="vpms-status-badge status-@statusClass">@Model.BanquetEvent.EventStatus</span>
+        <a class="btn btn-primary" asp-page="/Banquet/BEOs/Details" asp-route-eventId="@Model.BanquetEvent.Id">@(Model.BanquetEvent.BanquetEventOrder is null ? "Create BEO" : "View BEO")</a>
+        <a class="btn btn-outline-primary" asp-page="/Banquet/Charges/Index" asp-route-eventId="@Model.BanquetEvent.Id">Add Charge</a>
+        <a class="btn btn-outline-secondary" asp-page="/Banquet/Charges/Index" asp-route-eventId="@Model.BanquetEvent.Id">View Charges</a>
+        <a class="btn btn-outline-secondary" asp-page="./Edit" asp-route-id="@Model.BanquetEvent.Id">Edit Event</a>
+    </div>
+</div>
+
+<div class="vpms-detail-grid mb-4">
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Status</div>
+            <span class="vpms-status-badge status-@statusClass">@Model.BanquetEvent.EventStatus</span>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Type</div>
+            <div class="fs-5">@Model.BanquetEvent.EventType</div>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Function Room</div>
+            <div class="fs-5">@Model.BanquetEvent.FunctionRoom?.Name</div>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Total Estimated Charges</div>
+            <div class="fs-5">@Model.TotalEstimatedCharges.ToString("C")</div>
+    </div>
+</div>
+
+<dl class="row vpms-detail-section">
+    <dt class="col-sm-2">Client</dt>
+    <dd class="col-sm-10">@Model.BanquetEvent.ClientName</dd>
+    <dt class="col-sm-2">Contact Number</dt>
+    <dd class="col-sm-10">@Model.BanquetEvent.ContactNumber</dd>
+    <dt class="col-sm-2">Email</dt>
+    <dd class="col-sm-10">@Model.BanquetEvent.Email</dd>
+    <dt class="col-sm-2">Package</dt>
+    <dd class="col-sm-10">@Model.BanquetEvent.BanquetPackage?.PackageName</dd>
+    <dt class="col-sm-2">Pax</dt>
+    <dd class="col-sm-10">Expected @Model.BanquetEvent.ExpectedPax | Guaranteed @Model.BanquetEvent.GuaranteedPax | Actual @(Model.BanquetEvent.ActualPax?.ToString() ?? "-")</dd>
+    <dt class="col-sm-2">Sales Account</dt>
+    <dd class="col-sm-10">@Model.BanquetEvent.SalesAccount?.AccountName</dd>
+    <dt class="col-sm-2">Sales Lead</dt>
+    <dd class="col-sm-10">@Model.BanquetEvent.SalesLead?.LeadName</dd>
+    <dt class="col-sm-2">Created</dt>
+    <dd class="col-sm-10">@Model.BanquetEvent.CreatedAt.ToString("g") by @Model.BanquetEvent.CreatedBy</dd>
+    <dt class="col-sm-2">Notes</dt>
+    <dd class="col-sm-10">@Model.BanquetEvent.Notes</dd>
+</dl>
+
+<h2 class="h4 mt-4">Charges</h2>
+<div class="vpms-table-wrapper table-responsive">
+<table class="table vpms-table table-sm table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th class="text-end">Quantity</th>
+            <th class="text-end">Unit Price</th>
+            <th class="text-end">Amount</th>
+            <th>Voided</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var charge in Model.BanquetEvent.Charges.OrderBy(charge => charge.ChargeDate).ThenBy(charge => charge.Id))
+        {
+            <tr class="@(charge.IsVoided ? "table-secondary text-muted" : "")">
+                <td>@charge.ChargeDate.ToString("d")</td>
+                <td>@charge.Description</td>
+                <td class="text-end">@charge.Quantity.ToString("N2")</td>
+                <td class="text-end">@charge.UnitPrice.ToString("N2")</td>
+                <td class="text-end">@charge.Amount.ToString("N2")</td>
+                <td>@(charge.IsVoided ? "Yes" : "No")</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="4">Active Charge Total</th>
+            <th class="text-end">@Model.TotalCharges.ToString("C")</th>
+            <th></th>
+        </tr>
+    </tfoot>
+</table>
+</div>
+
+<div class="vpms-actions">
+    <a class="btn btn-outline-secondary" asp-page="./Index">Back to Events</a>
+</div>

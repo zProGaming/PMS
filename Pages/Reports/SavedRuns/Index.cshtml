@@ -1,0 +1,78 @@
+@page
+@using Vantage.PMS.Models.Reports
+@using Vantage.PMS.Services
+@model Vantage.PMS.Pages.Reports.SavedRuns.IndexModel
+
+@{
+    ViewData["Title"] = "Saved Report Runs";
+}
+
+<div class="vpms-page-header">
+    <div>
+        <div class="page-kicker">Reports</div>
+        <h1 class="vpms-page-title">Saved Report Runs</h1>
+        <p class="vpms-page-subtitle">Metadata for generated report runs and exports.</p>
+    </div>
+    <a class="btn vpms-btn-secondary" asp-page="/Reports/Center">Report Center</a>
+</div>
+
+<section class="vpms-report-filters vpms-card mb-4">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label" for="search">Search</label>
+            <input class="form-control" id="search" name="search" value="@Model.Search" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="category">Category</label>
+            <select class="form-select" id="category" name="category" asp-items="Html.GetEnumSelectList<ReportCategory>()">
+                <option value="">All categories</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button class="btn vpms-btn-primary w-100" type="submit">Filter</button>
+        </div>
+        <div class="col-md-2">
+            <a class="btn vpms-btn-secondary w-100" asp-page="/Reports/SavedRuns/Index">Reset</a>
+        </div>
+    </form>
+</section>
+
+<section class="vpms-card">
+    <div class="vpms-table-wrapper">
+        <table class="table vpms-table align-middle">
+            <thead>
+            <tr>
+                <th>Run date</th>
+                <th>Report</th>
+                <th>Category</th>
+                <th>Date range</th>
+                <th>Run by</th>
+                <th>Notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (Model.Runs.Count == 0)
+            {
+                <tr><td colspan="6"><div class="vpms-empty-state">No saved report runs found.</div></td></tr>
+            }
+            else
+            {
+                @foreach (var run in Model.Runs)
+                {
+                    <tr>
+                        <td>@run.RunAt.ToString("MMM d, yyyy h:mm tt")</td>
+                        <td>
+                            <strong>@run.ReportName</strong>
+                            <div class="text-muted small">@run.ReportKey</div>
+                        </td>
+                        <td>@ReportCatalogService.FormatCategory(run.ReportCategory)</td>
+                        <td>@(run.DateRangeStart?.ToString("yyyy-MM-dd") ?? "-") to @(run.DateRangeEnd?.ToString("yyyy-MM-dd") ?? "-")</td>
+                        <td>@run.RunBy</td>
+                        <td>@run.Notes</td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

@@ -8,13 +8,19 @@ public class Payment
 
     public Folio? Folio { get; set; }
 
-    public DateTime PostedAtUtc { get; set; } = DateTime.UtcNow;
+    public decimal Amount { get; set; }
 
-    public string Method { get; set; } = string.Empty;
+    public string PaymentMethod { get; set; } = string.Empty;
+
+    public DateTime PaymentDate { get; set; } = DateTime.Now;
 
     public string? ReferenceNumber { get; set; }
 
-    public decimal Amount { get; set; }
+    public string? Notes { get; set; }
 
     public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
+
+    public bool IsLocked { get; set; }
+
+    public ICollection<CashierTransaction> CashierTransactions { get; set; } = new List<CashierTransaction>();
 }

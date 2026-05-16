@@ -1,0 +1,124 @@
+@page
+@model Vantage.PMS.Pages.Booking.SummaryModel
+@{
+    ViewData["Title"] = "Booking Summary";
+}
+
+<h1 class="h3 mb-3">Booking Summary</h1>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+@if (Model.QuoteResult.Errors.Count > 0)
+{
+    <div class="alert alert-warning">
+        @foreach (var error in Model.QuoteResult.Errors)
+        {
+            <div>@error</div>
+        }
+    </div>
+}
+
+@if (Model.QuoteResult.Quote is not null)
+{
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card mb-3">
+                <div class="card-header">Guest Details</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Guest</dt>
+                        <dd class="col-sm-8">@Model.GuestInput.FirstName @Model.GuestInput.LastName</dd>
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">@Model.GuestInput.Email</dd>
+                        <dt class="col-sm-4">Phone</dt>
+                        <dd class="col-sm-8">@Model.GuestInput.Phone</dd>
+                        <dt class="col-sm-4">Address</dt>
+                        <dd class="col-sm-8">@Model.GuestInput.Address</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">Stay Summary</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Stay dates</dt>
+                        <dd class="col-sm-8">@Model.QuoteResult.Quote.CheckInDate.ToString("yyyy-MM-dd") - @Model.QuoteResult.Quote.CheckOutDate.ToString("yyyy-MM-dd")</dd>
+                        <dt class="col-sm-4">Nights</dt>
+                        <dd class="col-sm-8">@Model.QuoteResult.Quote.Nights</dd>
+                        <dt class="col-sm-4">Guests</dt>
+                        <dd class="col-sm-8">@Model.QuoteResult.Quote.AdultCount adult(s), @Model.QuoteResult.Quote.ChildCount child(ren)</dd>
+                        <dt class="col-sm-4">Room type</dt>
+                        <dd class="col-sm-8">@Model.QuoteResult.Quote.RoomTypeName</dd>
+                        <dt class="col-sm-4">Rate plan</dt>
+                        <dd class="col-sm-8">@(Model.QuoteResult.Quote.RatePlanId?.ToString() ?? "Base rate")</dd>
+                        <dt class="col-sm-4">Room rate</dt>
+                        <dd class="col-sm-8">@Model.QuoteResult.Quote.RoomRate.ToString("C")</dd>
+                        <dt class="col-sm-4">Room total</dt>
+                        <dd class="col-sm-8">@Model.QuoteResult.Quote.RoomTotalBeforeDiscount.ToString("C")</dd>
+                        <dt class="col-sm-4">Promo discount</dt>
+                        <dd class="col-sm-8">@Model.QuoteResult.Quote.DiscountAmount.ToString("C")</dd>
+                        <dt class="col-sm-4">Add-ons</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.QuoteResult.Quote.AddOns.Count == 0)
+                            {
+                                <span>-</span>
+                            }
+                            else
+                            {
+                                <ul class="mb-0">
+                                    @foreach (var addOn in Model.QuoteResult.Quote.AddOns)
+                                    {
+                                        <li>@addOn.Name x @addOn.Quantity - @addOn.Amount.ToString("C")</li>
+                                    }
+                                </ul>
+                            }
+                        </dd>
+                        <dt class="col-sm-4">Deposit required</dt>
+                        <dd class="col-sm-8">@(Model.QuoteResult.Quote.DepositRequired ? Model.QuoteResult.Quote.DepositAmount.ToString("C") : "Not required")</dd>
+                        <dt class="col-sm-4">Final estimated total</dt>
+                        <dd class="col-sm-8 fw-semibold">@Model.QuoteResult.Quote.FinalEstimatedTotal.ToString("C")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <form method="post" asp-page-handler="Confirm" class="card">
+                <div class="card-body">
+                    <input type="hidden" asp-for="BookingInput.CheckInDate" />
+                    <input type="hidden" asp-for="BookingInput.CheckOutDate" />
+                    <input type="hidden" asp-for="BookingInput.AdultCount" />
+                    <input type="hidden" asp-for="BookingInput.ChildCount" />
+                    <input type="hidden" asp-for="BookingInput.PromoCode" />
+                    <input type="hidden" asp-for="BookingInput.RoomTypeId" />
+                    <input type="hidden" asp-for="BookingInput.RatePlanId" />
+                    <input type="hidden" asp-for="GuestInput.FirstName" />
+                    <input type="hidden" asp-for="GuestInput.LastName" />
+                    <input type="hidden" asp-for="GuestInput.Email" />
+                    <input type="hidden" asp-for="GuestInput.Phone" />
+                    <input type="hidden" asp-for="GuestInput.Address" />
+                    <input type="hidden" asp-for="GuestInput.SpecialRequests" />
+                    <input type="hidden" asp-for="GuestAcceptedTerms" />
+                    @for (var i = 0; i < Model.AddOnSelections.Count; i++)
+                    {
+                        <input type="hidden" asp-for="AddOnSelections[i].BookingAddOnId" />
+                        <input type="hidden" asp-for="AddOnSelections[i].Quantity" />
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.QuoteResult.Quote.Setting.TermsAndConditions))
+                    {
+                        <div class="small text-muted mb-3">@Model.QuoteResult.Quote.Setting.TermsAndConditions</div>
+                    }
+                    <div class="form-check mb-3">
+                        <input asp-for="SummaryAcceptedTerms" class="form-check-input" />
+                        <label asp-for="SummaryAcceptedTerms" class="form-check-label">I confirm and accept the terms and conditions.</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Submit Booking Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

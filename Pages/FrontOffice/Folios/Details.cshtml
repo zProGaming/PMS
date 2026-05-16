@@ -1,0 +1,126 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.FrontOffice.Folios.DetailsModel
+
+@{
+    ViewData["Title"] = "Folio Details";
+    var statusClass = Model.Folio.Status.ToString().ToLowerInvariant();
+}
+
+<div class="vpms-page-header page-header">
+    <div>
+        <div class="page-kicker">Finance Control</div>
+        <h1 class="vpms-page-title page-title">Folio @Model.Folio.FolioNumber</h1>
+        <p class="vpms-page-subtitle page-subtitle">
+            @Model.Folio.Guest?.FirstName @Model.Folio.Guest?.LastName |
+            Room @(Model.Folio.Reservation?.Room?.RoomNumber ?? "-")
+        </p>
+    </div>
+    <div class="vpms-actions d-flex flex-wrap gap-2">
+        <span class="vpms-status-badge status-@statusClass">@Model.Folio.Status</span>
+        <a class="btn btn-primary" asp-page="./PostCharge" asp-route-folioId="@Model.Folio.Id">Post Charge</a>
+        <a class="btn btn-outline-primary" asp-page="./PostPayment" asp-route-folioId="@Model.Folio.Id">Post Payment</a>
+        @if (Model.Folio.Reservation?.Status == Vantage.PMS.Models.FrontOffice.ReservationStatus.CheckedIn)
+        {
+            <a class="btn btn-warning" asp-page="/FrontOffice/Reservations/CheckOut" asp-route-id="@Model.Folio.ReservationId">Check Out</a>
+        }
+    </div>
+</div>
+
+<div class="vpms-detail-grid mb-4">
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Guest</div>
+            <div class="fs-5">@Model.Folio.Guest?.FirstName @Model.Folio.Guest?.LastName</div>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Room</div>
+            <div class="fs-5">@Model.Folio.Reservation?.Room?.RoomNumber</div>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Reservation Dates</div>
+            <div class="fs-5">
+                @Model.Folio.Reservation?.ArrivalDate.ToString("d") - @Model.Folio.Reservation?.DepartureDate.ToString("d")
+            </div>
+    </div>
+</div>
+
+<div class="vpms-detail-grid mb-4">
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Total Charges</div>
+            <div class="display-6">@Model.Folio.TotalCharges.ToString("C")</div>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Total Payments</div>
+            <div class="display-6">@Model.Folio.TotalPayments.ToString("C")</div>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Balance</div>
+            <div class="display-6">@Model.Folio.Balance.ToString("C")</div>
+    </div>
+</div>
+
+<h2 class="h4">Charges</h2>
+<div class="vpms-table-wrapper table-responsive">
+<table class="table vpms-table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Code</th>
+            <th>Description</th>
+            <th class="text-end">Qty</th>
+            <th class="text-end">Unit Price</th>
+            <th class="text-end">Amount</th>
+            <th>Posted By</th>
+            <th>Voided</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Folio.Items.OrderBy(item => item.PostingDate))
+        {
+            <tr>
+                <td>@item.PostingDate.ToString("g")</td>
+                <td>@(item.ChargeCodeDefinition?.Code ?? item.ChargeCode)</td>
+                <td>@item.Description</td>
+                <td class="text-end">@item.Quantity.ToString("N2")</td>
+                <td class="text-end">@item.UnitPrice.ToString("N2")</td>
+                <td class="text-end">@item.Amount.ToString("N2")</td>
+                <td>@item.PostedBy</td>
+                <td>@(item.IsVoided ? "Yes" : "No")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>
+
+<h2 class="h4 mt-4">Payments</h2>
+<div class="vpms-table-wrapper table-responsive">
+<table class="table vpms-table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Method</th>
+            <th>Reference</th>
+            <th>Notes</th>
+            <th class="text-end">Amount</th>
+            <th>Cashier Shift</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var payment in Model.Folio.Payments.OrderBy(payment => payment.PaymentDate))
+        {
+            <tr>
+                <td>@payment.PaymentDate.ToString("g")</td>
+                <td>@payment.PaymentMethod</td>
+                <td>@payment.ReferenceNumber</td>
+                <td>@payment.Notes</td>
+                <td class="text-end">@payment.Amount.ToString("N2")</td>
+                <td>@payment.CashierTransactions.OrderByDescending(transaction => transaction.TransactionDate).FirstOrDefault()?.CashierShift?.ShiftNumber</td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>
+
+<div class="vpms-actions d-flex flex-wrap gap-2">
+    <a class="btn btn-outline-primary" asp-page="./Details" asp-route-id="@Model.Folio.Id">View Folio</a>
+    <a class="btn btn-outline-secondary" asp-page="/FrontOffice/Reservations/Details" asp-route-id="@Model.Folio.ReservationId">Back to Reservation</a>
+</div>

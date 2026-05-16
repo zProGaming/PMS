@@ -1,0 +1,14 @@
+@page
+@using Microsoft.EntityFrameworkCore
+@using Vantage.PMS.Models.Finance
+@inject Vantage.PMS.Data.ApplicationDbContext Db
+@{
+    ViewData["Title"] = "Payment Receipt Register";
+    var start = DateTime.TryParse(Request.Query["StartDate"], out var s) ? s : new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+    var end = DateTime.TryParse(Request.Query["EndDate"], out var e) ? e : DateTime.Today;
+    var rows = await Db.Payments.AsNoTracking().Include(payment => payment.Folio).ThenInclude(folio => folio!.Guest).Where(payment => payment.PaymentDate >= start && payment.PaymentDate <= end && payment.Status == PaymentStatus.Completed).OrderBy(payment => payment.PaymentDate).ToListAsync();
+}
+<div class="page-header"><div><div class="page-kicker">Philippine Reports</div><h1 class="page-title">Payment Receipt Register</h1><p class="page-subtitle">Payment receipt register readiness output.</p></div><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div>
+<div class="alert alert-warning">Philippine finance report formats are configurable and must be validated by a Philippine CPA/accountant before filing or official submission.</div>
+<form method="get" class="vpms-card mb-3 report-filter"><div class="row g-3 align-items-end"><div class="col-md-4"><label class="form-label">From</label><input name="StartDate" value="@start.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-4"><label class="form-label">To</label><input name="EndDate" value="@end.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-4"><button class="btn vpms-btn-primary w-100">Run</button></div></div></form>
+<div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>Date</th><th>Reference</th><th>Guest</th><th>Method</th><th class="text-end">Amount</th><th>Notes</th></tr></thead><tbody>@foreach (var row in rows){<tr><td>@row.PaymentDate.ToString("yyyy-MM-dd")</td><td>@row.ReferenceNumber</td><td>@($"{row.Folio?.Guest?.FirstName} {row.Folio?.Guest?.LastName}".Trim())</td><td>@row.PaymentMethod</td><td class="text-end">@row.Amount.ToString("C")</td><td>@row.Notes</td></tr>}</tbody></table></div>

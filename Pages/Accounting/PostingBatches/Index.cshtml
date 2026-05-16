@@ -1,0 +1,36 @@
+@page
+@model Vantage.PMS.Pages.Accounting.PostingBatches.IndexModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "Posting Batches";
+}
+<div class="page-header">
+    <div><div class="page-kicker">Accounting</div><h1 class="page-title">Posting Batches</h1><p class="page-subtitle">Find eligible source transactions and generate balanced journal entries.</p></div>
+</div>
+<form method="post" class="vpms-form-card mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3"><label asp-for="SourceModule" class="form-label">Source Module</label><select asp-for="SourceModule" asp-items="Html.GetEnumSelectList<SourceModule>()" class="form-select"></select></div>
+        <div class="col-md-3"><label asp-for="StartDate" class="form-label">Start Date</label><input asp-for="StartDate" class="form-control" type="date" /></div>
+        <div class="col-md-3"><label asp-for="EndDate" class="form-label">End Date</label><input asp-for="EndDate" class="form-control" type="date" /></div>
+        <div class="col-md-3"><button class="btn vpms-btn-primary w-100" type="submit">Create Batch</button></div>
+    </div>
+</form>
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table">
+        <thead><tr><th>Batch #</th><th>Date</th><th>Source</th><th>Status</th><th>Items</th><th>Posted</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var batch in Model.Batches)
+        {
+            <tr>
+                <td class="fw-semibold">@batch.BatchNumber</td>
+                <td>@batch.BatchDate.ToString("yyyy-MM-dd")</td>
+                <td>@batch.SourceModule</td>
+                <td><span class="status-badge">@batch.Status</span></td>
+                <td>@batch.Items.Count</td>
+                <td>@batch.PostedAt?.ToString("g")</td>
+                <td class="text-end"><a asp-page="Details" asp-route-id="@batch.Id" class="btn btn-sm vpms-btn-secondary">Details</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

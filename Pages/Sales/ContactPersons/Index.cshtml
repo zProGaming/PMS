@@ -1,0 +1,47 @@
+@page
+@model Vantage.PMS.Pages.Sales.ContactPersons.IndexModel
+
+@{
+    ViewData["Title"] = "Contact Persons";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="mb-1">Contact Persons</h1>
+        <p class="text-muted mb-0">Primary and secondary contacts for sales accounts.</p>
+    </div>
+    <a class="btn btn-primary" asp-page="./Create" asp-route-accountId="@Model.AccountId">Create Contact</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Account</th>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Mobile</th>
+            <th>Email</th>
+            <th>Primary</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contact in Model.ContactPersons)
+        {
+            <tr>
+                <td>@contact.SalesAccount?.AccountName</td>
+                <td>@contact.FullName</td>
+                <td>@contact.Position</td>
+                <td>@contact.Mobile</td>
+                <td>@contact.Email</td>
+                <td>@(contact.IsPrimary ? "Yes" : "No")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@contact.Id">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="./Delete" asp-route-id="@contact.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a class="btn btn-outline-secondary" asp-page="/Sales/Accounts/Index">Back to Accounts</a>

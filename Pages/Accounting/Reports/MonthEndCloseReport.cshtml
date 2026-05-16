@@ -1,0 +1,12 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Reports.MonthEndCloseReportModel
+@{
+    ViewData["Title"] = "Month-End Close Report";
+}
+<div class="page-header"><div><div class="page-kicker">Month-End Report</div><h1 class="page-title">Month-End Close Report</h1><p class="page-subtitle">Checklist status for @Model.Period?.PeriodName.</p></div><div class="page-actions no-print"><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div></div>
+<div class="vpms-table-wrapper"><table class="table vpms-table align-middle"><thead><tr><th>Module</th><th>Checklist Item</th><th>Status</th><th>Completed By</th><th>Completed At</th><th>Notes</th></tr></thead><tbody>
+@foreach (var item in Model.Checklist)
+{
+    <tr><td>@item.Module</td><td>@item.ChecklistItem</td><td><span class="status-badge">@item.Status</span></td><td>@item.CompletedBy</td><td>@item.CompletedAt?.ToString("yyyy-MM-dd HH:mm")</td><td>@item.Notes</td></tr>
+}
+</tbody></table></div>

@@ -1,0 +1,50 @@
+@page
+@using Vantage.PMS.Models.GuestPortal
+@model Vantage.PMS.Pages.GuestPortal.ServiceRequestModel
+@{
+    ViewData["Title"] = "Service Request";
+}
+
+<h1 class="h3 mb-3">Service Request</h1>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-success">@Model.StatusMessage</div>
+}
+
+@if (Model.Access is null)
+{
+    <div class="alert alert-warning">Guest portal access is invalid or expired.</div>
+}
+else if (!Model.Setting.AllowServiceRequests)
+{
+    <div class="alert alert-info">Service requests are currently unavailable.</div>
+}
+else
+{
+    <form method="post" class="row g-3">
+        <input type="hidden" asp-for="Token" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="col-md-6">
+            <label asp-for="ServiceRequest.RequestType" class="form-label">Request type</label>
+            <select asp-for="ServiceRequest.RequestType" asp-items="Html.GetEnumSelectList<GuestServiceRequestType>()" class="form-select"></select>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="ServiceRequest.Priority" class="form-label"></label>
+            <select asp-for="ServiceRequest.Priority" asp-items="Html.GetEnumSelectList<GuestServiceRequestPriority>()" class="form-select"></select>
+        </div>
+        <div class="col-12">
+            <label asp-for="ServiceRequest.Description" class="form-label"></label>
+            <textarea asp-for="ServiceRequest.Description" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="ServiceRequest.Description" class="text-danger"></span>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Submit Request</button>
+            <a asp-page="Home" asp-route-token="@Model.Token" class="btn btn-outline-secondary">Back</a>
+        </div>
+    </form>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

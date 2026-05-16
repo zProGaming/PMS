@@ -1,0 +1,139 @@
+@page
+@model Vantage.PMS.Pages.System.ClientDemoPackage.IndexModel
+@{
+    ViewData["Title"] = "Client Demo Package";
+}
+
+<div class="vpms-page-header vpms-no-print">
+    <div>
+        <div class="page-kicker">Client Demo</div>
+        <h1 class="vpms-page-title">Client Demo Package</h1>
+        <p class="vpms-page-subtitle">Client-facing product positioning, workflow guide, and implementation readiness package.</p>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/System/DemoWorkflowLauncher/Index">Workflow Launcher</a>
+        <button class="btn vpms-btn-primary" type="button" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+</div>
+
+<div class="row g-4 vpms-no-print mb-4">
+    <div class="col-lg-4">
+        <form method="post" class="vpms-form-card">
+            <h2 class="h5">Create Package</h2>
+            <div class="mb-3"><label class="form-label" asp-for="Input.PackageName">Package name</label><input class="form-control" asp-for="Input.PackageName" /></div>
+            <div class="mb-3"><label class="form-label" asp-for="Input.ClientName">Client name</label><input class="form-control" asp-for="Input.ClientName" /></div>
+            <div class="mb-3"><label class="form-label" asp-for="Input.HotelName">Hotel name</label><input class="form-control" asp-for="Input.HotelName" /></div>
+            <div class="mb-3"><label class="form-label" asp-for="Input.PreparedBy">Prepared by</label><input class="form-control" asp-for="Input.PreparedBy" /></div>
+            <div class="mb-3"><label class="form-label" asp-for="Input.PreparedDate">Prepared date</label><input class="form-control" type="date" asp-for="Input.PreparedDate" /></div>
+            <div class="mb-3"><label class="form-label" asp-for="Input.Notes">Notes</label><textarea class="form-control" asp-for="Input.Notes" rows="2"></textarea></div>
+            <button class="btn vpms-btn-primary w-100" asp-page-handler="Create">Create Demo Package</button>
+        </form>
+    </div>
+    <div class="col-lg-8">
+        <div class="vpms-card h-100">
+            <div class="card-body">
+                <h2 class="h5">Saved Packages</h2>
+                @if (!Model.Packages.Any())
+                {
+                    <div class="vpms-empty-state py-4">
+                        <p>No client demo package has been created yet. Use the form to create a reusable package.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var package in Model.Packages)
+                        {
+                            <a class="list-group-item list-group-item-action px-0" asp-page="/System/ClientDemoPackage/Index" asp-route-id="@package.Id">
+                                <strong>@package.PackageName</strong>
+                                <span class="text-muted">for @package.ClientName · @package.PreparedDate.ToString("MMM d, yyyy")</span>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<article class="vpms-print-document client-package-document">
+    <header class="vpms-print-header">
+        <div>
+            <div class="vpms-print-brand">Vantage PMS</div>
+            <div class="text-muted">Enterprise Hotel Property Management System</div>
+        </div>
+        <div class="text-end">
+            <div>Prepared by Vantage Innovations PH</div>
+            <div>@DateTime.Today.ToString("MMMM d, yyyy")</div>
+        </div>
+    </header>
+
+    <section class="vpms-print-section client-package-cover">
+        <div class="page-kicker">Client Demo Package</div>
+        <h1>@(Model.ActivePackage?.PackageName ?? "Vantage PMS Client Demo Package")</h1>
+        <p class="lead">Prepared for: @(Model.ActivePackage?.ClientName ?? "Sample Hotel Client")</p>
+        <p>Demo hotel: @(Model.ActivePackage?.HotelName ?? "Vantage Grand Hotel")</p>
+        <p class="text-muted">A modern hospitality management platform for hotels, resorts, serviced apartments, condotels, restaurants, and event venues.</p>
+    </section>
+
+    <section class="vpms-print-section">
+        <h2>Core Modules</h2>
+        <div class="vpms-print-two-column">
+            <p>Front Office</p><p>Housekeeping</p><p>Finance and Accounts Receivable</p><p>F&amp;B Service POS</p>
+            <p>F&amp;B Kitchen</p><p>Sales CRM</p><p>Banquet and Events</p><p>Revenue and Rate Management</p>
+            <p>Booking Engine</p><p>Guest Portal</p><p>Inventory and Purchasing</p><p>Management AI</p>
+            <p>Audit Trail and System Health</p>
+        </div>
+    </section>
+
+    <section class="vpms-print-section">
+        <h2>Demo Workflows</h2>
+        <table class="vpms-print-table">
+            <thead><tr><th>Module</th><th>Workflow</th><th>Description</th></tr></thead>
+            <tbody>
+            @if (Model.ActivePackage?.Items.Any() == true)
+            {
+                @foreach (var item in Model.ActivePackage.Items.Where(item => item.IsIncluded).OrderBy(item => item.SortOrder))
+                {
+                    <tr><td>@item.ModuleName</td><td>@item.ItemTitle</td><td>@item.Description</td></tr>
+                }
+            }
+            else
+            {
+                <tr><td>Front Office</td><td>Reservation to check-in</td><td>Show reservation creation, room assignment, and guest folio opening.</td></tr>
+                <tr><td>F&amp;B</td><td>F&amp;B charge to room</td><td>Create a POS order and post the charge to the folio.</td></tr>
+                <tr><td>Management AI</td><td>Daily summary</td><td>Generate rule-based management insights and recommended actions.</td></tr>
+            }
+            </tbody>
+        </table>
+    </section>
+
+    <section class="vpms-print-section">
+        <h2>Competitive Positioning</h2>
+        <ul>
+            <li>Enterprise-grade operations across rooms, finance, F&amp;B, banquet, inventory, and guest experience.</li>
+            <li>Philippine hotel workflow readiness with configurable document and finance templates.</li>
+            <li>Integrated PMS + POS + Banquet + Finance + Inventory in one modular platform.</li>
+            <li>Future-ready AI and guest experience layer using rule-based MVP recommendations today.</li>
+            <li>Suitable for independent hotels, resorts, serviced apartments, condotels, and hotel groups.</li>
+        </ul>
+    </section>
+
+    <section class="vpms-print-section">
+        <h2>Implementation Readiness</h2>
+        <ul>
+            <li>MVP modules completed for demo walkthroughs.</li>
+            <li>Demo data available through System &gt; Demo Setup.</li>
+            <li>Print templates available through Printable Documents.</li>
+            <li>Export placeholders ready through browser print / Save as PDF.</li>
+            <li>Audit trail and system health included.</li>
+        </ul>
+        <h2>Suggested Next Implementation</h2>
+        <p>Pilot property setup · data migration planning · user role configuration · staff training · parallel run · go-live support.</p>
+    </section>
+
+    <footer class="vpms-print-footer">
+        <span>Vantage PMS</span>
+        <span>Copyright (C) 2026 Vantage Innovations PH. All rights reserved.</span>
+    </footer>
+</article>

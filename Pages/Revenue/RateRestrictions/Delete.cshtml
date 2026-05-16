@@ -1,0 +1,26 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Revenue.RateRestrictions.DeleteModel
+@{
+    ViewData["Title"] = "Delete Rate Restriction";
+}
+
+<h1 class="h3 mb-3">Delete Rate Restriction</h1>
+
+<div class="alert alert-warning">Delete this rate restriction?</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Date</dt>
+    <dd class="col-sm-9">@Model.RateRestriction.RestrictionDate.ToString("yyyy-MM-dd")</dd>
+    <dt class="col-sm-3">Rate Plan</dt>
+    <dd class="col-sm-9">@(Model.RateRestriction.RatePlan?.Code ?? "All")</dd>
+    <dt class="col-sm-3">Room Type</dt>
+    <dd class="col-sm-9">@(Model.RateRestriction.RoomType?.Code ?? "All")</dd>
+    <dt class="col-sm-3">Stop Sell</dt>
+    <dd class="col-sm-9">@(Model.RateRestriction.StopSell ? "Yes" : "No")</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="RateRestriction.Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>

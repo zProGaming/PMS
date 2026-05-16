@@ -1,0 +1,29 @@
+@page
+@model Vantage.PMS.Pages.Executive.MonthlyOwnerReportModel
+@{
+    ViewData["Title"] = "Monthly Owner Report";
+    var s = Model.Report.Summary;
+}
+<div class="page-header"><div><div class="page-kicker">Executive Reports</div><h1 class="page-title">Monthly Owner Report</h1><p class="page-subtitle">Owner-ready financial, operational, labor, guest, inventory, and management action summary.</p></div><div class="page-actions vpms-no-print"><a class="btn vpms-btn-secondary" asp-page="/Executive/OwnerPackages/Index">Owner Packages</a><button class="btn vpms-btn-primary" onclick="window.print()">Print</button></div></div>
+<form method="get" class="vpms-card report-filter vpms-no-print mb-3"><div class="row g-3 align-items-end"><div class="col-md-4"><label class="form-label">From</label><input class="form-control" type="date" name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" /></div><div class="col-md-4"><label class="form-label">To</label><input class="form-control" type="date" name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" /></div><div class="col-md-4"><button class="btn vpms-btn-primary w-100">Run</button></div></div></form>
+<section class="vpms-print-document">
+    <section class="vpms-card mb-4">
+        <div class="d-flex justify-content-between"><div><strong>@s.HotelName</strong><div class="text-muted">Monthly Owner Report</div></div><div>@Model.StartDate.ToString("MMM d, yyyy") - @Model.EndDate.ToString("MMM d, yyyy")</div></div>
+        <hr />
+        <h2 class="h5">Executive Summary</h2>
+        <p>@Model.SummaryText</p>
+        <p class="text-muted small mb-0">Management report for internal decision-making. Accounting mappings and statutory reports must be reviewed by authorized finance personnel.</p>
+    </section>
+    <div class="row g-3 mb-4">
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value">@s.TotalRevenue.ToString("C")</div><div class="kpi-note">Rooms, F&B, banquet, other</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">GOP</div><div class="kpi-value">@s.GrossOperatingProfit.ToString("C")</div><div class="kpi-note">GL-based where posted</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Net Income</div><div class="kpi-value">@s.NetIncome.ToString("C")</div><div class="kpi-note">Management basis</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Labor Cost</div><div class="kpi-value">@s.LaborCost.ToString("C")</div><div class="kpi-note">@s.LaborCostPercentage.ToString("N1")% of revenue</div></div></div>
+    </div>
+    <div class="row g-4">
+        <div class="col-lg-6"><section class="vpms-card"><h2 class="h5">Financial Highlights</h2><div class="vpms-table-wrapper"><table class="table vpms-table"><tbody><tr><th>Room Revenue</th><td class="text-end">@s.TotalRoomRevenue.ToString("C")</td></tr><tr><th>F&B Revenue</th><td class="text-end">@s.TotalFBRevenue.ToString("C")</td></tr><tr><th>Banquet Revenue</th><td class="text-end">@s.TotalBanquetRevenue.ToString("C")</td></tr><tr><th>Payments</th><td class="text-end">@s.TotalPayments.ToString("C")</td></tr><tr><th>AR / AP</th><td class="text-end">@s.ARBalance.ToString("C") / @s.APBalance.ToString("C")</td></tr></tbody></table></div></section></div>
+        <div class="col-lg-6"><section class="vpms-card"><h2 class="h5">Operational Highlights</h2><div class="vpms-table-wrapper"><table class="table vpms-table"><tbody><tr><th>Occupancy</th><td class="text-end">@s.OccupancyPercentage.ToString("N1")%</td></tr><tr><th>ADR / RevPAR</th><td class="text-end">@s.ADR.ToString("C") / @s.RevPAR.ToString("C")</td></tr><tr><th>Arrivals / Departures</th><td class="text-end">@s.Arrivals / @s.Departures</td></tr><tr><th>Dirty / Out of Order</th><td class="text-end">@s.DirtyRooms / @s.OutOfOrderRooms</td></tr><tr><th>Low Stock Risk</th><td class="text-end">@s.LowStockRisk</td></tr></tbody></table></div></section></div>
+    </div>
+    <section class="vpms-card mt-4"><h2 class="h5">KPI Scorecard</h2><div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>KPI</th><th class="text-end">Actual</th><th class="text-end">Target</th><th>Status</th></tr></thead><tbody>@foreach (var kpi in Model.Report.Kpis){<tr><td>@kpi.KPIName</td><td class="text-end">@kpi.ActualValue.ToString("N2")</td><td class="text-end">@(kpi.TargetValue?.ToString("N2") ?? "-")</td><td><span class="status-badge">@kpi.Status</span></td></tr>}</tbody></table></div></section>
+    <section class="vpms-card mt-4"><h2 class="h5">Management Action Items</h2><ul class="mb-0">@foreach (var alert in Model.Report.Alerts.Take(8)){<li><strong>@alert.Title:</strong> @alert.RecommendedAction</li>}@if (Model.Report.Alerts.Count == 0){<li>No unresolved executive alert actions.</li>}</ul></section>
+</section>

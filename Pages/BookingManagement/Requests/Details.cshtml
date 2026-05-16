@@ -1,0 +1,111 @@
+@page "{id:int}"
+@using Vantage.PMS.Models.Booking
+@model Vantage.PMS.Pages.BookingManagement.Requests.DetailsModel
+@{
+    ViewData["Title"] = "Booking Request Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Booking Request @Model.BookingRequest.BookingReference</h1>
+    <a asp-page="Index" class="btn btn-outline-secondary">Back to Requests</a>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-header">Guest and Stay</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Guest</dt>
+                    <dd class="col-sm-9">@Model.BookingRequest.GuestFirstName @Model.BookingRequest.GuestLastName</dd>
+                    <dt class="col-sm-3">Email</dt>
+                    <dd class="col-sm-9">@Model.BookingRequest.GuestEmail</dd>
+                    <dt class="col-sm-3">Phone</dt>
+                    <dd class="col-sm-9">@Model.BookingRequest.GuestPhone</dd>
+                    <dt class="col-sm-3">Address</dt>
+                    <dd class="col-sm-9">@Model.BookingRequest.GuestAddress</dd>
+                    <dt class="col-sm-3">Stay Dates</dt>
+                    <dd class="col-sm-9">@Model.BookingRequest.CheckInDate.ToString("yyyy-MM-dd") - @Model.BookingRequest.CheckOutDate.ToString("yyyy-MM-dd")</dd>
+                    <dt class="col-sm-3">Guests</dt>
+                    <dd class="col-sm-9">@Model.BookingRequest.AdultCount adult(s), @Model.BookingRequest.ChildCount child(ren)</dd>
+                    <dt class="col-sm-3">Special Requests</dt>
+                    <dd class="col-sm-9">@Model.BookingRequest.SpecialRequests</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Booking Details</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Room Type</dt>
+                    <dd class="col-sm-9">@(Model.BookingRequest.RoomType?.Name ?? "Unknown")</dd>
+                    <dt class="col-sm-3">Rate Plan</dt>
+                    <dd class="col-sm-9">@(Model.BookingRequest.RatePlan?.Code ?? "Base rate")</dd>
+                    <dt class="col-sm-3">Promo Code</dt>
+                    <dd class="col-sm-9">@(Model.BookingRequest.PromotionCode?.Code ?? "-")</dd>
+                    <dt class="col-sm-3">Room Rate</dt>
+                    <dd class="col-sm-9">@Model.BookingRequest.RoomRate.ToString("C")</dd>
+                    <dt class="col-sm-3">Room Total</dt>
+                    <dd class="col-sm-9">@Model.BookingRequest.TotalRoomAmount.ToString("C")</dd>
+                    <dt class="col-sm-3">Discount</dt>
+                    <dd class="col-sm-9">@Model.BookingRequest.DiscountAmount.ToString("C")</dd>
+                    <dt class="col-sm-3">Deposit</dt>
+                    <dd class="col-sm-9">@(Model.BookingRequest.DepositRequired ? Model.BookingRequest.DepositAmount.ToString("C") : "Not required")</dd>
+                    <dt class="col-sm-3">Reservation</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.BookingRequest.ReservationId is not null)
+                        {
+                            <a asp-page="/FrontOffice/Reservations/Details" asp-route-id="@Model.BookingRequest.ReservationId">Reservation #@Model.BookingRequest.ReservationId</a>
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-header">Status</div>
+            <div class="card-body">
+                <div class="mb-3"><span class="badge bg-secondary fs-6">@Model.BookingRequest.BookingStatus</span></div>
+                <div class="d-grid gap-2">
+                    <form method="post" asp-page-handler="Confirm" asp-route-id="@Model.BookingRequest.Id">
+                        <button class="btn btn-success w-100" type="submit" disabled="@(Model.BookingRequest.BookingStatus == BookingRequestStatus.ConvertedToReservation || Model.BookingRequest.BookingStatus == BookingRequestStatus.Cancelled)">Confirm Booking Request</button>
+                    </form>
+                    <form method="post" asp-page-handler="Cancel" asp-route-id="@Model.BookingRequest.Id">
+                        <button class="btn btn-outline-danger w-100" type="submit" disabled="@(Model.BookingRequest.BookingStatus == BookingRequestStatus.ConvertedToReservation || Model.BookingRequest.BookingStatus == BookingRequestStatus.Cancelled)">Cancel Booking Request</button>
+                    </form>
+                    <form method="post" asp-page-handler="Convert" asp-route-id="@Model.BookingRequest.Id">
+                        <button class="btn btn-primary w-100" type="submit" disabled="@(Model.BookingRequest.BookingStatus == BookingRequestStatus.ConvertedToReservation || Model.BookingRequest.BookingStatus == BookingRequestStatus.Cancelled)">Convert to Reservation</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Add-ons</div>
+            <ul class="list-group list-group-flush">
+                @if (Model.BookingRequest.AddOns.Count == 0)
+                {
+                    <li class="list-group-item text-muted">No add-ons selected.</li>
+                }
+                @foreach (var addOn in Model.BookingRequest.AddOns)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>@(addOn.BookingAddOn?.Name ?? "Add-on") x @addOn.Quantity</span>
+                        <span>@addOn.Amount.ToString("C")</span>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>

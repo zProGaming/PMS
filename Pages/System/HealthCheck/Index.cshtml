@@ -1,0 +1,80 @@
+@page
+@using Vantage.PMS.Models.SystemAdministration
+@model Vantage.PMS.Pages.System.HealthCheck.IndexModel
+@{
+    ViewData["Title"] = "System Health Check";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-1">System Health Check</h1>
+        <p class="text-muted mb-0">Runs data validation checks across reservations, rooms, folios, POS, banquet, inventory, finance, AR, revenue, and booking.</p>
+    </div>
+    <form method="post" asp-page-handler="RunScan">
+        <button type="submit" class="btn btn-primary">Run Validation Scan</button>
+    </form>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+<form method="get" class="mb-3">
+    <div class="form-check">
+        <input class="form-check-input" asp-for="IncludeResolved" onchange="this.form.submit()" />
+        <label class="form-check-label" asp-for="IncludeResolved">Include resolved issues</label>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Severity</th>
+                <th>Module</th>
+                <th>Entity</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Recommended Fix</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var issue in Model.Issues)
+            {
+                <tr>
+                    <td>@issue.IssueDate.ToString("g")</td>
+                    <td><span class="badge bg-@SeverityClass(issue.Severity)">@issue.Severity</span></td>
+                    <td>@issue.Module</td>
+                    <td>@issue.EntityName #@issue.EntityId</td>
+                    <td>@issue.IssueType</td>
+                    <td>@issue.Description</td>
+                    <td>@issue.RecommendedFix</td>
+                    <td>@(issue.IsResolved ? "Resolved" : "Open")</td>
+                    <td class="text-end">
+                        @if (!issue.IsResolved)
+                        {
+                            <form method="post" asp-page-handler="Resolve" asp-route-id="@issue.Id">
+                                <button type="submit" class="btn btn-sm btn-outline-success">Resolve</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@functions {
+    private static string SeverityClass(SystemSeverity severity) => severity switch
+    {
+        SystemSeverity.Critical => "danger",
+        SystemSeverity.High => "warning text-dark",
+        SystemSeverity.Medium => "primary",
+        SystemSeverity.Low => "info text-dark",
+        _ => "secondary"
+    };
+}

@@ -1,0 +1,86 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Labor.PayrollPeriods.DetailsModel
+@{
+    ViewData["Title"] = "Payroll Period Details";
+    var period = Model.Period!;
+    var canEdit = period.Status is Vantage.PMS.Models.Labor.PayrollPeriodStatus.Draft or Vantage.PMS.Models.Labor.PayrollPeriodStatus.ForApproval;
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Payroll Period</div>
+        <h1 class="page-title">@period.PeriodName</h1>
+        <p class="page-subtitle">@period.StartDate.ToString("yyyy-MM-dd") to @period.EndDate.ToString("yyyy-MM-dd")</p>
+    </div>
+    <div class="page-actions">
+        <span class="status-badge">@period.Status</span>
+        <a class="btn vpms-btn-secondary" asp-page="Index">Back to Periods</a>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage)) { <div class="alert alert-success">@Model.StatusMessage</div> }
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage)) { <div class="alert alert-danger">@Model.ErrorMessage</div> }
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Gross Pay</div><div class="kpi-value">@period.Entries.Sum(e => e.GrossPay).ToString("C")</div><div class="kpi-note">All earnings</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Employer Cost</div><div class="kpi-value">@period.Entries.Sum(e => e.EmployerCost).ToString("C")</div><div class="kpi-note">GL posting basis</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Net Pay</div><div class="kpi-value">@period.Entries.Sum(e => e.NetPay).ToString("C")</div><div class="kpi-note">Gross less deductions</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Journal Entry</div><div class="kpi-value">@(period.JournalEntry?.JournalNumber ?? "None")</div><div class="kpi-note">Posted payroll GL reference</div></div></div>
+</div>
+
+@if (canEdit)
+{
+    <form method="post" asp-page-handler="AddEntry" asp-route-id="@period.Id" class="vpms-card mb-4">
+        <h2 class="h5">Add Payroll Cost Entry</h2>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row g-3">
+            <div class="col-md-3"><label class="form-label">Employee</label><select asp-for="Input.EmployeeCostProfileId" class="form-select" asp-items="Model.EmployeeOptions"><option value="">Department-level entry</option></select></div>
+            <div class="col-md-2"><label class="form-label">Department</label><select asp-for="Input.DepartmentId" class="form-select" asp-items="Model.DepartmentOptions"><option value="">Unassigned</option></select></div>
+            <div class="col-md-2"><label class="form-label">USALI</label><select asp-for="Input.USALIDepartmentId" class="form-select" asp-items="Model.USALIOptions"><option value="">Unmapped</option></select></div>
+            <div class="col-md-2"><label class="form-label">Position</label><input asp-for="Input.Position" class="form-control" /></div>
+            <div class="col-md-1"><label class="form-label">Reg Hrs</label><input asp-for="Input.RegularHours" class="form-control" /></div>
+            <div class="col-md-1"><label class="form-label">OT Hrs</label><input asp-for="Input.OvertimeHours" class="form-control" /></div>
+            <div class="col-md-1"><label class="form-label">ND Hrs</label><input asp-for="Input.NightDifferentialHours" class="form-control" /></div>
+            <div class="col-md-2"><label class="form-label">Regular Pay</label><input asp-for="Input.RegularPay" class="form-control" /></div>
+            <div class="col-md-2"><label class="form-label">Overtime Pay</label><input asp-for="Input.OvertimePay" class="form-control" /></div>
+            <div class="col-md-2"><label class="form-label">Night Diff Pay</label><input asp-for="Input.NightDifferentialPay" class="form-control" /></div>
+            <div class="col-md-2"><label class="form-label">Allowances</label><input asp-for="Input.Allowances" class="form-control" /></div>
+            <div class="col-md-2"><label class="form-label">Service Charge</label><input asp-for="Input.ServiceChargeShare" class="form-control" /></div>
+            <div class="col-md-2"><label class="form-label">Other Earnings</label><input asp-for="Input.OtherEarnings" class="form-control" /></div>
+            <div class="col-md-2"><label class="form-label">Deductions</label><input asp-for="Input.Deductions" class="form-control" /></div>
+            <div class="col-md-3"><label class="form-label">Labor GL</label><select asp-for="Input.LaborGLAccountId" class="form-select" asp-items="Model.LaborAccountOptions"><option value="">Use employee/fallback</option></select></div>
+            <div class="col-md-3"><label class="form-label">Liability GL</label><select asp-for="Input.PayrollLiabilityGLAccountId" class="form-select" asp-items="Model.LiabilityAccountOptions"><option value="">Use employee/fallback</option></select></div>
+            <div class="col-md-6"><label class="form-label">Notes</label><input asp-for="Input.Notes" class="form-control" /></div>
+            <div class="col-12"><button class="btn vpms-btn-primary" type="submit">Add Entry</button></div>
+        </div>
+    </form>
+}
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Employee / Position</th><th>Department</th><th class="text-end">Hours</th><th class="text-end">Gross</th><th class="text-end">Employer Cost</th><th class="text-end">Deductions</th><th class="text-end">Net</th></tr></thead>
+        <tbody>
+        @foreach (var entry in period.Entries.OrderBy(e => e.Department?.Name).ThenBy(e => e.EmployeeCostProfile?.FullName))
+        {
+            <tr>
+                <td><div class="fw-semibold">@(entry.EmployeeCostProfile?.FullName ?? "Department entry")</div><small class="text-muted">@entry.Position</small></td>
+                <td>@(entry.Department?.Name ?? "Unassigned")<div class="small text-muted">@(entry.USALIDepartment?.Name ?? "Unmapped")</div></td>
+                <td class="text-end">@((entry.RegularHours + entry.OvertimeHours + entry.NightDifferentialHours).ToString("N1"))</td>
+                <td class="text-end">@entry.GrossPay.ToString("C")</td>
+                <td class="text-end fw-semibold">@entry.EmployerCost.ToString("C")</td>
+                <td class="text-end">@entry.Deductions.ToString("C")</td>
+                <td class="text-end">@entry.NetPay.ToString("C")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@if (period.Entries.Count == 0)
+{
+    <div class="vpms-empty-state mt-3">No payroll cost entries yet.</div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

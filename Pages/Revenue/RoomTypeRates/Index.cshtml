@@ -1,0 +1,44 @@
+@page
+@model Vantage.PMS.Pages.Revenue.RoomTypeRates.IndexModel
+@{
+    ViewData["Title"] = "Room Type Rates";
+}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="mb-1">Room Type Rates</h1>
+        <p class="text-muted mb-0">Base rates by room type and rate plan.</p>
+    </div>
+    <a class="btn btn-primary" asp-page="./Create">Create Rate</a>
+</div>
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Rate Plan</th>
+            <th>Room Type</th>
+            <th class="text-end">Base</th>
+            <th class="text-end">Extra Adult</th>
+            <th class="text-end">Extra Child</th>
+            <th>Effective</th>
+            <th>Active</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var rate in Model.RoomTypeRates)
+        {
+            <tr>
+                <td>@rate.RatePlan?.Code</td>
+                <td>@rate.RoomType?.Code</td>
+                <td class="text-end">@rate.BaseRate.ToString("N2")</td>
+                <td class="text-end">@rate.ExtraAdultRate.ToString("N2")</td>
+                <td class="text-end">@rate.ExtraChildRate.ToString("N2")</td>
+                <td>@rate.EffectiveFrom.ToString("d") - @rate.EffectiveTo.ToString("d")</td>
+                <td>@(rate.IsActive ? "Yes" : "No")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@rate.Id">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="./Delete" asp-route-id="@rate.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

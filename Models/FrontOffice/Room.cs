@@ -18,7 +18,9 @@ public class Room
 
     public string? Floor { get; set; }
 
-    public RoomStatus Status { get; set; } = RoomStatus.VacantClean;
+    public RoomStatus Status { get; set; } = RoomStatus.Available;
+
+    public string? StatusNotes { get; set; }
 
     public bool IsActive { get; set; } = true;
 }

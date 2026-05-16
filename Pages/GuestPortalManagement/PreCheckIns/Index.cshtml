@@ -1,0 +1,59 @@
+@page
+@using Vantage.PMS.Models.GuestPortal
+@model Vantage.PMS.Pages.GuestPortalManagement.PreCheckIns.IndexModel
+@{
+    ViewData["Title"] = "Pre-Check-In Submissions";
+}
+
+<h1 class="h3 mb-3">Pre-Check-In Submissions</h1>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Submitted</th>
+                <th>Guest</th>
+                <th>Reservation</th>
+                <th>Arrival Time</th>
+                <th>ID</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Submissions)
+            {
+                <tr>
+                    <td>@item.SubmittedAt.ToString("g")</td>
+                    <td>@item.Guest?.FirstName @item.Guest?.LastName</td>
+                    <td>@item.Reservation?.ConfirmationNumber</td>
+                    <td>@(item.ArrivalTime?.ToString("g") ?? "-")</td>
+                    <td>@item.IdType @item.IdNumber</td>
+                    <td><span class="badge bg-secondary">@item.Status</span></td>
+                    <td class="text-end">
+                        <form method="post" class="d-inline" asp-page-handler="SetStatus" asp-route-id="@item.Id" asp-route-status="@GuestPreCheckInStatus.Reviewed">
+                            <button class="btn btn-sm btn-outline-secondary">Reviewed</button>
+                        </form>
+                        <form method="post" class="d-inline" asp-page-handler="SetStatus" asp-route-id="@item.Id" asp-route-status="@GuestPreCheckInStatus.Approved">
+                            <button class="btn btn-sm btn-outline-success">Approve</button>
+                        </form>
+                        <form method="post" class="d-inline" asp-page-handler="SetStatus" asp-route-id="@item.Id" asp-route-status="@GuestPreCheckInStatus.Rejected">
+                            <button class="btn btn-sm btn-outline-danger">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td colspan="6" class="text-muted small">
+                        Address: @item.Address | Nationality: @item.Nationality | Birthday: @(item.Birthday?.ToString("d") ?? "-") | Requests: @item.SpecialRequests
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

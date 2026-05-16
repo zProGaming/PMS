@@ -1,0 +1,111 @@
+@page
+@model Vantage.PMS.Pages.Admin.IndexModel
+
+@{
+    ViewData["Title"] = "Admin";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Admin</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">System Administration</div>
+        <h1 class="page-title">Admin Setup</h1>
+        <p class="page-subtitle">Central setup landing page for hotel structure, property records, rooms, departments, and access roles.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn vpms-btn-primary" asp-page="/Admin/Properties/Index">Properties</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Admin/UsersAndRoles/Index">Users and Roles</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Hotels</div>
+            <div class="kpi-value">@Model.Hotels</div>
+            <div class="kpi-note">Hotel records</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Properties</div>
+            <div class="kpi-value">@Model.Properties</div>
+            <div class="kpi-note">Operating sites</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Departments</div>
+            <div class="kpi-value">@Model.Departments</div>
+            <div class="kpi-note">Org structure</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Rooms</div>
+            <div class="kpi-value">@Model.Rooms</div>
+            <div class="kpi-note">Physical inventory</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Room Types</div>
+            <div class="kpi-value">@Model.RoomTypes</div>
+            <div class="kpi-note">Sellable categories</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="kpi-card">
+            <div class="kpi-label">Roles</div>
+            <div class="kpi-value">@Model.Roles</div>
+            <div class="kpi-note">Access profiles</div>
+        </div>
+    </div>
+</div>
+
+<section class="vpms-card p-3">
+    <div class="row g-3">
+        <div class="col-md-6 col-xl-4">
+            <a class="quick-action-card h-100" asp-page="/Admin/Hotels/Index">
+                <strong>Hotels and Organizations</strong>
+                <small>Brand, hotel, and ownership setup.</small>
+            </a>
+        </div>
+        <div class="col-md-6 col-xl-4">
+            <a class="quick-action-card h-100" asp-page="/Admin/Properties/Index">
+                <strong>Properties</strong>
+                <small>Property records for multi-property operations.</small>
+            </a>
+        </div>
+        <div class="col-md-6 col-xl-4">
+            <a class="quick-action-card h-100" asp-page="/Admin/Departments/Index">
+                <strong>Departments</strong>
+                <small>Operational and reporting departments.</small>
+            </a>
+        </div>
+        <div class="col-md-6 col-xl-4">
+            <a class="quick-action-card h-100" asp-page="/Admin/RoomTypes/Index">
+                <strong>Room Types</strong>
+                <small>Rates, occupancy, and sellable room categories.</small>
+            </a>
+        </div>
+        <div class="col-md-6 col-xl-4">
+            <a class="quick-action-card h-100" asp-page="/Admin/Rooms/Index">
+                <strong>Rooms</strong>
+                <small>Physical room inventory for the Room Rack.</small>
+            </a>
+        </div>
+        <div class="col-md-6 col-xl-4">
+            <a class="quick-action-card h-100" asp-page="/Admin/UsersAndRoles/Index">
+                <strong>Users and Roles</strong>
+                <small>Staff access and role assignment.</small>
+            </a>
+        </div>
+    </div>
+</section>

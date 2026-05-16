@@ -1,0 +1,97 @@
+@page
+@model Vantage.PMS.Pages.Accounting.CashFlow.Categories.IndexModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "Cash Flow Categories";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Accounting Setup</div>
+        <h1 class="page-title">Cash Flow Categories</h1>
+        <p class="page-subtitle">Configure operating, investing, financing, and reconciliation lines for the Statement of Cash Flows.</p>
+    </div>
+</div>
+
+<form method="post" asp-page-handler="Create" class="vpms-form-card mb-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3 align-items-end">
+        <div class="col-md-2">
+            <label asp-for="Input.Code" class="form-label">Code</label>
+            <input asp-for="Input.Code" class="form-control" placeholder="OP_OTHER" required />
+            <span asp-validation-for="Input.Code" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Input.Name" class="form-label">Name</label>
+            <input asp-for="Input.Name" class="form-control" required />
+            <span asp-validation-for="Input.Name" class="text-danger"></span>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Input.CashFlowSection" class="form-label">Section</label>
+            <select asp-for="Input.CashFlowSection" asp-items="Html.GetEnumSelectList<CashFlowSection>()" class="form-select"></select>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Input.SortOrder" class="form-label">Sort order</label>
+            <input asp-for="Input.SortOrder" type="number" class="form-control" />
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+            <div class="form-check">
+                <input asp-for="Input.IsSubtotal" class="form-check-input" />
+                <label asp-for="Input.IsSubtotal" class="form-check-label">Subtotal</label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button class="btn vpms-btn-primary w-100" type="submit">Add Category</button>
+        </div>
+        <div class="col-12">
+            <label asp-for="Input.Description" class="form-label">Description</label>
+            <input asp-for="Input.Description" class="form-control" />
+        </div>
+    </div>
+</form>
+
+<section class="vpms-card">
+    <div class="vpms-table-wrapper">
+        <table class="table vpms-table align-middle">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Category</th>
+                    <th>Section</th>
+                    <th class="text-end">Sort</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var category in Model.Categories)
+            {
+                <tr>
+                    <td class="fw-semibold">@category.Code</td>
+                    <td>
+                        <div>@category.Name</div>
+                        @if (!string.IsNullOrWhiteSpace(category.Description))
+                        {
+                            <div class="text-muted small">@category.Description</div>
+                        }
+                    </td>
+                    <td>@category.CashFlowSection</td>
+                    <td class="text-end">@category.SortOrder</td>
+                    <td>@(category.IsSubtotal ? "Subtotal" : "Detail")</td>
+                    <td><span class="status-badge @(category.IsActive ? "status-paid" : "status-cancelled")">@(category.IsActive ? "Active" : "Inactive")</span></td>
+                    <td class="text-end">
+                        <form method="post" asp-page-handler="Toggle" asp-route-id="@category.Id" class="d-inline">
+                            <button class="btn btn-sm vpms-btn-secondary" type="submit">@(category.IsActive ? "Deactivate" : "Activate")</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

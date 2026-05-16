@@ -1,0 +1,134 @@
+@page
+@model Vantage.PMS.Pages.Booking.GuestDetailsModel
+@{
+    ViewData["Title"] = "Guest Details";
+}
+
+<h1 class="h3 mb-3">Guest Details</h1>
+
+@if (Model.QuoteResult.Errors.Count > 0)
+{
+    <div class="alert alert-warning">
+        @foreach (var error in Model.QuoteResult.Errors)
+        {
+            <div>@error</div>
+        }
+    </div>
+}
+
+@if (Model.QuoteResult.Quote is not null)
+{
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <form method="post" asp-page="Summary" class="card">
+                <div class="card-body row g-3">
+                    <input type="hidden" asp-for="BookingInput.CheckInDate" />
+                    <input type="hidden" asp-for="BookingInput.CheckOutDate" />
+                    <input type="hidden" asp-for="BookingInput.AdultCount" />
+                    <input type="hidden" asp-for="BookingInput.ChildCount" />
+                    <input type="hidden" asp-for="BookingInput.PromoCode" />
+                    <input type="hidden" asp-for="BookingInput.RoomTypeId" />
+                    <input type="hidden" asp-for="BookingInput.RatePlanId" />
+
+                    <div class="col-md-6">
+                        <label asp-for="GuestInput.FirstName" class="form-label">First name</label>
+                        <input asp-for="GuestInput.FirstName" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="GuestInput.LastName" class="form-label">Last name</label>
+                        <input asp-for="GuestInput.LastName" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="GuestInput.Email" class="form-label">Email</label>
+                        <input asp-for="GuestInput.Email" type="email" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="GuestInput.Phone" class="form-label">Phone</label>
+                        <input asp-for="GuestInput.Phone" class="form-control" />
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="GuestInput.Address" class="form-label">Address</label>
+                        <textarea asp-for="GuestInput.Address" class="form-control" rows="2"></textarea>
+                    </div>
+                    @if (Model.QuoteResult.Quote.Setting.AllowSpecialRequests)
+                    {
+                        <div class="col-12">
+                            <label asp-for="GuestInput.SpecialRequests" class="form-label">Special requests</label>
+                            <textarea asp-for="GuestInput.SpecialRequests" class="form-control" rows="3"></textarea>
+                        </div>
+                    }
+
+                    @if (Model.AvailableAddOns.Count > 0)
+                    {
+                        <div class="col-12">
+                            <h2 class="h5">Add-ons</h2>
+                            @for (var i = 0; i < Model.AvailableAddOns.Count; i++)
+                            {
+                                <input type="hidden" asp-for="AddOnSelections[i].BookingAddOnId" />
+                                <div class="row g-2 align-items-center border-bottom py-2">
+                                    <div class="col-md-8">
+                                        <div class="fw-semibold">@Model.AvailableAddOns[i].Name</div>
+                                        <div class="text-muted small">
+                                            @Model.AvailableAddOns[i].Description
+                                            @if (Model.AvailableAddOns[i].IsPerNight)
+                                            {
+                                                <span> Per night.</span>
+                                            }
+                                            @if (Model.AvailableAddOns[i].IsPerPerson)
+                                            {
+                                                <span> Per person.</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">@Model.AvailableAddOns[i].Price.ToString("C")</div>
+                                    <div class="col-md-2">
+                                        <label asp-for="AddOnSelections[i].Quantity" class="form-label visually-hidden">Quantity</label>
+                                        <input asp-for="AddOnSelections[i].Quantity" class="form-control" type="number" min="0" />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input asp-for="GuestAcceptedTerms" class="form-check-input" />
+                            <label asp-for="GuestAcceptedTerms" class="form-check-label">I accept the booking terms and privacy policy.</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Review Booking</button>
+                        <a asp-page="Rooms"
+                           asp-route-checkInDate="@Model.BookingInput.CheckInDate.ToString("yyyy-MM-dd")"
+                           asp-route-checkOutDate="@Model.BookingInput.CheckOutDate.ToString("yyyy-MM-dd")"
+                           asp-route-adultCount="@Model.BookingInput.AdultCount"
+                           asp-route-childCount="@Model.BookingInput.ChildCount"
+                           asp-route-promoCode="@Model.BookingInput.PromoCode"
+                           class="btn btn-outline-secondary">Back</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">Selected Room</div>
+                <div class="card-body">
+                    <h2 class="h5">@Model.QuoteResult.Quote.RoomTypeName</h2>
+                    <p class="text-muted">@Model.QuoteResult.Quote.ShortDescription</p>
+                    <dl class="row small mb-0">
+                        <dt class="col-6">Nights</dt>
+                        <dd class="col-6">@Model.QuoteResult.Quote.Nights</dd>
+                        <dt class="col-6">Rate</dt>
+                        <dd class="col-6">@Model.QuoteResult.Quote.RoomRate.ToString("C")</dd>
+                        <dt class="col-6">Total</dt>
+                        <dd class="col-6">@Model.QuoteResult.Quote.TotalRoomAmount.ToString("C")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

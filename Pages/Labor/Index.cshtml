@@ -1,0 +1,102 @@
+@page
+@model Vantage.PMS.Pages.Labor.IndexModel
+@{
+    ViewData["Title"] = "Labor Costing Dashboard";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Labor Costing</div>
+        <h1 class="page-title">Labor Productivity Dashboard</h1>
+        <p class="page-subtitle">Payroll cost, service charge distribution, USALI labor mapping, and department productivity controls.</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn vpms-btn-primary" asp-page="/Labor/PayrollPeriods/Index">Payroll Periods</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Labor/Reports/Index">Labor Reports</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Labor Cost This Month</div><div class="kpi-value">@Model.Metrics.TotalLaborCostThisMonth.ToString("C")</div><div class="kpi-note">Employer cost basis</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Labor Hours</div><div class="kpi-value">@Model.Metrics.TotalLaborHoursThisMonth.ToString("N1")</div><div class="kpi-note">Regular, overtime, night diff</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Labor Cost %</div><div class="kpi-value">@Model.Metrics.LaborCostPercentage.ToString("N1")%</div><div class="kpi-note">Against posted revenue</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Revenue / Labor Hour</div><div class="kpi-value">@Model.Metrics.RevenuePerLaborHour.ToString("C")</div><div class="kpi-note">Productivity indicator</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Payroll Pending Approval</div><div class="kpi-value">@Model.Metrics.PayrollPeriodsPendingApproval</div><div class="kpi-note">For finance review</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Payroll Pending Posting</div><div class="kpi-value">@Model.Metrics.PayrollPeriodsPendingPosting</div><div class="kpi-note">Approved, not in GL</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Departments Over Budget</div><div class="kpi-value">@Model.Metrics.DepartmentsOverBudget</div><div class="kpi-note">Current month budget check</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Service Charge Pending</div><div class="kpi-value">@(Model.Metrics.ServiceChargePoolsPendingApproval + Model.Metrics.ServiceChargePoolsPendingPosting)</div><div class="kpi-note">Approval or GL posting</div></div></div>
+</div>
+
+<div class="quick-action-grid mt-4">
+    <a asp-page="/Labor/EmployeeCostProfiles/Index" class="quick-action-card"><strong>Employee Cost Profiles</strong><small>PMS-side HRIS-ready cost profiles</small></a>
+    <a asp-page="/Labor/PayrollPeriods/Index" class="quick-action-card"><strong>Payroll Periods</strong><small>Approve and post payroll cost</small></a>
+    <a asp-page="/Labor/PayrollCostEntries/Index" class="quick-action-card"><strong>Payroll Cost Entries</strong><small>Manual employee or department cost entry</small></a>
+    <a asp-page="/Labor/DepartmentLaborBudgets/Index" class="quick-action-card"><strong>Labor Budgets</strong><small>Monthly cost, hours, and headcount</small></a>
+    <a asp-page="/Labor/ServiceChargePools/Index" class="quick-action-card"><strong>Service Charge Pools</strong><small>Distribution and posting support</small></a>
+    <a asp-page="/Labor/Import/Index" class="quick-action-card"><strong>HRIS Import Placeholder</strong><small>Future Vantage HRIS integration</small></a>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-xl-7">
+        <section class="vpms-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h5 mb-0">Labor Cost by Department</h2>
+                <a asp-page="/Labor/Reports/Index" class="btn btn-sm vpms-btn-secondary">View Reports</a>
+            </div>
+            @if (Model.DepartmentLabor.Count == 0)
+            {
+                <div class="vpms-empty-state">No labor entries yet. Create a payroll period and add payroll cost entries to populate this dashboard.</div>
+            }
+            else
+            {
+                <div class="vpms-table-wrapper">
+                    <table class="table vpms-table align-middle">
+                        <thead><tr><th>Department</th><th>USALI Mapping</th><th class="text-end">Hours</th><th class="text-end">Labor Cost</th><th class="text-end">Headcount</th></tr></thead>
+                        <tbody>
+                        @foreach (var row in Model.DepartmentLabor)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@row.DepartmentName</td>
+                                <td>@row.USALIName</td>
+                                <td class="text-end">@row.LaborHours.ToString("N1")</td>
+                                <td class="text-end">@row.LaborCost.ToString("C")</td>
+                                <td class="text-end">@row.Headcount</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+    <div class="col-xl-5">
+        <section class="vpms-card mb-4">
+            <h2 class="h5">Recent Payroll Periods</h2>
+            @foreach (var period in Model.RecentPayrollPeriods)
+            {
+                <div class="d-flex justify-content-between border-bottom py-2">
+                    <a asp-page="/Labor/PayrollPeriods/Details" asp-route-id="@period.Id">@period.PeriodName</a>
+                    <span class="status-badge">@period.Status</span>
+                </div>
+            }
+            @if (Model.RecentPayrollPeriods.Count == 0)
+            {
+                <div class="vpms-empty-state">No payroll periods have been created yet.</div>
+            }
+        </section>
+        <section class="vpms-card">
+            <h2 class="h5">Service Charge Pools</h2>
+            @foreach (var pool in Model.PendingServiceChargePools)
+            {
+                <div class="d-flex justify-content-between border-bottom py-2">
+                    <a asp-page="/Labor/ServiceChargePools/Details" asp-route-id="@pool.Id">@pool.PoolName</a>
+                    <span>@pool.TotalServiceChargeCollected.ToString("C")</span>
+                </div>
+            }
+            @if (Model.PendingServiceChargePools.Count == 0)
+            {
+                <div class="vpms-empty-state">No pending service charge pools.</div>
+            }
+        </section>
+    </div>
+</div>

@@ -1,0 +1,19 @@
+@page
+@model Vantage.PMS.Pages.Inventory.StockAdjustments.CreateModel
+@{
+    ViewData["Title"] = "New Stock Adjustment";
+}
+
+<h1 class="h3 mb-3">New Stock Adjustment</h1>
+
+<form method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-4"><label asp-for="StockAdjustment.AdjustmentNumber" class="form-label"></label><input asp-for="StockAdjustment.AdjustmentNumber" class="form-control" readonly /></div>
+    <div class="col-md-4"><label asp-for="StockAdjustment.AdjustmentDate" class="form-label"></label><input asp-for="StockAdjustment.AdjustmentDate" type="date" class="form-control" /></div>
+    <div class="col-md-4"><label asp-for="StockAdjustment.PreparedBy" class="form-label"></label><input asp-for="StockAdjustment.PreparedBy" class="form-control" /></div>
+    <div class="col-12"><label asp-for="StockAdjustment.Reason" class="form-label"></label><textarea asp-for="StockAdjustment.Reason" class="form-control"></textarea></div>
+    <div class="col-12"><label asp-for="StockAdjustment.Notes" class="form-label"></label><textarea asp-for="StockAdjustment.Notes" class="form-control"></textarea></div>
+    <div class="col-12"><button class="btn btn-primary">Create</button> <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a></div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

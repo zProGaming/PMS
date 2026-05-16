@@ -1,0 +1,26 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Sales.Activities.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete Sales Activity";
+}
+
+<h1>Delete Sales Activity</h1>
+
+<div class="alert alert-warning">
+    Delete sales activity <strong>@Model.SalesActivity.ActivityType</strong>?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-2">Date</dt>
+    <dd class="col-sm-10">@Model.SalesActivity.ActivityDate.ToString("g")</dd>
+    <dt class="col-sm-2">Account</dt>
+    <dd class="col-sm-10">@Model.SalesActivity.SalesAccount?.AccountName</dd>
+    <dt class="col-sm-2">Lead</dt>
+    <dd class="col-sm-10">@Model.SalesActivity.SalesLead?.LeadName</dd>
+</dl>
+
+<form method="post">
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>

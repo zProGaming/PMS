@@ -1,0 +1,51 @@
+@page
+@model Vantage.PMS.Pages.BookingManagement.RoomContent.CreateModel
+@{
+    ViewData["Title"] = "Create Room Content";
+}
+
+<h1 class="h3 mb-3">Create Room Content</h1>
+
+<form method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-4">
+        <label asp-for="RoomContent.RoomTypeId" class="form-label">Room Type</label>
+        <select asp-for="RoomContent.RoomTypeId" asp-items="Model.RoomTypeOptions" class="form-select"></select>
+        <span asp-validation-for="RoomContent.RoomTypeId" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="RoomContent.DisplayName" class="form-label"></label>
+        <input asp-for="RoomContent.DisplayName" class="form-control" />
+        <span asp-validation-for="RoomContent.DisplayName" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="RoomContent.SortOrder" class="form-label"></label>
+        <input asp-for="RoomContent.SortOrder" class="form-control" />
+    </div>
+    <div class="col-12">
+        <label asp-for="RoomContent.ShortDescription" class="form-label"></label>
+        <input asp-for="RoomContent.ShortDescription" class="form-control" />
+    </div>
+    <div class="col-12">
+        <label asp-for="RoomContent.LongDescription" class="form-label"></label>
+        <textarea asp-for="RoomContent.LongDescription" class="form-control" rows="4"></textarea>
+    </div>
+    <div class="col-md-10">
+        <label asp-for="RoomContent.ImageUrl" class="form-label"></label>
+        <input asp-for="RoomContent.ImageUrl" class="form-control" />
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <div class="form-check">
+            <input asp-for="RoomContent.IsVisible" class="form-check-input" />
+            <label asp-for="RoomContent.IsVisible" class="form-check-label"></label>
+        </div>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

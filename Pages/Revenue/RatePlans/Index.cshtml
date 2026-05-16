@@ -1,0 +1,45 @@
+@page
+@model Vantage.PMS.Pages.Revenue.RatePlans.IndexModel
+
+@{
+    ViewData["Title"] = "Rate Plans";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="mb-1">Rate Plans</h1>
+        <p class="text-muted mb-0">Sellable rate plans and booking policies.</p>
+    </div>
+    <a class="btn btn-primary" asp-page="./Create">Create Rate Plan</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Breakfast</th>
+            <th>Corporate</th>
+            <th>Active</th>
+            <th>Created By</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ratePlan in Model.RatePlans)
+        {
+            <tr>
+                <td>@ratePlan.Code</td>
+                <td>@ratePlan.Name</td>
+                <td>@(ratePlan.IncludesBreakfast ? "Yes" : "No")</td>
+                <td>@(ratePlan.IsCorporateRate ? "Yes" : "No")</td>
+                <td>@(ratePlan.IsActive ? "Yes" : "No")</td>
+                <td>@ratePlan.CreatedBy</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@ratePlan.Id">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="./Delete" asp-route-id="@ratePlan.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

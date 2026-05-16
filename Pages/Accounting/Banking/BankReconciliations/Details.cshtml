@@ -1,0 +1,70 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Accounting.Banking.BankReconciliations.DetailsModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "Bank Reconciliation Details";
+}
+
+<div class="page-header">
+    <div><div class="page-kicker">Banking</div><h1 class="page-title">@Model.Reconciliation.BankAccount?.AccountName</h1><p class="page-subtitle">Reconciliation date @Model.Reconciliation.ReconciliationDate.ToString("yyyy-MM-dd")</p></div>
+    <div class="page-actions">
+        @if (Model.Reconciliation.Status != BankReconciliationStatus.Approved)
+        {
+            <form method="post" asp-page-handler="Approve" asp-route-id="@Model.Reconciliation.Id" class="d-inline"><button class="btn vpms-btn-primary">Approve</button></form>
+        }
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info vpms-alert">@Model.StatusMessage</div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Status</span><strong class="kpi-value">@Model.Reconciliation.Status</strong><span class="kpi-meta">Approval control</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Statement</span><strong class="kpi-value">@Model.Reconciliation.StatementEndingBalance.ToString("C")</strong><span class="kpi-meta">Bank statement</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Book</span><strong class="kpi-value">@Model.Reconciliation.BookEndingBalance.ToString("C")</strong><span class="kpi-meta">Cleared book balance</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Difference</span><strong class="kpi-value @(Model.Reconciliation.Difference == 0 ? "text-success" : "text-danger")">@Model.Reconciliation.Difference.ToString("C")</strong><span class="kpi-meta">Must be zero to approve</span></div></div>
+</div>
+
+@if (Model.Reconciliation.Status != BankReconciliationStatus.Approved)
+{
+    <form method="post" asp-page-handler="AddAdjustment" asp-route-id="@Model.Reconciliation.Id" class="vpms-card mb-4">
+        <h2 class="h6">Add Reconciliation Adjustment</h2>
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4"><label asp-for="Adjustment.Description" class="form-label">Description</label><input asp-for="Adjustment.Description" class="form-control" /></div>
+            <div class="col-md-2"><label asp-for="Adjustment.ItemType" class="form-label">Type</label><select asp-for="Adjustment.ItemType" asp-items="Html.GetEnumSelectList<BankReconciliationItemType>()" class="form-select"></select></div>
+            <div class="col-md-2"><label asp-for="Adjustment.Amount" class="form-label">Amount</label><input asp-for="Adjustment.Amount" class="form-control" /></div>
+            <div class="col-md-3"><label asp-for="Adjustment.Notes" class="form-label">Notes</label><input asp-for="Adjustment.Notes" class="form-control" /></div>
+            <div class="col-md-1"><button class="btn vpms-btn-secondary w-100" type="submit">Add</button></div>
+        </div>
+    </form>
+}
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Cleared</th><th>Description</th><th>Type</th><th>Reference</th><th class="text-end">Amount</th><th>Notes</th></tr></thead>
+        <tbody>
+        @foreach (var item in Model.Reconciliation.Items.OrderBy(item => item.BankTransaction?.TransactionDate ?? Model.Reconciliation.ReconciliationDate))
+        {
+            <tr>
+                <td>
+                    @if (Model.Reconciliation.Status == BankReconciliationStatus.Approved)
+                    {
+                        <span>@(item.IsCleared ? "Yes" : "No")</span>
+                    }
+                    else
+                    {
+                        <form method="post" asp-page-handler="ToggleCleared" asp-route-id="@Model.Reconciliation.Id" asp-route-itemId="@item.Id" class="d-inline"><button class="btn btn-sm vpms-btn-secondary">@(item.IsCleared ? "Clear" : "Mark")</button></form>
+                    }
+                </td>
+                <td>@item.Description</td>
+                <td>@item.ItemType</td>
+                <td>@item.BankTransaction?.ReferenceNumber</td>
+                <td class="text-end">@item.Amount.ToString("C")</td>
+                <td>@item.Notes</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

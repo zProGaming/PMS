@@ -1,0 +1,139 @@
+@page
+@model Vantage.PMS.Pages.Labor.Reports.IndexModel
+@{
+    ViewData["Title"] = "Labor Reports";
+}
+
+<div class="page-header vpms-no-print">
+    <div>
+        <div class="page-kicker">Labor Costing</div>
+        <h1 class="page-title">Labor Reports</h1>
+        <p class="page-subtitle">Payroll cost summary, department labor, USALI labor, budget variance, service charge distribution, and payroll journal register.</p>
+    </div>
+    <div class="page-actions">
+        <button class="btn vpms-btn-secondary" onclick="window.print()">Print</button>
+    </div>
+</div>
+
+<form method="get" class="vpms-card mb-4 vpms-no-print">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3"><label class="form-label">Start Date</label><input name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label">End Date</label><input name="endDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div>
+        <div class="col-md-2"><button class="btn vpms-btn-primary" type="submit">Run Report</button></div>
+    </div>
+</form>
+
+<div class="vpms-print-document">
+    <div class="vpms-print-header">
+        <div>
+            <div class="vpms-print-title">Labor Costing Reports</div>
+            <div class="vpms-print-meta">@Model.StartDate.ToString("yyyy-MM-dd") to @Model.EndDate.ToString("yyyy-MM-dd")</div>
+        </div>
+        <div class="vpms-print-meta">Vantage PMS</div>
+    </div>
+
+    <section class="vpms-card vpms-print-section mb-4">
+        <h2 class="h5">Payroll Cost Summary</h2>
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table vpms-print-table align-middle">
+                <thead><tr><th>Period</th><th>Department</th><th class="text-end">Regular</th><th class="text-end">Overtime</th><th class="text-end">Allowances</th><th class="text-end">Service Charge</th><th class="text-end">Gross</th><th class="text-end">Employer Cost</th><th class="text-end">Deductions</th><th class="text-end">Net</th></tr></thead>
+                <tbody>
+                @foreach (var entry in Model.PayrollEntries)
+                {
+                    <tr>
+                        <td>@entry.PayrollPeriod?.PeriodName</td>
+                        <td>@(entry.Department?.Name ?? "Unassigned")</td>
+                        <td class="text-end">@entry.RegularPay.ToString("C")</td>
+                        <td class="text-end">@entry.OvertimePay.ToString("C")</td>
+                        <td class="text-end">@entry.Allowances.ToString("C")</td>
+                        <td class="text-end">@entry.ServiceChargeShare.ToString("C")</td>
+                        <td class="text-end">@entry.GrossPay.ToString("C")</td>
+                        <td class="text-end">@entry.EmployerCost.ToString("C")</td>
+                        <td class="text-end">@entry.Deductions.ToString("C")</td>
+                        <td class="text-end">@entry.NetPay.ToString("C")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <section class="vpms-card vpms-print-section mb-4">
+                <h2 class="h5">Payroll Cost by Department</h2>
+                <table class="table vpms-table vpms-print-table">
+                    <thead><tr><th>Department</th><th class="text-end">Labor Cost</th><th class="text-end">Hours</th><th class="text-end">Gross</th><th class="text-end">Net</th></tr></thead>
+                    <tbody>
+                    @foreach (var row in Model.DepartmentRows)
+                    {
+                        <tr><td>@row.Name</td><td class="text-end">@row.LaborCost.ToString("C")</td><td class="text-end">@row.PayrollHours.ToString("N1")</td><td class="text-end">@row.GrossPay.ToString("C")</td><td class="text-end">@row.NetPay.ToString("C")</td></tr>
+                    }
+                    </tbody>
+                </table>
+            </section>
+        </div>
+        <div class="col-lg-6">
+            <section class="vpms-card vpms-print-section mb-4">
+                <h2 class="h5">Payroll Cost by USALI Department</h2>
+                <table class="table vpms-table vpms-print-table">
+                    <thead><tr><th>USALI Department</th><th class="text-end">Labor Cost</th><th class="text-end">Hours</th><th class="text-end">Service Charge</th></tr></thead>
+                    <tbody>
+                    @foreach (var row in Model.USALIRows)
+                    {
+                        <tr><td>@row.Name</td><td class="text-end">@row.LaborCost.ToString("C")</td><td class="text-end">@row.PayrollHours.ToString("N1")</td><td class="text-end">@row.ServiceChargeShare.ToString("C")</td></tr>
+                    }
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </div>
+
+    <section class="vpms-card vpms-print-section mb-4">
+        <h2 class="h5">Labor Budget vs Actual</h2>
+        <table class="table vpms-table vpms-print-table">
+            <thead><tr><th>Department</th><th>Period</th><th class="text-end">Budget Cost</th><th class="text-end">Actual Cost</th><th class="text-end">Variance</th><th class="text-end">Budget Hours</th><th class="text-end">Actual Hours</th><th class="text-end">Hours Var.</th></tr></thead>
+            <tbody>
+            @foreach (var row in Model.BudgetRows)
+            {
+                <tr><td>@row.DepartmentName</td><td>@row.Month/@row.Year</td><td class="text-end">@row.BudgetedCost.ToString("C")</td><td class="text-end">@row.ActualCost.ToString("C")</td><td class="text-end">@row.CostVariance.ToString("C")</td><td class="text-end">@row.BudgetedHours.ToString("N1")</td><td class="text-end">@row.ActualHours.ToString("N1")</td><td class="text-end">@row.HoursVariance.ToString("N1")</td></tr>
+            }
+            </tbody>
+        </table>
+    </section>
+
+    <section class="vpms-card vpms-print-section mb-4">
+        <h2 class="h5">Service Charge Distribution Report</h2>
+        @foreach (var pool in Model.ServiceChargePools)
+        {
+            <h3 class="h6 mt-3">@pool.PoolName - @pool.Status</h3>
+            <table class="table vpms-table vpms-print-table">
+                <thead><tr><th>Employee</th><th>Department</th><th class="text-end">Days</th><th class="text-end">Hours</th><th class="text-end">Amount</th></tr></thead>
+                <tbody>
+                @foreach (var line in pool.DistributionLines)
+                {
+                    <tr><td>@(line.EmployeeCostProfile?.FullName ?? "Department line")</td><td>@(line.Department?.Name ?? "Unassigned")</td><td class="text-end">@line.EligibleDays.ToString("N2")</td><td class="text-end">@line.EligibleHours.ToString("N2")</td><td class="text-end">@line.Amount.ToString("C")</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </section>
+
+    <section class="vpms-card vpms-print-section">
+        <h2 class="h5">Payroll Journal Register</h2>
+        <table class="table vpms-table vpms-print-table">
+            <thead><tr><th>Date</th><th>Journal</th><th>Source</th><th>Description</th><th>Status</th><th class="text-end">Debits</th><th class="text-end">Credits</th></tr></thead>
+            <tbody>
+            @foreach (var journal in Model.PayrollJournals)
+            {
+                <tr><td>@journal.JournalDate.ToString("yyyy-MM-dd")</td><td>@journal.JournalNumber</td><td>@journal.SourceTransactionType</td><td>@journal.Description</td><td>@journal.Status</td><td class="text-end">@journal.Lines.Sum(line => line.DebitAmount).ToString("C")</td><td class="text-end">@journal.Lines.Sum(line => line.CreditAmount).ToString("C")</td></tr>
+            }
+            </tbody>
+        </table>
+    </section>
+</div>
+
+@if (Model.PayrollEntries.Count == 0)
+{
+    <div class="vpms-empty-state mt-3 vpms-no-print">No payroll cost data found for the selected date range.</div>
+}

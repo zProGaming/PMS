@@ -11,11 +11,11 @@ public class Folio
 
     public Property? Property { get; set; }
 
-    public int? ReservationId { get; set; }
+    public int ReservationId { get; set; }
 
     public Reservation? Reservation { get; set; }
 
-    public int? GuestId { get; set; }
+    public int GuestId { get; set; }
 
     public Guest? Guest { get; set; }
 
@@ -30,4 +30,14 @@ public class Folio
     public ICollection<FolioItem> Items { get; set; } = new List<FolioItem>();
 
     public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
+    public decimal TotalCharges => Items
+        .Where(item => !item.IsVoided)
+        .Sum(item => item.Amount);
+
+    public decimal TotalPayments => Payments
+        .Where(payment => payment.Status == PaymentStatus.Completed)
+        .Sum(payment => payment.Amount);
+
+    public decimal Balance => TotalCharges - TotalPayments;
 }

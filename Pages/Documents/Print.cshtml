@@ -1,0 +1,352 @@
+@page
+@model Vantage.PMS.Pages.Documents.PrintModel
+@{
+    ViewData["Title"] = Model.DocumentTitle;
+    Layout = "_PrintLayout";
+}
+
+<div class="vpms-page-header vpms-no-print">
+    <div>
+        <div class="page-kicker">Printable Document</div>
+        <h1 class="vpms-page-title">@Model.DocumentTitle</h1>
+        <p class="vpms-page-subtitle">Use browser print to print or save this document as PDF.</p>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/Documents/Index">Documents Center</a>
+        <button type="button" class="btn vpms-btn-secondary" onclick="window.print()">Print</button>
+        <button type="button" class="btn vpms-btn-primary" onclick="window.print()">Save as PDF</button>
+    </div>
+</div>
+
+@if (Model.MissingDataMessage is not null)
+{
+    <div class="vpms-empty-state">
+        <h2>@Model.DocumentTitle</h2>
+        <p>@Model.MissingDataMessage</p>
+        <a class="btn vpms-btn-secondary vpms-no-print" asp-page="/Admin/DemoSetup/Index">Go to Demo Setup</a>
+    </div>
+}
+else
+{
+    <article class="vpms-print-document">
+        <header class="vpms-print-header">
+            <div>
+                <div class="vpms-print-brand">Vantage PMS</div>
+                <div class="text-muted">Vantage Grand Hotel · Quezon City, Philippines</div>
+                <div class="text-muted">+63 2 8888 0000 · info@vantagegrandhotel.example</div>
+            </div>
+            <div class="text-end">
+                <h1 class="vpms-print-title">@Model.DocumentTitle</h1>
+                <div class="vpms-print-meta">Printed: @DateTime.Now.ToString("MMM d, yyyy h:mm tt")</div>
+            </div>
+        </header>
+
+        @if (Model.Template is "reservation-confirmation" && Model.Reservation is not null)
+        {
+            var r = Model.Reservation;
+            <section class="vpms-print-section">
+                <h2>Reservation Details</h2>
+                <dl class="vpms-print-meta-grid">
+                    <div><dt>Guest</dt><dd>@PrintModel.GuestName(r.Guest)</dd></div>
+                    <div><dt>Reference</dt><dd>@r.ConfirmationNumber</dd></div>
+                    <div><dt>Check-in</dt><dd>@r.ArrivalDate.ToString("MMM d, yyyy")</dd></div>
+                    <div><dt>Check-out</dt><dd>@r.DepartureDate.ToString("MMM d, yyyy")</dd></div>
+                    <div><dt>Nights</dt><dd>@PrintModel.Nights(r)</dd></div>
+                    <div><dt>Room Type</dt><dd>@r.RoomType?.Name</dd></div>
+                    <div><dt>Room</dt><dd>@(r.Room?.RoomNumber ?? "To be assigned")</dd></div>
+                    <div><dt>Rate Plan</dt><dd>@(r.RatePlan?.Name ?? "Standard")</dd></div>
+                    <div><dt>Rate</dt><dd>@PrintModel.Money(r.RateAmount)</dd></div>
+                    <div><dt>Adults / Children</dt><dd>@r.Adults / @r.Children</dd></div>
+                </dl>
+                <p class="vpms-print-note">Please present a valid ID at check-in. Special requests are subject to availability.</p>
+            </section>
+        }
+        else if (Model.Template is "registration-card" && Model.Reservation is not null)
+        {
+            var r = Model.Reservation;
+            <section class="vpms-print-section">
+                <h2>Guest Registration</h2>
+                <dl class="vpms-print-meta-grid">
+                    <div><dt>Guest</dt><dd>@PrintModel.GuestName(r.Guest)</dd></div>
+                    <div><dt>Email</dt><dd>@r.Guest?.Email</dd></div>
+                    <div><dt>Phone</dt><dd>@r.Guest?.PhoneNumber</dd></div>
+                    <div><dt>Address</dt><dd>@r.Guest?.AddressLine1 @r.Guest?.City @r.Guest?.Country</dd></div>
+                    <div><dt>Stay Dates</dt><dd>@r.ArrivalDate.ToString("MMM d") - @r.DepartureDate.ToString("MMM d, yyyy")</dd></div>
+                    <div><dt>Room</dt><dd>@(r.Room?.RoomNumber ?? "To be assigned")</dd></div>
+                    <div><dt>Rate</dt><dd>@PrintModel.Money(r.RateAmount)</dd></div>
+                    <div><dt>ID Type / Number</dt><dd>____________________________</dd></div>
+                </dl>
+                <div class="vpms-print-signatures">
+                    <span>Guest Signature</span>
+                    <span>Front Desk Verification</span>
+                </div>
+            </section>
+        }
+        else if (Model.Template is "guest-folio" && Model.Folio is not null)
+        {
+            var f = Model.Folio;
+            <section class="vpms-print-section">
+                <h2>Guest and Stay</h2>
+                <dl class="vpms-print-meta-grid">
+                    <div><dt>Folio</dt><dd>@f.FolioNumber</dd></div>
+                    <div><dt>Guest</dt><dd>@PrintModel.GuestName(f.Guest)</dd></div>
+                    <div><dt>Reservation</dt><dd>@f.Reservation?.ConfirmationNumber</dd></div>
+                    <div><dt>Room</dt><dd>@(f.Reservation?.Room?.RoomNumber ?? "N/A")</dd></div>
+                    <div><dt>Stay</dt><dd>@f.Reservation?.ArrivalDate.ToString("MMM d") - @f.Reservation?.DepartureDate.ToString("MMM d, yyyy")</dd></div>
+                    <div><dt>Status</dt><dd>@f.Status</dd></div>
+                </dl>
+            </section>
+            <section class="vpms-print-section">
+                <h2>Charges</h2>
+                <table class="vpms-print-table">
+                    <thead><tr><th>Date</th><th>Description</th><th class="text-end">Qty</th><th class="text-end">Amount</th></tr></thead>
+                    <tbody>
+                    @foreach (var item in f.Items.Where(item => !item.IsVoided).OrderBy(item => item.PostingDate))
+                    {
+                        <tr><td>@item.PostingDate.ToString("MMM d")</td><td>@item.Description</td><td class="text-end">@item.Quantity</td><td class="text-end">@PrintModel.Money(item.Amount)</td></tr>
+                    }
+                    </tbody>
+                </table>
+                <h2 class="mt-4">Payments</h2>
+                <table class="vpms-print-table">
+                    <thead><tr><th>Date</th><th>Method</th><th>Reference</th><th class="text-end">Amount</th></tr></thead>
+                    <tbody>
+                    @foreach (var payment in f.Payments.OrderBy(item => item.PaymentDate))
+                    {
+                        <tr><td>@payment.PaymentDate.ToString("MMM d")</td><td>@payment.PaymentMethod</td><td>@payment.ReferenceNumber</td><td class="text-end">@PrintModel.Money(payment.Amount)</td></tr>
+                    }
+                    </tbody>
+                </table>
+                <div class="vpms-print-totals">
+                    <div><span>Total Charges</span><strong>@PrintModel.Money(f.TotalCharges)</strong></div>
+                    <div><span>Total Payments</span><strong>@PrintModel.Money(f.TotalPayments)</strong></div>
+                    <div><span>Balance</span><strong>@PrintModel.Money(f.Balance)</strong></div>
+                </div>
+                <p class="vpms-print-note">Final charges are subject to verification by the Front Office.</p>
+            </section>
+        }
+        else if (Model.Template is "finance-document" && Model.FinanceDocument is not null)
+        {
+            var d = Model.FinanceDocument;
+            <section class="vpms-print-section">
+                <dl class="vpms-print-meta-grid">
+                    <div><dt>Document Type</dt><dd>@d.DocumentType</dd></div>
+                    <div><dt>Document Number</dt><dd>@d.DocumentNumber</dd></div>
+                    <div><dt>Billing Name</dt><dd>@d.BillingName</dd></div>
+                    <div><dt>Billing Address</dt><dd>@d.BillingAddress</dd></div>
+                    <div><dt>TIN</dt><dd>@d.BillingTIN</dd></div>
+                    <div><dt>Document Date</dt><dd>@d.DocumentDate.ToString("MMM d, yyyy")</dd></div>
+                    <div><dt>Due Date</dt><dd>@d.DueDate?.ToString("MMM d, yyyy")</dd></div>
+                    <div><dt>Status</dt><dd>@d.Status</dd></div>
+                </dl>
+                <table class="vpms-print-table">
+                    <thead><tr><th>Description</th><th class="text-end">Qty</th><th class="text-end">Unit</th><th class="text-end">Tax</th><th class="text-end">Total</th></tr></thead>
+                    <tbody>
+                    @foreach (var line in d.Lines)
+                    {
+                        <tr><td>@line.Description</td><td class="text-end">@line.Quantity</td><td class="text-end">@PrintModel.Money(line.UnitPrice)</td><td class="text-end">@PrintModel.Money(line.TaxAmount)</td><td class="text-end">@PrintModel.Money(line.LineTotal)</td></tr>
+                    }
+                    </tbody>
+                </table>
+                <div class="vpms-print-totals">
+                    <div><span>Subtotal</span><strong>@PrintModel.Money(d.SubTotal)</strong></div>
+                    <div><span>Tax</span><strong>@PrintModel.Money(d.TaxAmount)</strong></div>
+                    <div><span>Service Charge</span><strong>@PrintModel.Money(d.ServiceCharge)</strong></div>
+                    <div><span>Discount</span><strong>@PrintModel.Money(d.DiscountAmount)</strong></div>
+                    <div><span>Total</span><strong>@PrintModel.Money(d.TotalAmount)</strong></div>
+                    <div><span>Amount Paid</span><strong>@PrintModel.Money(d.AmountPaid)</strong></div>
+                    <div><span>Balance</span><strong>@PrintModel.Money(d.Balance)</strong></div>
+                </div>
+                <p class="vpms-print-note">This template is configurable and must be validated for local compliance before official use.</p>
+            </section>
+        }
+        else if ((Model.Template is "statement-of-account" or "ar-aging") && Model.ARAccount is not null)
+        {
+            var a = Model.ARAccount;
+            var invoices = a.Invoices.OrderBy(item => item.DueDate).ToList();
+            <section class="vpms-print-section">
+                <h2>@a.AccountName</h2>
+                <p class="text-muted">@a.BillingAddress · @a.Email · @a.Phone</p>
+                <table class="vpms-print-table">
+                    <thead><tr><th>Invoice</th><th>Date</th><th>Due</th><th>Aging</th><th class="text-end">Original</th><th class="text-end">Paid</th><th class="text-end">Balance</th></tr></thead>
+                    <tbody>
+                    @foreach (var invoice in invoices)
+                    {
+                        <tr><td>@invoice.InvoiceNumber</td><td>@invoice.InvoiceDate.ToString("MMM d")</td><td>@invoice.DueDate.ToString("MMM d")</td><td>@PrintModel.AgingBucket(invoice.DueDate)</td><td class="text-end">@PrintModel.Money(invoice.OriginalAmount)</td><td class="text-end">@PrintModel.Money(invoice.AmountPaid)</td><td class="text-end">@PrintModel.Money(invoice.Balance)</td></tr>
+                    }
+                    </tbody>
+                </table>
+                <div class="vpms-print-totals"><div><span>Grand Total</span><strong>@PrintModel.Money(invoices.Sum(item => item.Balance))</strong></div></div>
+                <p class="vpms-print-note">Payment instructions placeholder. Please coordinate settlement with the Finance Office.</p>
+            </section>
+        }
+        else if (Model.Template is "payment-receipt" && Model.Payment is not null)
+        {
+            var p = Model.Payment;
+            <section class="vpms-print-section">
+                <dl class="vpms-print-meta-grid">
+                    <div><dt>Receipt / Reference</dt><dd>@(p.ReferenceNumber ?? $"PAY-{p.Id:000000}")</dd></div>
+                    <div><dt>Guest / Account</dt><dd>@PrintModel.GuestName(p.Folio?.Guest)</dd></div>
+                    <div><dt>Payment Date</dt><dd>@p.PaymentDate.ToString("MMM d, yyyy h:mm tt")</dd></div>
+                    <div><dt>Method</dt><dd>@p.PaymentMethod</dd></div>
+                    <div><dt>Amount</dt><dd>@PrintModel.Money(p.Amount)</dd></div>
+                    <div><dt>Cashier Shift</dt><dd>@(p.CashierTransactions.FirstOrDefault()?.CashierShift?.ShiftNumber ?? "N/A")</dd></div>
+                </dl>
+                <div class="vpms-print-signatures"><span>Received By</span><span>Guest / Account Representative</span></div>
+            </section>
+        }
+        else if ((Model.Template is "pos-bill" or "room-charge-slip" or "kitchen-order-ticket") && Model.POSOrder is not null)
+        {
+            var o = Model.POSOrder;
+            <section class="vpms-print-section">
+                <dl class="vpms-print-meta-grid">
+                    <div><dt>Outlet</dt><dd>@o.Outlet?.Name</dd></div>
+                    <div><dt>Order Number</dt><dd>@o.OrderNumber</dd></div>
+                    <div><dt>Type</dt><dd>@o.OrderType</dd></div>
+                    <div><dt>Table / Room</dt><dd>@(o.DiningTable?.TableName ?? o.Reservation?.Room?.RoomNumber ?? "N/A")</dd></div>
+                    <div><dt>Guest</dt><dd>@PrintModel.GuestName(o.Guest ?? o.Reservation?.Guest)</dd></div>
+                    <div><dt>Payment Status</dt><dd>@o.PaymentStatus</dd></div>
+                </dl>
+                <table class="vpms-print-table">
+                    <thead><tr><th>Item</th><th>Station</th><th>Notes</th><th class="text-end">Qty</th><th class="text-end">Unit</th><th class="text-end">Total</th></tr></thead>
+                    <tbody>
+                    @foreach (var item in o.Items.Where(item => !item.IsVoided))
+                    {
+                        <tr><td>@item.MenuItem?.Name</td><td>@(item.MenuItem?.KitchenStation?.Name ?? "Unassigned")</td><td>@item.Notes</td><td class="text-end">@item.Quantity</td><td class="text-end">@PrintModel.Money(item.UnitPrice)</td><td class="text-end">@PrintModel.Money(item.LineTotal)</td></tr>
+                    }
+                    </tbody>
+                </table>
+                <div class="vpms-print-totals">
+                    <div><span>Subtotal</span><strong>@PrintModel.Money(o.SubTotal)</strong></div>
+                    <div><span>Service Charge</span><strong>@PrintModel.Money(o.ServiceCharge)</strong></div>
+                    <div><span>Tax</span><strong>@PrintModel.Money(o.TaxAmount)</strong></div>
+                    <div><span>Discount</span><strong>@PrintModel.Money(o.DiscountAmount)</strong></div>
+                    <div><span>Total</span><strong>@PrintModel.Money(o.TotalAmount)</strong></div>
+                </div>
+                @if (Model.Template is "room-charge-slip")
+                {
+                    <p class="vpms-print-note">I authorize this charge to be posted to my room folio.</p>
+                    <div class="vpms-print-signatures"><span>Guest Signature</span><span>Cashier / Server</span></div>
+                }
+                @if (Model.Template is "kitchen-order-ticket")
+                {
+                    <p class="vpms-print-note">Time sent: @(o.Items.Min(item => item.SentToKitchenAt)?.ToString("MMM d, h:mm tt") ?? "Not sent")</p>
+                }
+            </section>
+        }
+        else if ((Model.Template is "banquet-event-order" or "banquet-quotation" or "event-contract") && Model.BanquetEvent is not null)
+        {
+            var e = Model.BanquetEvent;
+            var beo = e.BanquetEventOrder;
+            <section class="vpms-print-section">
+                <dl class="vpms-print-meta-grid">
+                    <div><dt>Event</dt><dd>@e.EventName</dd></div>
+                    <div><dt>Client</dt><dd>@e.ClientName</dd></div>
+                    <div><dt>Contact</dt><dd>@e.ContactNumber · @e.Email</dd></div>
+                    <div><dt>Date</dt><dd>@e.EventDate.ToString("MMM d, yyyy")</dd></div>
+                    <div><dt>Function Room</dt><dd>@e.FunctionRoom?.Name</dd></div>
+                    <div><dt>Time</dt><dd>@e.StartTime - @e.EndTime</dd></div>
+                    <div><dt>Pax</dt><dd>Expected @e.ExpectedPax · Guaranteed @e.GuaranteedPax</dd></div>
+                    <div><dt>Status</dt><dd>@e.EventStatus</dd></div>
+                </dl>
+                @if (Model.Template is "banquet-event-order")
+                {
+                    <h2>Operational Instructions</h2>
+                    <div class="vpms-print-two-column">
+                        <div><strong>Menu</strong><p>@beo?.MenuDetails</p></div>
+                        <div><strong>Setup</strong><p>@beo?.SetupInstructions</p></div>
+                        <div><strong>Equipment</strong><p>@beo?.EquipmentRequirements</p></div>
+                        <div><strong>Service</strong><p>@beo?.ServiceInstructions</p></div>
+                        <div><strong>Kitchen</strong><p>@beo?.KitchenInstructions</p></div>
+                        <div><strong>Billing</strong><p>@beo?.BillingInstructions</p></div>
+                    </div>
+                    <p><strong>Department Distribution:</strong> Kitchen · Service · Banquet · Finance · Front Office · Housekeeping · Engineering</p>
+                }
+                else
+                {
+                    <table class="vpms-print-table">
+                        <thead><tr><th>Description</th><th class="text-end">Qty</th><th class="text-end">Unit</th><th class="text-end">Amount</th></tr></thead>
+                        <tbody>
+                        @foreach (var charge in e.Charges.Where(item => !item.IsVoided))
+                        {
+                            <tr><td>@charge.Description</td><td class="text-end">@charge.Quantity</td><td class="text-end">@PrintModel.Money(charge.UnitPrice)</td><td class="text-end">@PrintModel.Money(charge.Amount)</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                    <div class="vpms-print-totals"><div><span>Estimated Total</span><strong>@PrintModel.Money(e.Charges.Where(item => !item.IsVoided).Sum(item => item.Amount))</strong></div></div>
+                    <p class="vpms-print-note">Contract template is for demo purposes and should be reviewed before production use.</p>
+                    <div class="vpms-print-signatures"><span>Client Signature</span><span>Hotel Representative</span></div>
+                }
+            </section>
+        }
+        else if (Model.Template is "purchase-request" && Model.PurchaseRequest is not null)
+        {
+            var pr = Model.PurchaseRequest;
+            <section class="vpms-print-section">
+                <dl class="vpms-print-meta-grid"><div><dt>Request No.</dt><dd>@pr.RequestNumber</dd></div><div><dt>Department</dt><dd>@pr.Department?.Name</dd></div><div><dt>Requested By</dt><dd>@pr.RequestedBy</dd></div><div><dt>Needed Date</dt><dd>@pr.NeededDate?.ToString("MMM d, yyyy")</dd></div><div><dt>Status</dt><dd>@pr.Status</dd></div><div><dt>Purpose</dt><dd>@pr.Purpose</dd></div></dl>
+                <table class="vpms-print-table"><thead><tr><th>Item</th><th class="text-end">Qty</th><th class="text-end">Est. Unit</th><th class="text-end">Amount</th></tr></thead><tbody>@foreach (var line in pr.Items){<tr><td>@line.InventoryItem?.ItemName</td><td class="text-end">@line.Quantity</td><td class="text-end">@PrintModel.Money(line.EstimatedUnitCost)</td><td class="text-end">@PrintModel.Money(line.EstimatedAmount)</td></tr>}</tbody></table>
+                <div class="vpms-print-totals"><div><span>Estimated Total</span><strong>@PrintModel.Money(pr.Items.Sum(item => item.EstimatedAmount))</strong></div></div>
+                <div class="vpms-print-signatures"><span>Requested By</span><span>Approved By</span></div>
+            </section>
+        }
+        else if (Model.Template is "purchase-order" && Model.PurchaseOrder is not null)
+        {
+            var po = Model.PurchaseOrder;
+            <section class="vpms-print-section">
+                <dl class="vpms-print-meta-grid"><div><dt>PO No.</dt><dd>@po.PONumber</dd></div><div><dt>Supplier</dt><dd>@po.Supplier?.SupplierName</dd></div><div><dt>Order Date</dt><dd>@po.OrderDate.ToString("MMM d, yyyy")</dd></div><div><dt>Expected Delivery</dt><dd>@po.ExpectedDeliveryDate?.ToString("MMM d, yyyy")</dd></div><div><dt>Prepared By</dt><dd>@po.PreparedBy</dd></div><div><dt>Approved By</dt><dd>@po.ApprovedBy</dd></div></dl>
+                <table class="vpms-print-table"><thead><tr><th>Item</th><th class="text-end">Qty</th><th class="text-end">Unit Cost</th><th class="text-end">Amount</th></tr></thead><tbody>@foreach (var line in po.Items){<tr><td>@line.InventoryItem?.ItemName</td><td class="text-end">@line.Quantity</td><td class="text-end">@PrintModel.Money(line.UnitCost)</td><td class="text-end">@PrintModel.Money(line.Amount)</td></tr>}</tbody></table>
+                <div class="vpms-print-totals"><div><span>Subtotal</span><strong>@PrintModel.Money(po.SubTotal)</strong></div><div><span>Tax</span><strong>@PrintModel.Money(po.TaxAmount)</strong></div><div><span>Discount</span><strong>@PrintModel.Money(po.DiscountAmount)</strong></div><div><span>Total</span><strong>@PrintModel.Money(po.TotalAmount)</strong></div></div>
+            </section>
+        }
+        else if (Model.Template is "receiving-report" && Model.ReceivingRecord is not null)
+        {
+            var rr = Model.ReceivingRecord;
+            <section class="vpms-print-section">
+                <dl class="vpms-print-meta-grid"><div><dt>Receiving No.</dt><dd>@rr.ReceivingNumber</dd></div><div><dt>Supplier</dt><dd>@rr.Supplier?.SupplierName</dd></div><div><dt>PO Reference</dt><dd>@rr.PurchaseOrder?.PONumber</dd></div><div><dt>Received Date</dt><dd>@rr.ReceivedDate.ToString("MMM d, yyyy")</dd></div><div><dt>Received By</dt><dd>@rr.ReceivedBy</dd></div><div><dt>Status</dt><dd>@rr.Status</dd></div></dl>
+                <table class="vpms-print-table"><thead><tr><th>Item</th><th class="text-end">Qty Received</th><th class="text-end">Unit Cost</th><th class="text-end">Amount</th></tr></thead><tbody>@foreach (var line in rr.Items){<tr><td>@line.InventoryItem?.ItemName</td><td class="text-end">@line.QuantityReceived</td><td class="text-end">@PrintModel.Money(line.UnitCost)</td><td class="text-end">@PrintModel.Money(line.Amount)</td></tr>}</tbody></table>
+            </section>
+        }
+        else if (Model.Template is "stock-adjustment" && Model.StockAdjustment is not null)
+        {
+            var sa = Model.StockAdjustment;
+            <section class="vpms-print-section">
+                <dl class="vpms-print-meta-grid"><div><dt>Adjustment No.</dt><dd>@sa.AdjustmentNumber</dd></div><div><dt>Date</dt><dd>@sa.AdjustmentDate.ToString("MMM d, yyyy")</dd></div><div><dt>Status</dt><dd>@sa.Status</dd></div><div><dt>Reason</dt><dd>@sa.Reason</dd></div><div><dt>Prepared By</dt><dd>@sa.PreparedBy</dd></div><div><dt>Approved By</dt><dd>@sa.ApprovedBy</dd></div></dl>
+                <table class="vpms-print-table"><thead><tr><th>Item</th><th class="text-end">System</th><th class="text-end">Actual</th><th class="text-end">Variance</th><th class="text-end">Amount</th></tr></thead><tbody>@foreach (var line in sa.Items){<tr><td>@line.InventoryItem?.ItemName</td><td class="text-end">@line.SystemQuantity</td><td class="text-end">@line.ActualQuantity</td><td class="text-end">@line.VarianceQuantity</td><td class="text-end">@PrintModel.Money(line.VarianceAmount)</td></tr>}</tbody></table>
+                <div class="vpms-print-signatures"><span>Counted By</span><span>Approved By</span></div>
+            </section>
+        }
+        else if ((Model.Template is "sales-account-profile" or "sales-proposal") && Model.SalesAccount is not null)
+        {
+            var s = Model.SalesAccount;
+            <section class="vpms-print-section">
+                <h2>@s.AccountName</h2>
+                <dl class="vpms-print-meta-grid"><div><dt>Type</dt><dd>@s.AccountType</dd></div><div><dt>Phone</dt><dd>@s.Phone</dd></div><div><dt>Email</dt><dd>@s.Email</dd></div><div><dt>Credit Limit</dt><dd>@PrintModel.Money(s.CreditLimit)</dd></div><div><dt>Address</dt><dd>@s.Address</dd></div></dl>
+                <h2>Contacts</h2>
+                <table class="vpms-print-table"><thead><tr><th>Name</th><th>Position</th><th>Mobile</th><th>Email</th></tr></thead><tbody>@foreach (var c in s.ContactPersons){<tr><td>@c.FullName</td><td>@c.Position</td><td>@c.Mobile</td><td>@c.Email</td></tr>}</tbody></table>
+                <h2 class="mt-4">Open Leads and Activities</h2>
+                <table class="vpms-print-table"><thead><tr><th>Lead</th><th>Status</th><th class="text-end">Value</th><th>Expected Close</th></tr></thead><tbody>@foreach (var lead in s.SalesLeads){<tr><td>@lead.LeadName</td><td>@lead.Status</td><td class="text-end">@PrintModel.Money(lead.EstimatedValue)</td><td>@lead.ExpectedCloseDate?.ToString("MMM d, yyyy")</td></tr>}</tbody></table>
+                @if (Model.Template is "sales-proposal")
+                {
+                    <p class="vpms-print-note">Proposed services: room nights, meeting packages, banquet services, guest experience tools, and corporate account controls. Follow-up date to be confirmed with the client.</p>
+                    <div class="vpms-print-signatures"><span>Client Representative</span><span>Sales Manager</span></div>
+                }
+            </section>
+        }
+        else if (Model.Template is "management-ai-summary" && Model.ManagementSummary is not null)
+        {
+            var m = Model.ManagementSummary;
+            <section class="vpms-print-section">
+                <dl class="vpms-print-meta-grid"><div><dt>Business Date</dt><dd>@m.BusinessDate.ToString("MMM d, yyyy")</dd></div><div><dt>Occupancy</dt><dd>@m.OccupancyPercentage%</dd></div><div><dt>Total Revenue</dt><dd>@PrintModel.Money(m.TotalRevenue)</dd></div><div><dt>Payments</dt><dd>@PrintModel.Money(m.TotalPayments)</dd></div><div><dt>Guest Balances</dt><dd>@PrintModel.Money(m.OutstandingGuestBalances)</dd></div><div><dt>AR Balance</dt><dd>@PrintModel.Money(m.ARBalance)</dd></div><div><dt>Dirty Rooms</dt><dd>@m.DirtyRooms</dd></div><div><dt>Low Stock Items</dt><dd>@m.LowStockItems</dd></div></dl>
+                <p>@m.SummaryText</p>
+                <h2>Management Insights and Recommended Actions</h2>
+                <table class="vpms-print-table"><thead><tr><th>Severity</th><th>Module</th><th>Insight</th><th>Recommendation</th></tr></thead><tbody>@foreach (var insight in Model.ManagementInsights){<tr><td>@insight.Severity</td><td>@insight.RelatedModule</td><td>@insight.Title</td><td>@insight.Recommendation</td></tr>}</tbody></table>
+                <p class="vpms-print-note">MVP uses rule-based recommendations. External AI integration is disabled.</p>
+            </section>
+        }
+
+        <footer class="vpms-print-footer">
+            <span>Vantage PMS · Hospitality Management Platform</span>
+            <span>Copyright (C) 2026 Vantage Innovations PH. All rights reserved.</span>
+        </footer>
+    </article>
+}

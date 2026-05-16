@@ -1,0 +1,55 @@
+@page
+@model Vantage.PMS.Pages.Labor.PayrollAllocationRules.IndexModel
+@{
+    ViewData["Title"] = "Payroll Allocation Rules";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Labor Setup</div>
+        <h1 class="page-title">Payroll Allocation Rules</h1>
+        <p class="page-subtitle">Configurable PMS-side allocation hints for future HRIS and labor costing integrations.</p>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage)) { <div class="alert alert-success">@Model.StatusMessage</div> }
+
+<form method="post" asp-page-handler="Create" class="vpms-card mb-4">
+    <h2 class="h5">Create Allocation Rule</h2>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3"><label class="form-label">Rule Name</label><input asp-for="Input.RuleName" class="form-control" required /></div>
+        <div class="col-md-2"><label class="form-label">Employee</label><select asp-for="Input.EmployeeCostProfileId" class="form-select" asp-items="Model.EmployeeOptions"><option value="">Any</option></select></div>
+        <div class="col-md-2"><label class="form-label">Department</label><select asp-for="Input.DepartmentId" class="form-select" asp-items="Model.DepartmentOptions"><option value="">Any</option></select></div>
+        <div class="col-md-2"><label class="form-label">USALI</label><select asp-for="Input.USALIDepartmentId" class="form-select" asp-items="Model.USALIOptions"><option value="">Any</option></select></div>
+        <div class="col-md-1"><label class="form-label">%</label><input asp-for="Input.AllocationPercentage" class="form-control" /></div>
+        <div class="col-md-2"><label class="form-label">Labor GL</label><select asp-for="Input.LaborGLAccountId" class="form-select" asp-items="Model.LaborAccountOptions"><option value="">Fallback</option></select></div>
+        <div class="col-12"><button class="btn vpms-btn-primary" type="submit">Create Rule</button></div>
+    </div>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Rule</th><th>Employee</th><th>Department</th><th>USALI</th><th class="text-end">Allocation</th><th>GL Account</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var rule in Model.Rules)
+        {
+            <tr>
+                <td class="fw-semibold">@rule.RuleName</td>
+                <td>@(rule.EmployeeCostProfile?.FullName ?? "Any")</td>
+                <td>@(rule.Department?.Name ?? "Any")</td>
+                <td>@(rule.USALIDepartment?.Name ?? "Any")</td>
+                <td class="text-end">@rule.AllocationPercentage.ToString("N2")%</td>
+                <td>@(rule.LaborGLAccount?.AccountCode ?? "Fallback")</td>
+                <td><span class="status-badge">@(rule.IsActive ? "Active" : "Inactive")</span></td>
+                <td class="text-end">
+                    @if (rule.IsActive)
+                    {
+                        <form method="post" asp-page-handler="Deactivate" asp-route-id="@rule.Id"><button class="btn btn-sm vpms-btn-warning">Deactivate</button></form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

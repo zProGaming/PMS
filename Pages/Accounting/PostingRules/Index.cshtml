@@ -1,0 +1,53 @@
+@page
+@model Vantage.PMS.Pages.Accounting.PostingRules.IndexModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "Posting Rules";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Accounting Setup</div>
+        <h1 class="page-title">Posting Rules</h1>
+        <p class="page-subtitle">Map PMS transaction types to debit and credit GL accounts.</p>
+    </div>
+</div>
+
+<form method="post" class="vpms-form-card mb-4">
+    <div class="row g-3">
+        <div class="col-md-4"><label asp-for="Input.RuleName" class="form-label">Rule Name</label><input asp-for="Input.RuleName" class="form-control" required /></div>
+        <div class="col-md-2"><label asp-for="Input.SourceModule" class="form-label">Module</label><select asp-for="Input.SourceModule" asp-items="Html.GetEnumSelectList<SourceModule>()" class="form-select"></select></div>
+        <div class="col-md-3"><label asp-for="Input.TransactionType" class="form-label">Transaction Type</label><select asp-for="Input.TransactionType" asp-items="Html.GetEnumSelectList<SourceTransactionType>()" class="form-select"></select></div>
+        <div class="col-md-3"><label asp-for="Input.PaymentMethod" class="form-label">Payment Method</label><input asp-for="Input.PaymentMethod" class="form-control" placeholder="Cash, Card, EWallet" /></div>
+        <div class="col-md-4"><label asp-for="Input.DebitGLAccountId" class="form-label">Debit Account</label><select asp-for="Input.DebitGLAccountId" asp-items="Model.AccountOptions" class="form-select"></select></div>
+        <div class="col-md-4"><label asp-for="Input.CreditGLAccountId" class="form-label">Credit Account</label><select asp-for="Input.CreditGLAccountId" asp-items="Model.AccountOptions" class="form-select"></select></div>
+        <div class="col-md-4"><label asp-for="Input.USALIDepartmentId" class="form-label">USALI Department</label><select asp-for="Input.USALIDepartmentId" asp-items="Model.DepartmentOptions" class="form-select"><option value="">None</option></select></div>
+        <div class="col-12"><label asp-for="Input.Notes" class="form-label">Notes</label><textarea asp-for="Input.Notes" class="form-control" rows="2"></textarea></div>
+    </div>
+    <button class="btn vpms-btn-primary mt-3" type="submit">Add Posting Rule</button>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Rule</th><th>Source</th><th>Debit</th><th>Credit</th><th>Payment</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var rule in Model.Rules)
+        {
+            <tr>
+                <td class="fw-semibold">@rule.RuleName</td>
+                <td>@rule.SourceModule / @rule.TransactionType</td>
+                <td>@rule.DebitGLAccount?.AccountCode - @rule.DebitGLAccount?.AccountName</td>
+                <td>@rule.CreditGLAccount?.AccountCode - @rule.CreditGLAccount?.AccountName</td>
+                <td>@rule.PaymentMethod</td>
+                <td><span class="status-badge @(rule.IsActive ? "status-paid" : "status-cancelled")">@(rule.IsActive ? "Active" : "Inactive")</span></td>
+                <td class="text-end">
+                    @if (rule.IsActive)
+                    {
+                        <form method="post" asp-page-handler="Deactivate" asp-route-id="@rule.Id"><button type="submit" class="btn btn-sm vpms-btn-secondary">Deactivate</button></form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

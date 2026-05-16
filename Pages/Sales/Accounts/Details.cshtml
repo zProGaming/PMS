@@ -1,0 +1,112 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Sales.Accounts.DetailsModel
+
+@{
+    ViewData["Title"] = "Sales Account Details";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="mb-1">@Model.SalesAccount.AccountName</h1>
+        <p class="text-muted mb-0">@Model.SalesAccount.AccountType - @(Model.SalesAccount.IsActive ? "Active" : "Inactive")</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary" asp-page="/Sales/ContactPersons/Create" asp-route-accountId="@Model.SalesAccount.Id">Add Contact</a>
+        <a class="btn btn-outline-primary" asp-page="/Sales/Activities/Create" asp-route-accountId="@Model.SalesAccount.Id">Add Activity</a>
+        <a class="btn btn-outline-secondary" asp-page="./Edit" asp-route-id="@Model.SalesAccount.Id">Edit</a>
+    </div>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-2">Address</dt>
+    <dd class="col-sm-10">@Model.SalesAccount.Address</dd>
+    <dt class="col-sm-2">Phone</dt>
+    <dd class="col-sm-10">@Model.SalesAccount.Phone</dd>
+    <dt class="col-sm-2">Email</dt>
+    <dd class="col-sm-10">@Model.SalesAccount.Email</dd>
+    <dt class="col-sm-2">Website</dt>
+    <dd class="col-sm-10">@Model.SalesAccount.Website</dd>
+    <dt class="col-sm-2">Credit Limit</dt>
+    <dd class="col-sm-10">@Model.SalesAccount.CreditLimit.ToString("N2")</dd>
+    <dt class="col-sm-2">Created</dt>
+    <dd class="col-sm-10">@Model.SalesAccount.CreatedAt.ToString("g") by @Model.SalesAccount.CreatedBy</dd>
+    <dt class="col-sm-2">Notes</dt>
+    <dd class="col-sm-10">@Model.SalesAccount.Notes</dd>
+</dl>
+
+<h2 class="h4 mt-4">Contacts</h2>
+<table class="table table-sm table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Mobile</th>
+            <th>Email</th>
+            <th>Primary</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var contact in Model.SalesAccount.ContactPersons.OrderByDescending(contact => contact.IsPrimary).ThenBy(contact => contact.FullName))
+        {
+            <tr>
+                <td><a asp-page="/Sales/ContactPersons/Edit" asp-route-id="@contact.Id">@contact.FullName</a></td>
+                <td>@contact.Position</td>
+                <td>@contact.Mobile</td>
+                <td>@contact.Email</td>
+                <td>@(contact.IsPrimary ? "Yes" : "No")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2 class="h4 mt-4">Leads</h2>
+<table class="table table-sm table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Lead</th>
+            <th>Source</th>
+            <th>Status</th>
+            <th>Expected Close</th>
+            <th class="text-end">Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var lead in Model.SalesAccount.SalesLeads.OrderBy(lead => lead.ExpectedCloseDate ?? DateTime.MaxValue).ThenBy(lead => lead.LeadName))
+        {
+            <tr>
+                <td><a asp-page="/Sales/Leads/Details" asp-route-id="@lead.Id">@lead.LeadName</a></td>
+                <td>@lead.LeadSource</td>
+                <td>@lead.Status</td>
+                <td>@lead.ExpectedCloseDate?.ToString("d")</td>
+                <td class="text-end">@lead.EstimatedValue.ToString("N2")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2 class="h4 mt-4">Activities</h2>
+<table class="table table-sm table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Lead</th>
+            <th>Next Follow-up</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var activity in Model.SalesAccount.SalesActivities.OrderByDescending(activity => activity.ActivityDate))
+        {
+            <tr>
+                <td>@activity.ActivityDate.ToString("g")</td>
+                <td>@activity.ActivityType</td>
+                <td>@activity.SalesLead?.LeadName</td>
+                <td>@activity.NextFollowUpDate?.ToString("d")</td>
+                <td>@activity.CreatedBy</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a class="btn btn-outline-secondary" asp-page="./Index">Back to Accounts</a>

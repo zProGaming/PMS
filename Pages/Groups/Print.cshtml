@@ -1,0 +1,212 @@
+@page "{type}/{id:int}"
+@model Vantage.PMS.Pages.Groups.PrintModel
+@{
+    Layout = "_PrintLayout";
+    ViewData["Title"] = Model.PrintTitle;
+}
+
+<div class="vpms-report-actions vpms-print-hide mb-3">
+    <button type="button" class="btn vpms-btn-primary" onclick="window.print()">Print / Save as PDF</button>
+    <a class="btn vpms-btn-secondary" asp-page="/Groups/Index">Back to Groups</a>
+</div>
+
+<article class="vpms-print-document">
+    <header class="vpms-print-header">
+        <div>
+            <div class="vpms-report-kicker">Vantage PMS</div>
+            <h1 class="vpms-print-title">@Model.PrintTitle</h1>
+            <div class="vpms-print-meta">Generated @DateTime.Now.ToString("MMM d, yyyy h:mm tt")</div>
+        </div>
+    </header>
+
+    @if (Model.PseudoRoom is not null)
+    {
+        var pseudo = Model.PseudoRoom;
+        <section class="vpms-print-section">
+            <h2>@pseudo.PseudoRoomCode - @pseudo.PseudoRoomName</h2>
+            <div class="vpms-print-meta">Pseudo Room / Paymaster Account - not included in physical room inventory or occupancy.</div>
+            <table class="vpms-print-table">
+                <tbody>
+                <tr><th>Type</th><td>@pseudo.PseudoRoomType</td><th>Status</th><td>@(pseudo.IsActive ? "Active" : "Inactive")</td></tr>
+                <tr><th>Linked Group</th><td>@(pseudo.LinkedGroupBooking?.GroupName ?? "Not linked")</td><th>Sales Account</th><td>@(pseudo.LinkedSalesAccount?.AccountName ?? "Not linked")</td></tr>
+                <tr><th>Banquet Event</th><td>@(pseudo.LinkedBanquetEvent?.EventName ?? "Not linked")</td><th>Created By</th><td>@pseudo.CreatedBy</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="vpms-print-section">
+            <h2>Linked Folios</h2>
+            @if (pseudo.GroupFolios.Count == 0)
+            {
+                <p>No linked group folios.</p>
+            }
+            else
+            {
+                <table class="vpms-print-table">
+                    <thead><tr><th>Folio</th><th>Group</th><th>Status</th><th class="text-end">Charges</th><th class="text-end">Payments</th><th class="text-end">Balance</th></tr></thead>
+                    <tbody>
+                    @foreach (var folio in pseudo.GroupFolios)
+                    {
+                        var charges = folio.Folio?.Items.Where(item => !item.IsVoided).Sum(item => item.Amount) ?? 0;
+                        var payments = folio.Folio?.Payments.Sum(item => item.Amount) ?? 0;
+                        <tr>
+                            <td>@folio.FolioName</td>
+                            <td>@folio.GroupBooking?.GroupName</td>
+                            <td>@folio.Status</td>
+                            <td class="text-end">@charges.ToString("C")</td>
+                            <td class="text-end">@payments.ToString("C")</td>
+                            <td class="text-end">@((charges - payments).ToString("C"))</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </section>
+    }
+    else if (Model.GroupBooking is not null)
+    {
+        var group = Model.GroupBooking;
+        <section class="vpms-print-section">
+            <h2>@group.GroupCode - @group.GroupName</h2>
+            <table class="vpms-print-table">
+                <tbody>
+                <tr><th>Arrival</th><td>@group.ArrivalDate.ToString("MMM d, yyyy")</td><th>Departure</th><td>@group.DepartureDate.ToString("MMM d, yyyy")</td></tr>
+                <tr><th>Status</th><td>@group.BookingStatus</td><th>Sales Account</th><td>@(group.SalesAccount?.AccountName ?? "Not linked")</td></tr>
+                <tr><th>Contact</th><td>@group.ContactPerson</td><th>Email</th><td>@group.Email</td></tr>
+                <tr><th>Market Segment</th><td>@group.MarketSegment</td><th>Source</th><td>@group.Source</td></tr>
+                </tbody>
+            </table>
+            <p class="mt-3"><strong>Billing Instructions:</strong> @(string.IsNullOrWhiteSpace(group.BillingInstruction) ? "No billing instructions recorded." : group.BillingInstruction)</p>
+        </section>
+
+        @if (Model.PrintType is "group-confirmation" or "rooming-list" or "billing-instruction")
+        {
+            <section class="vpms-print-section">
+                <h2>Room Blocks</h2>
+                @if (group.RoomBlocks.Count == 0)
+                {
+                    <p>No room blocks recorded.</p>
+                }
+                else
+                {
+                    <table class="vpms-print-table">
+                        <thead><tr><th>Date</th><th>Room Type</th><th class="text-end">Blocked</th><th class="text-end">Picked Up</th><th class="text-end">Released</th><th class="text-end">Rate</th></tr></thead>
+                        <tbody>
+                        @foreach (var block in group.RoomBlocks.OrderBy(item => item.BlockDate))
+                        {
+                            <tr>
+                                <td>@block.BlockDate.ToString("MMM d, yyyy")</td>
+                                <td>@block.RoomType?.Name</td>
+                                <td class="text-end">@block.RoomsBlocked</td>
+                                <td class="text-end">@block.RoomsPickedUp</td>
+                                <td class="text-end">@block.RoomsReleased</td>
+                                <td class="text-end">@block.RateAmount.ToString("C")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </section>
+
+            <section class="vpms-print-section">
+                <h2>Rooming List</h2>
+                @if (group.Members.Count == 0)
+                {
+                    <p>No member reservations linked.</p>
+                }
+                else
+                {
+                    <table class="vpms-print-table">
+                        <thead><tr><th>Guest</th><th>Reservation</th><th>Room</th><th>Stay</th><th>Status</th><th>Routing</th></tr></thead>
+                        <tbody>
+                        @foreach (var member in group.Members)
+                        {
+                            <tr>
+                                <td>@member.Reservation?.Guest?.FirstName @member.Reservation?.Guest?.LastName</td>
+                                <td>@member.Reservation?.ConfirmationNumber</td>
+                                <td>@(member.Reservation?.Room?.RoomNumber ?? member.Reservation?.RoomType?.Name)</td>
+                                <td>@member.Reservation?.ArrivalDate.ToString("MMM d") - @member.Reservation?.DepartureDate.ToString("MMM d, yyyy")</td>
+                                <td>@member.Reservation?.Status</td>
+                                <td>@member.BillingRoutingType</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </section>
+        }
+
+        @if (Model.PrintType is "group-master-folio" or "collection-statement" or "billing-instruction")
+        {
+            <section class="vpms-print-section">
+                <h2>Collection Summary</h2>
+                <table class="vpms-print-table">
+                    <tbody>
+                    <tr><th>Estimated Charges</th><td class="text-end">@Model.CollectionSummary.TotalEstimatedCharges.ToString("C")</td><th>Posted Charges</th><td class="text-end">@Model.CollectionSummary.TotalPostedCharges.ToString("C")</td></tr>
+                    <tr><th>Deposits</th><td class="text-end">@Model.CollectionSummary.TotalDeposits.ToString("C")</td><th>Payments</th><td class="text-end">@Model.CollectionSummary.TotalPayments.ToString("C")</td></tr>
+                    <tr><th>Allocated</th><td class="text-end">@Model.CollectionSummary.TotalAllocated.ToString("C")</td><th>Outstanding</th><td class="text-end">@Model.CollectionSummary.OutstandingBalance.ToString("C")</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="vpms-print-section">
+                <h2>Group Master Folios</h2>
+                @if (group.GroupFolios.Count == 0)
+                {
+                    <p>No group master folios recorded.</p>
+                }
+                else
+                {
+                    <table class="vpms-print-table">
+                        <thead><tr><th>Folio</th><th>Pseudo Room</th><th>Status</th><th class="text-end">Charges</th><th class="text-end">Payments</th><th class="text-end">Balance</th></tr></thead>
+                        <tbody>
+                        @foreach (var folio in group.GroupFolios)
+                        {
+                            var charges = folio.Folio?.Items.Where(item => !item.IsVoided).Sum(item => item.Amount) ?? 0;
+                            var payments = folio.Folio?.Payments.Sum(item => item.Amount) ?? 0;
+                            <tr>
+                                <td>@folio.FolioName</td>
+                                <td>@folio.PseudoRoom?.PseudoRoomCode</td>
+                                <td>@folio.Status</td>
+                                <td class="text-end">@charges.ToString("C")</td>
+                                <td class="text-end">@payments.ToString("C")</td>
+                                <td class="text-end">@((charges - payments).ToString("C"))</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </section>
+
+            <section class="vpms-print-section">
+                <h2>Deposits</h2>
+                @if (group.Deposits.Count == 0)
+                {
+                    <p>No deposits recorded.</p>
+                }
+                else
+                {
+                    <table class="vpms-print-table">
+                        <thead><tr><th>Date</th><th>Method</th><th>Reference</th><th>Status</th><th class="text-end">Amount</th></tr></thead>
+                        <tbody>
+                        @foreach (var deposit in group.Deposits.OrderBy(item => item.DepositDate))
+                        {
+                            <tr>
+                                <td>@deposit.DepositDate.ToString("MMM d, yyyy")</td>
+                                <td>@deposit.PaymentMethod</td>
+                                <td>@deposit.ReferenceNumber</td>
+                                <td>@deposit.Status</td>
+                                <td class="text-end">@deposit.Amount.ToString("C")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </section>
+        }
+    }
+
+    <footer class="vpms-print-footer">
+        Generated by Vantage PMS. Group billing, routing, and collection reports are configurable and should be reviewed by authorized finance personnel before official use.
+    </footer>
+</article>

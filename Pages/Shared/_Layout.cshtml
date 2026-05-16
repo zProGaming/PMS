@@ -1,70 +1,434 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
+@{
+    var canAccessAdmin = Vantage.PMS.Authorization.PmsRoles.AdminSetup.Any(role => User.IsInRole(role));
+    var canAccessFrontOffice = Vantage.PMS.Authorization.PmsRoles.FrontOffice.Any(role => User.IsInRole(role));
+    var canAccessHousekeeping = Vantage.PMS.Authorization.PmsRoles.Housekeeping.Any(role => User.IsInRole(role));
+    var canAccessFinance = Vantage.PMS.Authorization.PmsRoles.Finance.Any(role => User.IsInRole(role));
+    var canAccessAccounting = Vantage.PMS.Authorization.PmsRoles.FinanceApprovals.Any(role => User.IsInRole(role));
+    var canAccessLaborCosting = Vantage.PMS.Authorization.PmsRoles.LaborCosting.Any(role => User.IsInRole(role));
+    var canAccessExecutiveReporting = Vantage.PMS.Authorization.PmsRoles.ExecutiveReporting.Any(role => User.IsInRole(role));
+    var canAccessAccountsReceivable = Vantage.PMS.Authorization.PmsRoles.AccountsReceivable.Any(role => User.IsInRole(role));
+    var canAccessFoodBeverageService = Vantage.PMS.Authorization.PmsRoles.FoodBeverageService.Any(role => User.IsInRole(role));
+    var canAccessFoodBeverageKitchen = Vantage.PMS.Authorization.PmsRoles.FoodBeverageKitchen.Any(role => User.IsInRole(role));
+    var canAccessSales = Vantage.PMS.Authorization.PmsRoles.Sales.Any(role => User.IsInRole(role));
+    var canAccessBanquet = Vantage.PMS.Authorization.PmsRoles.Banquet.Any(role => User.IsInRole(role));
+    var canAccessRevenue = Vantage.PMS.Authorization.PmsRoles.Revenue.Any(role => User.IsInRole(role));
+    var canAccessBookingEngineManagement = Vantage.PMS.Authorization.PmsRoles.BookingEngineManagement.Any(role => User.IsInRole(role));
+    var canAccessInventoryPurchasing = Vantage.PMS.Authorization.PmsRoles.InventoryPurchasing.Any(role => User.IsInRole(role));
+    var canAccessReports = Vantage.PMS.Authorization.PmsRoles.Reports.Any(role => User.IsInRole(role));
+    var canAccessReportAdministration = Vantage.PMS.Authorization.PmsRoles.ReportAdministration.Any(role => User.IsInRole(role));
+    var canAccessManagementAI = Vantage.PMS.Authorization.PmsRoles.ManagementAI.Any(role => User.IsInRole(role));
+    var canAccessAIIntegrationSettings = Vantage.PMS.Authorization.PmsRoles.AIIntegrationSettings.Any(role => User.IsInRole(role));
+    var canAccessSystemManagement = Vantage.PMS.Authorization.PmsRoles.SystemManagement.Any(role => User.IsInRole(role));
+    var canAccessSystemAdministration = Vantage.PMS.Authorization.PmsRoles.SystemAdministration.Any(role => User.IsInRole(role));
+    var canAccessPrintableDocuments = Vantage.PMS.Authorization.PmsRoles.PrintableDocuments.Any(role => User.IsInRole(role));
+    var canAccessClientDemo = Vantage.PMS.Authorization.PmsRoles.ClientDemo.Any(role => User.IsInRole(role));
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var bodyClass = (string?)ViewData["BodyClass"] ?? string.Empty;
+    var isLoginScreen = bodyClass.Contains("vpms-login-screen", StringComparison.Ordinal);
+}
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Vantage.PMS</title>
+    <title>@ViewData["Title"] - Vantage PMS</title>
     <script type="importmap"></script>
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Vantage.PMS.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">Vantage.PMS</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="frontOfficeNavbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Front Office
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="frontOfficeNavbarDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-page="/FrontOffice/Index">Dashboard</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-page="/FrontOffice/Reservations/Index">Reservations</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-page="/FrontOffice/Guests/Index">Guests</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="adminNavbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Admin
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="adminNavbarDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Hotels/Index">Hotels</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Properties/Index">Properties</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Departments/Index">Departments</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-page="/Admin/RoomTypes/Index">Room Types</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-page="/Admin/Rooms/Index">Rooms</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <partial name="_LoginPartial" />
+<body class="vpms-body app-body @bodyClass">
+    @if (!isAuthenticated)
+    {
+        <div class="vpms-public-shell public-shell auth-shell">
+            @if (!isLoginScreen)
+            {
+                <header class="vpms-public-header public-header">
+                    <div class="container d-flex justify-content-between align-items-center">
+                        <a class="vpms-public-brand public-brand" asp-area="" asp-page="/Booking/Index">
+                            <img src="~/images/vantage-pms-logo.png" asp-append-version="true" alt="Vantage PMS" />
+                            <span>
+                                <strong>Vantage PMS</strong>
+                                <small class="d-block text-muted">Hospitality Management Platform</small>
+                            </span>
+                        </a>
+                        <span class="badge text-bg-light">Secure PMS Access</span>
+                    </div>
+                </header>
+            }
+            <main class="vpms-public-content public-content">
+                <div class="vpms-auth-card auth-card p-4 p-lg-5">
+                    @RenderBody()
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Vantage.PMS - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            </main>
         </div>
-    </footer>
+    }
+    else
+    {
+    <div class="vpms-shell app-shell">
+        <aside class="vpms-sidebar app-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="appSidebar" aria-labelledby="appSidebarLabel">
+            <div class="offcanvas-header d-lg-none">
+                <h2 class="offcanvas-title h6" id="appSidebarLabel">Vantage PMS</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#appSidebar" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <a class="vpms-brand app-brand" asp-area="" asp-page="/Index" aria-label="Vantage PMS dashboard">
+                    <span class="vpms-brand-mark app-brand-mark">
+                        <img src="~/images/vantage-pms-logo.png" asp-append-version="true" alt="Vantage PMS" />
+                    </span>
+                </a>
+
+                <div class="vpms-property-card property-card" aria-label="Current property">
+                    <div class="vpms-property-mark" aria-hidden="true">VG</div>
+                    <div>
+                        <div class="vpms-property-label property-card-label">Property</div>
+                        <div class="vpms-property-name property-card-name">Vantage Grand Hotel</div>
+                    </div>
+                    <span class="vpms-badge vpms-property-badge property-card-badge">Local</span>
+                    <div class="vpms-property-meta property-card-meta">Hotel ID: VGP-LOCAL</div>
+                </div>
+
+                <div class="vpms-sidebar-search sidebar-search">
+                    <label class="visually-hidden" for="sidebarSearch">Search navigation</label>
+                    <input class="form-control" id="sidebarSearch" type="search" placeholder="Search modules" autocomplete="off" />
+                </div>
+
+                <partial name="_SidebarNavigation" />
+
+                <nav class="vpms-nav app-nav d-none" aria-label="Legacy primary navigation" hidden>
+                    <div class="vpms-nav-section app-nav-section" data-sidebar-section>
+                        <div class="vpms-nav-section-title app-nav-heading">Command</div>
+                        <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Index" data-sidebar-link><span>Dashboard</span></a>
+                    </div>
+
+                    @if (canAccessFrontOffice || canAccessHousekeeping)
+                    {
+                        <div class="vpms-nav-section app-nav-section" data-sidebar-section>
+                            <div class="vpms-nav-section-title app-nav-heading">Rooms & Guests</div>
+                            @if (canAccessFrontOffice)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/FrontOffice/Index" data-sidebar-link><span>Front Office</span></a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/FrontOffice/Reservations/Index" data-sidebar-link>Reservations</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/FrontOffice/Guests/Index" data-sidebar-link>Guests</a>
+                            }
+                            @if (canAccessHousekeeping)
+                            {
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Housekeeping/Index" data-sidebar-link>Room Rack</a>
+                            }
+                            @if (canAccessFrontOffice)
+                            {
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/GuestPortalManagement/Index" data-sidebar-link>Guest Portal</a>
+                            }
+                        </div>
+                    }
+
+                    @if (canAccessHousekeeping)
+                    {
+                        <div class="vpms-nav-section app-nav-section" data-sidebar-section>
+                            <div class="vpms-nav-section-title app-nav-heading">Operations</div>
+                            <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Housekeeping/Index" data-sidebar-link><span>Housekeeping</span></a>
+                            <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Housekeeping/Tasks/Index" data-sidebar-link>Maintenance</a>
+                            <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/GuestPortalManagement/ServiceRequests/Index" data-sidebar-link>Service Requests</a>
+                        </div>
+                    }
+
+                    @if (canAccessFinance || canAccessAccountsReceivable || canAccessAccounting || canAccessLaborCosting)
+                    {
+                        <div class="vpms-nav-section app-nav-section" data-sidebar-section>
+                            <div class="vpms-nav-section-title app-nav-heading">Finance Control</div>
+                            @if (canAccessFinance)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Finance/Index" data-sidebar-link><span>Finance</span></a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Finance/NightAudit/Index" data-sidebar-link>Night Audit</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Finance/CashierShifts/Index" data-sidebar-link>Cashier Shifts</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Finance/Documents/Index" data-sidebar-link>Documents</a>
+                            }
+                            @if (canAccessAccountsReceivable)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/AccountsReceivable/ARAccounts/Index" data-sidebar-link><span>Accounts Receivable</span></a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/AccountsReceivable/ARInvoices/Index" data-sidebar-link>AR Invoices</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/AccountsReceivable/Aging/Index" data-sidebar-link>AR Aging</a>
+                            }
+                            @if (canAccessAccounting)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/Index" data-sidebar-link><span>Accounting</span></a>
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/AccountsPayable/Index" data-sidebar-link><span>Accounts Payable</span></a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/AccountsPayable/APInvoices/Index" data-sidebar-link>AP Invoices</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/AccountsPayable/PaymentVouchers/Index" data-sidebar-link>Payment Vouchers</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/AccountsPayable/Disbursements/Index" data-sidebar-link>Disbursements</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Banking/BankAccounts/Index" data-sidebar-link>Bank Accounts</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Banking/BankTransactions/Index" data-sidebar-link>Bank Transactions</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Banking/BankReconciliations/Index" data-sidebar-link>Bank Reconciliation</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/MonthEnd/AccrualEntries/Index" data-sidebar-link>Accrual Entries</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/MonthEnd/Close/Index" data-sidebar-link>Month-End Close</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/ChartOfAccounts/Index" data-sidebar-link>Chart of Accounts</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/JournalEntries/Index" data-sidebar-link>Journal Entries</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/JournalEntries/Create" data-sidebar-link>Manual Journal</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/PostingBatches/Index" data-sidebar-link>Posting Batches</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/PostingRules/Index" data-sidebar-link>Posting Rules</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/AccountingPeriods/Index" data-sidebar-link>Accounting Periods</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/USALIDepartments/Index" data-sidebar-link>USALI Departments</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/USALIReportLines/Index" data-sidebar-link>USALI Report Lines</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/TaxCodes/Index" data-sidebar-link>Tax Codes</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/ServiceChargeSettings/Index" data-sidebar-link>Service Charge Settings</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/CashFlow/CashAccountSettings/Index" data-sidebar-link>Cash Account Settings</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/CashFlow/Categories/Index" data-sidebar-link>Cash Flow Categories</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/CashFlow/MappingRules/Index" data-sidebar-link>Cash Flow Mapping Rules</a>
+                            }
+                            @if (canAccessLaborCosting)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Labor/Index" data-sidebar-link><span>Labor Costing</span></a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Labor/EmployeeCostProfiles/Index" data-sidebar-link>Employee Cost Profiles</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Labor/PayrollPeriods/Index" data-sidebar-link>Payroll Periods</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Labor/PayrollCostEntries/Index" data-sidebar-link>Payroll Cost Entries</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Labor/PayrollAllocationRules/Index" data-sidebar-link>Allocation Rules</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Labor/DepartmentLaborBudgets/Index" data-sidebar-link>Labor Budgets</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Labor/ServiceChargePools/Index" data-sidebar-link>Service Charge Pools</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Labor/Reports/Index" data-sidebar-link>Labor Reports</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Labor/Import/Index" data-sidebar-link>Payroll Import Placeholder</a>
+                            }
+                        </div>
+                    }
+
+                    @if (canAccessFoodBeverageService || canAccessFoodBeverageKitchen)
+                    {
+                        <div class="vpms-nav-section app-nav-section" data-sidebar-section>
+                            <div class="vpms-nav-section-title app-nav-heading">F&B Operations</div>
+                            @if (canAccessFoodBeverageService)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/FoodBeverage/Index" data-sidebar-link><span>F&amp;B Service</span></a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/FoodBeverage/Orders/Create" data-sidebar-link>New Order</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/FoodBeverage/Orders/Index" data-sidebar-link>Orders</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/FoodBeverage/MenuItems/Index" data-sidebar-link>Menu Items</a>
+                            }
+                            @if (canAccessFoodBeverageKitchen)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/FoodBeverageKitchen/Index" data-sidebar-link><span>F&amp;B Kitchen</span></a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/FoodBeverageKitchen/Index" data-sidebar-link>Kitchen Display</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/FoodBeverageKitchen/KitchenStations/Index" data-sidebar-link>Kitchen Stations</a>
+                            }
+                        </div>
+                    }
+
+                    @if (canAccessSales || canAccessBanquet || canAccessRevenue || canAccessBookingEngineManagement)
+                    {
+                        <div class="vpms-nav-section app-nav-section" data-sidebar-section>
+                            <div class="vpms-nav-section-title app-nav-heading">Commercial</div>
+                            @if (canAccessSales)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Sales/Index" data-sidebar-link><span>Sales</span></a>
+                            }
+                            @if (canAccessBanquet)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Banquet/Index" data-sidebar-link><span>Banquet</span></a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Banquet/Calendar/Index" data-sidebar-link>Event Calendar</a>
+                            }
+                            @if (canAccessRevenue)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Revenue/Index" data-sidebar-link><span>Revenue</span></a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Revenue/Calendar/Index" data-sidebar-link>Revenue Calendar</a>
+                            }
+                            @if (canAccessBookingEngineManagement)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/BookingManagement/Index" data-sidebar-link><span>Booking Engine</span></a>
+                            }
+                        </div>
+                    }
+
+                    @if (canAccessInventoryPurchasing)
+                    {
+                        <div class="vpms-nav-section app-nav-section" data-sidebar-section>
+                            <div class="vpms-nav-section-title app-nav-heading">Back Office</div>
+                            <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Inventory/Index" data-sidebar-link><span>Inventory</span></a>
+                            <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Purchasing/PurchaseRequests/Index" data-sidebar-link><span>Purchasing</span></a>
+                            <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Purchasing/Suppliers/Index" data-sidebar-link>Suppliers</a>
+                            <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Purchasing/PurchaseOrders/Index" data-sidebar-link>Purchase Orders</a>
+                            <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Purchasing/Receiving/Index" data-sidebar-link>Receiving</a>
+                        </div>
+                    }
+
+                    @if (canAccessManagementAI || canAccessReports || isAuthenticated)
+                    {
+                        <div class="vpms-nav-section app-nav-section" data-sidebar-section>
+                            <div class="vpms-nav-section-title app-nav-heading">Management</div>
+                            @if (canAccessManagementAI)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/ManagementAI/Index" data-sidebar-link><span>Management AI</span></a>
+                            }
+                            @if (canAccessExecutiveReporting)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Executive/Index" data-sidebar-link><span>Executive</span></a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Executive/KPIScorecard" data-sidebar-link>KPI Scorecard</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Executive/DailyFlash" data-sidebar-link>Daily Flash Report</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Executive/WeeklySummary" data-sidebar-link>Weekly Executive Summary</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Executive/MonthlyOwnerReport" data-sidebar-link>Monthly Owner Report</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Executive/DepartmentPerformance" data-sidebar-link>Department Performance</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Executive/RevenueIntelligence" data-sidebar-link>Revenue Intelligence</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Executive/GuestExperience" data-sidebar-link>Guest Experience</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Executive/FinanceControl" data-sidebar-link>Finance Control</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Executive/CostControl" data-sidebar-link>Cost Control</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Executive/Alerts/Index" data-sidebar-link>Executive Alerts</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Executive/OwnerPackages/Index" data-sidebar-link>Owner Report Packages</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Executive/KPIBenchmarks/Index" data-sidebar-link>KPI Benchmarks</a>
+                            }
+                            @if (canAccessReports)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Reports/Center" data-sidebar-link><span>Reports</span></a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Reports/Center" data-sidebar-link>Report Center</a>
+                            }
+                            @if (canAccessPrintableDocuments)
+                            {
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Documents/Index" data-sidebar-link>Printable Documents</a>
+                            }
+                            @if (canAccessReportAdministration)
+                            {
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Reports/ExportLogs/Index" data-sidebar-link>Export Logs</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Reports/SavedRuns/Index" data-sidebar-link>Saved Report Runs</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Reports/TemplateSettings/Index" data-sidebar-link>Report Template Settings</a>
+                            }
+                            @if (canAccessAccounting)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/Reports/GeneralLedger" data-sidebar-link><span>Accounting Reports</span></a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/TrialBalance" data-sidebar-link>Trial Balance</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/BalanceSheet" data-sidebar-link>Balance Sheet</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/ProfitAndLoss" data-sidebar-link>Profit and Loss</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/StatementOfCashFlows" data-sidebar-link>Statement of Cash Flows</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/CashMovement" data-sidebar-link>Cash Movement Report</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/CashFlowSnapshots" data-sidebar-link>Cash Flow Snapshots</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/UnmappedCashFlowItems" data-sidebar-link>Unmapped Cash Flow Items</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/USALI" data-sidebar-link>USALI Statement</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/VATOutput" data-sidebar-link>VAT Output Summary</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/VATInput" data-sidebar-link>VAT Input Summary</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/CashReceiptsJournal" data-sidebar-link>Cash Receipts Journal</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/APAging" data-sidebar-link>AP Aging</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/SupplierLedger" data-sidebar-link>Supplier Ledger</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/BankReconciliationReport" data-sidebar-link>Bank Reconciliation Report</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/CashPosition" data-sidebar-link>Cash Position</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/BooksExport" data-sidebar-link>Books Export</a>
+                            }
+                            @if (canAccessSystemManagement)
+                            {
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/AuditLogs/Index" data-sidebar-link>Audit Logs</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/HealthCheck/Index" data-sidebar-link>System Health</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/QAChecklist/Index" data-sidebar-link>QA Checklist</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/DemoPresentation/Index" data-sidebar-link>Demo Presentation</a>
+                            }
+                            @if (canAccessClientDemo)
+                            {
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/ClientDemoPackage/Index" data-sidebar-link>Client Demo Package</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/DemoWorkflowLauncher/Index" data-sidebar-link>Demo Workflow Launcher</a>
+                            }
+                        </div>
+                    }
+
+                    @if (canAccessAdmin || canAccessSystemManagement || canAccessSystemAdministration || isAuthenticated)
+                    {
+                        <div class="vpms-nav-section app-nav-section" data-sidebar-section>
+                            <div class="vpms-nav-section-title app-nav-heading">Administration</div>
+                            @if (canAccessAdmin)
+                            {
+                                <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Admin/Hotels/Index" data-sidebar-link><span>Admin</span></a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Admin/Properties/Index" data-sidebar-link>Properties</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Admin/Departments/Index" data-sidebar-link>Departments</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Admin/Rooms/Index" data-sidebar-link>Rooms</a>
+                            }
+                            @if (canAccessSystemAdministration)
+                            {
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Admin/UsersAndRoles/Index" data-sidebar-link>Users and Roles</a>
+                            }
+                            @if (canAccessSystemManagement)
+                            {
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/Settings/Index" data-sidebar-link>Settings</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/DocumentTemplateSettings/Index" data-sidebar-link>Document Template Settings</a>
+                            }
+                            @if (canAccessSystemAdministration)
+                            {
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Admin/DemoSetup/Index" data-sidebar-link>Demo Setup</a>
+                            }
+                            @if (canAccessSystemAdministration)
+                            {
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/ErrorLogs/Index" data-sidebar-link>Error Logs</a>
+                            }
+                            @if (canAccessAIIntegrationSettings)
+                            {
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/ManagementAI/Settings/Index" data-sidebar-link>AI Settings</a>
+                            }
+                        </div>
+                    }
+                </nav>
+            </div>
+        </aside>
+
+        <div class="vpms-main app-main">
+            <header class="vpms-topbar app-topbar">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-outline-secondary app-menu-button d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar">
+                        Menu
+                    </button>
+                    <div class="vpms-time-block" aria-label="Current local time">
+                        <div class="vpms-time-label">Current Time</div>
+                        <time id="vpmsCurrentTime" class="vpms-current-time" datetime="@DateTime.Now.ToString("O")">@DateTime.Now.ToString("h:mm tt")</time>
+                        <div id="vpmsCurrentDate" class="vpms-current-date">@DateTime.Now.ToString("dddd, MMM d, yyyy")</div>
+                    </div>
+                </div>
+                <partial name="_LoginPartial" />
+            </header>
+
+            <nav class="vpms-commandbar app-commandbar" aria-label="Quick command bar">
+                <a class="vpms-command-item" asp-page="/System/Notifications/Index"><span class="vpms-command-icon"></span>Support</a>
+                @if (canAccessReports)
+                {
+                    <a class="vpms-command-item" asp-page="/Reports/Center"><span class="vpms-command-icon"></span>Reports</a>
+                }
+                <span class="vpms-command-item vpms-command-online commandbar-status"><span class="vpms-online-dot"></span>Online</span>
+                @if (canAccessRevenue)
+                {
+                    <a class="vpms-command-item" asp-page="/Revenue/Calendar/Index"><span class="vpms-command-icon"></span>Room Calendar</a>
+                }
+                @if (canAccessFrontOffice)
+                {
+                    <a class="vpms-command-item" asp-page="/FrontOffice/Reservations/Create"><span class="vpms-command-icon"></span>Reservation</a>
+                    <a class="vpms-command-item" asp-page="/FrontOffice/Index"><span class="vpms-command-icon"></span>In-House</a>
+                    <a class="vpms-command-item" asp-page="/FrontOffice/Reservations/Index"><span class="vpms-command-icon"></span>Quick Desk</a>
+                }
+                @if (canAccessHousekeeping)
+                {
+                    <a class="vpms-command-item" asp-page="/Housekeeping/Index"><span class="vpms-command-icon"></span>Rack</a>
+                }
+                @if (canAccessFinance)
+                {
+                    <a class="vpms-command-item" asp-page="/Finance/CashierShifts/Index"><span class="vpms-command-icon"></span>Front Cash</a>
+                }
+                @if (canAccessFoodBeverageService)
+                {
+                    <a class="vpms-command-item" asp-page="/FoodBeverage/Index"><span class="vpms-command-icon"></span>POS</a>
+                }
+                @if (canAccessManagementAI)
+                {
+                    <a class="vpms-command-item" asp-page="/ManagementAI/Index"><span class="vpms-command-icon"></span>Management AI</a>
+                }
+                @if (canAccessExecutiveReporting)
+                {
+                    <a class="vpms-command-item" asp-page="/Executive/Index"><span class="vpms-command-icon"></span>Executive</a>
+                }
+                @if (canAccessSystemManagement)
+                {
+                    <a class="vpms-command-item" asp-page="/System/HealthCheck/Index"><span class="vpms-command-icon"></span>System Health</a>
+                }
+            </nav>
+
+            <main role="main" class="vpms-content app-content">
+                @RenderBody()
+            </main>
+
+            <footer class="app-footer">
+                <span>Copyright &copy; 2026 Vantage Innovations PH. All rights reserved.</span>
+                <span>Vantage PMS</span>
+            </footer>
+        </div>
+    </div>
+    }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

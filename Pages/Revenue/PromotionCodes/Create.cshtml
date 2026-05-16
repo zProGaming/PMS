@@ -1,0 +1,74 @@
+@page
+@using Vantage.PMS.Models.Revenue
+@model Vantage.PMS.Pages.Revenue.PromotionCodes.CreateModel
+@{
+    ViewData["Title"] = "Create Promotion Code";
+}
+
+<h1 class="h3 mb-3">Create Promotion Code</h1>
+
+<form method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="col-md-4">
+        <label asp-for="PromotionCode.Code" class="form-label"></label>
+        <input asp-for="PromotionCode.Code" class="form-control" />
+        <span asp-validation-for="PromotionCode.Code" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="PromotionCode.DiscountType" class="form-label"></label>
+        <select asp-for="PromotionCode.DiscountType" asp-items="Html.GetEnumSelectList<DiscountType>()" class="form-select"></select>
+        <span asp-validation-for="PromotionCode.DiscountType" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="PromotionCode.DiscountValue" class="form-label"></label>
+        <input asp-for="PromotionCode.DiscountValue" class="form-control" />
+        <span asp-validation-for="PromotionCode.DiscountValue" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="PromotionCode.Description" class="form-label"></label>
+        <input asp-for="PromotionCode.Description" class="form-control" />
+        <span asp-validation-for="PromotionCode.Description" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="PromotionCode.ValidFrom" class="form-label"></label>
+        <input asp-for="PromotionCode.ValidFrom" type="date" class="form-control" />
+        <span asp-validation-for="PromotionCode.ValidFrom" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="PromotionCode.ValidTo" class="form-label"></label>
+        <input asp-for="PromotionCode.ValidTo" type="date" class="form-control" />
+        <span asp-validation-for="PromotionCode.ValidTo" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="PromotionCode.UsageLimit" class="form-label"></label>
+        <input asp-for="PromotionCode.UsageLimit" class="form-control" />
+        <span asp-validation-for="PromotionCode.UsageLimit" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="PromotionCode.AppliesToRatePlanId" class="form-label">Applies To Rate Plan</label>
+        <select asp-for="PromotionCode.AppliesToRatePlanId" asp-items="Model.RatePlanOptions" class="form-select">
+            <option value="">Any rate plan</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="PromotionCode.AppliesToRoomTypeId" class="form-label">Applies To Room Type</label>
+        <select asp-for="PromotionCode.AppliesToRoomTypeId" asp-items="Model.RoomTypeOptions" class="form-select">
+            <option value="">Any room type</option>
+        </select>
+    </div>
+    <div class="col-12">
+        <div class="form-check">
+            <input asp-for="PromotionCode.IsActive" class="form-check-input" />
+            <label asp-for="PromotionCode.IsActive" class="form-check-label"></label>
+        </div>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

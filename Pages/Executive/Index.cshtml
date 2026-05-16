@@ -1,0 +1,145 @@
+@page
+@model Vantage.PMS.Pages.Executive.IndexModel
+@{
+    ViewData["Title"] = "Executive Dashboard";
+    var summary = Model.Dashboard.Summary;
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Owner / GM Intelligence</div>
+        <h1 class="page-title">Executive Dashboard</h1>
+        <p class="page-subtitle">Hotel KPI intelligence across operations, revenue, finance, labor, inventory, and guest experience.</p>
+    </div>
+    <div class="page-actions vpms-no-print">
+        <a class="btn vpms-btn-secondary" asp-page="/Executive/Snapshots/Index">Generate Snapshot</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Executive/MonthlyOwnerReport">Monthly Owner Report</a>
+        <button type="button" class="btn vpms-btn-primary" onclick="window.print()">Print</button>
+    </div>
+</div>
+
+<form method="get" class="vpms-card report-filter vpms-no-print mb-3">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4"><label class="form-label">From</label><input class="form-control" type="date" name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" /></div>
+        <div class="col-md-4"><label class="form-label">To</label><input class="form-control" type="date" name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" /></div>
+        <div class="col-md-4"><button class="btn vpms-btn-primary w-100">Refresh Executive View</button></div>
+    </div>
+</form>
+
+<section class="vpms-print-document">
+    <div class="row g-3">
+        <div class="col-xl-3 col-md-6"><div class="kpi-card"><div class="kpi-label">Occupancy</div><div class="kpi-value">@summary.OccupancyPercentage.ToString("N1")%</div><div class="kpi-note">@summary.OccupiedRooms of @summary.TotalRooms rooms occupied</div></div></div>
+        <div class="col-xl-3 col-md-6"><div class="kpi-card"><div class="kpi-label">ADR</div><div class="kpi-value">@summary.ADR.ToString("C")</div><div class="kpi-note">Average daily rate</div></div></div>
+        <div class="col-xl-3 col-md-6"><div class="kpi-card"><div class="kpi-label">RevPAR</div><div class="kpi-value">@summary.RevPAR.ToString("C")</div><div class="kpi-note">Revenue per available room</div></div></div>
+        <div class="col-xl-3 col-md-6"><div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value">@summary.TotalRevenue.ToString("C")</div><div class="kpi-note">Selected period</div></div></div>
+        <div class="col-xl-3 col-md-6"><div class="kpi-card"><div class="kpi-label">Revenue MTD</div><div class="kpi-value">@summary.TotalRevenueMonthToDate.ToString("C")</div><div class="kpi-note">Month-to-date</div></div></div>
+        <div class="col-xl-3 col-md-6"><div class="kpi-card"><div class="kpi-label">Cash Payments Today</div><div class="kpi-value">@summary.CashPaymentsToday.ToString("C")</div><div class="kpi-note">Completed folio payments</div></div></div>
+        <div class="col-xl-3 col-md-6"><div class="kpi-card"><div class="kpi-label">AR Balance</div><div class="kpi-value">@summary.ARBalance.ToString("C")</div><div class="kpi-note">Open city ledger</div></div></div>
+        <div class="col-xl-3 col-md-6"><div class="kpi-card"><div class="kpi-label">AP Balance</div><div class="kpi-value">@summary.APBalance.ToString("C")</div><div class="kpi-note">Open supplier liability</div></div></div>
+        <div class="col-xl-3 col-md-6"><div class="kpi-card"><div class="kpi-label">Labor Cost MTD</div><div class="kpi-value">@summary.LaborCostMonthToDate.ToString("C")</div><div class="kpi-note">@summary.LaborCostPercentage.ToString("N1")% of period revenue</div></div></div>
+        <div class="col-xl-3 col-md-6"><div class="kpi-card"><div class="kpi-label">Guest Rating</div><div class="kpi-value">@(summary.GuestSatisfactionScore?.ToString("N1") ?? "0.0")</div><div class="kpi-note">Average feedback score</div></div></div>
+        <div class="col-xl-3 col-md-6"><div class="kpi-card"><div class="kpi-label">Pending Approvals</div><div class="kpi-value">@summary.PendingApprovals</div><div class="kpi-note">Finance, AP, labor, service charge</div></div></div>
+        <div class="col-xl-3 col-md-6"><div class="kpi-card"><div class="kpi-label">Critical Alerts</div><div class="kpi-value">@summary.OpenCriticalIssues</div><div class="kpi-note">Unresolved executive risks</div></div></div>
+    </div>
+
+    <div class="row g-4 mt-1">
+        <div class="col-xl-8">
+            <section class="vpms-card mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 mb-0">Revenue Mix</h2>
+                    <span class="status-badge">Business date @summary.BusinessDate.ToString("MMM d, yyyy")</span>
+                </div>
+                <div class="vpms-table-wrapper">
+                    <table class="table vpms-table align-middle">
+                        <thead><tr><th>Revenue Stream</th><th class="text-end">Amount</th><th class="text-end">Share</th></tr></thead>
+                        <tbody>
+                            <tr><td>Rooms</td><td class="text-end">@summary.TotalRoomRevenue.ToString("C")</td><td class="text-end">@((summary.TotalRevenue == 0 ? 0 : summary.TotalRoomRevenue / summary.TotalRevenue * 100).ToString("N1"))%</td></tr>
+                            <tr><td>F&B</td><td class="text-end">@summary.TotalFBRevenue.ToString("C")</td><td class="text-end">@((summary.TotalRevenue == 0 ? 0 : summary.TotalFBRevenue / summary.TotalRevenue * 100).ToString("N1"))%</td></tr>
+                            <tr><td>Banquet</td><td class="text-end">@summary.TotalBanquetRevenue.ToString("C")</td><td class="text-end">@((summary.TotalRevenue == 0 ? 0 : summary.TotalBanquetRevenue / summary.TotalRevenue * 100).ToString("N1"))%</td></tr>
+                            <tr><td>Other</td><td class="text-end">@summary.TotalOtherRevenue.ToString("C")</td><td class="text-end">@((summary.TotalRevenue == 0 ? 0 : summary.TotalOtherRevenue / summary.TotalRevenue * 100).ToString("N1"))%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="vpms-card mb-4">
+                <h2 class="h5">Department Performance</h2>
+                @if (Model.Dashboard.Departments.Count == 0)
+                {
+                    <div class="vpms-empty-state">No department performance data found for the selected period.</div>
+                }
+                else
+                {
+                    <div class="vpms-table-wrapper">
+                        <table class="table vpms-table align-middle">
+                            <thead><tr><th>Department</th><th class="text-end">Revenue</th><th class="text-end">Labor</th><th class="text-end">Profit</th><th class="text-end">Margin</th></tr></thead>
+                            <tbody>
+                            @foreach (var row in Model.Dashboard.Departments)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@row.DepartmentName</td>
+                                    <td class="text-end">@row.Revenue.ToString("C")</td>
+                                    <td class="text-end">@row.PayrollCost.ToString("C")</td>
+                                    <td class="text-end">@row.DepartmentProfit.ToString("C")</td>
+                                    <td class="text-end">@row.DepartmentProfitMargin.ToString("N1")%</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
+
+            <section class="vpms-card">
+                <h2 class="h5">7-Day Trend</h2>
+                <div class="vpms-table-wrapper">
+                    <table class="table vpms-table align-middle">
+                        <thead><tr><th>Date</th><th class="text-end">Occupancy</th><th class="text-end">Revenue</th></tr></thead>
+                        <tbody>
+                        @foreach (var trend in Model.Dashboard.Trend)
+                        {
+                            <tr><td>@trend.Date.ToString("MMM d")</td><td class="text-end">@trend.OccupancyPercentage.ToString("N1")%</td><td class="text-end">@trend.Revenue.ToString("C")</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-xl-4">
+            <section class="vpms-card mb-4">
+                <h2 class="h5">Executive Alerts</h2>
+                @if (Model.Dashboard.Alerts.Count == 0)
+                {
+                    <div class="vpms-empty-state">No unresolved executive alerts.</div>
+                }
+                else
+                {
+                    @foreach (var alert in Model.Dashboard.Alerts)
+                    {
+                        <div class="border-bottom py-2">
+                            <div class="d-flex justify-content-between gap-2">
+                                <strong>@alert.Title</strong>
+                                <span class="status-badge">@alert.Severity</span>
+                            </div>
+                            <div class="text-muted small">@alert.Module</div>
+                        </div>
+                    }
+                    <a class="btn vpms-btn-secondary w-100 mt-3" asp-page="/Executive/Alerts/Index">View Alerts</a>
+                }
+            </section>
+
+            <section class="vpms-card">
+                <h2 class="h5">KPI Watchlist</h2>
+                @foreach (var kpi in Model.Dashboard.Kpis.Take(8))
+                {
+                    <div class="d-flex justify-content-between border-bottom py-2">
+                        <span>@kpi.KPIName</span>
+                        <span class="status-badge">@kpi.Status</span>
+                    </div>
+                }
+                <a class="btn vpms-btn-secondary w-100 mt-3" asp-page="/Executive/KPIScorecard">Open KPI Scorecard</a>
+            </section>
+        </div>
+    </div>
+</section>

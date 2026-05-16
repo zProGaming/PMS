@@ -1,0 +1,70 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Labor.ServiceChargePools.DetailsModel
+@{
+    ViewData["Title"] = "Service Charge Pool Details";
+    var pool = Model.Pool!;
+    var canEdit = pool.Status is not (Vantage.PMS.Models.Labor.ServiceChargePoolStatus.Posted or Vantage.PMS.Models.Labor.ServiceChargePoolStatus.Cancelled);
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Service Charge Pool</div>
+        <h1 class="page-title">@pool.PoolName</h1>
+        <p class="page-subtitle">@pool.PeriodStart.ToString("yyyy-MM-dd") to @pool.PeriodEnd.ToString("yyyy-MM-dd")</p>
+    </div>
+    <div class="page-actions">
+        <span class="status-badge">@pool.Status</span>
+        <a class="btn vpms-btn-secondary" asp-page="Index">Back to Pools</a>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage)) { <div class="alert alert-success">@Model.StatusMessage</div> }
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Total Collected</div><div class="kpi-value">@pool.TotalServiceChargeCollected.ToString("C")</div><div class="kpi-note">Manual or estimated</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Distributed</div><div class="kpi-value">@pool.DistributionLines.Sum(line => line.Amount).ToString("C")</div><div class="kpi-note">@pool.DistributionLines.Count line(s)</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Difference</div><div class="kpi-value">@((pool.TotalServiceChargeCollected - pool.DistributionLines.Sum(line => line.Amount)).ToString("C"))</div><div class="kpi-note">Must be zero to approve</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Journal</div><div class="kpi-value">@(pool.JournalEntry?.JournalNumber ?? "None")</div><div class="kpi-note">GL posting reference</div></div></div>
+</div>
+
+@if (canEdit)
+{
+    <form method="post" asp-page-handler="AddLine" asp-route-id="@pool.Id" class="vpms-card mb-4">
+        <h2 class="h5">Add Manual Distribution Line</h2>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3"><label class="form-label">Employee</label><select asp-for="Input.EmployeeCostProfileId" class="form-select" asp-items="Model.EmployeeOptions"><option value="">Department line</option></select></div>
+            <div class="col-md-2"><label class="form-label">Department</label><select asp-for="Input.DepartmentId" class="form-select" asp-items="Model.DepartmentOptions"><option value="">Unassigned</option></select></div>
+            <div class="col-md-1"><label class="form-label">Days</label><input asp-for="Input.EligibleDays" class="form-control" /></div>
+            <div class="col-md-1"><label class="form-label">Hours</label><input asp-for="Input.EligibleHours" class="form-control" /></div>
+            <div class="col-md-1"><label class="form-label">%</label><input asp-for="Input.DistributionPercentage" class="form-control" /></div>
+            <div class="col-md-2"><label class="form-label">Amount</label><input asp-for="Input.Amount" class="form-control" /></div>
+            <div class="col-md-2"><button class="btn vpms-btn-primary w-100">Add Line</button></div>
+        </div>
+    </form>
+}
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Employee</th><th>Department</th><th class="text-end">Days</th><th class="text-end">Hours</th><th class="text-end">Distribution %</th><th class="text-end">Amount</th><th>Notes</th></tr></thead>
+        <tbody>
+        @foreach (var line in pool.DistributionLines.OrderBy(line => line.EmployeeCostProfile?.FullName))
+        {
+            <tr>
+                <td>@(line.EmployeeCostProfile?.FullName ?? "Department line")</td>
+                <td>@(line.Department?.Name ?? "Unassigned")</td>
+                <td class="text-end">@line.EligibleDays.ToString("N2")</td>
+                <td class="text-end">@line.EligibleHours.ToString("N2")</td>
+                <td class="text-end">@line.DistributionPercentage.ToString("N2")%</td>
+                <td class="text-end fw-semibold">@line.Amount.ToString("C")</td>
+                <td>@line.Notes</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@if (pool.DistributionLines.Count == 0)
+{
+    <div class="vpms-empty-state mt-3">No distribution lines yet. Generate lines from the pool index or add manual lines here.</div>
+}

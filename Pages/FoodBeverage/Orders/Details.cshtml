@@ -1,0 +1,144 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.FoodBeverage.Orders.DetailsModel
+
+@{
+    ViewData["Title"] = "POS Order Details";
+    var orderStatusClass = Model.Order.OrderStatus.ToString().ToLowerInvariant();
+    var paymentStatusClass = Model.Order.PaymentStatus.ToString().ToLowerInvariant();
+}
+
+<div class="vpms-page-header page-header">
+    <div>
+        <div class="page-kicker">F&amp;B Service POS</div>
+        <h1 class="vpms-page-title page-title">Order @Model.Order.OrderNumber</h1>
+        <p class="vpms-page-subtitle page-subtitle">@Model.Order.Outlet?.Name | @Model.Order.OrderType | @Model.Order.OrderDate.ToString("g")</p>
+    </div>
+    <div class="vpms-actions d-flex flex-wrap gap-2">
+        <span class="vpms-status-badge status-@orderStatusClass">@Model.Order.OrderStatus</span>
+        @if (Model.CanEditOrder)
+        {
+            <a class="btn btn-primary" asp-page="./AddItem" asp-route-orderId="@Model.Order.Id">Add Item</a>
+            @if (Model.Order.OrderStatus == Vantage.PMS.Models.FoodBeverage.POSOrderStatus.Open)
+            {
+                <form method="post" asp-page-handler="SendToKitchen" asp-route-id="@Model.Order.Id">
+                    <button type="submit" class="btn btn-outline-primary">Send to Kitchen</button>
+                </form>
+            }
+            <a class="btn btn-success" asp-page="./Close" asp-route-id="@Model.Order.Id">Close Order</a>
+        }
+        <a class="btn btn-outline-secondary" asp-page="./Index">Orders</a>
+    </div>
+</div>
+
+<div class="vpms-detail-grid mb-4">
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Table</div>
+            <div class="fs-5">@(Model.Order.DiningTable?.TableName ?? "-")</div>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Guest</div>
+            <div class="fs-5">@Model.Order.Guest?.FirstName @Model.Order.Guest?.LastName</div>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Room</div>
+            <div class="fs-5">@(Model.Order.Reservation?.Room?.RoomNumber ?? "-")</div>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+            <div class="text-muted small">Payment</div>
+            <span class="vpms-status-badge status-@paymentStatusClass">@Model.Order.PaymentStatus</span>
+    </div>
+</div>
+
+<h2 class="h4">Ordered Items</h2>
+<div class="vpms-table-wrapper table-responsive">
+<table class="table vpms-table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>Notes</th>
+            <th>Status</th>
+            <th>Kitchen</th>
+            <th class="text-end">Qty</th>
+            <th class="text-end">Unit</th>
+            <th class="text-end">Discount</th>
+            <th class="text-end">Line Total</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Order.Items.Count == 0)
+        {
+            <tr>
+                <td colspan="9" class="text-muted">No items added.</td>
+            </tr>
+        }
+        @foreach (var item in Model.Order.Items.OrderBy(item => item.Id))
+        {
+            var itemStatusClass = item.ItemStatus.ToString().ToLowerInvariant();
+            <tr class="@(item.IsVoided ? "table-secondary text-muted" : "")">
+                <td>
+                    <div>@item.MenuItem?.Name</div>
+                    <div class="text-muted small">@item.MenuItem?.MenuCategory?.Name</div>
+                </td>
+                <td>@item.Notes</td>
+                <td><span class="vpms-status-badge status-@itemStatusClass">@item.ItemStatus</span></td>
+                <td class="small">
+                    <div>@(item.MenuItem?.KitchenStation?.Name ?? "Unassigned Station")</div>
+                    <div>Sent: @(item.SentToKitchenAt?.ToString("g") ?? "-")</div>
+                    <div>Prep: @(item.PreparingAt?.ToString("g") ?? "-")</div>
+                    <div>Ready: @(item.ReadyAt?.ToString("g") ?? "-")</div>
+                    <div>Served: @(item.ServedAt?.ToString("g") ?? "-")</div>
+                    <div>Cancelled: @(item.CancelledAt?.ToString("g") ?? "-")</div>
+                </td>
+                <td class="text-end">@item.Quantity.ToString("N2")</td>
+                <td class="text-end">@item.UnitPrice.ToString("N2")</td>
+                <td class="text-end">@item.DiscountAmount.ToString("N2")</td>
+                <td class="text-end">@item.LineTotal.ToString("N2")</td>
+                <td class="text-end">
+                    @if (Model.CanEditOrder && !item.IsVoided)
+                    {
+                        <a class="btn btn-sm btn-outline-danger" asp-page="./VoidItem" asp-route-orderItemId="@item.Id">Void</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+</div>
+
+<div class="row justify-content-end">
+    <div class="col-md-5 col-lg-4">
+        <div class="vpms-table-wrapper table-responsive">
+        <table class="table vpms-table table-sm">
+            <tbody>
+                <tr>
+                    <th>Subtotal</th>
+                    <td class="text-end">@Model.Order.SubTotal.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <th>Service Charge</th>
+                    <td class="text-end">@Model.Order.ServiceCharge.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <th>Tax Amount</th>
+                    <td class="text-end">@Model.Order.TaxAmount.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <th>Discount</th>
+                    <td class="text-end">@Model.Order.DiscountAmount.ToString("N2")</td>
+                </tr>
+                <tr class="fs-5">
+                    <th>Total</th>
+                    <td class="text-end">@Model.Order.TotalAmount.ToString("N2")</td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.Order.Notes))
+{
+    <h2 class="h5">Notes</h2>
+    <p class="text-break">@Model.Order.Notes</p>
+}

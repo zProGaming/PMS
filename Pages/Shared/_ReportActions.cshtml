@@ -1,0 +1,26 @@
+@model Vantage.PMS.ViewModels.Reports.ReportActionsViewModel
+
+<div class="vpms-report-actions vpms-no-print" role="toolbar" aria-label="Report actions">
+    <button type="button" class="btn vpms-btn-primary" onclick="window.print()">Print</button>
+    <button type="button" class="btn vpms-btn-secondary" onclick="window.print()" title="@Model.PdfHelpText">Save as PDF</button>
+    @if (Model.CsvAvailable && !string.IsNullOrWhiteSpace(Model.CsvUrl))
+    {
+        <a class="btn vpms-btn-secondary" href="@Model.CsvUrl">Export CSV</a>
+    }
+    else
+    {
+        <span class="btn vpms-btn-secondary disabled" title="CSV export planned.">Export CSV</span>
+    }
+    @if (Model.HtmlAvailable && !string.IsNullOrWhiteSpace(Model.HtmlUrl))
+    {
+        <a class="btn vpms-btn-secondary" href="@Model.HtmlUrl">Export HTML</a>
+    }
+    else
+    {
+        <span class="btn vpms-btn-secondary disabled" title="HTML export is available through the report page when configured.">Export HTML</span>
+    }
+    @if (!string.IsNullOrWhiteSpace(Model.BackUrl))
+    {
+        <a class="btn vpms-btn-secondary" href="@Model.BackUrl">Back</a>
+    }
+</div>

@@ -1,0 +1,47 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Accounting.PostingBatches.DetailsModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "Posting Batch Details";
+}
+<div class="page-header">
+    <div><div class="page-kicker">Accounting</div><h1 class="page-title">@Model.Batch?.BatchNumber</h1><p class="page-subtitle">@Model.Batch?.SourceModule posting batch.</p></div>
+    <div class="page-actions">
+        @if (Model.Batch?.Status is PostingBatchStatus.Draft or PostingBatchStatus.PostedWithErrors)
+        {
+            <form method="post" asp-page-handler="Process"><button class="btn vpms-btn-primary" type="submit">Process Batch</button></form>
+        }
+    </div>
+</div>
+@if (Model.Errors.Count > 0)
+{
+    <div class="alert alert-danger">@string.Join(" ", Model.Errors)</div>
+}
+@if (Model.Batch is not null)
+{
+    <section class="vpms-card mb-4">
+        <div class="row g-3">
+            <div class="col-md-3"><strong>Status</strong><div><span class="status-badge">@Model.Batch.Status</span></div></div>
+            <div class="col-md-3"><strong>Batch Date</strong><div>@Model.Batch.BatchDate.ToString("yyyy-MM-dd")</div></div>
+            <div class="col-md-3"><strong>Created By</strong><div>@Model.Batch.CreatedBy</div></div>
+            <div class="col-md-3"><strong>Posted By</strong><div>@Model.Batch.PostedBy</div></div>
+        </div>
+    </section>
+    <div class="vpms-table-wrapper">
+        <table class="table vpms-table">
+            <thead><tr><th>Source Type</th><th>Reference</th><th>Status</th><th>Error</th><th>Journal</th></tr></thead>
+            <tbody>
+            @foreach (var item in Model.Batch.Items)
+            {
+                <tr>
+                    <td>@item.SourceTransactionType</td>
+                    <td>@item.SourceReferenceNumber</td>
+                    <td><span class="status-badge">@item.Status</span></td>
+                    <td>@item.ErrorMessage</td>
+                    <td>@if (item.JournalEntryId is not null) { <a asp-page="/Accounting/JournalEntries/Details" asp-route-id="@item.JournalEntryId">View Journal</a> }</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

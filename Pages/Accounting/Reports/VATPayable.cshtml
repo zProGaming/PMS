@@ -1,0 +1,17 @@
+@page
+@using Microsoft.EntityFrameworkCore
+@using Vantage.PMS.Models.Finance
+@using Vantage.PMS.Models.Inventory
+@inject Vantage.PMS.Data.ApplicationDbContext Db
+@{
+    ViewData["Title"] = "VAT Payable Summary";
+    var start = DateTime.TryParse(Request.Query["StartDate"], out var s) ? s : new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+    var end = DateTime.TryParse(Request.Query["EndDate"], out var e) ? e : DateTime.Today;
+    var outputVat = await Db.FinanceDocuments.AsNoTracking().Where(document => document.DocumentDate >= start && document.DocumentDate <= end && document.Status != FinanceDocumentStatus.Voided && document.Status != FinanceDocumentStatus.Cancelled).SumAsync(document => (decimal?)document.TaxAmount) ?? 0;
+    var receivingGross = await Db.ReceivingRecordItems.AsNoTracking().Where(item => item.ReceivingRecord != null && item.ReceivingRecord.ReceivedDate >= start && item.ReceivingRecord.ReceivedDate <= end && item.ReceivingRecord.Status == ReceivingStatus.Posted).SumAsync(item => (decimal?)item.Amount) ?? 0;
+    var inputVat = Math.Round(receivingGross * 0.12m / 1.12m, 2);
+}
+<div class="page-header"><div><div class="page-kicker">Philippine Reports</div><h1 class="page-title">VAT Payable Summary</h1><p class="page-subtitle">Output VAT less input VAT readiness summary.</p></div><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div>
+<div class="alert alert-warning">Philippine finance report formats are configurable and must be validated by a Philippine CPA/accountant before filing or official submission.</div>
+<form method="get" class="vpms-card mb-3 report-filter"><div class="row g-3 align-items-end"><div class="col-md-4"><label class="form-label">From</label><input name="StartDate" value="@start.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-4"><label class="form-label">To</label><input name="EndDate" value="@end.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-4"><button class="btn vpms-btn-primary w-100">Run</button></div></div></form>
+<section class="vpms-card"><dl class="row mb-0"><dt class="col-8">Output VAT</dt><dd class="col-4 text-end">@outputVat.ToString("C")</dd><dt class="col-8">Input VAT</dt><dd class="col-4 text-end">@inputVat.ToString("C")</dd><dt class="col-8 h5">Net VAT Payable</dt><dd class="col-4 text-end h5">@((outputVat - inputVat).ToString("C"))</dd></dl></section>

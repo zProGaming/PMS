@@ -1,0 +1,165 @@
+@page
+@model Vantage.PMS.Pages.Accounting.IndexModel
+@{
+    ViewData["Title"] = "Accounting Dashboard";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Accounting</div>
+        <h1 class="page-title">General Ledger Dashboard</h1>
+        <p class="page-subtitle">USALI-style management accounting, journal posting, and Philippine finance report readiness.</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/Accounting/JournalEntries/Create">Manual Journal</a>
+        <a class="btn vpms-btn-primary" asp-page="/Accounting/PostingBatches/Index">Posting Batches</a>
+    </div>
+</div>
+
+<div class="alert alert-info vpms-alert">
+    Accounting and Philippine finance reports are configurable MVP outputs. Validate mappings, tax treatment, and statutory formats with a Philippine CPA/accountant before production use.
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card">
+            <span class="kpi-label">Unposted Transactions</span>
+            <strong class="kpi-value">@Model.UnpostedTransactions</strong>
+            <span class="kpi-meta">Eligible source records</span>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card">
+            <span class="kpi-label">Journal Entries Today</span>
+            <strong class="kpi-value">@Model.JournalEntriesToday</strong>
+            <span class="kpi-meta">Created today</span>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card">
+            <span class="kpi-label">Trial Balance</span>
+            <strong class="kpi-value @(Model.TrialBalanceDifference == 0 ? "text-success" : "text-danger")">@(Model.TrialBalanceDifference == 0 ? "Balanced" : "Out")</strong>
+            <span class="kpi-meta">Difference @Model.TrialBalanceDifference.ToString("C")</span>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card">
+            <span class="kpi-label">Open Period</span>
+            <strong class="kpi-value">@Model.OpenPeriodName</strong>
+            <span class="kpi-meta">Current accounting window</span>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card">
+            <span class="kpi-label">AP Balance</span>
+            <strong class="kpi-value">@Model.APBalance.ToString("C")</strong>
+            <span class="kpi-meta">Open supplier invoices</span>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card">
+            <span class="kpi-label">Vouchers for Release</span>
+            <strong class="kpi-value">@Model.PaymentVouchersForRelease</strong>
+            <span class="kpi-meta">Approved AP payments</span>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card">
+            <span class="kpi-label">Bank Recons Pending</span>
+            <strong class="kpi-value">@Model.BankReconciliationsPending</strong>
+            <span class="kpi-meta">Open bank controls</span>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi-card">
+            <span class="kpi-label">Ending Cash</span>
+            <strong class="kpi-value">@Model.EndingCash.ToString("C")</strong>
+            <span class="kpi-meta">Month-to-date cash position</span>
+        </div>
+    </div>
+</div>
+
+<section class="vpms-card mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="h5 mb-1">Cash Flow Snapshot</h2>
+            <p class="text-muted mb-0 small">Month-to-date direct-method cash movement from posted journals.</p>
+        </div>
+        <div class="vpms-actions">
+            <a class="btn btn-sm vpms-btn-secondary" asp-page="/Accounting/Reports/CashMovement">Cash Movement</a>
+            <a class="btn btn-sm vpms-btn-primary" asp-page="/Accounting/Reports/StatementOfCashFlows">Statement of Cash Flows</a>
+        </div>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-2"><div class="vpms-stat-card"><span>Beginning Cash</span><strong>@Model.BeginningCash.ToString("C")</strong></div></div>
+        <div class="col-md-2"><div class="vpms-stat-card"><span>Operating</span><strong>@Model.OperatingCashFlow.ToString("C")</strong></div></div>
+        <div class="col-md-2"><div class="vpms-stat-card"><span>Investing</span><strong>@Model.InvestingCashFlow.ToString("C")</strong></div></div>
+        <div class="col-md-2"><div class="vpms-stat-card"><span>Financing</span><strong>@Model.FinancingCashFlow.ToString("C")</strong></div></div>
+        <div class="col-md-2"><div class="vpms-stat-card"><span>Net Change</span><strong>@Model.NetCashChange.ToString("C")</strong></div></div>
+        <div class="col-md-2"><div class="vpms-stat-card"><span>Unmapped Items</span><strong>@Model.UnmappedCashFlowItems</strong></div></div>
+    </div>
+</section>
+
+<div class="row g-4">
+    <div class="col-xl-7">
+        <section class="vpms-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h5 mb-0">Accounting Control Center</h2>
+                <a asp-page="/Accounting/Reports/TrialBalance" class="btn btn-sm vpms-btn-secondary">Trial Balance</a>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <a class="vpms-module-card" asp-page="/Accounting/ChartOfAccounts/Index">
+                        <strong>Chart of Accounts</strong>
+                        <span>GL accounts, control flags, USALI mappings, and Philippine categories.</span>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a class="vpms-module-card" asp-page="/Accounting/PostingRules/Index">
+                        <strong>Posting Rules</strong>
+                        <span>Configurable debit and credit mappings for PMS source transactions.</span>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a class="vpms-module-card" asp-page="/Accounting/JournalEntries/Index">
+                        <strong>Journal Entries</strong>
+                        <span>Manual and system-generated journals with posting and reversal controls.</span>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a class="vpms-module-card" asp-page="/Accounting/AccountsPayable/Index">
+                        <strong>Accounts Payable</strong>
+                        <span>Supplier invoices, payment vouchers, disbursements, and AP aging.</span>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a class="vpms-module-card" asp-page="/Accounting/Banking/BankReconciliations/Index">
+                        <strong>Bank Reconciliation</strong>
+                        <span>Prepare statement reconciliations and lock cleared banking items.</span>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a class="vpms-module-card" asp-page="/Accounting/Reports/USALI">
+                        <strong>USALI-style Statement</strong>
+                        <span>Management operating statement based on mapped GL activity.</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+    <div class="col-xl-5">
+        <section class="vpms-card">
+            <h2 class="h5">Posting Status</h2>
+            <dl class="row small mb-0">
+                <dt class="col-7">Pending posting batches</dt>
+                <dd class="col-5 text-end">@Model.PendingPostingBatches</dd>
+                <dt class="col-7">Latest posted batch</dt>
+                <dd class="col-5 text-end">@Model.LatestPostedBatch</dd>
+                <dt class="col-7">Active posting rules</dt>
+                <dd class="col-5 text-end">@Model.ActivePostingRules</dd>
+                <dt class="col-7">Active GL accounts</dt>
+                <dd class="col-5 text-end">@Model.ActiveGLAccounts</dd>
+            </dl>
+        </section>
+    </div>
+</div>

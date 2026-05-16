@@ -1,0 +1,134 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Banquet.Events.EditModel
+
+@{
+    ViewData["Title"] = "Edit Banquet Event";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h1 class="mb-0">Edit Banquet Event</h1>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@Model.BanquetEvent.Id">Details</a>
+        <a class="btn btn-outline-secondary" asp-page="/Banquet/BEOs/Details" asp-route-eventId="@Model.BanquetEvent.Id">BEO</a>
+        <a class="btn btn-outline-secondary" asp-page="/Banquet/Charges/Index" asp-route-eventId="@Model.BanquetEvent.Id">Charges</a>
+    </div>
+</div>
+
+<form method="post" class="mt-3">
+    <input type="hidden" asp-for="BanquetEvent.Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="BanquetEvent.EventName" class="form-label">Event Name</label>
+            <input asp-for="BanquetEvent.EventName" class="form-control" />
+            <span asp-validation-for="BanquetEvent.EventName" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="BanquetEvent.ClientName" class="form-label">Client Name</label>
+            <input asp-for="BanquetEvent.ClientName" class="form-control" />
+            <span asp-validation-for="BanquetEvent.ClientName" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <label asp-for="BanquetEvent.ContactNumber" class="form-label">Contact Number</label>
+            <input asp-for="BanquetEvent.ContactNumber" class="form-control" />
+            <span asp-validation-for="BanquetEvent.ContactNumber" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label asp-for="BanquetEvent.Email" class="form-label"></label>
+            <input asp-for="BanquetEvent.Email" class="form-control" />
+            <span asp-validation-for="BanquetEvent.Email" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label asp-for="BanquetEvent.SalesAccountId" class="form-label">Sales Account</label>
+            <select asp-for="BanquetEvent.SalesAccountId" class="form-select" asp-items="Model.SalesAccountOptions">
+                <option value="">No account assigned</option>
+            </select>
+            <span asp-validation-for="BanquetEvent.SalesAccountId" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label asp-for="BanquetEvent.SalesLeadId" class="form-label">Sales Lead</label>
+            <select asp-for="BanquetEvent.SalesLeadId" class="form-select" asp-items="Model.SalesLeadOptions">
+                <option value="">No lead assigned</option>
+            </select>
+            <span asp-validation-for="BanquetEvent.SalesLeadId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="BanquetEvent.FunctionRoomId" class="form-label">Function Room</label>
+            <select asp-for="BanquetEvent.FunctionRoomId" class="form-select" asp-items="Model.FunctionRoomOptions"></select>
+            <span asp-validation-for="BanquetEvent.FunctionRoomId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="BanquetEvent.BanquetPackageId" class="form-label">Banquet Package</label>
+            <select asp-for="BanquetEvent.BanquetPackageId" class="form-select" asp-items="Model.BanquetPackageOptions">
+                <option value="">No package assigned</option>
+            </select>
+            <span asp-validation-for="BanquetEvent.BanquetPackageId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-2 mb-3">
+            <label asp-for="BanquetEvent.EventDate" class="form-label">Event Date</label>
+            <input asp-for="BanquetEvent.EventDate" type="date" class="form-control" />
+            <span asp-validation-for="BanquetEvent.EventDate" class="text-danger"></span>
+        </div>
+        <div class="col-md-2 mb-3">
+            <label asp-for="BanquetEvent.StartTime" class="form-label">Start Time</label>
+            <input asp-for="BanquetEvent.StartTime" type="time" class="form-control" />
+            <span asp-validation-for="BanquetEvent.StartTime" class="text-danger"></span>
+        </div>
+        <div class="col-md-2 mb-3">
+            <label asp-for="BanquetEvent.EndTime" class="form-label">End Time</label>
+            <input asp-for="BanquetEvent.EndTime" type="time" class="form-control" />
+            <span asp-validation-for="BanquetEvent.EndTime" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label asp-for="BanquetEvent.EventType" class="form-label">Event Type</label>
+            <select asp-for="BanquetEvent.EventType" class="form-select" asp-items="Model.EventTypeOptions"></select>
+            <span asp-validation-for="BanquetEvent.EventType" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label asp-for="BanquetEvent.EventStatus" class="form-label">Status</label>
+            <select asp-for="BanquetEvent.EventStatus" class="form-select" asp-items="Model.StatusOptions"></select>
+            <span asp-validation-for="BanquetEvent.EventStatus" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label asp-for="BanquetEvent.ExpectedPax" class="form-label">Expected Pax</label>
+            <input asp-for="BanquetEvent.ExpectedPax" class="form-control" />
+            <span asp-validation-for="BanquetEvent.ExpectedPax" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="BanquetEvent.GuaranteedPax" class="form-label">Guaranteed Pax</label>
+            <input asp-for="BanquetEvent.GuaranteedPax" class="form-control" />
+            <span asp-validation-for="BanquetEvent.GuaranteedPax" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="BanquetEvent.ActualPax" class="form-label">Actual Pax</label>
+            <input asp-for="BanquetEvent.ActualPax" class="form-control" />
+            <span asp-validation-for="BanquetEvent.ActualPax" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="BanquetEvent.Notes" class="form-label"></label>
+        <textarea asp-for="BanquetEvent.Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="BanquetEvent.Notes" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

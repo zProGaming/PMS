@@ -1,0 +1,16 @@
+@page
+@model Vantage.PMS.Pages.Accounting.ServiceChargeSettings.IndexModel
+@{
+    ViewData["Title"] = "Service Charge Settings";
+}
+<div class="page-header"><div><div class="page-kicker">Accounting Setup</div><h1 class="page-title">Service Charge Settings</h1><p class="page-subtitle">Configurable service-charge liability and revenue treatment.</p></div></div>
+<form method="post" class="vpms-form-card mb-4">
+    <div class="row g-3">
+        <div class="col-md-3"><label asp-for="Input.Name" class="form-label">Name</label><input asp-for="Input.Name" class="form-control" required /></div>
+        <div class="col-md-2"><label asp-for="Input.Rate" class="form-label">Rate %</label><input asp-for="Input.Rate" class="form-control" type="number" step="0.01" /></div>
+        <div class="col-md-3"><label asp-for="Input.LiabilityGLAccountId" class="form-label">Liability Account</label><select asp-for="Input.LiabilityGLAccountId" asp-items="Model.AccountOptions" class="form-select"><option value="">None</option></select></div>
+        <div class="col-md-3"><label asp-for="Input.RevenueGLAccountId" class="form-label">Revenue Account</label><select asp-for="Input.RevenueGLAccountId" asp-items="Model.AccountOptions" class="form-select"><option value="">None</option></select></div>
+        <div class="col-md-1 d-flex align-items-end"><button class="btn vpms-btn-primary" type="submit">Add</button></div>
+    </div>
+</form>
+<div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>Name</th><th>Rate</th><th>Liability</th><th>Revenue</th><th>Status</th></tr></thead><tbody>@foreach (var item in Model.Settings){<tr><td>@item.Name</td><td>@item.Rate.ToString("N2")%</td><td>@item.LiabilityGLAccount?.AccountName</td><td>@item.RevenueGLAccount?.AccountName</td><td><span class="status-badge status-paid">Active</span></td></tr>}</tbody></table></div>

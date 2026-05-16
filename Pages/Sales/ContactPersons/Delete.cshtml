@@ -1,0 +1,26 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Sales.ContactPersons.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete Contact Person";
+}
+
+<h1>Delete Contact Person</h1>
+
+<div class="alert alert-warning">
+    Delete contact <strong>@Model.ContactPerson.FullName</strong>?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-2">Account</dt>
+    <dd class="col-sm-10">@Model.ContactPerson.SalesAccount?.AccountName</dd>
+    <dt class="col-sm-2">Position</dt>
+    <dd class="col-sm-10">@Model.ContactPerson.Position</dd>
+    <dt class="col-sm-2">Email</dt>
+    <dd class="col-sm-10">@Model.ContactPerson.Email</dd>
+</dl>
+
+<form method="post">
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index" asp-route-accountId="@Model.ContactPerson.SalesAccountId">Cancel</a>
+</form>

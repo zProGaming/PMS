@@ -1,0 +1,102 @@
+@page
+@model Vantage.PMS.Pages.FrontOffice.Folios.IndexModel
+
+@{
+    ViewData["Title"] = "Folios";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/FrontOffice/Index">Front Office</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Folios</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Finance Control</div>
+        <h1 class="page-title">Folios</h1>
+        <p class="page-subtitle">Guest folio control center for charges, payments, balances, and print-ready account review.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn vpms-btn-primary" asp-page="/FrontOffice/Reservations/Index">Reservations</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Finance/Payments/Index">Payments</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="kpi-label">Open Folios</div>
+            <div class="kpi-value">@Model.OpenFolios</div>
+            <div class="kpi-note">Active guest accounts</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="kpi-label">Open Balance</div>
+            <div class="kpi-value">@Model.TotalOpenBalance.ToString("C")</div>
+            <div class="kpi-note">Charges less completed payments</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card">
+            <div class="kpi-label">High Balance</div>
+            <div class="kpi-value">@Model.HighBalanceFolios</div>
+            <div class="kpi-note">Folios at 10,000 or higher</div>
+        </div>
+    </div>
+</div>
+
+<section class="vpms-card">
+    @if (Model.Folios.Count == 0)
+    {
+        <div class="vpms-empty-state">
+            <strong>No folios found.</strong>
+            <span>Check in a reservation or seed demo data to create sample folios.</span>
+        </div>
+    }
+    else
+    {
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table align-middle">
+                <thead>
+                <tr>
+                    <th>Folio</th>
+                    <th>Guest</th>
+                    <th>Room</th>
+                    <th>Status</th>
+                    <th class="text-end">Charges</th>
+                    <th class="text-end">Payments</th>
+                    <th class="text-end">Balance</th>
+                    <th>Opened</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var folio in Model.Folios)
+                {
+                    var guestName = folio.Guest is null ? "Guest not linked" : $"{folio.Guest.FirstName} {folio.Guest.LastName}".Trim();
+                    <tr>
+                        <td>
+                            <strong>@folio.FolioNumber</strong>
+                            <div class="small text-muted">@folio.Reservation?.ConfirmationNumber</div>
+                        </td>
+                        <td>@guestName</td>
+                        <td>@(folio.Reservation?.Room?.RoomNumber ?? "Unassigned")</td>
+                        <td><span class="status-badge">@folio.Status</span></td>
+                        <td class="text-end">@folio.TotalCharges.ToString("C")</td>
+                        <td class="text-end">@folio.TotalPayments.ToString("C")</td>
+                        <td class="text-end fw-semibold">@folio.Balance.ToString("C")</td>
+                        <td>@folio.OpenedAtUtc.ToLocalTime().ToString("MMM d, yyyy")</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm vpms-btn-secondary" asp-page="/FrontOffice/Folios/Details" asp-route-id="@folio.Id">Open</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

@@ -1,0 +1,20 @@
+@page
+@model Vantage.PMS.Pages.Executive.WeeklySummaryModel
+@{
+    ViewData["Title"] = "Weekly Executive Summary";
+}
+<div class="page-header"><div><div class="page-kicker">Executive Reports</div><h1 class="page-title">Weekly Executive Summary</h1><p class="page-subtitle">Seven-day trend, department revenue, guest experience, labor cost, risks, and actions.</p></div><div class="page-actions vpms-no-print"><button class="btn vpms-btn-primary" onclick="window.print()">Print</button><span class="btn vpms-btn-secondary disabled">CSV export planned</span></div></div>
+<form method="get" class="vpms-card report-filter vpms-no-print mb-3"><div class="row g-3 align-items-end"><div class="col-md-4"><label class="form-label">From</label><input type="date" name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" class="form-control" /></div><div class="col-md-4"><label class="form-label">To</label><input type="date" name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" class="form-control" /></div><div class="col-md-4"><button class="btn vpms-btn-primary w-100">Run</button></div></div></form>
+<section class="vpms-print-document">
+    <div class="row g-3 mb-3">
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Weekly Revenue</div><div class="kpi-value">@Model.Summary.TotalRevenue.ToString("C")</div><div class="kpi-note">@Model.StartDate.ToString("MMM d") - @Model.EndDate.ToString("MMM d")</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Occupancy</div><div class="kpi-value">@Model.Summary.OccupancyPercentage.ToString("N1")%</div><div class="kpi-note">Current inventory state</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Labor Cost %</div><div class="kpi-value">@Model.Summary.LaborCostPercentage.ToString("N1")%</div><div class="kpi-note">Against selected revenue</div></div></div>
+        <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Open Risks</div><div class="kpi-value">@Model.Alerts.Count</div><div class="kpi-note">Unresolved executive alerts</div></div></div>
+    </div>
+    <div class="row g-4">
+        <div class="col-lg-6"><section class="vpms-card"><h2 class="h5">Revenue by Day</h2><div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>Date</th><th class="text-end">Occupancy</th><th class="text-end">Revenue</th></tr></thead><tbody>@foreach (var row in Model.Trend){<tr><td>@row.Date.ToString("ddd, MMM d")</td><td class="text-end">@row.OccupancyPercentage.ToString("N1")%</td><td class="text-end">@row.Revenue.ToString("C")</td></tr>}</tbody></table></div></section></div>
+        <div class="col-lg-6"><section class="vpms-card"><h2 class="h5">Department Summary</h2><div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>Department</th><th class="text-end">Revenue</th><th class="text-end">Profit</th></tr></thead><tbody>@foreach (var row in Model.Departments.Take(8)){<tr><td>@row.DepartmentName</td><td class="text-end">@row.Revenue.ToString("C")</td><td class="text-end">@row.DepartmentProfit.ToString("C")</td></tr>}</tbody></table></div></section></div>
+    </div>
+    <section class="vpms-card mt-4"><h2 class="h5">Recommended Actions</h2><ul class="mb-0">@foreach (var alert in Model.Alerts.Take(6)){<li><strong>@alert.Module:</strong> @alert.RecommendedAction</li>}@if (Model.Alerts.Count == 0){<li>No unresolved executive action items for this period.</li>}</ul></section>
+</section>

@@ -1,0 +1,166 @@
+@page
+@model Vantage.PMS.Pages.Sales.IndexModel
+
+@{
+    ViewData["Title"] = "Sales Dashboard";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Sales</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Commercial CRM</div>
+        <h1 class="page-title">Sales Dashboard</h1>
+        <p class="page-subtitle">Corporate accounts, lead pipeline, follow-ups, and estimated value.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary" asp-page="/Sales/Leads/Create">New Lead</a>
+        <a class="btn btn-outline-primary" asp-page="/Sales/Accounts/Create">New Account</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Active Accounts</div>
+            <div class="kpi-value">@Model.TotalActiveAccounts</div>
+            <div class="kpi-note">Corporate and agency accounts</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Open Leads</div>
+            <div class="kpi-value">@Model.OpenLeads</div>
+            <div class="kpi-note">Active opportunities</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Won This Month</div>
+            <div class="kpi-value">@Model.LeadsWonThisMonth</div>
+            <div class="kpi-note">Closed won leads</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Lost This Month</div>
+            <div class="kpi-value">@Model.LeadsLostThisMonth</div>
+            <div class="kpi-note">Closed lost leads</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Upcoming Follow-ups</div>
+            <div class="kpi-value">@Model.UpcomingFollowUps</div>
+            <div class="kpi-note">Scheduled next steps</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Overdue Follow-ups</div>
+            <div class="kpi-value">@Model.OverdueFollowUps</div>
+            <div class="kpi-note">Needs attention</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Pipeline Value</div>
+            <div class="kpi-value">@Model.EstimatedPipelineValue.ToString("C")</div>
+            <div class="kpi-note">Estimated open value</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Confirmed Groups</div>
+            <div class="kpi-value">@Model.ConfirmedGroupsThisMonth</div>
+            <div class="kpi-note">Arriving this month</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Group Rooms</div>
+            <div class="kpi-value">@Model.GroupRoomsBlockedThisMonth</div>
+            <div class="kpi-note">Blocked this month</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Group Deposits</div>
+            <div class="kpi-value">@Model.GroupDepositPipeline.ToString("C")</div>
+            <div class="kpi-note">Required deposit pipeline</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+        <div class="card-header">Open Leads</div>
+        <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Lead</th>
+                    <th>Account</th>
+                    <th>Status</th>
+                    <th class="text-end">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.RecentOpenLeads.Count == 0)
+                {
+                    <tr><td colspan="4" class="text-muted">No open leads.</td></tr>
+                }
+                @foreach (var lead in Model.RecentOpenLeads)
+                {
+                    var leadStatusClass = lead.Status.ToString().ToLowerInvariant();
+                    <tr>
+                        <td><a asp-page="/Sales/Leads/Edit" asp-route-id="@lead.Id">@lead.LeadName</a></td>
+                        <td>@lead.SalesAccount?.AccountName</td>
+                        <td><span class="status-badge status-@leadStatusClass">@lead.Status</span></td>
+                        <td class="text-end">@lead.EstimatedValue.ToString("C")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+        <div class="card-header">Upcoming Follow-ups</div>
+        <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Activity</th>
+                    <th>Account</th>
+                    <th>Lead</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.FollowUps.Count == 0)
+                {
+                    <tr><td colspan="4" class="text-muted">No upcoming follow-ups.</td></tr>
+                }
+                @foreach (var activity in Model.FollowUps)
+                {
+                    <tr>
+                        <td>@activity.NextFollowUpDate?.ToString("d")</td>
+                        <td>@activity.ActivityType</td>
+                        <td>@activity.SalesAccount?.AccountName</td>
+                        <td>@activity.SalesLead?.LeadName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        </div>
+        </div>
+    </div>
+</div>

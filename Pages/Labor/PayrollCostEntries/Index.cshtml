@@ -1,0 +1,40 @@
+@page
+@model Vantage.PMS.Pages.Labor.PayrollCostEntries.IndexModel
+@{
+    ViewData["Title"] = "Payroll Cost Entries";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Labor Costing</div>
+        <h1 class="page-title">Payroll Cost Entries</h1>
+        <p class="page-subtitle">Read-only consolidated view of manual payroll cost entries. Add entries from a payroll period detail page.</p>
+    </div>
+    <div class="page-actions"><a class="btn vpms-btn-primary" asp-page="/Labor/PayrollPeriods/Index">Create Payroll Period</a></div>
+</div>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Period</th><th>Employee</th><th>Department</th><th>USALI</th><th class="text-end">Hours</th><th class="text-end">Gross</th><th class="text-end">Employer Cost</th><th class="text-end">Net</th></tr></thead>
+        <tbody>
+        @foreach (var entry in Model.Entries)
+        {
+            <tr>
+                <td><a asp-page="/Labor/PayrollPeriods/Details" asp-route-id="@entry.PayrollPeriodId">@entry.PayrollPeriod?.PeriodName</a></td>
+                <td>@(entry.EmployeeCostProfile?.FullName ?? entry.Position ?? "Department entry")</td>
+                <td>@(entry.Department?.Name ?? "Unassigned")</td>
+                <td>@(entry.USALIDepartment?.Name ?? "Unmapped")</td>
+                <td class="text-end">@((entry.RegularHours + entry.OvertimeHours + entry.NightDifferentialHours).ToString("N1"))</td>
+                <td class="text-end">@entry.GrossPay.ToString("C")</td>
+                <td class="text-end">@entry.EmployerCost.ToString("C")</td>
+                <td class="text-end">@entry.NetPay.ToString("C")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.Entries.Count == 0)
+{
+    <div class="vpms-empty-state mt-3">No payroll cost entries yet.</div>
+}

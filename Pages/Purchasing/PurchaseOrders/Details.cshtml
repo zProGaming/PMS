@@ -1,0 +1,112 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Purchasing.PurchaseOrders.DetailsModel
+@{
+    ViewData["Title"] = "Purchase Order";
+    var statusClass = Model.PurchaseOrder.Status.ToString().ToLowerInvariant();
+}
+
+<div class="vpms-page-header page-header">
+    <div>
+        <div class="page-kicker">Purchasing</div>
+        <h1 class="vpms-page-title page-title">Purchase Order @Model.PurchaseOrder.PONumber</h1>
+        <p class="vpms-page-subtitle page-subtitle">@Model.PurchaseOrder.Supplier?.SupplierName | @Model.PurchaseOrder.OrderDate.ToString("d")</p>
+    </div>
+    <div class="vpms-actions d-flex flex-wrap gap-2">
+        <span class="vpms-status-badge status-@statusClass">@Model.PurchaseOrder.Status</span>
+        <a asp-page="Index" class="btn btn-outline-secondary">Back</a>
+    </div>
+</div>
+
+@if (TempData["ErrorMessage"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<div class="vpms-detail-grid mb-4">
+    <div class="vpms-stat-card border rounded p-3"><div class="text-muted">Supplier</div><strong>@Model.PurchaseOrder.Supplier?.SupplierName</strong></div>
+    <div class="vpms-stat-card border rounded p-3"><div class="text-muted">Status</div><span class="vpms-status-badge status-@statusClass">@Model.PurchaseOrder.Status</span></div>
+    <div class="vpms-stat-card border rounded p-3"><div class="text-muted">Order Date</div><strong>@Model.PurchaseOrder.OrderDate.ToString("d")</strong></div>
+    <div class="vpms-stat-card border rounded p-3"><div class="text-muted">Total</div><strong>@Model.PurchaseOrder.TotalAmount.ToString("C")</strong></div>
+</div>
+
+<div class="vpms-actions mb-3 d-flex flex-wrap gap-2">
+    @if (Model.PurchaseOrder.Status == Vantage.PMS.Models.Inventory.PurchaseOrderStatus.Draft)
+    {
+        <form method="post" asp-page-handler="ForApproval"><button class="btn btn-primary">Submit for Approval</button></form>
+    }
+    @if (Model.PurchaseOrder.Status == Vantage.PMS.Models.Inventory.PurchaseOrderStatus.ForApproval)
+    {
+        <form method="post" asp-page-handler="Approve"><button class="btn btn-success">Approve</button></form>
+    }
+    @if (Model.PurchaseOrder.Status is Vantage.PMS.Models.Inventory.PurchaseOrderStatus.Approved or Vantage.PMS.Models.Inventory.PurchaseOrderStatus.PartiallyReceived)
+    {
+        <a asp-page="/Purchasing/Receiving/Create" asp-route-purchaseOrderId="@Model.PurchaseOrder.Id" class="btn btn-outline-primary">Create Receiving</a>
+        <form method="post" asp-page-handler="MarkFullyReceived"><button class="btn btn-outline-success">Mark Fully Received</button></form>
+    }
+    @if (Model.PurchaseOrder.Status == Vantage.PMS.Models.Inventory.PurchaseOrderStatus.FullyReceived)
+    {
+        <form method="post" asp-page-handler="Close"><button class="btn btn-success">Close PO</button></form>
+    }
+    @if (Model.PurchaseOrder.Status is not Vantage.PMS.Models.Inventory.PurchaseOrderStatus.Closed and not Vantage.PMS.Models.Inventory.PurchaseOrderStatus.Cancelled)
+    {
+        <form method="post" asp-page-handler="Cancel"><button class="btn btn-outline-secondary">Cancel PO</button></form>
+    }
+</div>
+
+<h2 class="h5">Items</h2>
+<div class="vpms-table-wrapper table-responsive">
+<table class="table vpms-table table-striped align-middle">
+    <thead><tr><th>Item</th><th class="text-end">Qty</th><th class="text-end">Unit Cost</th><th class="text-end">Amount</th><th>Notes</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var item in Model.PurchaseOrder.Items)
+        {
+            <tr>
+                <td>@item.InventoryItem?.ItemCode - @item.InventoryItem?.ItemName</td>
+                <td class="text-end">@item.Quantity.ToString("N2")</td>
+                <td class="text-end">@item.UnitCost.ToString("C")</td>
+                <td class="text-end">@item.Amount.ToString("C")</td>
+                <td>@item.Notes</td>
+                <td class="text-end">
+                    @if (Model.CanEditItems)
+                    {
+                        <form method="post" asp-page-handler="DeleteItem" asp-route-itemId="@item.Id">
+                            <button class="btn btn-sm btn-outline-danger">Remove</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr><th colspan="3" class="text-end">Subtotal</th><th class="text-end">@Model.PurchaseOrder.SubTotal.ToString("C")</th><th colspan="2"></th></tr>
+        <tr><th colspan="3" class="text-end">Tax</th><th class="text-end">@Model.PurchaseOrder.TaxAmount.ToString("C")</th><th colspan="2"></th></tr>
+        <tr><th colspan="3" class="text-end">Discount</th><th class="text-end">@Model.PurchaseOrder.DiscountAmount.ToString("C")</th><th colspan="2"></th></tr>
+        <tr><th colspan="3" class="text-end">Total</th><th class="text-end">@Model.PurchaseOrder.TotalAmount.ToString("C")</th><th colspan="2"></th></tr>
+    </tfoot>
+</table>
+</div>
+
+@if (Model.PurchaseOrder.Status is not Vantage.PMS.Models.Inventory.PurchaseOrderStatus.Closed and not Vantage.PMS.Models.Inventory.PurchaseOrderStatus.Cancelled)
+{
+    <h2 class="h5 mt-4">Tax and Discount</h2>
+    <form method="post" asp-page-handler="UpdateTotals" class="vpms-form-card row g-3 mb-4">
+        <div class="col-md-3"><label asp-for="TaxAmount" class="form-label"></label><input asp-for="TaxAmount" class="form-control" /></div>
+        <div class="col-md-3"><label asp-for="DiscountAmount" class="form-label"></label><input asp-for="DiscountAmount" class="form-control" /></div>
+        <div class="col-md-3 align-self-end"><button class="btn btn-outline-primary">Update Totals</button></div>
+    </form>
+}
+
+@if (Model.CanEditItems)
+{
+    <h2 class="h5 mt-4">Add Item</h2>
+    <form method="post" asp-page-handler="AddItem" class="vpms-form-card row g-3">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="col-md-4"><label asp-for="NewItem.InventoryItemId" class="form-label">Item</label><select asp-for="NewItem.InventoryItemId" asp-items="Model.InventoryItemOptions" class="form-select"></select></div>
+        <div class="col-md-2"><label asp-for="NewItem.Quantity" class="form-label"></label><input asp-for="NewItem.Quantity" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="NewItem.UnitCost" class="form-label"></label><input asp-for="NewItem.UnitCost" class="form-control" /></div>
+        <div class="col-md-4"><label asp-for="NewItem.Notes" class="form-label"></label><input asp-for="NewItem.Notes" class="form-control" /></div>
+        <div class="col-12"><button class="btn btn-primary">Add Item</button></div>
+    </form>
+}
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

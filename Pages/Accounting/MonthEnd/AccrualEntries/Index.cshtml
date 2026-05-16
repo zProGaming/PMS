@@ -1,0 +1,65 @@
+@page
+@model Vantage.PMS.Pages.Accounting.MonthEnd.AccrualEntries.IndexModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "Accrual Entries";
+}
+
+<div class="page-header">
+    <div><div class="page-kicker">Month-End</div><h1 class="page-title">Accrual Entries</h1><p class="page-subtitle">Create, approve, post, and reverse month-end accruals.</p></div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info vpms-alert">@Model.StatusMessage</div>
+}
+
+<form method="post" asp-page-handler="Create" class="vpms-form-card mb-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-2"><label asp-for="Input.AccrualNumber" class="form-label">Accrual #</label><input asp-for="Input.AccrualNumber" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="Input.AccrualDate" class="form-label">Date</label><input asp-for="Input.AccrualDate" type="date" class="form-control" /></div>
+        <div class="col-md-3"><label asp-for="Input.AccountingPeriodId" class="form-label">Period</label><select asp-for="Input.AccountingPeriodId" asp-items="Model.PeriodOptions" class="form-select"><option value="">None</option></select></div>
+        <div class="col-md-5"><label asp-for="Input.Description" class="form-label">Description</label><input asp-for="Input.Description" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="Input.Amount" class="form-label">Amount</label><input asp-for="Input.Amount" class="form-control" /></div>
+        <div class="col-md-5"><label asp-for="Input.DebitGLAccountId" class="form-label">Debit Account</label><select asp-for="Input.DebitGLAccountId" asp-items="Model.GLAccountOptions" class="form-select"></select></div>
+        <div class="col-md-5"><label asp-for="Input.CreditGLAccountId" class="form-label">Credit Account</label><select asp-for="Input.CreditGLAccountId" asp-items="Model.GLAccountOptions" class="form-select"></select></div>
+        <div class="col-12"><label asp-for="Input.Notes" class="form-label">Notes</label><input asp-for="Input.Notes" class="form-control" /></div>
+    </div>
+    <div class="vpms-actions mt-3"><button class="btn vpms-btn-primary" type="submit">Create Accrual</button></div>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Accrual</th><th>Date</th><th>Period</th><th>Description</th><th>Debit</th><th>Credit</th><th>Status</th><th class="text-end">Amount</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var accrual in Model.Accruals)
+        {
+            <tr>
+                <td class="fw-semibold">@accrual.AccrualNumber</td>
+                <td>@accrual.AccrualDate.ToString("yyyy-MM-dd")</td>
+                <td>@accrual.AccountingPeriod?.PeriodName</td>
+                <td>@accrual.Description</td>
+                <td>@accrual.DebitGLAccount?.AccountCode</td>
+                <td>@accrual.CreditGLAccount?.AccountCode</td>
+                <td><span class="status-badge">@accrual.Status</span></td>
+                <td class="text-end">@accrual.Amount.ToString("C")</td>
+                <td class="text-end">
+                    @if (accrual.Status == AccrualEntryStatus.Draft)
+                    {
+                        <form method="post" asp-page-handler="Approve" asp-route-id="@accrual.Id" class="d-inline"><button class="btn btn-sm vpms-btn-secondary">Approve</button></form>
+                    }
+                    @if (accrual.Status == AccrualEntryStatus.Approved)
+                    {
+                        <form method="post" asp-page-handler="Post" asp-route-id="@accrual.Id" class="d-inline"><button class="btn btn-sm vpms-btn-primary">Post</button></form>
+                    }
+                    @if (accrual.Status == AccrualEntryStatus.Posted)
+                    {
+                        <form method="post" asp-page-handler="Reverse" asp-route-id="@accrual.Id" class="d-inline"><button class="btn btn-sm vpms-btn-warning">Reverse</button></form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

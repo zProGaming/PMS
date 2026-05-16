@@ -1,0 +1,33 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.FrontOffice.Reservations.CheckInModel
+
+@{
+    ViewData["Title"] = "Check In Reservation";
+}
+
+<h1>Check In Reservation</h1>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<dl class="row mt-3">
+    <dt class="col-sm-3">Confirmation</dt>
+    <dd class="col-sm-9">@Model.Reservation.ConfirmationNumber</dd>
+
+    <dt class="col-sm-3">Guest</dt>
+    <dd class="col-sm-9">@Model.Reservation.Guest?.FirstName @Model.Reservation.Guest?.LastName</dd>
+
+    <dt class="col-sm-3">Room</dt>
+    <dd class="col-sm-9">@Model.Reservation.Room?.RoomNumber</dd>
+
+    <dt class="col-sm-3">Arrival</dt>
+    <dd class="col-sm-9">@Model.Reservation.ArrivalDate.ToString("d")</dd>
+
+    <dt class="col-sm-3">Status</dt>
+    <dd class="col-sm-9">@Model.Reservation.Status</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="Reservation.Id" />
+    <button type="submit" class="btn btn-success" disabled="@(!Model.CanCheckIn)">Confirm Check In</button>
+    <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@Model.Reservation.Id">Cancel</a>
+</form>

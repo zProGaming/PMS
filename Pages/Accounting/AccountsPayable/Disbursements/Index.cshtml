@@ -1,0 +1,30 @@
+@page
+@model Vantage.PMS.Pages.Accounting.AccountsPayable.Disbursements.IndexModel
+@{
+    ViewData["Title"] = "Disbursements";
+}
+
+<div class="page-header">
+    <div><div class="page-kicker">Accounts Payable</div><h1 class="page-title">Disbursements</h1><p class="page-subtitle">Released supplier payments and voucher-linked disbursement history.</p></div>
+</div>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Disbursement</th><th>Voucher</th><th>Supplier</th><th>Date</th><th>Method</th><th>Reference</th><th>Status</th><th class="text-end">Amount</th></tr></thead>
+        <tbody>
+        @foreach (var disbursement in Model.Disbursements)
+        {
+            <tr>
+                <td class="fw-semibold">@disbursement.DisbursementNumber</td>
+                <td>@disbursement.PaymentVoucher?.VoucherNumber</td>
+                <td>@disbursement.Supplier?.SupplierName</td>
+                <td>@disbursement.DisbursementDate.ToString("yyyy-MM-dd")</td>
+                <td>@disbursement.PaymentMethod</td>
+                <td>@disbursement.ReferenceNumber</td>
+                <td><span class="status-badge">@disbursement.Status</span></td>
+                <td class="text-end">@disbursement.Amount.ToString("C")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

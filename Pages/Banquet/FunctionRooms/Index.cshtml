@@ -1,0 +1,45 @@
+@page
+@model Vantage.PMS.Pages.Banquet.FunctionRooms.IndexModel
+
+@{
+    ViewData["Title"] = "Function Rooms";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="mb-1">Function Rooms</h1>
+        <p class="text-muted mb-0">Banquet room capacity and rates.</p>
+    </div>
+    <a class="btn btn-primary" asp-page="./Create">Create Function Room</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Location</th>
+            <th class="text-end">Capacity</th>
+            <th class="text-end">Rate</th>
+            <th>Active</th>
+            <th>Notes</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var room in Model.FunctionRooms)
+        {
+            <tr>
+                <td>@room.Name</td>
+                <td>@room.Location</td>
+                <td class="text-end">@room.Capacity</td>
+                <td class="text-end">@room.Rate.ToString("N2")</td>
+                <td>@(room.IsActive ? "Yes" : "No")</td>
+                <td>@room.Notes</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@room.Id">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="./Delete" asp-route-id="@room.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

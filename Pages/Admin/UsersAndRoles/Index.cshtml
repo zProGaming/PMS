@@ -1,0 +1,27 @@
+@page
+@model Vantage.PMS.Pages.Admin.UsersAndRoles.IndexModel
+@{
+    ViewData["Title"] = "Users and Roles";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/Admin/Hotels/Index">Admin</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Users and Roles</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Administration</div>
+        <h1 class="page-title">Users and Roles</h1>
+        <p class="page-subtitle">Identity administration placeholder for the Vantage PMS MVP.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <p class="mb-0 text-muted">Role seeding and the default SystemAdmin user are configured through ASP.NET Core Identity. Full user management screens can be added in a later security administration pass.</p>
+    </div>
+</div>

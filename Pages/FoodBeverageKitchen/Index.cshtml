@@ -1,0 +1,157 @@
+@page "/FoodBeverage/Kitchen"
+@model Vantage.PMS.Pages.FoodBeverageKitchen.IndexModel
+@using Vantage.PMS.Models.FoodBeverage
+
+@{
+    ViewData["Title"] = "Kitchen Display";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/FoodBeverage/Index">F&amp;B Service</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Kitchen Display</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">F&amp;B Kitchen</div>
+        <h1 class="page-title">Kitchen Display</h1>
+        <p class="page-subtitle">Active POS order items grouped by kitchen station with timing and status actions.</p>
+    </div>
+    <a class="btn btn-outline-secondary" asp-page="/FoodBeverageKitchen/KitchenStations/Index">Kitchen Stations</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">New Items</div>
+            <div class="kpi-value">@Model.NewItems</div>
+            <div class="kpi-note">Awaiting preparation</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Preparing</div>
+            <div class="kpi-value">@Model.PreparingItems</div>
+            <div class="kpi-note">Kitchen in progress</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Ready</div>
+            <div class="kpi-value">@Model.ReadyItems</div>
+            <div class="kpi-note">Ready to run</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Delayed</div>
+            <div class="kpi-value">@Model.DelayedItems</div>
+            <div class="kpi-note">Over 20 minutes</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Served Today</div>
+            <div class="kpi-value">@Model.ServedItemsToday</div>
+            <div class="kpi-note">Completed items</div>
+        </div>
+    </div>
+</div>
+
+@if (Model.StationGroups.Count == 0)
+{
+    <div class="empty-state">No active kitchen items.</div>
+}
+
+@foreach (var station in Model.StationGroups)
+{
+    <section class="card mb-4">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <span>@station.StationName</span>
+            <span class="badge text-bg-light">@station.Items.Count items</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Outlet</th>
+                        <th>Table</th>
+                        <th>Guest/Room</th>
+                        <th>Item</th>
+                        <th class="text-end">Qty</th>
+                        <th>Status</th>
+                        <th>Timing</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in station.Items)
+                    {
+                        var itemStatusClass = item.ItemStatus.ToString().ToLowerInvariant();
+                        <tr class="@(item.IsDelayed ? "table-warning" : item.ItemStatus == POSOrderItemStatus.Cancelled ? "table-secondary" : "")">
+                            <td class="fw-bold">@item.OrderNumber</td>
+                            <td>@item.OutletName</td>
+                            <td>@item.TableName</td>
+                            <td>@item.GuestRoomInfo</td>
+                            <td>
+                                <div class="fw-semibold">@item.ItemName</div>
+                                @if (!string.IsNullOrWhiteSpace(item.Notes))
+                                {
+                                    <div class="text-muted small">@item.Notes</div>
+                                }
+                            </td>
+                            <td class="text-end">@item.Quantity.ToString("N2")</td>
+                            <td>
+                                <span class="status-badge status-@itemStatusClass">@item.ItemStatus</span>
+                                @if (item.IsDelayed)
+                                {
+                                    <span class="status-badge status-warning ms-1">Delayed</span>
+                                }
+                            </td>
+                            <td class="small">
+                                <div>Sent: @(item.SentToKitchenAt?.ToString("g") ?? "-")</div>
+                                <div>Elapsed: @item.ElapsedTime</div>
+                            </td>
+                            <td class="text-end">
+                                @if (item.ItemStatus == POSOrderItemStatus.New)
+                                {
+                                    <form method="post" asp-page-handler="MarkPreparing" asp-route-itemId="@item.OrderItemId" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">Preparing</button>
+                                    </form>
+                                    <form method="post" asp-page-handler="MarkReady" asp-route-itemId="@item.OrderItemId" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-success">Ready</button>
+                                    </form>
+                                    <form method="post" asp-page-handler="MarkCancelled" asp-route-itemId="@item.OrderItemId" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                    </form>
+                                }
+                                else if (item.ItemStatus == POSOrderItemStatus.Preparing)
+                                {
+                                    <form method="post" asp-page-handler="MarkReady" asp-route-itemId="@item.OrderItemId" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-success">Ready</button>
+                                    </form>
+                                    <form method="post" asp-page-handler="MarkCancelled" asp-route-itemId="@item.OrderItemId" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                    </form>
+                                }
+                                else if (item.ItemStatus == POSOrderItemStatus.Ready)
+                                {
+                                    <form method="post" asp-page-handler="MarkServed" asp-route-itemId="@item.OrderItemId" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">Served</button>
+                                    </form>
+                                    <form method="post" asp-page-handler="MarkCancelled" asp-route-itemId="@item.OrderItemId" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+}

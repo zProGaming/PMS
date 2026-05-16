@@ -1,0 +1,146 @@
+@page
+@model Vantage.PMS.Pages.Labor.EmployeeCostProfiles.IndexModel
+@using Vantage.PMS.Models.Labor
+@{
+    ViewData["Title"] = "Employee Cost Profiles";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Labor Setup</div>
+        <h1 class="page-title">Employee Cost Profiles</h1>
+        <p class="page-subtitle">PMS-side employee cost placeholders for future Vantage HRIS integration.</p>
+    </div>
+    <div class="page-actions"><a class="btn vpms-btn-secondary" asp-page="/Labor/Index">Labor Dashboard</a></div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-success">@Model.StatusMessage</div>
+}
+
+<form method="post" asp-page-handler="Create" class="vpms-card mb-4">
+    <h2 class="h5">Create Cost Profile</h2>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-2"><label class="form-label">Employee Code</label><input asp-for="Input.EmployeeCode" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label">Full Name</label><input asp-for="Input.FullName" class="form-control" required /></div>
+        <div class="col-md-2"><label class="form-label">Position</label><input asp-for="Input.Position" class="form-control" /></div>
+        <div class="col-md-2"><label class="form-label">Employment Type</label><select asp-for="Input.EmploymentType" class="form-select" asp-items="Html.GetEnumSelectList<EmploymentType>()"></select></div>
+        <div class="col-md-3"><label class="form-label">Department</label><select asp-for="Input.DepartmentId" class="form-select" asp-items="Model.DepartmentOptions"><option value="">Unassigned</option></select></div>
+        <div class="col-md-3"><label class="form-label">USALI Department</label><select asp-for="Input.USALIDepartmentId" class="form-select" asp-items="Model.USALIOptions"><option value="">Unmapped</option></select></div>
+        <div class="col-md-3"><label class="form-label">Labor Expense Account</label><select asp-for="Input.DefaultLaborGLAccountId" class="form-select" asp-items="Model.LaborAccountOptions"><option value="">Use fallback</option></select></div>
+        <div class="col-md-3"><label class="form-label">Payroll Liability Account</label><select asp-for="Input.DefaultPayrollLiabilityGLAccountId" class="form-select" asp-items="Model.LiabilityAccountOptions"><option value="">Use fallback</option></select></div>
+        <div class="col-md-3"><label class="form-label">Notes</label><input asp-for="Input.Notes" class="form-control" /></div>
+        <div class="col-12"><button type="submit" class="btn vpms-btn-primary">Create Profile</button></div>
+    </div>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Department</th>
+                <th>USALI</th>
+                <th>GL Mapping</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var employee in Model.Employees)
+        {
+            <tr>
+                <td>
+                    <div class="fw-semibold">@employee.FullName</div>
+                    <small class="text-muted">@employee.EmployeeCode @employee.Position</small>
+                </td>
+                <td>@(employee.Department?.Name ?? "Unassigned")</td>
+                <td>@(employee.USALIDepartment?.Name ?? "Unmapped")</td>
+                <td>
+                    <small class="d-block">@((employee.DefaultLaborGLAccount?.AccountCode ?? "Fallback")) labor</small>
+                    <small class="text-muted">@((employee.DefaultPayrollLiabilityGLAccount?.AccountCode ?? "Fallback")) liability</small>
+                </td>
+                <td><span class="status-badge">@(employee.IsActive ? "Active" : "Inactive")</span></td>
+                <td class="text-end">
+                    <button class="btn btn-sm vpms-btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#edit-@employee.Id">Edit</button>
+                    @if (employee.IsActive)
+                    {
+                        <form class="d-inline" method="post" asp-page-handler="Deactivate" asp-route-id="@employee.Id">
+                            <button class="btn btn-sm vpms-btn-warning" type="submit">Deactivate</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+            <tr class="collapse" id="edit-@employee.Id">
+                <td colspan="6">
+                    <form method="post" asp-page-handler="Update" asp-route-id="@employee.Id" class="row g-2 align-items-end">
+                        <div class="col-md-2">
+                            <label class="form-label">Department</label>
+                            <select name="departmentId" class="form-select">
+                                <option value="">Unassigned</option>
+                                @foreach (var option in Model.DepartmentOptions)
+                                {
+                                    <option value="@option.Value" selected="@(option.Value == employee.DepartmentId?.ToString())">@option.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">USALI</label>
+                            <select name="usaliDepartmentId" class="form-select">
+                                <option value="">Unmapped</option>
+                                @foreach (var option in Model.USALIOptions)
+                                {
+                                    <option value="@option.Value" selected="@(option.Value == employee.USALIDepartmentId?.ToString())">@option.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Labor GL</label>
+                            <select name="defaultLaborGLAccountId" class="form-select">
+                                <option value="">Fallback</option>
+                                @foreach (var option in Model.LaborAccountOptions)
+                                {
+                                    <option value="@option.Value" selected="@(option.Value == employee.DefaultLaborGLAccountId?.ToString())">@option.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Liability GL</label>
+                            <select name="defaultPayrollLiabilityGLAccountId" class="form-select">
+                                <option value="">Fallback</option>
+                                @foreach (var option in Model.LiabilityAccountOptions)
+                                {
+                                    <option value="@option.Value" selected="@(option.Value == employee.DefaultPayrollLiabilityGLAccountId?.ToString())">@option.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-1"><label class="form-label">Position</label><input name="position" value="@employee.Position" class="form-control" /></div>
+                        <div class="col-md-1">
+                            <label class="form-label">Type</label>
+                            <select name="employmentType" class="form-select">
+                                @foreach (var option in Html.GetEnumSelectList<EmploymentType>())
+                                {
+                                    <option value="@option.Value" selected="@(option.Text == employee.EmploymentType.ToString())">@option.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-1"><label class="form-label">Active</label><input class="form-check-input d-block mt-2" name="isActive" type="checkbox" value="true" @(employee.IsActive ? "checked" : null) /></div>
+                        <div class="col-md-1"><button class="btn btn-sm vpms-btn-primary" type="submit">Save</button></div>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.Employees.Count == 0)
+{
+    <div class="vpms-empty-state mt-3">No employee cost profiles yet.</div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

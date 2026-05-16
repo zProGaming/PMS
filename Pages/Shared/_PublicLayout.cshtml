@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Vantage PMS</title>
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Vantage.PMS.styles.css" asp-append-version="true" />
+</head>
+<body class="vpms-public-body public-body">
+    <div class="vpms-public-shell public-shell">
+        <header class="vpms-public-header public-header">
+            <div class="container d-flex justify-content-between align-items-center">
+                <a class="vpms-public-brand public-brand" asp-area="" asp-page="/Booking/Index">
+                    <img src="~/images/vantage-pms-logo.png" asp-append-version="true" alt="Vantage PMS" />
+                    <span class="d-none d-sm-block">
+                        <strong>Vantage PMS</strong>
+                        <small class="d-block text-muted">Hospitality Management Platform</small>
+                    </span>
+                </a>
+                <div class="text-muted small">Secure guest services</div>
+            </div>
+        </header>
+        <main class="vpms-public-content public-content">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

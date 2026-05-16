@@ -1,0 +1,7 @@
+@page
+@model Vantage.PMS.Pages.Executive.OwnerPackages.IndexModel
+@{
+    ViewData["Title"] = "Owner Report Packages";
+}
+<div class="page-header"><div><div class="page-kicker">Executive Reports</div><h1 class="page-title">Owner Report Packages</h1><p class="page-subtitle">Curated print-ready owner and GM report packages.</p></div><a class="btn vpms-btn-primary" asp-page="/Executive/OwnerPackages/Create">Create Package</a></div>
+<section class="vpms-card">@if(Model.Packages.Count == 0){<div class="vpms-empty-state">No owner report packages have been created yet.</div>}else{<div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>Package</th><th>Prepared For</th><th>Period</th><th>Status</th><th>Prepared</th><th></th></tr></thead><tbody>@foreach(var package in Model.Packages){<tr><td><a asp-page="/Executive/OwnerPackages/Details" asp-route-id="@package.Id">@package.PackageName</a></td><td>@package.PreparedFor</td><td>@package.PeriodStart.ToString("MMM d") - @package.PeriodEnd.ToString("MMM d, yyyy")</td><td><span class="status-badge">@package.Status</span></td><td>@package.PreparedAt.ToString("g")</td><td class="text-end"><a class="btn btn-sm vpms-btn-secondary" asp-page="/Executive/OwnerPackages/Print" asp-route-id="@package.Id">Print</a></td></tr>}</tbody></table></div>}</section>

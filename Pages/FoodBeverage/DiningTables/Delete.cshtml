@@ -1,0 +1,26 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.FoodBeverage.DiningTables.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete Dining Table";
+}
+
+<h1>Delete Dining Table</h1>
+
+<div class="alert alert-warning">
+    Delete table <strong>@Model.DiningTable.TableName</strong>?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-2">Outlet</dt>
+    <dd class="col-sm-10">@Model.DiningTable.Outlet?.Name</dd>
+    <dt class="col-sm-2">Seats</dt>
+    <dd class="col-sm-10">@Model.DiningTable.SeatingCapacity</dd>
+    <dt class="col-sm-2">Status</dt>
+    <dd class="col-sm-10">@Model.DiningTable.Status</dd>
+</dl>
+
+<form method="post">
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>

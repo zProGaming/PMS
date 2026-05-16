@@ -1,0 +1,152 @@
+@page
+@model Vantage.PMS.Pages.Admin.DemoSetup.IndexModel
+@{
+    ViewData["Title"] = "Demo Setup";
+    var hasDemoData = Model.Status.Hotels + Model.Status.Rooms + Model.Status.Guests + Model.Status.Reservations + Model.Status.PosOrders + Model.Status.BanquetEvents + Model.Status.InventoryItems + Model.Status.ARInvoices > 0;
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/Admin/Hotels/Index">Admin</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Demo Setup</li>
+    </ol>
+</nav>
+
+<div class="vpms-page-header">
+    <div>
+        <div class="page-kicker">System Administration</div>
+        <h1 class="vpms-page-title">Demo Setup</h1>
+        <p class="vpms-page-subtitle">Install safe, idempotent sample data for client demos, investor walkthroughs, and QA rehearsal.</p>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/System/DemoPresentation/Index">Open Demo Presentation</a>
+    </div>
+</div>
+
+@if (Model.Result is not null)
+{
+    <div class="alert alert-success vpms-alert" role="alert">
+        <strong>@Model.Result.ActionName completed.</strong>
+        Inserted @Model.Result.Inserted new sample records. Existing matching records were left unchanged.
+        @if (Model.Result.Messages.Any())
+        {
+            <ul class="mb-0 mt-2">
+                @foreach (var message in Model.Result.Messages)
+                {
+                    <li>@message</li>
+                }
+            </ul>
+        }
+    </div>
+}
+
+<div class="alert alert-warning vpms-alert" role="alert">
+    <strong>Presentation-only data.</strong>
+    Demo setup only inserts missing sample records and should not be used on a live production database. No reset or destructive cleanup is included in this MVP.
+</div>
+
+@if (!hasDemoData)
+{
+    <div class="vpms-empty-state mb-4">
+        <h2>Demo data has not been installed yet.</h2>
+        <p>Use the Full Demo Dataset action, or seed individual areas as needed for a narrower walkthrough.</p>
+    </div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="vpms-stat-card">
+            <span class="vpms-stat-label">Demo Mode</span>
+            <strong>@(Model.Status.DemoModeEnabled ? "Enabled" : "Disabled")</strong>
+            <small>Default setting remains off until explicitly changed.</small>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="vpms-stat-card">
+            <span class="vpms-stat-label">Rooms</span>
+            <strong>@Model.Status.Rooms</strong>
+            <small>Marked demo rooms</small>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="vpms-stat-card">
+            <span class="vpms-stat-label">Reservations</span>
+            <strong>@Model.Status.Reservations</strong>
+            <small>Arrivals, departures, in-house, cancelled, no-show</small>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="vpms-stat-card">
+            <span class="vpms-stat-label">Finance Samples</span>
+            <strong>@Model.Status.ARInvoices</strong>
+            <small>AR aging and finance records</small>
+        </div>
+    </div>
+</div>
+
+<div class="vpms-card">
+    <div class="card-body">
+        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
+            <div>
+                <h2 class="h5 mb-1">Seed Demo Dataset</h2>
+                <p class="text-muted mb-0">Each action checks natural keys such as codes, names, room numbers, emails, and references before inserting anything.</p>
+            </div>
+            <form method="post">
+                <button class="btn vpms-btn-primary" type="submit" asp-page-handler="Full">Seed Full Demo Dataset</button>
+            </form>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6 col-xl-4">
+                <form method="post" class="vpms-section-card h-100">
+                    <h3 class="h6">Demo Hotel</h3>
+                    <p class="text-muted">Hotel, properties, departments, room types, rooms, roles, and demo users.</p>
+                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Hotel">Seed Demo Hotel</button>
+                </form>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <form method="post" class="vpms-section-card h-100">
+                    <h3 class="h6">Demo Operations</h3>
+                    <p class="text-muted">Guests, reservations, folios, payments, housekeeping, revenue, booking, guest portal, and AI samples.</p>
+                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Operations">Seed Demo Operations</button>
+                </form>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <form method="post" class="vpms-section-card h-100">
+                    <h3 class="h6">Demo Finance</h3>
+                    <p class="text-muted">Charge codes, document sequences, AR accounts, AR invoices, memos, and accounting period sample.</p>
+                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Finance">Seed Demo Finance</button>
+                </form>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <form method="post" class="vpms-section-card h-100">
+                    <h3 class="h6">Demo F&amp;B</h3>
+                    <p class="text-muted">Outlets, dining tables, menu categories, menu items, kitchen stations, and POS orders.</p>
+                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="FoodBeverage">Seed Demo F&amp;B</button>
+                </form>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <form method="post" class="vpms-section-card h-100">
+                    <h3 class="h6">Demo Banquet</h3>
+                    <p class="text-muted">Sales accounts, leads, function rooms, packages, events, charges, and BEOs.</p>
+                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Banquet">Seed Demo Banquet</button>
+                </form>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <form method="post" class="vpms-section-card h-100">
+                    <h3 class="h6">Demo Inventory</h3>
+                    <p class="text-muted">Categories, items, suppliers, purchase request, purchase order, receiving, and stock movements.</p>
+                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Inventory">Seed Demo Inventory</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="vpms-card mt-4">
+    <div class="card-body">
+        <h2 class="h5">Demo Account Warning</h2>
+        <p class="mb-0 text-muted">Demo accounts use the development-only password pattern <code>VantageDemo@123</code>. Change or remove them before production.</p>
+    </div>
+</div>

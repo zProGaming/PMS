@@ -1,0 +1,41 @@
+@page
+@model Vantage.PMS.Pages.BookingManagement.RoomContent.IndexModel
+@{
+    ViewData["Title"] = "Booking Room Content";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Booking Room Content</h1>
+    <a asp-page="Create" class="btn btn-primary">New Room Content</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Sort</th>
+                <th>Room Type</th>
+                <th>Display Name</th>
+                <th>Visible</th>
+                <th>Image URL</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.RoomContents)
+            {
+                <tr>
+                    <td>@item.SortOrder</td>
+                    <td>@(item.RoomType?.Code ?? "Unknown")</td>
+                    <td>@item.DisplayName</td>
+                    <td>@(item.IsVisible ? "Yes" : "No")</td>
+                    <td class="text-truncate" style="max-width: 280px;">@item.ImageUrl</td>
+                    <td class="text-end">
+                        <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        <a asp-page="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,38 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Reports.GeneralLedgerModel
+@{
+    ViewData["Title"] = "General Ledger";
+    decimal running = 0;
+}
+<div class="page-header">
+    <div><div class="page-kicker">Accounting Reports</div><h1 class="page-title">General Ledger</h1><p class="page-subtitle">Posted journal lines by date range and account.</p></div>
+    <div class="page-actions vpms-no-print">
+        <button class="btn vpms-btn-secondary" onclick="window.print()">Print</button>
+        <a class="btn vpms-btn-secondary" asp-page="/Reports/Export" asp-page-handler="Csv" asp-route-reportKey="general-ledger" asp-route-dateRangeStart="@Model.StartDate.ToString("yyyy-MM-dd")" asp-route-dateRangeEnd="@Model.EndDate.ToString("yyyy-MM-dd")">Export CSV</a>
+    </div>
+</div>
+<form method="get" class="vpms-card mb-3 report-filter">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3"><label class="form-label">From</label><input name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label">To</label><input name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div>
+        <div class="col-md-4"><label class="form-label">Account</label><select name="GLAccountId" asp-items="Model.AccountOptions" class="form-select"><option value="">All accounts</option></select></div>
+        <div class="col-md-2"><button class="btn vpms-btn-primary w-100" type="submit">Run</button></div>
+    </div>
+</form>
+<section class="vpms-print-document">
+    <h2 class="h5">Vantage PMS - General Ledger</h2>
+    <p class="text-muted">@Model.StartDate.ToString("yyyy-MM-dd") to @Model.EndDate.ToString("yyyy-MM-dd")</p>
+    <div class="vpms-table-wrapper">
+        <table class="table vpms-table">
+            <thead><tr><th>Date</th><th>Journal</th><th>Account</th><th>Description</th><th class="text-end">Debit</th><th class="text-end">Credit</th><th class="text-end">Running</th></tr></thead>
+            <tbody>
+            @foreach (var line in Model.Lines)
+            {
+                running += line.DebitAmount - line.CreditAmount;
+                <tr><td>@line.JournalDate.ToString("yyyy-MM-dd")</td><td>@line.JournalNumber</td><td>@line.AccountCode - @line.AccountName</td><td>@line.Description</td><td class="text-end">@line.DebitAmount.ToString("C")</td><td class="text-end">@line.CreditAmount.ToString("C")</td><td class="text-end">@running.ToString("C")</td></tr>
+            }
+            </tbody>
+            <tfoot><tr><th colspan="4">Totals</th><th class="text-end">@Model.Lines.Sum(line => line.DebitAmount).ToString("C")</th><th class="text-end">@Model.Lines.Sum(line => line.CreditAmount).ToString("C")</th><th></th></tr></tfoot>
+        </table>
+    </div>
+</section>

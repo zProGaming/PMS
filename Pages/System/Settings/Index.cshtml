@@ -1,0 +1,53 @@
+@page
+@model Vantage.PMS.Pages.System.Settings.IndexModel
+@{
+    ViewData["Title"] = "System Settings";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">System Settings</h1>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+<form method="post">
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>Setting</th>
+                    <th>Value</th>
+                    <th>Description</th>
+                    <th>Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < Model.Settings.Count; i++)
+                {
+                    <tr>
+                        <td>@Model.Settings[i].Module</td>
+                        <td>
+                            @Model.Settings[i].SettingKey
+                            <input type="hidden" asp-for="Settings[i].Id" />
+                        </td>
+                        <td>
+                            <input class="form-control" asp-for="Settings[i].SettingValue" readonly="@(!Model.Settings[i].IsEditable)" />
+                        </td>
+                        <td>
+                            <textarea class="form-control" asp-for="Settings[i].Description" rows="2" readonly="@(!Model.Settings[i].IsEditable)"></textarea>
+                        </td>
+                        <td>
+                            <span>@Model.Settings[i].UpdatedAt.ToString("g")</span>
+                            <div class="small text-muted">@Model.Settings[i].UpdatedBy</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Settings</button>
+</form>

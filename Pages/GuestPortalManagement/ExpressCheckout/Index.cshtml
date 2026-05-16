@@ -1,0 +1,65 @@
+@page
+@using Vantage.PMS.Models.GuestPortal
+@model Vantage.PMS.Pages.GuestPortalManagement.ExpressCheckout.IndexModel
+@{
+    ViewData["Title"] = "Express Checkout Requests";
+}
+
+<h1 class="h3 mb-3">Express Checkout Requests</h1>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Requested</th>
+                <th>Guest</th>
+                <th>Reservation</th>
+                <th>Room</th>
+                <th>Balance</th>
+                <th>Status</th>
+                <th>Guest Notes</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var request in Model.Requests)
+            {
+                var balance = Model.GetFolioBalance(request);
+                <tr>
+                    <td>@request.RequestedAt.ToString("g")</td>
+                    <td>@request.Guest?.FirstName @request.Guest?.LastName</td>
+                    <td>@request.Reservation?.ConfirmationNumber</td>
+                    <td>@request.Reservation?.Room?.RoomNumber</td>
+                    <td>
+                        @balance.ToString("N2")
+                        @if (balance > 0)
+                        {
+                            <div class="text-danger small">Guest has outstanding balance. Settlement is required before checkout completion.</div>
+                        }
+                    </td>
+                    <td><span class="badge bg-secondary">@request.Status</span></td>
+                    <td>@request.GuestNotes</td>
+                    <td class="text-end">
+                        <form method="post" class="d-inline" asp-page-handler="SetStatus" asp-route-id="@request.Id" asp-route-status="@ExpressCheckoutRequestStatus.UnderReview">
+                            <button class="btn btn-sm btn-outline-secondary">Review</button>
+                        </form>
+                        <form method="post" class="d-inline" asp-page-handler="SetStatus" asp-route-id="@request.Id" asp-route-status="@ExpressCheckoutRequestStatus.Approved">
+                            <button class="btn btn-sm btn-outline-success">Approve</button>
+                        </form>
+                        <form method="post" class="d-inline" asp-page-handler="SetStatus" asp-route-id="@request.Id" asp-route-status="@ExpressCheckoutRequestStatus.Rejected">
+                            <button class="btn btn-sm btn-outline-danger">Reject</button>
+                        </form>
+                        <form method="post" class="d-inline" asp-page-handler="CompleteCheckout" asp-route-id="@request.Id">
+                            <button class="btn btn-sm btn-primary">Complete Checkout</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

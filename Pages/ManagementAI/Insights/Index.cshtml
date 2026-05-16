@@ -1,0 +1,115 @@
+@page
+@using Vantage.PMS.Models.ManagementAI
+@model Vantage.PMS.Pages.ManagementAI.Insights.IndexModel
+@{
+    ViewData["Title"] = "Management Insights";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Management Insights</h1>
+    <a class="btn btn-outline-secondary" asp-page="/ManagementAI/Index">Dashboard</a>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+<form method="get" class="card card-body mb-3">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-2">
+            <label class="form-label" asp-for="DateFrom">From</label>
+            <input class="form-control" asp-for="DateFrom" type="date" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" asp-for="DateTo">To</label>
+            <input class="form-control" asp-for="DateTo" type="date" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" asp-for="Severity">Severity</label>
+            <select class="form-select" asp-for="Severity" asp-items="Html.GetEnumSelectList<ManagementInsightSeverity>()">
+                <option value="">All</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" asp-for="RelatedModule">Module</label>
+            <select class="form-select" asp-for="RelatedModule">
+                <option value="">All</option>
+                @foreach (var module in Model.Modules)
+                {
+                    <option value="@module">@module</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" asp-for="Resolved">Status</label>
+            <select class="form-select" asp-for="Resolved">
+                <option value="">All</option>
+                <option value="false">Unresolved</option>
+                <option value="true">Resolved</option>
+            </select>
+        </div>
+        <div class="col-md-1">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Severity</th>
+                <th>Module</th>
+                <th>Title</th>
+                <th>Summary</th>
+                <th>Recommendation</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var insight in Model.Insights)
+            {
+                <tr>
+                    <td>@insight.InsightDate.ToString("d")</td>
+                    <td><span class="badge bg-@SeverityClass(insight.Severity)">@insight.Severity</span></td>
+                    <td>@insight.RelatedModule</td>
+                    <td>@insight.Title</td>
+                    <td>@insight.Summary</td>
+                    <td>@insight.Recommendation</td>
+                    <td>
+                        @if (insight.IsResolved)
+                        {
+                            <span class="badge bg-success">Resolved</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Open</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        @if (!insight.IsResolved)
+                        {
+                            <form method="post" asp-page-handler="Resolve" asp-route-id="@insight.Id">
+                                <button type="submit" class="btn btn-sm btn-outline-success">Mark Resolved</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@functions {
+    private static string SeverityClass(ManagementInsightSeverity severity) => severity switch
+    {
+        ManagementInsightSeverity.Critical => "danger",
+        ManagementInsightSeverity.High => "warning text-dark",
+        ManagementInsightSeverity.Medium => "primary",
+        ManagementInsightSeverity.Low => "info text-dark",
+        _ => "secondary"
+    };
+}

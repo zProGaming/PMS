@@ -1,0 +1,91 @@
+@page
+@using Vantage.PMS.Models.Reports
+@using Vantage.PMS.Services
+@model Vantage.PMS.Pages.Reports.ExportLogs.IndexModel
+
+@{
+    ViewData["Title"] = "Report Export Logs";
+}
+
+<div class="vpms-page-header">
+    <div>
+        <div class="page-kicker">Reports</div>
+        <h1 class="vpms-page-title">Report Export Logs</h1>
+        <p class="vpms-page-subtitle">Explicit report export activity for audit-ready review.</p>
+    </div>
+    <a class="btn vpms-btn-secondary" asp-page="/Reports/Center">Report Center</a>
+</div>
+
+<section class="vpms-report-filters vpms-card mb-4">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-2">
+            <label class="form-label" for="dateRangeStart">Date from</label>
+            <input class="form-control" id="dateRangeStart" name="dateRangeStart" type="date" value="@Model.DateRangeStart?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="dateRangeEnd">Date to</label>
+            <input class="form-control" id="dateRangeEnd" name="dateRangeEnd" type="date" value="@Model.DateRangeEnd?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="category">Category</label>
+            <select class="form-select" id="category" name="category" asp-items="Html.GetEnumSelectList<ReportCategory>()">
+                <option value="">All categories</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="exportType">Export type</label>
+            <select class="form-select" id="exportType" name="exportType" asp-items="Html.GetEnumSelectList<ReportExportType>()">
+                <option value="">All types</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="userName">User</label>
+            <input class="form-control" id="userName" name="userName" value="@Model.UserName" />
+        </div>
+        <div class="col-md-1">
+            <button class="btn vpms-btn-primary w-100" type="submit">Filter</button>
+        </div>
+    </form>
+</section>
+
+<section class="vpms-card">
+    <div class="vpms-table-wrapper">
+        <table class="table vpms-table align-middle">
+            <thead>
+            <tr>
+                <th>Date/time</th>
+                <th>Report</th>
+                <th>Category</th>
+                <th>Type</th>
+                <th>Exported by</th>
+                <th>File</th>
+                <th>Notes</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (Model.Logs.Count == 0)
+            {
+                <tr><td colspan="7"><div class="vpms-empty-state">No export logs found for the selected filters.</div></td></tr>
+            }
+            else
+            {
+                @foreach (var log in Model.Logs)
+                {
+                    <tr>
+                        <td>@log.ExportedAt.ToString("MMM d, yyyy h:mm tt")</td>
+                        <td>
+                            <strong>@log.ReportName</strong>
+                            <div class="text-muted small">@log.ReportKey</div>
+                        </td>
+                        <td>@ReportCatalogService.FormatCategory(log.ReportCategory)</td>
+                        <td><span class="vpms-badge">@log.ExportType</span></td>
+                        <td>@log.ExportedBy</td>
+                        <td>@log.FileName</td>
+                        <td>@log.Notes</td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

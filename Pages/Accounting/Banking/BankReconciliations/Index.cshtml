@@ -1,0 +1,39 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Banking.BankReconciliations.IndexModel
+@{
+    ViewData["Title"] = "Bank Reconciliation";
+}
+
+<div class="page-header">
+    <div><div class="page-kicker">Banking</div><h1 class="page-title">Bank Reconciliation</h1><p class="page-subtitle">Prepare and approve bank reconciliations with zero-difference control.</p></div>
+</div>
+
+<form method="post" asp-page-handler="Create" class="vpms-form-card mb-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4"><label asp-for="Input.BankAccountId" class="form-label">Bank Account</label><select asp-for="Input.BankAccountId" asp-items="Model.BankAccountOptions" class="form-select"><option value="">Select account</option></select></div>
+        <div class="col-md-3"><label asp-for="Input.ReconciliationDate" class="form-label">Reconciliation Date</label><input asp-for="Input.ReconciliationDate" type="date" class="form-control" /></div>
+        <div class="col-md-3"><label asp-for="Input.StatementEndingBalance" class="form-label">Statement Ending Balance</label><input asp-for="Input.StatementEndingBalance" class="form-control" /></div>
+        <div class="col-md-2"><button class="btn vpms-btn-primary w-100" type="submit">Prepare</button></div>
+    </div>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Bank</th><th>Date</th><th>Status</th><th class="text-end">Statement</th><th class="text-end">Book</th><th class="text-end">Difference</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var item in Model.Reconciliations)
+        {
+            <tr>
+                <td>@item.BankAccount?.AccountName</td>
+                <td>@item.ReconciliationDate.ToString("yyyy-MM-dd")</td>
+                <td><span class="status-badge">@item.Status</span></td>
+                <td class="text-end">@item.StatementEndingBalance.ToString("C")</td>
+                <td class="text-end">@item.BookEndingBalance.ToString("C")</td>
+                <td class="text-end">@item.Difference.ToString("C")</td>
+                <td class="text-end"><a class="btn btn-sm vpms-btn-secondary" asp-page="Details" asp-route-id="@item.Id">Details</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

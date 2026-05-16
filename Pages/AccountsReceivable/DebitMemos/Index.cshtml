@@ -1,0 +1,58 @@
+@page
+@model Vantage.PMS.Pages.AccountsReceivable.DebitMemos.IndexModel
+@{
+    ViewData["Title"] = "Debit Memos";
+}
+
+<h1 class="h3 mb-3">Debit Memos</h1>
+@if (TempData["ErrorMessage"] is string error) { <div class="alert alert-danger">@error</div> }
+
+<form method="post" asp-page-handler="Create" class="row g-3 border rounded p-3 mb-4">
+    <div class="col-md-2"><label asp-for="DebitMemo.DebitMemoNumber" class="form-label"></label><input asp-for="DebitMemo.DebitMemoNumber" class="form-control" readonly /></div>
+    <div class="col-md-2"><label asp-for="DebitMemo.DebitMemoDate" class="form-label"></label><input asp-for="DebitMemo.DebitMemoDate" type="date" class="form-control" /></div>
+    <div class="col-md-2"><label asp-for="DebitMemo.Amount" class="form-label"></label><input asp-for="DebitMemo.Amount" class="form-control" /></div>
+    <div class="col-md-3"><label asp-for="DebitMemo.ARAccountId" class="form-label">AR Account</label><select asp-for="DebitMemo.ARAccountId" asp-items="Model.ARAccountOptions" class="form-select"><option value="">None</option></select></div>
+    <div class="col-md-3"><label asp-for="DebitMemo.ARInvoiceId" class="form-label">AR Invoice</label><select asp-for="DebitMemo.ARInvoiceId" asp-items="Model.ARInvoiceOptions" class="form-select"><option value="">None</option></select></div>
+    <div class="col-md-3"><label asp-for="DebitMemo.FinanceDocumentId" class="form-label">Finance Document</label><select asp-for="DebitMemo.FinanceDocumentId" asp-items="Model.FinanceDocumentOptions" class="form-select"><option value="">None</option></select></div>
+    <div class="col-md-3"><label asp-for="DebitMemo.CreatedBy" class="form-label"></label><input asp-for="DebitMemo.CreatedBy" class="form-control" /></div>
+    <div class="col-md-6"><label asp-for="DebitMemo.Reason" class="form-label"></label><input asp-for="DebitMemo.Reason" class="form-control" /></div>
+    <div class="col-12"><button class="btn btn-primary">Create Debit Memo</button></div>
+</form>
+
+<table class="table table-striped table-hover align-middle">
+    <thead><tr><th>Number</th><th>Date</th><th>Account</th><th>Invoice</th><th>Status</th><th class="text-end">Amount</th><th>Reason</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var memo in Model.DebitMemos)
+        {
+            <tr>
+                <td>@memo.DebitMemoNumber</td>
+                <td>@memo.DebitMemoDate.ToString("d")</td>
+                <td>@memo.ARAccount?.AccountName</td>
+                <td>@memo.ARInvoice?.InvoiceNumber</td>
+                <td><span class="badge text-bg-secondary">@memo.Status</span></td>
+                <td class="text-end">@memo.Amount.ToString("C")</td>
+                <td>@memo.Reason</td>
+                <td class="text-end">
+                    @if (memo.Status == Vantage.PMS.Models.Finance.MemoStatus.Draft)
+                    {
+                        <form method="post" asp-page-handler="ForApproval" asp-route-id="@memo.Id" class="d-inline"><button class="btn btn-sm btn-outline-primary">For Approval</button></form>
+                    }
+                    @if (memo.Status == Vantage.PMS.Models.Finance.MemoStatus.ForApproval)
+                    {
+                        <form method="post" asp-page-handler="Approve" asp-route-id="@memo.Id" class="d-inline"><button class="btn btn-sm btn-success">Approve</button></form>
+                    }
+                    @if (memo.Status == Vantage.PMS.Models.Finance.MemoStatus.Approved)
+                    {
+                        <form method="post" asp-page-handler="Apply" asp-route-id="@memo.Id" class="d-inline"><button class="btn btn-sm btn-primary">Apply</button></form>
+                    }
+                    @if (memo.Status != Vantage.PMS.Models.Finance.MemoStatus.Applied)
+                    {
+                        <form method="post" asp-page-handler="Cancel" asp-route-id="@memo.Id" class="d-inline"><button class="btn btn-sm btn-outline-secondary">Cancel</button></form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

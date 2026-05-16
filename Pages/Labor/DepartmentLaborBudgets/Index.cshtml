@@ -1,0 +1,56 @@
+@page
+@model Vantage.PMS.Pages.Labor.DepartmentLaborBudgets.IndexModel
+@{
+    ViewData["Title"] = "Department Labor Budgets";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Labor Setup</div>
+        <h1 class="page-title">Department Labor Budgets</h1>
+        <p class="page-subtitle">Monthly labor cost, hours, and headcount budgets for department variance reporting.</p>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage)) { <div class="alert alert-success">@Model.StatusMessage</div> }
+
+<form method="post" asp-page-handler="Create" class="vpms-card mb-4">
+    <h2 class="h5">Create Budget</h2>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3 align-items-end">
+        <div class="col-md-2"><label class="form-label">Department</label><select asp-for="Input.DepartmentId" class="form-select" asp-items="Model.DepartmentOptions"><option value="">Unassigned</option></select></div>
+        <div class="col-md-2"><label class="form-label">USALI</label><select asp-for="Input.USALIDepartmentId" class="form-select" asp-items="Model.USALIOptions"><option value="">Unmapped</option></select></div>
+        <div class="col-md-1"><label class="form-label">Month</label><input asp-for="Input.Month" class="form-control" /></div>
+        <div class="col-md-1"><label class="form-label">Year</label><input asp-for="Input.Year" class="form-control" /></div>
+        <div class="col-md-2"><label class="form-label">Budget Cost</label><input asp-for="Input.BudgetedLaborCost" class="form-control" /></div>
+        <div class="col-md-2"><label class="form-label">Budget Hours</label><input asp-for="Input.BudgetedLaborHours" class="form-control" /></div>
+        <div class="col-md-1"><label class="form-label">Headcount</label><input asp-for="Input.BudgetedHeadcount" class="form-control" /></div>
+        <div class="col-md-1"><button class="btn vpms-btn-primary w-100">Save</button></div>
+    </div>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Department</th><th>Period</th><th class="text-end">Budget Cost</th><th class="text-end">Actual Cost</th><th class="text-end">Variance</th><th class="text-end">Budget Hours</th><th class="text-end">Actual Hours</th><th class="text-end">Hours Var.</th></tr></thead>
+        <tbody>
+        @foreach (var row in Model.Rows)
+        {
+            <tr>
+                <td><span class="fw-semibold">@(row.Budget.Department?.Name ?? "Unassigned")</span><div class="small text-muted">@(row.Budget.USALIDepartment?.Name ?? "Unmapped")</div></td>
+                <td>@row.Budget.Month/@row.Budget.Year</td>
+                <td class="text-end">@row.Budget.BudgetedLaborCost.ToString("C")</td>
+                <td class="text-end">@row.ActualCost.ToString("C")</td>
+                <td class="text-end @(row.CostVariance > 0 ? "text-danger" : "text-success")">@row.CostVariance.ToString("C")</td>
+                <td class="text-end">@row.Budget.BudgetedLaborHours.ToString("N1")</td>
+                <td class="text-end">@row.ActualHours.ToString("N1")</td>
+                <td class="text-end">@row.HoursVariance.ToString("N1")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.Rows.Count == 0)
+{
+    <div class="vpms-empty-state mt-3">No department labor budgets yet.</div>
+}

@@ -1,0 +1,74 @@
+@page
+@using Vantage.PMS.Models.SystemAdministration
+@model Vantage.PMS.Pages.System.QAChecklist.IndexModel
+@{
+    ViewData["Title"] = "System QA Checklist";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-1">System QA Checklist</h1>
+        <p class="text-muted mb-0">Manual stabilization checklist for core Vantage PMS workflows.</p>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+@if (!Model.Items.Any())
+{
+    <div class="vpms-empty-state">
+        <strong>No QA checklist items are configured yet.</strong>
+        <span>Run the application seed process, then return to this page for module stabilization tracking.</span>
+    </div>
+}
+else
+{
+    @foreach (var group in Model.Items.GroupBy(item => item.Module))
+    {
+        <div class="card mb-3">
+            <div class="card-header">@group.Key</div>
+            <div class="table-responsive">
+                <table class="table table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Test</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                            <th>Tested</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in group)
+                        {
+                            <tr>
+                                <form method="post" asp-page-handler="Update" asp-route-id="@item.Id">
+                                    <td>@item.TestName</td>
+                                    <td>@item.Description</td>
+                                    <td>
+                                        <select class="form-select form-select-sm" name="status">
+                                            @foreach (var status in Enum.GetValues<QATestChecklistStatus>())
+                                            {
+                                                <option value="@status" selected="@(status == item.Status)">@status</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td><input class="form-control form-control-sm" name="notes" value="@item.Notes" /></td>
+                                    <td>
+                                        <div>@item.TestedBy</div>
+                                        <div class="small text-muted">@item.TestedAt?.ToString("g")</div>
+                                    </td>
+                                    <td class="text-end"><button class="btn btn-sm btn-outline-primary" type="submit">Save</button></td>
+                                </form>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}

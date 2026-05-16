@@ -1,0 +1,66 @@
+@page
+@model Vantage.PMS.Pages.BookingManagement.IndexModel
+@{
+    ViewData["Title"] = "Booking Engine Dashboard";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Booking Engine</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Direct Booking</div>
+        <h1 class="page-title">Booking Engine Dashboard</h1>
+        <p class="page-subtitle">Guest booking requests, conversions, and requested room types.</p>
+    </div>
+    <a asp-page="/BookingManagement/Requests/Index" class="btn btn-outline-primary">Booking Requests</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-2">
+        <div class="kpi-card"><div class="kpi-label">Pending</div><div class="kpi-value">@Model.PendingRequests</div><div class="kpi-note">Awaiting action</div></div>
+    </div>
+    <div class="col-md-2">
+        <div class="kpi-card"><div class="kpi-label">Confirmed</div><div class="kpi-value">@Model.ConfirmedRequests</div><div class="kpi-note">Accepted requests</div></div>
+    </div>
+    <div class="col-md-2">
+        <div class="kpi-card"><div class="kpi-label">Converted</div><div class="kpi-value">@Model.ConvertedThisMonth</div><div class="kpi-note">This month</div></div>
+    </div>
+    <div class="col-md-2">
+        <div class="kpi-card"><div class="kpi-label">Cancelled</div><div class="kpi-value">@Model.CancelledThisMonth</div><div class="kpi-note">This month</div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card"><div class="kpi-label">Estimated Revenue</div><div class="kpi-value">@Model.EstimatedRevenueThisMonth.ToString("C")</div><div class="kpi-note">This month</div></div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Most Requested Room Types</div>
+    <div class="table-responsive">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Room Type</th>
+                    <th>Requests</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.MostRequestedRoomTypes.Count == 0)
+                {
+                    <tr><td colspan="2" class="text-muted">No booking requests yet.</td></tr>
+                }
+                @foreach (var roomType in Model.MostRequestedRoomTypes)
+                {
+                    <tr>
+                        <td>@roomType.RoomTypeName</td>
+                        <td>@roomType.RequestCount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

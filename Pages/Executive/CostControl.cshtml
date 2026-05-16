@@ -1,0 +1,14 @@
+@page
+@model Vantage.PMS.Pages.Executive.CostControlModel
+@{
+    ViewData["Title"] = "Cost Control Intelligence";
+}
+<div class="page-header"><div><div class="page-kicker">Executive Intelligence</div><h1 class="page-title">Cost Control Intelligence</h1><p class="page-subtitle">Labor, inventory, purchasing, AP approval, and cost-risk signals.</p></div><button class="btn vpms-btn-primary vpms-no-print" onclick="window.print()">Print</button></div>
+<div class="row g-3">
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Labor Cost %</div><div class="kpi-value">@Model.Summary.LaborCostPercentage.ToString("N1")%</div><div class="kpi-note">@Model.Summary.LaborCost.ToString("C") cost</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Over Budget</div><div class="kpi-value">@Model.DepartmentsOverBudget</div><div class="kpi-note">Departments over labor budget</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Low Stock</div><div class="kpi-value">@Model.LowStockItems</div><div class="kpi-note">Reorder risk</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Out of Stock</div><div class="kpi-value">@Model.OutOfStockItems</div><div class="kpi-note">Critical stock risk</div></div></div>
+</div>
+<section class="vpms-card vpms-print-document mt-4"><h2 class="h5">Cost Control Signals</h2><div class="vpms-table-wrapper"><table class="table vpms-table"><tbody><tr><th>Expiring Items</th><td class="text-end">@Model.ExpiringItems</td><th>Food Cost %</th><td class="text-end">@Model.Summary.FoodCostPercentage.ToString("N1")%</td></tr><tr><th>Purchase Orders Pending Approval</th><td class="text-end">@Model.PurchaseOrdersPendingApproval</td><th>AP Invoices Pending Approval</th><td class="text-end">@Model.APInvoicesPendingApproval</td></tr><tr><th>Beverage Cost %</th><td class="text-end">@Model.Summary.BeverageCostPercentage.ToString("N1")%</td><th>Revenue / Labor Hour</th><td class="text-end">@Model.Summary.RevenuePerLaborHour.ToString("C")</td></tr></tbody></table></div></section>
+<section class="vpms-card mt-4"><h2 class="h5">Recommended Actions</h2><ul class="mb-0"><li>Review departments over labor budget and identify overtime or scheduling variance.</li><li>Prioritize low-stock and out-of-stock operational items before service impact.</li><li>Resolve pending purchase orders and AP invoices before month-end close.</li></ul></section>

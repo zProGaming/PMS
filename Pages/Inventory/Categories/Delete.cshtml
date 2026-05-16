@@ -1,0 +1,13 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Inventory.Categories.DeleteModel
+@{
+    ViewData["Title"] = "Delete Inventory Category";
+}
+
+<h1 class="h3 mb-3">Delete Inventory Category</h1>
+<div class="alert alert-warning">Delete category @Model.Category.Name?</div>
+<form method="post">
+    <input type="hidden" asp-for="Category.Id" />
+    <button class="btn btn-danger">Delete</button>
+    <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>

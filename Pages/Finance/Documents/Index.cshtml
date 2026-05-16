@@ -1,0 +1,47 @@
+@page
+@model Vantage.PMS.Pages.Finance.Documents.IndexModel
+@using Vantage.PMS.Models.Finance
+@{
+    ViewData["Title"] = "Finance Documents";
+}
+
+<h1 class="h3 mb-3">Finance Documents</h1>
+<div class="alert alert-info">Document templates are configurable and must be validated for local compliance before official use.</div>
+
+<form method="post" asp-page-handler="Create" class="row g-3 border rounded p-3 mb-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-3"><label asp-for="FinanceDocument.DocumentNumber" class="form-label"></label><input asp-for="FinanceDocument.DocumentNumber" class="form-control" placeholder="Auto-generated" readonly /></div>
+    <div class="col-md-3"><label asp-for="FinanceDocument.DocumentType" class="form-label"></label><select asp-for="FinanceDocument.DocumentType" asp-items="Html.GetEnumSelectList<FinanceDocumentType>()" class="form-select"></select></div>
+    <div class="col-md-3"><label asp-for="FinanceDocument.DocumentDate" class="form-label"></label><input asp-for="FinanceDocument.DocumentDate" type="date" class="form-control" /></div>
+    <div class="col-md-3"><label asp-for="FinanceDocument.DueDate" class="form-label"></label><input asp-for="FinanceDocument.DueDate" type="date" class="form-control" /></div>
+    <div class="col-md-4"><label asp-for="FinanceDocument.BillingName" class="form-label"></label><input asp-for="FinanceDocument.BillingName" class="form-control" /></div>
+    <div class="col-md-4"><label asp-for="FinanceDocument.BillingTIN" class="form-label"></label><input asp-for="FinanceDocument.BillingTIN" class="form-control" /></div>
+    <div class="col-md-4"><label asp-for="FinanceDocument.FolioId" class="form-label">Folio</label><select asp-for="FinanceDocument.FolioId" asp-items="Model.FolioOptions" class="form-select"><option value="">None</option></select></div>
+    <div class="col-md-3"><label asp-for="FinanceDocument.ReservationId" class="form-label">Reservation</label><select asp-for="FinanceDocument.ReservationId" asp-items="Model.ReservationOptions" class="form-select"><option value="">None</option></select></div>
+    <div class="col-md-3"><label asp-for="FinanceDocument.GuestId" class="form-label">Guest</label><select asp-for="FinanceDocument.GuestId" asp-items="Model.GuestOptions" class="form-select"><option value="">None</option></select></div>
+    <div class="col-md-3"><label asp-for="FinanceDocument.SalesAccountId" class="form-label">Sales Account</label><select asp-for="FinanceDocument.SalesAccountId" asp-items="Model.SalesAccountOptions" class="form-select"><option value="">None</option></select></div>
+    <div class="col-md-3"><label asp-for="FinanceDocument.BanquetEventId" class="form-label">Banquet Event</label><select asp-for="FinanceDocument.BanquetEventId" asp-items="Model.BanquetEventOptions" class="form-select"><option value="">None</option></select></div>
+    <div class="col-12"><label asp-for="FinanceDocument.BillingAddress" class="form-label"></label><textarea asp-for="FinanceDocument.BillingAddress" class="form-control"></textarea></div>
+    <div class="col-12"><button class="btn btn-primary">Create Document</button></div>
+</form>
+
+<table class="table table-striped table-hover align-middle">
+    <thead><tr><th>Number</th><th>Type</th><th>Date</th><th>Billing Name</th><th>Status</th><th class="text-end">Total</th><th class="text-end">Balance</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var document in Model.Documents)
+        {
+            <tr>
+                <td>@document.DocumentNumber</td>
+                <td>@document.DocumentType</td>
+                <td>@document.DocumentDate.ToString("d")</td>
+                <td>@document.BillingName</td>
+                <td><span class="badge text-bg-secondary">@document.Status</span></td>
+                <td class="text-end">@document.TotalAmount.ToString("C")</td>
+                <td class="text-end">@document.Balance.ToString("C")</td>
+                <td class="text-end"><a asp-page="Details" asp-route-id="@document.Id" class="btn btn-sm btn-outline-primary">Open</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

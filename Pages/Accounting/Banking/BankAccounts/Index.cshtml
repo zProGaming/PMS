@@ -1,0 +1,49 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Banking.BankAccounts.IndexModel
+@{
+    ViewData["Title"] = "Bank Accounts";
+}
+
+<div class="page-header">
+    <div><div class="page-kicker">Banking</div><h1 class="page-title">Bank Accounts</h1><p class="page-subtitle">Cash and bank accounts mapped to GL control accounts.</p></div>
+</div>
+
+<form method="post" asp-page-handler="Create" class="vpms-form-card mb-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-3"><label asp-for="Input.AccountName" class="form-label">Account Name</label><input asp-for="Input.AccountName" class="form-control" /></div>
+        <div class="col-md-3"><label asp-for="Input.BankName" class="form-label">Bank Name</label><input asp-for="Input.BankName" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="Input.AccountNumber" class="form-label">Account Number</label><input asp-for="Input.AccountNumber" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="Input.Currency" class="form-label">Currency</label><input asp-for="Input.Currency" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="Input.OpeningBalance" class="form-label">Opening Balance</label><input asp-for="Input.OpeningBalance" class="form-control" /></div>
+        <div class="col-md-4"><label asp-for="Input.GLAccountId" class="form-label">GL Account</label><select asp-for="Input.GLAccountId" asp-items="Model.GLAccountOptions" class="form-select"><option value="">None</option></select></div>
+        <div class="col-md-8"><label asp-for="Input.Notes" class="form-label">Notes</label><input asp-for="Input.Notes" class="form-control" /></div>
+    </div>
+    <div class="vpms-actions mt-3"><button class="btn vpms-btn-primary" type="submit">Add Bank Account</button></div>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Account</th><th>Bank</th><th>Number</th><th>Currency</th><th>GL Account</th><th class="text-end">Opening</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var account in Model.BankAccounts)
+        {
+            <tr>
+                <td class="fw-semibold">@account.AccountName</td>
+                <td>@account.BankName</td>
+                <td>@account.AccountNumber</td>
+                <td>@account.Currency</td>
+                <td>@account.GLAccount?.AccountCode @account.GLAccount?.AccountName</td>
+                <td class="text-end">@account.OpeningBalance.ToString("C")</td>
+                <td><span class="status-badge @(account.IsActive ? "status-paid" : "status-cancelled")">@(account.IsActive ? "Active" : "Inactive")</span></td>
+                <td class="text-end">
+                    @if (account.IsActive)
+                    {
+                        <form method="post" asp-page-handler="Deactivate" asp-route-id="@account.Id" class="d-inline"><button class="btn btn-sm vpms-btn-secondary">Deactivate</button></form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,23 @@
+@page
+@model Vantage.PMS.Pages.Executive.Snapshots.IndexModel
+@using Vantage.PMS.Models.Executive
+@{
+    ViewData["Title"] = "Generate Executive Snapshot";
+}
+<div class="page-header"><div><div class="page-kicker">Executive Reports</div><h1 class="page-title">Generate Executive Snapshot</h1><p class="page-subtitle">Save KPI results, department snapshots, rule-based summary text, and executive alerts for a selected period.</p></div></div>
+@if (TempData["StatusMessage"] is string message){<div class="alert alert-success">@message</div>}
+<section class="vpms-card mb-4">
+    <form method="post" asp-page-handler="Generate">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3"><label class="form-label">Report Type</label><select asp-for="Input.ReportType" asp-items="Html.GetEnumSelectList<ExecutiveReportType>()" class="form-select"></select></div>
+            <div class="col-md-3"><label class="form-label">Period Start</label><input asp-for="Input.PeriodStart" type="date" class="form-control" /></div>
+            <div class="col-md-3"><label class="form-label">Period End</label><input asp-for="Input.PeriodEnd" type="date" class="form-control" /></div>
+            <div class="col-md-3"><button class="btn vpms-btn-primary w-100">Generate Snapshot</button></div>
+        </div>
+    </form>
+</section>
+<section class="vpms-card">
+    <h2 class="h5">Recent Snapshots</h2>
+    @if(Model.Snapshots.Count == 0){<div class="vpms-empty-state">No executive snapshots have been generated yet.</div>}else{<div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>Type</th><th>Period</th><th>Prepared By</th><th class="text-end">Revenue</th><th class="text-end">Occupancy</th><th>Generated</th></tr></thead><tbody>@foreach(var item in Model.Snapshots){<tr><td>@item.ReportType</td><td>@item.PeriodStart.ToString("MMM d") - @item.PeriodEnd.ToString("MMM d, yyyy")</td><td>@item.PreparedBy</td><td class="text-end">@item.TotalRevenue.ToString("C")</td><td class="text-end">@item.OccupancyPercentage.ToString("N1")%</td><td>@item.PreparedAt.ToString("g")</td></tr>}</tbody></table></div>}
+</section>

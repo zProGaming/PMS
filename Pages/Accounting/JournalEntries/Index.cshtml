@@ -1,0 +1,36 @@
+@page
+@model Vantage.PMS.Pages.Accounting.JournalEntries.IndexModel
+@{
+    ViewData["Title"] = "Journal Entries";
+}
+<div class="page-header">
+    <div><div class="page-kicker">Accounting</div><h1 class="page-title">Journal Entries</h1><p class="page-subtitle">Manual and system-generated GL journal entries.</p></div>
+    <div class="page-actions"><a class="btn vpms-btn-primary" asp-page="Create">Manual Journal</a></div>
+</div>
+<form method="get" class="vpms-card mb-3">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3"><label class="form-label">From</label><input name="StartDate" value="@Model.StartDate?.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div>
+        <div class="col-md-3"><label class="form-label">To</label><input name="EndDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div>
+        <div class="col-md-3"><button class="btn vpms-btn-secondary" type="submit">Filter</button></div>
+    </div>
+</form>
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Journal #</th><th>Date</th><th>Source</th><th>Description</th><th>Status</th><th class="text-end">Debits</th><th class="text-end">Credits</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var entry in Model.JournalEntries)
+        {
+            <tr>
+                <td class="fw-semibold">@entry.JournalNumber</td>
+                <td>@entry.JournalDate.ToString("yyyy-MM-dd")</td>
+                <td>@entry.SourceModule / @entry.SourceTransactionType</td>
+                <td>@entry.Description</td>
+                <td><span class="status-badge">@entry.Status</span></td>
+                <td class="text-end">@entry.TotalDebits.ToString("C")</td>
+                <td class="text-end">@entry.TotalCredits.ToString("C")</td>
+                <td class="text-end"><a class="btn btn-sm vpms-btn-secondary" asp-page="Details" asp-route-id="@entry.Id">Details</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

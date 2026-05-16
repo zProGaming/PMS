@@ -1,0 +1,25 @@
+@page
+@model Vantage.PMS.Pages.AccountsReceivable.PaymentAllocations.IndexModel
+@{
+    ViewData["Title"] = "AR Payment Allocations";
+}
+
+<h1 class="h3 mb-3">AR Payment Allocations</h1>
+<p><a asp-page="/AccountsReceivable/ARPayments/Index" class="btn btn-primary">Post or Allocate AR Payment</a></p>
+
+<table class="table table-striped table-hover align-middle">
+    <thead><tr><th>Date</th><th>Account</th><th>Payment</th><th>Invoice</th><th>Allocated By</th><th class="text-end">Amount</th></tr></thead>
+    <tbody>
+        @foreach (var allocation in Model.Allocations)
+        {
+            <tr>
+                <td>@allocation.AllocationDate.ToString("g")</td>
+                <td>@allocation.ARPayment?.ARAccount?.AccountName</td>
+                <td>#@allocation.ARPaymentId</td>
+                <td>@allocation.ARInvoice?.InvoiceNumber</td>
+                <td>@allocation.AllocatedBy</td>
+                <td class="text-end">@allocation.AllocatedAmount.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,71 @@
+@page
+@model Vantage.PMS.Pages.Inventory.Items.CreateModel
+@{
+    ViewData["Title"] = "New Inventory Item";
+}
+
+<h1 class="h3 mb-3">New Inventory Item</h1>
+
+<form method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-4">
+        <label asp-for="InventoryItem.ItemCode" class="form-label"></label>
+        <input asp-for="InventoryItem.ItemCode" class="form-control" />
+        <span asp-validation-for="InventoryItem.ItemCode" class="text-danger"></span>
+    </div>
+    <div class="col-md-8">
+        <label asp-for="InventoryItem.ItemName" class="form-label"></label>
+        <input asp-for="InventoryItem.ItemName" class="form-control" />
+        <span asp-validation-for="InventoryItem.ItemName" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="InventoryItem.InventoryCategoryId" class="form-label">Category</label>
+        <select asp-for="InventoryItem.InventoryCategoryId" asp-items="Model.CategoryOptions" class="form-select"></select>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="InventoryItem.UnitOfMeasure" class="form-label"></label>
+        <input asp-for="InventoryItem.UnitOfMeasure" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label asp-for="InventoryItem.StandardCost" class="form-label"></label>
+        <input asp-for="InventoryItem.StandardCost" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label asp-for="InventoryItem.CurrentStock" class="form-label"></label>
+        <input asp-for="InventoryItem.CurrentStock" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label asp-for="InventoryItem.ReorderLevel" class="form-label"></label>
+        <input asp-for="InventoryItem.ReorderLevel" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label asp-for="InventoryItem.ParStockLevel" class="form-label"></label>
+        <input asp-for="InventoryItem.ParStockLevel" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label asp-for="InventoryItem.ExpiryDate" class="form-label"></label>
+        <input asp-for="InventoryItem.ExpiryDate" type="date" class="form-control" />
+    </div>
+    <div class="col-12">
+        <label asp-for="InventoryItem.Description" class="form-label"></label>
+        <textarea asp-for="InventoryItem.Description" class="form-control"></textarea>
+    </div>
+    <div class="col-md-3">
+        <div class="form-check">
+            <input asp-for="InventoryItem.IsActive" class="form-check-input" />
+            <label asp-for="InventoryItem.IsActive" class="form-check-label"></label>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="form-check">
+            <input asp-for="InventoryItem.IsPerishable" class="form-check-input" />
+            <label asp-for="InventoryItem.IsPerishable" class="form-check-label"></label>
+        </div>
+    </div>
+    <div class="col-12">
+        <button class="btn btn-primary">Create</button>
+        <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

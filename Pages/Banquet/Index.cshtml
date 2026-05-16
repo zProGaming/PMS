@@ -1,0 +1,121 @@
+@page
+@model Vantage.PMS.Pages.Banquet.IndexModel
+
+@{
+    ViewData["Title"] = "Banquet Dashboard";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Banquet</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Events &amp; Catering</div>
+        <h1 class="page-title">Banquet Dashboard</h1>
+        <p class="page-subtitle">Events, function rooms, BEO readiness, and banquet revenue pipeline.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary" asp-page="/Banquet/Events/Create">New Event</a>
+        <a class="btn btn-outline-primary" asp-page="/Banquet/FunctionRooms/Create">New Function Room</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Events Today</div>
+            <div class="kpi-value">@Model.EventsToday</div>
+            <div class="kpi-note">Operational events</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Upcoming Events</div>
+            <div class="kpi-value">@Model.UpcomingEvents</div>
+            <div class="kpi-note">Future calendar</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Tentative</div>
+            <div class="kpi-value">@Model.TentativeEvents</div>
+            <div class="kpi-note">Option dates</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Confirmed</div>
+            <div class="kpi-value">@Model.ConfirmedEvents</div>
+            <div class="kpi-note">Booked events</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Completed</div>
+            <div class="kpi-value">@Model.CompletedEventsThisMonth</div>
+            <div class="kpi-note">This month</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Cancelled</div>
+            <div class="kpi-value">@Model.CancelledEventsThisMonth</div>
+            <div class="kpi-note">This month</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Expected Revenue</div>
+            <div class="kpi-value">@Model.TotalExpectedBanquetRevenueThisMonth.ToString("C")</div>
+            <div class="kpi-note">This month</div>
+        </div>
+    </div>
+</div>
+
+<section class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Upcoming Events</span>
+        <a class="btn btn-sm btn-outline-primary" asp-page="/Banquet/Calendar/Index">Event Calendar</a>
+    </div>
+    @if (Model.UpcomingEventList.Count == 0)
+    {
+        <div class="empty-state m-3">No upcoming banquet events.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Event</th>
+                        <th>Client</th>
+                        <th>Room</th>
+                        <th>Status</th>
+                        <th class="text-end">Pax</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var banquetEvent in Model.UpcomingEventList)
+                    {
+                        var eventStatusClass = banquetEvent.EventStatus.ToString().ToLowerInvariant();
+                        <tr>
+                            <td>@banquetEvent.EventDate.ToString("d")</td>
+                            <td>@banquetEvent.StartTime.ToString(@"hh\:mm") - @banquetEvent.EndTime.ToString(@"hh\:mm")</td>
+                            <td><a asp-page="/Banquet/Events/Details" asp-route-id="@banquetEvent.Id">@banquetEvent.EventName</a></td>
+                            <td>@banquetEvent.ClientName</td>
+                            <td>@banquetEvent.FunctionRoom?.Name</td>
+                            <td><span class="status-badge status-@eventStatusClass">@banquetEvent.EventStatus</span></td>
+                            <td class="text-end">@banquetEvent.ExpectedPax</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

@@ -1,0 +1,24 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.FoodBeverage.MenuCategories.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete Menu Category";
+}
+
+<h1>Delete Menu Category</h1>
+
+<div class="alert alert-warning">
+    Delete menu category <strong>@Model.MenuCategory.Name</strong>?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-2">Sort Order</dt>
+    <dd class="col-sm-10">@Model.MenuCategory.SortOrder</dd>
+    <dt class="col-sm-2">Active</dt>
+    <dd class="col-sm-10">@(Model.MenuCategory.IsActive ? "Yes" : "No")</dd>
+</dl>
+
+<form method="post">
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>

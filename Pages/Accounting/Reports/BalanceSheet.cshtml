@@ -1,0 +1,15 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Reports.BalanceSheetModel
+@{
+    ViewData["Title"] = "Balance Sheet";
+}
+<div class="page-header"><div><div class="page-kicker">Accounting Reports</div><h1 class="page-title">Balance Sheet</h1><p class="page-subtitle">Assets, liabilities, and equity as of selected date.</p></div><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div>
+<form method="get" class="vpms-card mb-3 report-filter"><div class="row g-3 align-items-end"><div class="col-md-4"><label class="form-label">As of</label><input name="AsOfDate" value="@Model.AsOfDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-2"><button class="btn vpms-btn-primary w-100">Run</button></div></div></form>
+<section class="vpms-print-document">
+    <div class="row g-4">
+        <div class="col-md-6"><div class="vpms-card"><h2 class="h5">Assets</h2><p class="display-6">@Model.Assets.ToString("C")</p></div></div>
+        <div class="col-md-6"><div class="vpms-card"><h2 class="h5">Liabilities and Equity</h2><p class="display-6">@Model.LiabilitiesAndEquity.ToString("C")</p><div class="text-muted small">Includes current-period earnings of @Model.CurrentPeriodEarnings.ToString("C").</div></div></div>
+    </div>
+    <div class="alert @(Model.Difference == 0 ? "alert-success" : "alert-danger") mt-3">Balance sheet difference: @Model.Difference.ToString("C")</div>
+    <div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>Account</th><th>Type</th><th class="text-end">Amount</th></tr></thead><tbody>@foreach (var row in Model.BalanceSheetRows){<tr><td>@row.AccountCode - @row.AccountName</td><td>@row.AccountType</td><td class="text-end">@row.NetAmount.ToString("C")</td></tr>}<tr><td>Current Period Earnings</td><td>Equity</td><td class="text-end">@Model.CurrentPeriodEarnings.ToString("C")</td></tr></tbody></table></div>
+</section>

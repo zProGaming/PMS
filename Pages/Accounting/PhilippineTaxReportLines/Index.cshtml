@@ -1,0 +1,18 @@
+@page
+@model Vantage.PMS.Pages.Accounting.PhilippineTaxReportLines.IndexModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "Philippine Tax Report Lines";
+}
+<div class="page-header"><div><div class="page-kicker">Accounting Setup</div><h1 class="page-title">Philippine Tax Report Lines</h1><p class="page-subtitle">Configurable mappings for Philippine finance report readiness.</p></div></div>
+<div class="alert alert-warning">Formats and mappings must be validated by a Philippine CPA/accountant before filing or official submission.</div>
+<form method="post" class="vpms-form-card mb-4">
+    <div class="row g-3">
+        <div class="col-md-3"><label asp-for="Input.ReportType" class="form-label">Report</label><select asp-for="Input.ReportType" asp-items="Html.GetEnumSelectList<PhilippineReportType>()" class="form-select"></select></div>
+        <div class="col-md-2"><label asp-for="Input.LineCode" class="form-label">Line Code</label><input asp-for="Input.LineCode" class="form-control" required /></div>
+        <div class="col-md-3"><label asp-for="Input.LineName" class="form-label">Line Name</label><input asp-for="Input.LineName" class="form-control" required /></div>
+        <div class="col-md-3"><label asp-for="Input.GLAccountId" class="form-label">GL Account</label><select asp-for="Input.GLAccountId" asp-items="Model.AccountOptions" class="form-select"><option value="">None</option></select></div>
+        <div class="col-md-1 d-flex align-items-end"><button class="btn vpms-btn-primary" type="submit">Add</button></div>
+    </div>
+</form>
+<div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>Report</th><th>Line</th><th>Account</th><th>Sort</th></tr></thead><tbody>@foreach (var item in Model.Lines){<tr><td>@item.ReportType</td><td><strong>@item.LineCode</strong> @item.LineName</td><td>@item.GLAccount?.AccountCode - @item.GLAccount?.AccountName</td><td>@item.SortOrder</td></tr>}</tbody></table></div>

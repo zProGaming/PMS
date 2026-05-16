@@ -1,0 +1,42 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.ManagementAI.SummaryHistory.DetailsModel
+@{
+    ViewData["Title"] = "Management Summary Details";
+    var summary = Model.Summary!;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Summary Details</h1>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Back to History</a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h2 class="h5">@summary.BusinessDate.ToString("MMMM d, yyyy")</h2>
+        <p class="mb-0">@summary.SummaryText</p>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Occupancy</div><strong>@summary.OccupancyPercentage.ToString("0.#")%</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Total Rooms</div><strong>@summary.TotalRooms</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Occupied Rooms</div><strong>@summary.OccupiedRooms</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Available Rooms</div><strong>@summary.AvailableRooms</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Dirty Rooms</div><strong>@summary.DirtyRooms</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Out of Order Rooms</div><strong>@summary.OutOfOrderRooms</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Arrivals</div><strong>@summary.ArrivalsToday</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Departures</div><strong>@summary.DeparturesToday</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">In-house Guests</div><strong>@summary.InHouseGuests</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Room Revenue</div><strong>@summary.RoomRevenue.ToString("C")</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">F&amp;B Revenue</div><strong>@summary.FBRevenue.ToString("C")</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Banquet Revenue</div><strong>@summary.BanquetRevenue.ToString("C")</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Total Revenue</div><strong>@summary.TotalRevenue.ToString("C")</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Payments</div><strong>@summary.TotalPayments.ToString("C")</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Guest Balances</div><strong>@summary.OutstandingGuestBalances.ToString("C")</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">AR Balance</div><strong>@summary.ARBalance.ToString("C")</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Open Service Requests</div><strong>@summary.OpenServiceRequests</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Pending Housekeeping Tasks</div><strong>@summary.PendingHousekeepingTasks</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Low Stock Items</div><strong>@summary.LowStockItems</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Pending Purchase Requests</div><strong>@summary.PendingPurchaseRequests</strong></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted">Pending Approvals</div><strong>@summary.PendingApprovals</strong></div></div></div>
+</div>

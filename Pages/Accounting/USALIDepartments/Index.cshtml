@@ -1,0 +1,37 @@
+@page
+@model Vantage.PMS.Pages.Accounting.USALIDepartments.IndexModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "USALI Departments";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Accounting Setup</div>
+        <h1 class="page-title">USALI Departments</h1>
+        <p class="page-subtitle">Department mapping foundation for hotel management accounting reports.</p>
+    </div>
+</div>
+
+<form method="post" class="vpms-form-card mb-4">
+    <div class="row g-3">
+        <div class="col-md-2"><label asp-for="Input.Code" class="form-label">Code</label><input asp-for="Input.Code" class="form-control" required /></div>
+        <div class="col-md-4"><label asp-for="Input.Name" class="form-label">Name</label><input asp-for="Input.Name" class="form-control" required /></div>
+        <div class="col-md-3"><label asp-for="Input.DepartmentType" class="form-label">Type</label><select asp-for="Input.DepartmentType" asp-items="Html.GetEnumSelectList<USALIDepartmentType>()" class="form-select"></select></div>
+        <div class="col-md-1"><label asp-for="Input.SortOrder" class="form-label">Sort</label><input asp-for="Input.SortOrder" class="form-control" type="number" /></div>
+        <div class="col-md-2 d-flex align-items-end"><button class="btn vpms-btn-primary w-100" type="submit">Add</button></div>
+        <div class="col-12"><label asp-for="Input.Description" class="form-label">Description</label><textarea asp-for="Input.Description" class="form-control" rows="2"></textarea></div>
+    </div>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table">
+        <thead><tr><th>Code</th><th>Name</th><th>Type</th><th>Sort</th><th>Status</th></tr></thead>
+        <tbody>
+        @foreach (var department in Model.Departments)
+        {
+            <tr><td class="fw-semibold">@department.Code</td><td>@department.Name</td><td>@department.DepartmentType</td><td>@department.SortOrder</td><td><span class="status-badge status-paid">Active</span></td></tr>
+        }
+        </tbody>
+    </table>
+</div>

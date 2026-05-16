@@ -1,0 +1,42 @@
+@page
+@model Vantage.PMS.Pages.Inventory.IndexModel
+@{
+    ViewData["Title"] = "Inventory Dashboard";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Inventory</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Supply Chain</div>
+        <h1 class="page-title">Inventory Dashboard</h1>
+        <p class="page-subtitle">Stock health, purchasing queues, inventory value, and perishable risk.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-page="/Inventory/StockIssue/Index" class="btn btn-primary">Stock Issue</a>
+        <a asp-page="/Inventory/Reports/Index" class="btn btn-outline-primary">Inventory Reports</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Active Items</div><div class="kpi-value">@Model.TotalActiveItems</div><div class="kpi-note">Tracked stock items</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Low Stock</div><div class="kpi-value">@Model.LowStockItems</div><div class="kpi-note">At or below reorder</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Out of Stock</div><div class="kpi-value">@Model.OutOfStockItems</div><div class="kpi-note">Operational risk</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Inventory Value</div><div class="kpi-value">@Model.InventoryValue.ToString("C")</div><div class="kpi-note">Current stock x cost</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">PR Pending</div><div class="kpi-value">@Model.PurchaseRequestsPendingApproval</div><div class="kpi-note">Awaiting approval</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">PO Pending</div><div class="kpi-value">@Model.PurchaseOrdersPendingApproval</div><div class="kpi-note">Awaiting approval</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Partially Received</div><div class="kpi-value">@Model.PurchaseOrdersPartiallyReceived</div><div class="kpi-note">Open deliveries</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Expiring Soon</div><div class="kpi-value">@Model.PerishableItemsExpiringSoon</div><div class="kpi-note">Within 7 days</div></div></div>
+</div>
+
+<div class="quick-action-grid mt-4">
+    <a asp-page="/Inventory/Items/Index" class="quick-action-card"><strong>Inventory Items</strong><small>Manage stock and par levels</small></a>
+    <a asp-page="/Inventory/StockMovements/Index" class="quick-action-card"><strong>Stock Movements</strong><small>Audit inventory history</small></a>
+    <a asp-page="/Inventory/StockIssue/Index" class="quick-action-card"><strong>Stock Issue</strong><small>Issue items to departments</small></a>
+    <a asp-page="/Inventory/Reports/Index" class="quick-action-card"><strong>Inventory Reports</strong><small>Stock, low stock, and expiry</small></a>
+</div>

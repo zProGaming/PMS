@@ -1,0 +1,24 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.FoodBeverage.Outlets.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete Outlet";
+}
+
+<h1>Delete Outlet</h1>
+
+<div class="alert alert-warning">
+    Delete outlet <strong>@Model.Outlet.Name</strong>?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-2">Type</dt>
+    <dd class="col-sm-10">@Model.Outlet.OutletType</dd>
+    <dt class="col-sm-2">Active</dt>
+    <dd class="col-sm-10">@(Model.Outlet.IsActive ? "Yes" : "No")</dd>
+</dl>
+
+<form method="post">
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>

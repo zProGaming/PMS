@@ -1,0 +1,124 @@
+@page
+@model Vantage.PMS.Pages.Accounting.CashFlow.MappingRules.IndexModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "Cash Flow Mapping Rules";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Accounting Setup</div>
+        <h1 class="page-title">Cash Flow Mapping Rules</h1>
+        <p class="page-subtitle">Classify cash movements by GL account, source module, or source transaction type.</p>
+    </div>
+</div>
+
+<form method="post" asp-page-handler="Create" class="vpms-form-card mb-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="Input.RuleName" class="form-label">Rule name</label>
+            <input asp-for="Input.RuleName" class="form-control" required />
+            <span asp-validation-for="Input.RuleName" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Input.CashFlowCategoryId" class="form-label">Cash flow category</label>
+            <select asp-for="Input.CashFlowCategoryId" asp-items="Model.CategoryOptions" class="form-select">
+                <option value="">Select category</option>
+            </select>
+            <span asp-validation-for="Input.CashFlowCategoryId" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Input.GLAccountId" class="form-label">Offset GL account</label>
+            <select asp-for="Input.GLAccountId" asp-items="Model.AccountOptions" class="form-select">
+                <option value="">Any account</option>
+            </select>
+            <span asp-validation-for="Input.GLAccountId" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Input.SourceModule" class="form-label">Source module</label>
+            <select asp-for="Input.SourceModule" asp-items="Html.GetEnumSelectList<SourceModule>()" class="form-select">
+                <option value="">Any module</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Input.SourceTransactionType" class="form-label">Source transaction</label>
+            <select asp-for="Input.SourceTransactionType" asp-items="Html.GetEnumSelectList<SourceTransactionType>()" class="form-select">
+                <option value="">Any transaction</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <div class="form-check">
+                <input asp-for="Input.IsCashAccountRule" class="form-check-input" />
+                <label asp-for="Input.IsCashAccountRule" class="form-check-label">Cash account rule</label>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Input.Notes" class="form-label">Notes</label>
+            <input asp-for="Input.Notes" class="form-control" />
+        </div>
+    </div>
+    <div class="vpms-actions mt-3">
+        <button class="btn vpms-btn-primary" type="submit">Add Mapping Rule</button>
+    </div>
+</form>
+
+<section class="vpms-card">
+    @if (!Model.Rules.Any())
+    {
+        <div class="vpms-empty-state">
+            <h2>No mapping rules configured</h2>
+            <p>Cash movements will default to Other Operating Cash Flows until mapping rules are configured.</p>
+        </div>
+    }
+    else
+    {
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Rule</th>
+                        <th>Mapping</th>
+                        <th>Category</th>
+                        <th>Section</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var rule in Model.Rules)
+                {
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">@rule.RuleName</div>
+                            @if (!string.IsNullOrWhiteSpace(rule.Notes))
+                            {
+                                <div class="text-muted small">@rule.Notes</div>
+                            }
+                        </td>
+                        <td>
+                            @if (rule.GLAccount is not null)
+                            {
+                                <div>@rule.GLAccount.AccountCode - @rule.GLAccount.AccountName</div>
+                            }
+                            <div class="text-muted small">@rule.SourceModule?.ToString() @rule.SourceTransactionType?.ToString()</div>
+                        </td>
+                        <td>@rule.CashFlowCategory?.Name</td>
+                        <td>@rule.CashFlowSection</td>
+                        <td><span class="status-badge @(rule.IsActive ? "status-paid" : "status-cancelled")">@(rule.IsActive ? "Active" : "Inactive")</span></td>
+                        <td class="text-end">
+                            <form method="post" asp-page-handler="Toggle" asp-route-id="@rule.Id" class="d-inline">
+                                <button class="btn btn-sm vpms-btn-secondary" type="submit">@(rule.IsActive ? "Deactivate" : "Activate")</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

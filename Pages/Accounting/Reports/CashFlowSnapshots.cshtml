@@ -1,0 +1,151 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Reports.CashFlowSnapshotsModel
+@using Vantage.PMS.Models.Accounting
+@using Vantage.PMS.ViewModels.Reports
+@{
+    ViewData["Title"] = "Cash Flow Snapshots";
+    var today = DateTime.Today;
+    string SectionTitle(CashFlowSection section) => section switch
+    {
+        CashFlowSection.Operating => "Operating Activities",
+        CashFlowSection.Investing => "Investing Activities",
+        CashFlowSection.Financing => "Financing Activities",
+        CashFlowSection.BeginningCash => "Beginning Cash",
+        CashFlowSection.EndingCash => "Ending Cash",
+        _ => "Cash Reconciliation"
+    };
+}
+
+<div class="page-header vpms-no-print">
+    <div>
+        <div class="page-kicker">Accounting Reports</div>
+        <h1 class="page-title">Cash Flow Snapshots</h1>
+        <p class="page-subtitle">Saved Statement of Cash Flows runs for historical review and owner reporting packages.</p>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info vpms-no-print">@Model.StatusMessage</div>
+}
+
+<form method="post" asp-page-handler="Generate" class="vpms-card mb-3 vpms-report-filters">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Date From</label>
+            <input name="StartDate" value="@(new DateTime(today.Year, today.Month, 1).ToString("yyyy-MM-dd"))" type="date" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Date To</label>
+            <input name="EndDate" value="@today.ToString("yyyy-MM-dd")" type="date" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Method</label>
+            <select name="Method" class="form-select">
+                @foreach (var method in Html.GetEnumSelectList<CashFlowMethod>())
+                {
+                    <option value="@method.Value">@method.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button class="btn vpms-btn-primary w-100" type="submit">Generate Snapshot</button>
+        </div>
+    </div>
+</form>
+
+<div class="row g-3">
+    <div class="col-lg-4 vpms-no-print">
+        <section class="vpms-card">
+            <h2 class="vpms-section-title">Recent Snapshots</h2>
+            @if (!Model.Snapshots.Any())
+            {
+                <div class="vpms-empty-state">
+                    <h2>No snapshots yet</h2>
+                    <p>Generate a cash flow snapshot after reviewing mappings.</p>
+                </div>
+            }
+            else
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var snapshot in Model.Snapshots)
+                    {
+                        <a class="list-group-item list-group-item-action" asp-page="/Accounting/Reports/CashFlowSnapshots" asp-route-snapshotId="@snapshot.Id">
+                            <div class="fw-semibold">@snapshot.ReportName</div>
+                            <div class="text-muted small">@snapshot.PeriodStart.ToString("MMM d, yyyy") to @snapshot.PeriodEnd.ToString("MMM d, yyyy")</div>
+                            <div class="text-muted small">Generated @snapshot.GeneratedAt.ToString("MMM d, yyyy h:mm tt")</div>
+                        </a>
+                    }
+                </div>
+            }
+        </section>
+    </div>
+    <div class="col-lg-8">
+        @if (Model.SelectedSnapshot is null)
+        {
+            <section class="vpms-card">
+                <div class="vpms-empty-state">
+                    <h2>No cash flow snapshot selected</h2>
+                    <p>Generate or select a snapshot to review the saved report lines.</p>
+                </div>
+            </section>
+        }
+        else
+        {
+            @await Html.PartialAsync("_ReportActions", new ReportActionsViewModel
+            {
+                CsvAvailable = false,
+                HtmlAvailable = true,
+                HtmlUrl = Url.Page("/Accounting/Reports/CashFlowSnapshots", new { snapshotId = Model.SelectedSnapshot.Id }),
+                BackUrl = Url.Page("/Accounting/Reports/StatementOfCashFlows", new { startDate = Model.SelectedSnapshot.PeriodStart.ToString("yyyy-MM-dd"), endDate = Model.SelectedSnapshot.PeriodEnd.ToString("yyyy-MM-dd") })
+            })
+
+            <section class="vpms-print-document vpms-report-page">
+                @await Html.PartialAsync("_ReportHeader", new ReportHeaderViewModel
+                {
+                    ReportTitle = Model.SelectedSnapshot.ReportName,
+                    ReportCategory = "Accounting",
+                    DateRangeStart = Model.SelectedSnapshot.PeriodStart,
+                    DateRangeEnd = Model.SelectedSnapshot.PeriodEnd,
+                    GeneratedBy = Model.SelectedSnapshot.GeneratedBy,
+                    GeneratedAt = Model.SelectedSnapshot.GeneratedAt,
+                    Disclaimer = "Saved snapshot generated from configured cash flow mappings and posted journal entries."
+                })
+
+                <div class="vpms-table-wrapper">
+                    <table class="table vpms-table vpms-report-table">
+                        <thead>
+                            <tr>
+                                <th>Line</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var group in Model.SelectedSnapshot.Lines.GroupBy(line => line.CashFlowSection).OrderBy(group => group.Key))
+                        {
+                            <tr class="table-light">
+                                <th colspan="2">@SectionTitle(group.Key)</th>
+                            </tr>
+                            @foreach (var line in group.OrderBy(item => item.SortOrder))
+                            {
+                                <tr class="@(line.IsSubtotal ? "fw-semibold" : "")">
+                                    <td>@line.LineName</td>
+                                    <td class="text-end">@line.Amount.ToString("C")</td>
+                                </tr>
+                            }
+                        }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="vpms-report-totals">
+                    <div><span>Beginning Cash</span><strong>@Model.SelectedSnapshot.BeginningCashBalance.ToString("C")</strong></div>
+                    <div><span>Operating Cash Flow</span><strong>@Model.SelectedSnapshot.NetCashFromOperatingActivities.ToString("C")</strong></div>
+                    <div><span>Investing Cash Flow</span><strong>@Model.SelectedSnapshot.NetCashFromInvestingActivities.ToString("C")</strong></div>
+                    <div><span>Financing Cash Flow</span><strong>@Model.SelectedSnapshot.NetCashFromFinancingActivities.ToString("C")</strong></div>
+                    <div><span>Ending Cash</span><strong>@Model.SelectedSnapshot.EndingCashBalance.ToString("C")</strong></div>
+                </div>
+            </section>
+        }
+    </div>
+</div>

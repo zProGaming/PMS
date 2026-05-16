@@ -1,0 +1,47 @@
+@page
+@model Vantage.PMS.Pages.Revenue.PromotionCodes.IndexModel
+@{
+    ViewData["Title"] = "Promotion Codes";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Promotion Codes</h1>
+    <a asp-page="Create" class="btn btn-primary">New Promotion</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Discount</th>
+                <th>Valid From</th>
+                <th>Valid To</th>
+                <th>Usage</th>
+                <th>Rate Plan</th>
+                <th>Room Type</th>
+                <th>Active</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.PromotionCodes)
+            {
+                <tr>
+                    <td>@item.Code</td>
+                    <td>@item.DiscountType @item.DiscountValue.ToString("N2")</td>
+                    <td>@item.ValidFrom.ToString("yyyy-MM-dd")</td>
+                    <td>@item.ValidTo.ToString("yyyy-MM-dd")</td>
+                    <td>@item.TimesUsed / @(item.UsageLimit?.ToString() ?? "Unlimited")</td>
+                    <td>@(item.AppliesToRatePlan?.Code ?? "Any")</td>
+                    <td>@(item.AppliesToRoomType?.Code ?? "Any")</td>
+                    <td>@(item.IsActive ? "Yes" : "No")</td>
+                    <td class="text-end">
+                        <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        <a asp-page="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

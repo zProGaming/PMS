@@ -1,0 +1,62 @@
+@page
+@model Vantage.PMS.Pages.Sales.ContactPersons.CreateModel
+
+@{
+    ViewData["Title"] = "Create Contact Person";
+}
+
+<h1>Create Contact Person</h1>
+
+<form method="post" class="mt-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="ContactPerson.SalesAccountId" class="form-label">Sales Account</label>
+        <select asp-for="ContactPerson.SalesAccountId" class="form-select" asp-items="Model.AccountOptions"></select>
+        <span asp-validation-for="ContactPerson.SalesAccountId" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="ContactPerson.FullName" class="form-label">Full Name</label>
+            <input asp-for="ContactPerson.FullName" class="form-control" />
+            <span asp-validation-for="ContactPerson.FullName" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="ContactPerson.Position" class="form-label"></label>
+            <input asp-for="ContactPerson.Position" class="form-control" />
+            <span asp-validation-for="ContactPerson.Position" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="ContactPerson.Mobile" class="form-label"></label>
+            <input asp-for="ContactPerson.Mobile" class="form-control" />
+            <span asp-validation-for="ContactPerson.Mobile" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="ContactPerson.Email" class="form-label"></label>
+            <input asp-for="ContactPerson.Email" class="form-control" />
+            <span asp-validation-for="ContactPerson.Email" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="ContactPerson.IsPrimary" class="form-check-input" />
+        <label asp-for="ContactPerson.IsPrimary" class="form-check-label">Primary contact</label>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ContactPerson.Notes" class="form-label"></label>
+        <textarea asp-for="ContactPerson.Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="ContactPerson.Notes" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index" asp-route-accountId="@Model.ContactPerson.SalesAccountId">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

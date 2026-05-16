@@ -1,0 +1,26 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Revenue.PromotionCodes.DeleteModel
+@{
+    ViewData["Title"] = "Delete Promotion Code";
+}
+
+<h1 class="h3 mb-3">Delete Promotion Code</h1>
+
+<div class="alert alert-warning">Delete this promotion code?</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Code</dt>
+    <dd class="col-sm-9">@Model.PromotionCode.Code</dd>
+    <dt class="col-sm-3">Discount</dt>
+    <dd class="col-sm-9">@Model.PromotionCode.DiscountType @Model.PromotionCode.DiscountValue.ToString("N2")</dd>
+    <dt class="col-sm-3">Valid Dates</dt>
+    <dd class="col-sm-9">@Model.PromotionCode.ValidFrom.ToString("yyyy-MM-dd") - @Model.PromotionCode.ValidTo.ToString("yyyy-MM-dd")</dd>
+    <dt class="col-sm-3">Active</dt>
+    <dd class="col-sm-9">@(Model.PromotionCode.IsActive ? "Yes" : "No")</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="PromotionCode.Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>

@@ -1,5 +1,6 @@
 using Vantage.PMS.Models.Core;
 using Vantage.PMS.Models.Finance;
+using Vantage.PMS.Models.Revenue;
 
 namespace Vantage.PMS.Models.FrontOffice;
 
@@ -23,11 +24,21 @@ public class Reservation
 
     public Room? Room { get; set; }
 
+    public int? RatePlanId { get; set; }
+
+    public RatePlan? RatePlan { get; set; }
+
     public string ConfirmationNumber { get; set; } = string.Empty;
 
     public DateTime ArrivalDate { get; set; }
 
     public DateTime DepartureDate { get; set; }
+
+    public DateTime? ActualCheckInDate { get; set; }
+
+    public DateTime? ActualCheckOutDate { get; set; }
+
+    public bool ManagerOverrideRequested { get; set; }
 
     public decimal RateAmount { get; set; }
 
@@ -35,7 +46,7 @@ public class Reservation
 
     public int Children { get; set; }
 
-    public ReservationStatus Status { get; set; } = ReservationStatus.Pending;
+    public ReservationStatus Status { get; set; } = ReservationStatus.Reserved;
 
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 

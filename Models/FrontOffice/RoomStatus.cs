@@ -2,10 +2,11 @@ namespace Vantage.PMS.Models.FrontOffice;
 
 public enum RoomStatus
 {
-    VacantClean = 0,
-    VacantDirty = 1,
+    Available = 0,
+    Dirty = 1,
     Occupied = 2,
     Inspected = 3,
     OutOfOrder = 4,
-    OutOfService = 5
+    Maintenance = 5,
+    Clean = 6
 }

@@ -1,0 +1,68 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Accounting.AccountsPayable.PaymentVouchers.DetailsModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "Payment Voucher Details";
+}
+
+<div class="page-header">
+    <div><div class="page-kicker">Accounts Payable</div><h1 class="page-title">@Model.Voucher.VoucherNumber</h1><p class="page-subtitle">@Model.Voucher.Supplier?.SupplierName · @Model.Voucher.PaymentMethod</p></div>
+    <div class="page-actions">
+        @if (Model.Voucher.Status == PaymentVoucherStatus.Draft)
+        {
+            <form method="post" asp-page-handler="MarkForApproval" asp-route-id="@Model.Voucher.Id" class="d-inline"><button class="btn vpms-btn-secondary">Mark For Approval</button></form>
+        }
+        @if (Model.Voucher.Status is PaymentVoucherStatus.Draft or PaymentVoucherStatus.ForApproval)
+        {
+            <form method="post" asp-page-handler="Approve" asp-route-id="@Model.Voucher.Id" class="d-inline"><button class="btn vpms-btn-primary">Approve</button></form>
+            <form method="post" asp-page-handler="Cancel" asp-route-id="@Model.Voucher.Id" class="d-inline"><button class="btn vpms-btn-danger">Cancel</button></form>
+        }
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info vpms-alert">@Model.StatusMessage</div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Status</span><strong class="kpi-value">@Model.Voucher.Status</strong><span class="kpi-meta">Voucher workflow</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Gross Amount</span><strong class="kpi-value">@Model.Voucher.Amount.ToString("C")</strong><span class="kpi-meta">AP debit</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Withholding</span><strong class="kpi-value">@Model.Voucher.WithholdingTaxAmount.ToString("C")</strong><span class="kpi-meta">Tax payable</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Net Payment</span><strong class="kpi-value">@Model.Voucher.NetPaymentAmount.ToString("C")</strong><span class="kpi-meta">Cash/bank release</span></div></div>
+</div>
+
+@if (Model.Voucher.Status == PaymentVoucherStatus.Approved)
+{
+    <form method="post" asp-page-handler="Release" asp-route-id="@Model.Voucher.Id" class="vpms-card mb-4">
+        <h2 class="h6">Release Payment</h2>
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label asp-for="BankAccountId" class="form-label">Bank Account for bank/check/e-wallet payments</label>
+                <select asp-for="BankAccountId" asp-items="Model.BankAccountOptions" class="form-select"><option value="">No bank transaction</option></select>
+            </div>
+            <div class="col-md-3"><button class="btn vpms-btn-primary" type="submit">Release & Post</button></div>
+        </div>
+    </form>
+}
+
+<section class="vpms-card">
+    <h2 class="h6">Disbursements</h2>
+    <div class="table-responsive">
+        <table class="table vpms-table align-middle">
+            <thead><tr><th>Disbursement</th><th>Date</th><th>Method</th><th>Status</th><th class="text-end">Amount</th></tr></thead>
+            <tbody>
+            @foreach (var disbursement in Model.Voucher.Disbursements.OrderByDescending(item => item.DisbursementDate))
+            {
+                <tr>
+                    <td>@disbursement.DisbursementNumber</td>
+                    <td>@disbursement.DisbursementDate.ToString("yyyy-MM-dd")</td>
+                    <td>@disbursement.PaymentMethod</td>
+                    <td><span class="status-badge">@disbursement.Status</span></td>
+                    <td class="text-end">@disbursement.Amount.ToString("C")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</section>

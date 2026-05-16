@@ -1,0 +1,25 @@
+@page
+@model Vantage.PMS.Pages.Labor.Import.IndexModel
+@{
+    ViewData["Title"] = "Payroll Import Placeholder";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Future HRIS Integration</div>
+        <h1 class="page-title">Payroll Import Placeholder</h1>
+        <p class="page-subtitle">CSV import and Vantage HRIS sync are planned. No external HRIS API is called in this MVP.</p>
+    </div>
+    <div class="page-actions"><a class="btn vpms-btn-secondary" asp-page="/Labor/PayrollPeriods/Index">Payroll Periods</a></div>
+</div>
+
+<section class="vpms-card">
+    <h2 class="h5">Vantage HRIS Integration Readiness</h2>
+    <p>This page reserves the PMS-side workflow for future employee master data, attendance, payroll-cost, and service-charge import from Vantage HRIS.</p>
+    <ul>
+        <li>Employee cost profiles are maintained locally until HRIS sync is implemented.</li>
+        <li>Payroll cost entries can be entered manually for labor reporting and GL posting.</li>
+        <li>CSV upload, statutory payroll calculations, bank disbursement, and HRIS API sync are not implemented in this MVP.</li>
+    </ul>
+    <div class="alert alert-info mb-0">Payroll calculations and statutory deductions must be validated by payroll and accounting professionals before production use.</div>
+</section>

@@ -1,0 +1,51 @@
+@page
+@model Vantage.PMS.Pages.AccountsReceivable.ARAccounts.IndexModel
+@using Vantage.PMS.Models.Finance
+@{
+    ViewData["Title"] = "AR Accounts";
+}
+
+<h1 class="h3 mb-3">AR Accounts</h1>
+
+<form method="post" asp-page-handler="Save" class="row g-3 border rounded p-3 mb-4">
+    <input type="hidden" asp-for="Account.Id" />
+    <input type="hidden" asp-for="Account.CurrentBalance" />
+    <div class="col-md-3"><label asp-for="Account.AccountName" class="form-label"></label><input asp-for="Account.AccountName" class="form-control" /></div>
+    <div class="col-md-3"><label asp-for="Account.AccountType" class="form-label"></label><select asp-for="Account.AccountType" asp-items="Html.GetEnumSelectList<ARAccountType>()" class="form-select"></select></div>
+    <div class="col-md-3"><label asp-for="Account.SalesAccountId" class="form-label">Sales Account</label><select asp-for="Account.SalesAccountId" asp-items="Model.SalesAccountOptions" class="form-select"><option value="">None</option></select></div>
+    <div class="col-md-3"><label asp-for="Account.CreditLimit" class="form-label"></label><input asp-for="Account.CreditLimit" class="form-control" /></div>
+    <div class="col-md-3"><label asp-for="Account.ContactPerson" class="form-label"></label><input asp-for="Account.ContactPerson" class="form-control" /></div>
+    <div class="col-md-3"><label asp-for="Account.Phone" class="form-label"></label><input asp-for="Account.Phone" class="form-control" /></div>
+    <div class="col-md-3"><label asp-for="Account.Email" class="form-label"></label><input asp-for="Account.Email" class="form-control" /></div>
+    <div class="col-md-3 align-self-end"><div class="form-check"><input asp-for="Account.IsActive" class="form-check-input" /><label asp-for="Account.IsActive" class="form-check-label"></label></div></div>
+    <div class="col-12"><label asp-for="Account.BillingAddress" class="form-label"></label><textarea asp-for="Account.BillingAddress" class="form-control"></textarea></div>
+    <div class="col-12"><label asp-for="Account.Notes" class="form-label"></label><textarea asp-for="Account.Notes" class="form-control"></textarea></div>
+    <div class="col-12"><button class="btn btn-primary">Save</button></div>
+</form>
+
+<table class="table table-striped table-hover align-middle">
+    <thead><tr><th>Account</th><th>Type</th><th>Sales Account</th><th>Contact</th><th class="text-end">Credit Limit</th><th class="text-end">Balance</th><th>Active</th><th>Warning</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var account in Model.Accounts)
+        {
+            <tr>
+                <td>@account.AccountName</td>
+                <td>@account.AccountType</td>
+                <td>@account.SalesAccount?.AccountName</td>
+                <td>@account.ContactPerson</td>
+                <td class="text-end">@account.CreditLimit.ToString("C")</td>
+                <td class="text-end">@account.CurrentBalance.ToString("C")</td>
+                <td>@(account.IsActive ? "Yes" : "No")</td>
+                <td>
+                    @if (account.CreditLimit > 0 && account.CurrentBalance > account.CreditLimit)
+                    {
+                        <span class="badge text-bg-warning">Over credit limit</span>
+                    }
+                </td>
+                <td class="text-end"><a asp-page="Index" asp-route-id="@account.Id" class="btn btn-sm btn-outline-secondary">Edit</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

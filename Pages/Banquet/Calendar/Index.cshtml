@@ -1,0 +1,60 @@
+@page
+@model Vantage.PMS.Pages.Banquet.Calendar.IndexModel
+@using Vantage.PMS.Models.Banquet
+
+@{
+    ViewData["Title"] = "Banquet Event Calendar";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="mb-1">Event Calendar</h1>
+        <p class="text-muted mb-0">Simple list view of recent and upcoming banquet events.</p>
+    </div>
+    <a class="btn btn-primary" asp-page="/Banquet/Events/Create">New Event</a>
+</div>
+
+@foreach (var dayGroup in Model.BanquetEvents.GroupBy(banquetEvent => banquetEvent.EventDate.Date))
+{
+    <h2 class="h5 mt-4">@dayGroup.Key.ToString("D")</h2>
+    <table class="table table-striped table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Event</th>
+                <th>Client</th>
+                <th>Function Room</th>
+                <th>Status</th>
+                <th class="text-end">Pax</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var banquetEvent in dayGroup)
+            {
+            <tr>
+                <td>@banquetEvent.StartTime.ToString(@"hh\:mm") - @banquetEvent.EndTime.ToString(@"hh\:mm")</td>
+                <td><a asp-page="/Banquet/Events/Details" asp-route-id="@banquetEvent.Id">@banquetEvent.EventName</a></td>
+                <td>@banquetEvent.ClientName</td>
+                <td>@banquetEvent.FunctionRoom?.Name</td>
+                <td><span class="badge @StatusBadgeClass(banquetEvent.EventStatus)">@banquetEvent.EventStatus</span></td>
+                <td class="text-end">@banquetEvent.ExpectedPax / @banquetEvent.GuaranteedPax</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@functions {
+    private static string StatusBadgeClass(BanquetEventStatus status)
+    {
+        return status switch
+        {
+            BanquetEventStatus.Tentative => "bg-warning text-dark",
+            BanquetEventStatus.Confirmed => "bg-primary",
+            BanquetEventStatus.Completed => "bg-success",
+            BanquetEventStatus.Cancelled => "bg-secondary",
+            BanquetEventStatus.Lost => "bg-dark",
+            _ => "bg-info text-dark"
+        };
+    }
+}

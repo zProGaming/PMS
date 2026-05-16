@@ -65,7 +65,7 @@ public class EditModel(ApplicationDbContext context) : PageModel
         return RedirectToPage("./Index");
     }
 
-    private async Task LoadSelectListsAsync(object? selectedProperty = null, object? selectedRoomType = null, RoomStatus selectedStatus = RoomStatus.VacantClean)
+    private async Task LoadSelectListsAsync(object? selectedProperty = null, object? selectedRoomType = null, RoomStatus selectedStatus = RoomStatus.Available)
     {
         var properties = await _context.Properties
             .AsNoTracking()

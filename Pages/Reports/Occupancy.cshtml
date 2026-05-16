@@ -1,0 +1,88 @@
+@page
+@model Vantage.PMS.Pages.Reports.OccupancyModel
+
+@{
+    ViewData["Title"] = "Occupancy Report";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="mb-1">Occupancy Report</h1>
+        <p class="text-muted mb-0">Room inventory as of @Model.BusinessDate.ToString("D")</p>
+    </div>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Reports</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4 col-xl-2">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Total Rooms</div>
+            <div class="display-6">@Model.TotalRooms</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Occupied Rooms</div>
+            <div class="display-6">@Model.OccupiedRooms</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Available Rooms</div>
+            <div class="display-6">@Model.AvailableRooms</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Dirty Rooms</div>
+            <div class="display-6">@Model.DirtyRooms</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Out of Order</div>
+            <div class="display-6">@Model.OutOfOrderRooms</div>
+        </div>
+    </div>
+    <div class="col-md-4 col-xl-2">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Occupancy</div>
+            <div class="display-6">@Model.OccupancyPercentage.ToString("N1")%</div>
+        </div>
+    </div>
+</div>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Metric</th>
+            <th class="text-end">Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Total rooms</td>
+            <td class="text-end">@Model.TotalRooms</td>
+        </tr>
+        <tr>
+            <td>Occupied rooms</td>
+            <td class="text-end">@Model.OccupiedRooms</td>
+        </tr>
+        <tr>
+            <td>Available rooms</td>
+            <td class="text-end">@Model.AvailableRooms</td>
+        </tr>
+        <tr>
+            <td>Dirty rooms</td>
+            <td class="text-end">@Model.DirtyRooms</td>
+        </tr>
+        <tr>
+            <td>Out of order rooms</td>
+            <td class="text-end">@Model.OutOfOrderRooms</td>
+        </tr>
+        <tr>
+            <td>Occupancy percentage</td>
+            <td class="text-end">@Model.OccupancyPercentage.ToString("N1")%</td>
+        </tr>
+    </tbody>
+</table>

@@ -1,0 +1,66 @@
+@page
+@model Vantage.PMS.Pages.Sales.Activities.CreateModel
+
+@{
+    ViewData["Title"] = "Create Sales Activity";
+}
+
+<h1>Create Sales Activity</h1>
+
+<form method="post" class="mt-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="SalesActivity.SalesAccountId" class="form-label">Sales Account</label>
+            <select asp-for="SalesActivity.SalesAccountId" class="form-select" asp-items="Model.AccountOptions">
+                <option value="">No account assigned</option>
+            </select>
+            <span asp-validation-for="SalesActivity.SalesAccountId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="SalesActivity.SalesLeadId" class="form-label">Sales Lead</label>
+            <select asp-for="SalesActivity.SalesLeadId" class="form-select" asp-items="Model.LeadOptions">
+                <option value="">No lead assigned</option>
+            </select>
+            <span asp-validation-for="SalesActivity.SalesLeadId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label asp-for="SalesActivity.ActivityType" class="form-label">Activity Type</label>
+            <select asp-for="SalesActivity.ActivityType" class="form-select" asp-items="Model.ActivityTypeOptions"></select>
+            <span asp-validation-for="SalesActivity.ActivityType" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="SalesActivity.ActivityDate" class="form-label">Activity Date</label>
+            <input asp-for="SalesActivity.ActivityDate" type="datetime-local" class="form-control" />
+            <span asp-validation-for="SalesActivity.ActivityDate" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="SalesActivity.NextFollowUpDate" class="form-label">Next Follow-up</label>
+            <input asp-for="SalesActivity.NextFollowUpDate" type="date" class="form-control" />
+            <span asp-validation-for="SalesActivity.NextFollowUpDate" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SalesActivity.Notes" class="form-label"></label>
+        <textarea asp-for="SalesActivity.Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="SalesActivity.Notes" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SalesActivity.CreatedBy" class="form-label">Created By</label>
+        <input asp-for="SalesActivity.CreatedBy" class="form-control" />
+        <span asp-validation-for="SalesActivity.CreatedBy" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

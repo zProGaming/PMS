@@ -27,6 +27,14 @@
         </div>
     </div>
 
+    <div class="mb-3">
+        <label asp-for="Reservation.RatePlanId" class="form-label">Rate Plan</label>
+        <select asp-for="Reservation.RatePlanId" class="form-select" asp-items="Model.RatePlanOptions">
+            <option value="">Use room type base rate</option>
+        </select>
+        <span asp-validation-for="Reservation.RatePlanId" class="text-danger"></span>
+    </div>
+
     <div class="row">
         <div class="col-md-3 mb-3">
             <label asp-for="Reservation.ArrivalDate" class="form-label">Check-in Date</label>
@@ -41,6 +49,9 @@
         <div class="col-md-3 mb-3">
             <label asp-for="Reservation.RateAmount" class="form-label">Rate Amount</label>
             <input asp-for="Reservation.RateAmount" class="form-control" type="number" min="0" step="0.01" />
+            <div class="form-text">
+                Suggested rate: @(Model.SuggestedRate?.ToString("N2") ?? "select room/rate and submit to calculate"). Enter 0 to apply the suggested rate.
+            </div>
             <span asp-validation-for="Reservation.RateAmount" class="text-danger"></span>
         </div>
         <div class="col-md-3 mb-3">

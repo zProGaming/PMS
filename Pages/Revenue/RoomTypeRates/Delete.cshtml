@@ -1,0 +1,11 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Revenue.RoomTypeRates.DeleteModel
+@{
+    ViewData["Title"] = "Delete Room Type Rate";
+}
+<h1>Delete Room Type Rate</h1>
+<div class="alert alert-warning">Delete rate for <strong>@Model.RoomTypeRate.RatePlan?.Code / @Model.RoomTypeRate.RoomType?.Code</strong>?</div>
+<form method="post">
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>

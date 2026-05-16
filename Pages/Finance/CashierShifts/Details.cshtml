@@ -1,0 +1,80 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Finance.CashierShifts.DetailsModel
+@{
+    ViewData["Title"] = "Cashier Shift Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Cashier Shift @Model.CashierShift.ShiftNumber</h1>
+    <a asp-page="Index" class="btn btn-outline-secondary">Back</a>
+</div>
+
+@if (TempData["ErrorMessage"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Business Date</div><strong>@Model.CashierShift.BusinessDate.ToString("d")</strong></div></div>
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Opened By</div><strong>@Model.CashierShift.OpenedBy</strong></div></div>
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Status</div><span class="badge text-bg-secondary">@Model.CashierShift.Status</span></div></div>
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Expected Cash</div><strong>@Model.ExpectedCash.ToString("C")</strong></div></div>
+</div>
+
+@if (Model.CashierShift.Status == Vantage.PMS.Models.Finance.CashierShiftStatus.Open)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <form method="post" asp-page-handler="CashDrop" class="border rounded p-3">
+                <h2 class="h5">Cash Drop</h2>
+                <div class="mb-3"><label asp-for="CashDropAmount" class="form-label"></label><input asp-for="CashDropAmount" class="form-control" /></div>
+                <div class="mb-3"><label asp-for="CashDropReceivedBy" class="form-label"></label><input asp-for="CashDropReceivedBy" class="form-control" /></div>
+                <div class="mb-3"><label asp-for="CashDropNotes" class="form-label"></label><input asp-for="CashDropNotes" class="form-control" /></div>
+                <button class="btn btn-primary">Record Cash Drop</button>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form method="post" asp-page-handler="Close" class="border rounded p-3">
+                <h2 class="h5">Close Shift</h2>
+                <div class="mb-3"><label asp-for="ClosingCashCount" class="form-label"></label><input asp-for="ClosingCashCount" class="form-control" /></div>
+                <button class="btn btn-success">Close Shift</button>
+            </form>
+        </div>
+    </div>
+}
+
+<h2 class="h5">Transactions</h2>
+<table class="table table-striped table-hover align-middle">
+    <thead><tr><th>Date</th><th>Type</th><th>Method</th><th>Reference</th><th class="text-end">Amount</th><th>Notes</th><th>Voided</th></tr></thead>
+    <tbody>
+        @foreach (var transaction in Model.CashierShift.Transactions.OrderBy(item => item.TransactionDate))
+        {
+            <tr>
+                <td>@transaction.TransactionDate.ToString("g")</td>
+                <td>@transaction.TransactionType</td>
+                <td>@transaction.PaymentMethod</td>
+                <td>@transaction.ReferenceNumber</td>
+                <td class="text-end">@transaction.Amount.ToString("C")</td>
+                <td>@transaction.Notes</td>
+                <td>@(transaction.IsVoided ? "Yes" : "No")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2 class="h5 mt-4">Cash Drops</h2>
+<table class="table table-striped table-hover align-middle">
+    <thead><tr><th>Date</th><th>Dropped By</th><th>Received By</th><th class="text-end">Amount</th><th>Notes</th></tr></thead>
+    <tbody>
+        @foreach (var drop in Model.CashierShift.CashDrops.OrderBy(item => item.DropDate))
+        {
+            <tr>
+                <td>@drop.DropDate.ToString("g")</td>
+                <td>@drop.DroppedBy</td>
+                <td>@drop.ReceivedBy</td>
+                <td class="text-end">@drop.Amount.ToString("C")</td>
+                <td>@drop.Notes</td>
+            </tr>
+        }
+    </tbody>
+</table>

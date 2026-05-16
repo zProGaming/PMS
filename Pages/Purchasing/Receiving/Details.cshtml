@@ -1,0 +1,73 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Purchasing.Receiving.DetailsModel
+@{
+    ViewData["Title"] = "Receiving Record";
+    var total = Model.ReceivingRecord.Items.Sum(item => item.Amount);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Receiving @Model.ReceivingRecord.ReceivingNumber</h1>
+    <a asp-page="Index" class="btn btn-outline-secondary">Back</a>
+</div>
+
+@if (TempData["ErrorMessage"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">PO</div><strong>@Model.ReceivingRecord.PurchaseOrder?.PONumber</strong></div></div>
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Supplier</div><strong>@Model.ReceivingRecord.Supplier?.SupplierName</strong></div></div>
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Status</div><span class="badge text-bg-secondary">@Model.ReceivingRecord.Status</span></div></div>
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Received Total</div><strong>@total.ToString("C")</strong></div></div>
+</div>
+
+<div class="mb-3 d-flex flex-wrap gap-2">
+    @if (Model.ReceivingRecord.Status == Vantage.PMS.Models.Inventory.ReceivingStatus.Draft)
+    {
+        <form method="post" asp-page-handler="PostReceiving"><button class="btn btn-success">Post Receiving</button></form>
+        <form method="post" asp-page-handler="Cancel"><button class="btn btn-outline-secondary">Cancel</button></form>
+    }
+</div>
+
+<h2 class="h5">Items</h2>
+<table class="table table-striped align-middle">
+    <thead><tr><th>Item</th><th class="text-end">Qty Received</th><th class="text-end">Unit Cost</th><th class="text-end">Amount</th><th>Expiry</th><th>Notes</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var item in Model.ReceivingRecord.Items)
+        {
+            <tr>
+                <td>@item.InventoryItem?.ItemCode - @item.InventoryItem?.ItemName</td>
+                <td class="text-end">@item.QuantityReceived.ToString("N2")</td>
+                <td class="text-end">@item.UnitCost.ToString("C")</td>
+                <td class="text-end">@item.Amount.ToString("C")</td>
+                <td>@item.ExpiryDate?.ToString("d")</td>
+                <td>@item.Notes</td>
+                <td class="text-end">
+                    @if (Model.CanEditItems)
+                    {
+                        <form method="post" asp-page-handler="DeleteItem" asp-route-itemId="@item.Id">
+                            <button class="btn btn-sm btn-outline-danger">Remove</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.CanEditItems)
+{
+    <h2 class="h5 mt-4">Add Received Item</h2>
+    <form method="post" asp-page-handler="AddItem" class="row g-3">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="col-md-4"><label asp-for="NewItem.InventoryItemId" class="form-label">Item</label><select asp-for="NewItem.InventoryItemId" asp-items="Model.InventoryItemOptions" class="form-select"></select></div>
+        <div class="col-md-2"><label asp-for="NewItem.QuantityReceived" class="form-label"></label><input asp-for="NewItem.QuantityReceived" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="NewItem.UnitCost" class="form-label"></label><input asp-for="NewItem.UnitCost" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="NewItem.ExpiryDate" class="form-label"></label><input asp-for="NewItem.ExpiryDate" type="date" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="NewItem.Notes" class="form-label"></label><input asp-for="NewItem.Notes" class="form-control" /></div>
+        <div class="col-12"><button class="btn btn-primary">Add Item</button></div>
+    </form>
+}
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

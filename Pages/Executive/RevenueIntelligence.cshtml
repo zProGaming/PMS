@@ -1,0 +1,14 @@
+@page
+@model Vantage.PMS.Pages.Executive.RevenueIntelligenceModel
+@{
+    ViewData["Title"] = "Revenue Intelligence";
+}
+<div class="page-header"><div><div class="page-kicker">Executive Intelligence</div><h1 class="page-title">Revenue Intelligence</h1><p class="page-subtitle">Forward demand, booking pace, conversion, cancellation, no-show, and revenue opportunities.</p></div><button class="btn vpms-btn-primary vpms-no-print" onclick="window.print()">Print</button></div>
+<div class="row g-3">
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Reservations OTB</div><div class="kpi-value">@Model.ReservationsOnBooks</div><div class="kpi-note">Next 30 days</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Revenue OTB</div><div class="kpi-value">@Model.RevenueOnBooks.ToString("C")</div><div class="kpi-note">Reservation rate value</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Booking Conversion</div><div class="kpi-value">@Model.Summary.BookingConversionRate.ToString("N1")%</div><div class="kpi-note">Booking engine requests</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Cancel / No-show</div><div class="kpi-value">@Model.Summary.CancellationRate.ToString("N1")%</div><div class="kpi-note">No-show @Model.Summary.NoShowRate.ToString("N1")%</div></div></div>
+</div>
+<section class="vpms-card vpms-print-document mt-4"><h2 class="h5">Next 7 Days Forecast</h2><div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>Date</th><th class="text-end">Reservations</th><th class="text-end">Occupancy Forecast</th><th>Signal</th></tr></thead><tbody>@foreach (var row in Model.ForwardDates){<tr><td>@row.Date.ToString("ddd, MMM d")</td><td class="text-end">@row.ReservationsOnBooks</td><td class="text-end">@row.OccupancyForecast.ToString("N1")%</td><td>@(row.OccupancyForecast < 40 ? "Low occupancy opportunity" : row.OccupancyForecast > 90 ? "High occupancy yield control" : "Normal pickup")</td></tr>}</tbody></table></div></section>
+<section class="vpms-card mt-4"><h2 class="h5">Suggested Management Actions</h2><ul class="mb-0"><li>Review low-occupancy dates for direct booking and corporate account actions.</li><li>Protect high-occupancy dates with rate fences and room readiness controls.</li><li>Monitor promo code usage for displacement and conversion quality. Promo usage in the last 30 days: @Model.PromoCodeUses.</li></ul></section>

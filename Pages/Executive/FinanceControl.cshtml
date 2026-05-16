@@ -1,0 +1,14 @@
+@page
+@model Vantage.PMS.Pages.Executive.FinanceControlModel
+@{
+    ViewData["Title"] = "Finance Control Intelligence";
+}
+<div class="page-header"><div><div class="page-kicker">Executive Intelligence</div><h1 class="page-title">Finance Control Intelligence</h1><p class="page-subtitle">Cashiering, approvals, high balances, AR/AP overdue, posting readiness, trial balance, and bank controls.</p></div><button class="btn vpms-btn-primary vpms-no-print" onclick="window.print()">Print</button></div>
+<div class="row g-3">
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Open Shifts</div><div class="kpi-value">@Model.OpenCashierShifts</div><div class="kpi-note">Cashier control</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Pending Approvals</div><div class="kpi-value">@(Model.PendingVoids + Model.PendingRefunds + Model.PendingDiscounts)</div><div class="kpi-note">Void, refund, discount</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">High Balance Folios</div><div class="kpi-value">@Model.HighBalanceFolios</div><div class="kpi-note">Above configured watch level</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Trial Balance</div><div class="kpi-value">@Model.TrialBalanceStatus</div><div class="kpi-note">Posted journals</div></div></div>
+</div>
+<section class="vpms-card vpms-print-document mt-4"><h2 class="h5">Finance Controls</h2><div class="vpms-table-wrapper"><table class="table vpms-table"><tbody><tr><th>Overdue AR</th><td class="text-end">@Model.OverdueArBalance.ToString("C")</td><th>Overdue AP</th><td class="text-end">@Model.OverdueApBalance.ToString("C")</td></tr><tr><th>Unposted Transactions</th><td class="text-end">@Model.UnpostedTransactions</td><th>Accounting Period</th><td class="text-end">@Model.AccountingPeriodStatus</td></tr><tr><th>Pending Bank Reconciliations</th><td class="text-end">@Model.PendingBankReconciliations</td><th>Night Audit Warning</th><td class="text-end">Warn only for MVP</td></tr></tbody></table></div></section>
+<section class="vpms-card mt-4"><h2 class="h5">Recommended Actions</h2><ul class="mb-0"><li>Close old cashier shifts before owner report preparation.</li><li>Review pending void, refund, and discount approvals for audit completeness.</li><li>Process posting batches before issuing financial and USALI-style management reports.</li></ul></section>

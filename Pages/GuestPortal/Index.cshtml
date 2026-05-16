@@ -1,0 +1,44 @@
+@page
+@model Vantage.PMS.Pages.GuestPortal.IndexModel
+@{
+    ViewData["Title"] = Model.Setting.PortalTitle;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <h1 class="h3">@Model.Setting.PortalTitle</h1>
+        <p class="text-muted">@Model.Setting.WelcomeMessage</p>
+
+        @if (!Model.Setting.IsGuestPortalEnabled)
+        {
+            <div class="alert alert-warning">Guest portal is currently unavailable.</div>
+        }
+        else
+        {
+            <form method="post" class="card">
+                <div class="card-body row g-3">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="col-12">
+                        <label asp-for="Reference" class="form-label">Reservation number or booking reference</label>
+                        <input asp-for="Reference" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="GuestEmail" class="form-label">Guest email</label>
+                        <input asp-for="GuestEmail" type="email" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="GuestPhone" class="form-label">Guest phone</label>
+                        <input asp-for="GuestPhone" class="form-control" />
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Access Guest Portal</button>
+                    </div>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

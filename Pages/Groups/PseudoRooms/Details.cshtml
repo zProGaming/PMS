@@ -1,0 +1,109 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Groups.PseudoRooms.DetailsModel
+@using Vantage.PMS.Models.Groups
+@{
+    ViewData["Title"] = "Pseudo Room Details";
+    var room = Model.PseudoRoom;
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Pseudo Room / Paymaster Account</div>
+        <h1 class="page-title">@room.PseudoRoomCode - @room.PseudoRoomName</h1>
+        <p class="page-subtitle">Not included in physical room inventory, availability, occupancy, room rack, or housekeeping workload.</p>
+    </div>
+    <div class="page-actions">
+        <span class="status-badge @(room.IsActive ? "status-paid" : "status-cancelled")">@(room.IsActive ? "Active" : "Inactive")</span>
+        <a class="btn vpms-btn-secondary" asp-page="/Groups/Print" asp-route-type="pseudo-room-folio" asp-route-id="@room.Id">Print Folio</a>
+        <a class="btn vpms-btn-secondary" asp-page="./Index">Back</a>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<div class="alert alert-info">
+    Pseudo Room / Paymaster Account - not included in physical room inventory or occupancy.
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <section class="vpms-form-card mb-4">
+            <h2 class="h5">Account Profile</h2>
+            <form method="post" asp-page-handler="Update" asp-route-id="@room.Id">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row g-3">
+                    <div class="col-12"><label asp-for="EditInput.PseudoRoomCode" class="form-label">Code</label><input asp-for="EditInput.PseudoRoomCode" class="form-control" /></div>
+                    <div class="col-12"><label asp-for="EditInput.PseudoRoomName" class="form-label">Name</label><input asp-for="EditInput.PseudoRoomName" class="form-control" /></div>
+                    <div class="col-12"><label asp-for="EditInput.PseudoRoomType" class="form-label">Type</label><select asp-for="EditInput.PseudoRoomType" asp-items="Html.GetEnumSelectList<PseudoRoomType>()" class="form-select"></select></div>
+                    <div class="col-12"><label asp-for="EditInput.LinkedSalesAccountId" class="form-label">Sales Account</label><select asp-for="EditInput.LinkedSalesAccountId" asp-items="Model.SalesAccountOptions" class="form-select"><option value="">None</option></select></div>
+                    <div class="col-12"><label asp-for="EditInput.LinkedBanquetEventId" class="form-label">Banquet Event</label><select asp-for="EditInput.LinkedBanquetEventId" asp-items="Model.BanquetEventOptions" class="form-select"><option value="">None</option></select></div>
+                    <div class="col-12"><label asp-for="EditInput.LinkedGroupBookingId" class="form-label">Group Booking</label><select asp-for="EditInput.LinkedGroupBookingId" asp-items="Model.GroupBookingOptions" class="form-select"><option value="">None</option></select></div>
+                    <div class="col-12"><label asp-for="EditInput.Notes" class="form-label">Notes</label><textarea asp-for="EditInput.Notes" class="form-control" rows="3"></textarea></div>
+                    <div class="col-12"><div class="form-check"><input asp-for="EditInput.IsActive" class="form-check-input" /><label asp-for="EditInput.IsActive" class="form-check-label">Active</label></div></div>
+                    <div class="col-12"><button class="btn vpms-btn-primary w-100">Save Pseudo Room</button></div>
+                </div>
+            </form>
+            <div class="small text-muted mt-3">Created @room.CreatedAt.ToString("MMM d, yyyy") by @room.CreatedBy.</div>
+        </section>
+
+        <section class="vpms-card p-3">
+            <h2 class="h5">Notes</h2>
+            <p class="text-muted mb-0">@(string.IsNullOrWhiteSpace(room.Notes) ? "No notes recorded." : room.Notes)</p>
+        </section>
+    </div>
+
+    <div class="col-lg-8">
+        <section class="vpms-card">
+            <div class="vpms-section-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="h5 mb-0">Linked Group Folios</h2>
+                    <small class="text-muted">Pseudo rooms can anchor group master and paymaster billing.</small>
+                </div>
+            </div>
+
+            @if (room.GroupFolios.Count == 0)
+            {
+                <div class="vpms-empty-state m-3">No group folios are linked to this pseudo room yet.</div>
+            }
+            else
+            {
+                <div class="vpms-table-wrapper">
+                    <table class="table vpms-table align-middle">
+                        <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Group</th>
+                            <th>Billing Name</th>
+                            <th>Status</th>
+                            <th class="text-end">Charges</th>
+                            <th class="text-end">Payments</th>
+                            <th class="text-end">Balance</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var folio in room.GroupFolios.OrderBy(item => item.FolioName))
+                        {
+                            var charges = folio.Folio?.Items.Where(item => !item.IsVoided).Sum(item => item.Amount) ?? 0;
+                            var payments = folio.Folio?.Payments.Sum(item => item.Amount) ?? 0;
+                            <tr>
+                                <td>
+                                    <a asp-page="/Groups/Details" asp-route-id="@folio.GroupBookingId">@folio.FolioName</a>
+                                    <div class="small text-muted">Linked folio @(folio.Folio?.FolioNumber ?? "Virtual")</div>
+                                </td>
+                                <td>@folio.GroupBooking?.GroupName</td>
+                                <td>@folio.BillingName</td>
+                                <td><span class="status-badge">@folio.Status</span></td>
+                                <td class="text-end">@charges.ToString("C")</td>
+                                <td class="text-end">@payments.ToString("C")</td>
+                                <td class="text-end fw-semibold">@((charges - payments).ToString("C"))</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+</div>

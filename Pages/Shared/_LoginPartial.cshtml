@@ -1,26 +1,35 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
 
-<ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
-    <li class="nav-item">
-        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
-    </li>
-    <li class="nav-item">
-        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })">
-            <button  type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+    var displayName = User.Identity?.Name ?? "Admin User";
+    var initials = string.Join("", displayName.Split('@')[0].Split('.', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(part => part[0])).ToUpperInvariant();
+    if (string.IsNullOrWhiteSpace(initials))
+    {
+        initials = "AU";
+    }
+
+    <div class="vpms-user-area">
+        <a class="vpms-notification-link" asp-area="" asp-page="/System/Notifications/Index" aria-label="System notifications">
+            <span class="vpms-notification-dot"></span>
+        </a>
+        <a class="vpms-user-summary" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage account">
+            <span class="vpms-user-avatar">@initials</span>
+            <span class="vpms-user-copy">
+                <strong>@displayName</strong>
+                <small>System Administrator</small>
+            </span>
+        </a>
+        <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })">
+            <button type="submit" class="vpms-logout-button">Logout</button>
         </form>
-    </li>
+    </div>
 }
 else
 {
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
-    </li>
+    <div class="vpms-user-area">
+        <a class="vpms-auth-link" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        <a class="vpms-auth-link primary" asp-area="Identity" asp-page="/Account/Register">Register</a>
+    </div>
 }
-</ul>

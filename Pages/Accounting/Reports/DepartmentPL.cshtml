@@ -1,0 +1,17 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Reports.DepartmentPLModel
+@{
+    ViewData["Title"] = "Department P&L";
+}
+<div class="page-header"><div><div class="page-kicker">Accounting Reports</div><h1 class="page-title">@Model.DepartmentName Department P&amp;L</h1><p class="page-subtitle">Rooms, F&B, Banquet, and other operated department profitability.</p></div><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div>
+<form method="get" class="vpms-card mb-3 report-filter"><div class="row g-3 align-items-end"><div class="col-md-3"><label class="form-label">Department</label><select name="DepartmentCode" class="form-select"><option value="ROOMS" selected="@(Model.DepartmentCode == "ROOMS")">Rooms</option><option value="FB" selected="@(Model.DepartmentCode == "FB")">Food & Beverage</option><option value="BNQ" selected="@(Model.DepartmentCode == "BNQ")">Banquet</option><option value="OOD" selected="@(Model.DepartmentCode == "OOD")">Other Operated Departments</option></select></div><div class="col-md-3"><label class="form-label">From</label><input name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-3"><label class="form-label">To</label><input name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-3"><button class="btn vpms-btn-primary w-100">Run</button></div></div></form>
+<section class="vpms-print-document">
+    <div class="vpms-card">
+        <dl class="row mb-0">
+            <dt class="col-8">Revenue</dt><dd class="col-4 text-end">@Model.Revenue.ToString("C")</dd>
+            <dt class="col-8">Direct Cost of Sales</dt><dd class="col-4 text-end">@Model.CostOfSales.ToString("C")</dd>
+            <dt class="col-8">Department Expenses</dt><dd class="col-4 text-end">@Model.Expenses.ToString("C")</dd>
+            <dt class="col-8 h5">Department Profit</dt><dd class="col-4 text-end h5">@Model.DepartmentProfit.ToString("C")</dd>
+        </dl>
+    </div>
+</section>

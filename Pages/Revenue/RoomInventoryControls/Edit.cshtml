@@ -1,0 +1,57 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Revenue.RoomInventoryControls.EditModel
+@{
+    ViewData["Title"] = "Edit Room Inventory Control";
+}
+
+<h1 class="h3 mb-3">Edit Room Inventory Control</h1>
+
+<form method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="RoomInventoryControl.Id" />
+
+    <div class="col-md-4">
+        <label asp-for="RoomInventoryControl.RoomTypeId" class="form-label">Room Type</label>
+        <select asp-for="RoomInventoryControl.RoomTypeId" asp-items="Model.RoomTypeOptions" class="form-select"></select>
+        <span asp-validation-for="RoomInventoryControl.RoomTypeId" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="RoomInventoryControl.InventoryDate" class="form-label"></label>
+        <input asp-for="RoomInventoryControl.InventoryDate" type="date" class="form-control" />
+        <span asp-validation-for="RoomInventoryControl.InventoryDate" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="RoomInventoryControl.TotalRooms" class="form-label"></label>
+        <input asp-for="RoomInventoryControl.TotalRooms" class="form-control" />
+        <span asp-validation-for="RoomInventoryControl.TotalRooms" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="RoomInventoryControl.RoomsToSell" class="form-label"></label>
+        <input asp-for="RoomInventoryControl.RoomsToSell" class="form-control" />
+        <span asp-validation-for="RoomInventoryControl.RoomsToSell" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="RoomInventoryControl.OverbookingLimit" class="form-label"></label>
+        <input asp-for="RoomInventoryControl.OverbookingLimit" class="form-control" />
+        <span asp-validation-for="RoomInventoryControl.OverbookingLimit" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <div class="form-check">
+            <input asp-for="RoomInventoryControl.StopSell" class="form-check-input" />
+            <label asp-for="RoomInventoryControl.StopSell" class="form-check-label"></label>
+        </div>
+    </div>
+    <div class="col-12">
+        <label asp-for="RoomInventoryControl.Notes" class="form-label"></label>
+        <textarea asp-for="RoomInventoryControl.Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="RoomInventoryControl.Notes" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

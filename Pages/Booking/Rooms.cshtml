@@ -1,0 +1,70 @@
+@page
+@model Vantage.PMS.Pages.Booking.RoomsModel
+@{
+    ViewData["Title"] = "Select Room";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-1">Select Room</h1>
+        <div class="text-muted">@Model.Input.CheckInDate.ToString("yyyy-MM-dd") - @Model.Input.CheckOutDate.ToString("yyyy-MM-dd"), @Model.Input.AdultCount adult(s), @Model.Input.ChildCount child(ren)</div>
+    </div>
+    <a asp-page="Index" class="btn btn-outline-secondary">New Search</a>
+</div>
+
+@if (!Model.Setting.IsBookingEngineEnabled)
+{
+    <div class="alert alert-warning">Online booking is currently unavailable. Please contact the hotel directly.</div>
+}
+else if (Model.AvailableRooms.Count == 0)
+{
+    <div class="alert alert-info">No available room types were found for the selected stay dates.</div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var room in Model.AvailableRooms)
+        {
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    @if (!string.IsNullOrWhiteSpace(room.ImageUrl))
+                    {
+                        <img src="@room.ImageUrl" class="card-img-top" alt="@room.DisplayName" style="max-height: 220px; object-fit: cover;" />
+                    }
+                    <div class="card-body d-flex flex-column">
+                        <h2 class="h5">@room.DisplayName</h2>
+                        <p class="text-muted">@room.ShortDescription</p>
+                        <dl class="row small">
+                            <dt class="col-6">Max occupancy</dt>
+                            <dd class="col-6">@room.MaxOccupancy</dd>
+                            <dt class="col-6">Rate per night</dt>
+                            <dd class="col-6">@room.RoomRate.ToString("C")</dd>
+                            <dt class="col-6">Stay total</dt>
+                            <dd class="col-6">@room.TotalRoomAmount.ToString("C")</dd>
+                            @if (room.DiscountAmount > 0)
+                            {
+                                <dt class="col-6">Promo discount</dt>
+                                <dd class="col-6">@room.DiscountAmount.ToString("C")</dd>
+                            }
+                            @if (room.DepositRequired)
+                            {
+                                <dt class="col-6">Deposit required</dt>
+                                <dd class="col-6">@room.DepositAmount.ToString("C")</dd>
+                            }
+                        </dl>
+                        <div class="mt-auto">
+                            <a class="btn btn-primary" asp-page="GuestDetails"
+                               asp-route-checkInDate="@Model.Input.CheckInDate.ToString("yyyy-MM-dd")"
+                               asp-route-checkOutDate="@Model.Input.CheckOutDate.ToString("yyyy-MM-dd")"
+                               asp-route-adultCount="@Model.Input.AdultCount"
+                               asp-route-childCount="@Model.Input.ChildCount"
+                               asp-route-promoCode="@Model.Input.PromoCode"
+                               asp-route-roomTypeId="@room.RoomTypeId"
+                               asp-route-ratePlanId="@room.RatePlanId">Select</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

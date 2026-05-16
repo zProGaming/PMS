@@ -1,43 +1,82 @@
 @page "{id:int}"
+@using Vantage.PMS.Models.FrontOffice
 @model Vantage.PMS.Pages.FrontOffice.Reservations.DetailsModel
 
 @{
     ViewData["Title"] = "Reservation Details";
+    var statusClass = Model.Reservation.Status.ToString().ToLowerInvariant();
 }
 
-<h1>Reservation Details</h1>
+<div class="vpms-page-header page-header">
+    <div>
+        <div class="page-kicker">Front Office</div>
+        <h1 class="vpms-page-title page-title">Reservation @Model.Reservation.ConfirmationNumber</h1>
+        <p class="vpms-page-subtitle page-subtitle">
+            @Model.Reservation.Guest?.FirstName @Model.Reservation.Guest?.LastName |
+            @Model.Reservation.ArrivalDate.ToString("d") - @Model.Reservation.DepartureDate.ToString("d")
+        </p>
+    </div>
+    <div class="vpms-actions d-flex flex-wrap gap-2">
+        <span class="vpms-status-badge status-@statusClass">@Model.Reservation.Status</span>
+        @if (Model.Reservation.Status == ReservationStatus.Reserved)
+        {
+            <a class="btn btn-success" asp-page="./CheckIn" asp-route-id="@Model.Reservation.Id">Check In</a>
+        }
+        @if (Model.Reservation.Status == ReservationStatus.CheckedIn)
+        {
+            <a class="btn btn-warning" asp-page="./CheckOut" asp-route-id="@Model.Reservation.Id">Check Out</a>
+        }
+        <a class="btn btn-primary" asp-page="./Edit" asp-route-id="@Model.Reservation.Id">Edit</a>
+        <a class="btn btn-outline-secondary" asp-page="./Index">Back</a>
+    </div>
+</div>
 
-<dl class="row mt-3">
-    <dt class="col-sm-3">Confirmation</dt>
-    <dd class="col-sm-9">@Model.Reservation.ConfirmationNumber</dd>
+<div class="vpms-detail-grid mb-4">
+    <div class="vpms-stat-card border rounded p-3">
+        <div class="text-muted">Room</div>
+        <strong>@(Model.Reservation.Room?.RoomNumber ?? "Unassigned")</strong>
+        <div class="small text-muted mt-1">@Model.Reservation.RoomType?.Name</div>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+        <div class="text-muted">Rate Amount</div>
+        <strong>@Model.Reservation.RateAmount.ToString("C")</strong>
+        <div class="small text-muted mt-1">@Model.Reservation.Adults adult(s), @Model.Reservation.Children child(ren)</div>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+        <div class="text-muted">Actual Check-In</div>
+        <strong>@(Model.Reservation.ActualCheckInDate?.ToString("g") ?? "-")</strong>
+    </div>
+    <div class="vpms-stat-card border rounded p-3">
+        <div class="text-muted">Actual Check-Out</div>
+        <strong>@(Model.Reservation.ActualCheckOutDate?.ToString("g") ?? "-")</strong>
+    </div>
+</div>
 
+<dl class="row vpms-detail-section">
     <dt class="col-sm-3">Guest</dt>
     <dd class="col-sm-9">@Model.Reservation.Guest?.FirstName @Model.Reservation.Guest?.LastName</dd>
 
     <dt class="col-sm-3">Property</dt>
     <dd class="col-sm-9">@Model.Reservation.Property?.Name</dd>
 
-    <dt class="col-sm-3">Room</dt>
-    <dd class="col-sm-9">@Model.Reservation.Room?.RoomNumber</dd>
+    <dt class="col-sm-3">Arrival</dt>
+    <dd class="col-sm-9">@Model.Reservation.ArrivalDate.ToString("D")</dd>
 
-    <dt class="col-sm-3">Room Type</dt>
-    <dd class="col-sm-9">@Model.Reservation.RoomType?.Name</dd>
-
-    <dt class="col-sm-3">Check-in</dt>
-    <dd class="col-sm-9">@Model.Reservation.ArrivalDate.ToString("d")</dd>
-
-    <dt class="col-sm-3">Check-out</dt>
-    <dd class="col-sm-9">@Model.Reservation.DepartureDate.ToString("d")</dd>
-
-    <dt class="col-sm-3">Rate Amount</dt>
-    <dd class="col-sm-9">@Model.Reservation.RateAmount.ToString("N2")</dd>
-
-    <dt class="col-sm-3">Guests</dt>
-    <dd class="col-sm-9">@Model.Reservation.Adults adult(s), @Model.Reservation.Children child(ren)</dd>
+    <dt class="col-sm-3">Departure</dt>
+    <dd class="col-sm-9">@Model.Reservation.DepartureDate.ToString("D")</dd>
 
     <dt class="col-sm-3">Status</dt>
-    <dd class="col-sm-9">@Model.Reservation.Status</dd>
+    <dd class="col-sm-9"><span class="vpms-status-badge status-@statusClass">@Model.Reservation.Status</span></dd>
 </dl>
 
-<a class="btn btn-primary" asp-page="./Edit" asp-route-id="@Model.Reservation.Id">Edit</a>
-<a class="btn btn-outline-secondary" asp-page="./Index">Back</a>
+@if (Model.FolioId is not null)
+{
+    <div class="vpms-section-card card mb-3">
+        <div class="card-header">Guest Folio</div>
+        <div class="card-body d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-primary" asp-page="/FrontOffice/Folios/Details" asp-route-id="@Model.FolioId">View Folio</a>
+            <a class="btn btn-outline-primary" asp-page="/FrontOffice/Folios/PostCharge" asp-route-folioId="@Model.FolioId">Post Charge</a>
+            <a class="btn btn-outline-primary" asp-page="/FrontOffice/Folios/PostPayment" asp-route-folioId="@Model.FolioId">Post Payment</a>
+        </div>
+    </div>
+}

@@ -1,0 +1,135 @@
+@page
+@model Vantage.PMS.Pages.System.DocumentTemplateSettings.IndexModel
+@{
+    ViewData["Title"] = "Document Template Settings";
+}
+
+<nav aria-label="breadcrumb" class="vpms-no-print">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/System/Settings/Index">System</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Document Template Settings</li>
+    </ol>
+</nav>
+
+<div class="vpms-page-header vpms-no-print">
+    <div>
+        <div class="page-kicker">System</div>
+        <h1 class="vpms-page-title">Document Template Settings</h1>
+        <p class="vpms-page-subtitle">Configure document headers, footer text, logo visibility, and signature sections for browser-print templates.</p>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/Documents/Index">Printable Documents</a>
+    </div>
+</div>
+
+@if (TempData["StatusMessage"] is string message)
+{
+    <div class="alert alert-success vpms-alert">@message</div>
+}
+
+<div class="row g-4">
+    <div class="col-xl-4">
+        <form method="post" class="vpms-form-card">
+            <input type="hidden" asp-for="Input.Id" />
+            <h2 class="h5 mb-3">@(Model.Input.Id > 0 ? "Edit Template" : "Add Template")</h2>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Input.TemplateName">Template name</label>
+                <input class="form-control" asp-for="Input.TemplateName" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Input.DocumentType">Document type</label>
+                <input class="form-control" asp-for="Input.DocumentType" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Input.HeaderTitle">Header title</label>
+                <input class="form-control" asp-for="Input.HeaderTitle" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Input.FooterText">Footer text</label>
+                <textarea class="form-control" asp-for="Input.FooterText" rows="3"></textarea>
+            </div>
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="Input.ShowLogo" />
+                        <label class="form-check-label" asp-for="Input.ShowLogo">Show logo</label>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="Input.ShowPreparedBy" />
+                        <label class="form-check-label" asp-for="Input.ShowPreparedBy">Prepared by</label>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="Input.ShowApprovedBy" />
+                        <label class="form-check-label" asp-for="Input.ShowApprovedBy">Approved by</label>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="Input.ShowPrintedDate" />
+                        <label class="form-check-label" asp-for="Input.ShowPrintedDate">Printed date</label>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="Input.IsActive" />
+                        <label class="form-check-label" asp-for="Input.IsActive">Active</label>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Input.Notes">Notes</label>
+                <textarea class="form-control" asp-for="Input.Notes" rows="2"></textarea>
+            </div>
+            <button class="btn vpms-btn-primary" type="submit" asp-page-handler="Save">Save Template</button>
+        </form>
+    </div>
+    <div class="col-xl-8">
+        <div class="vpms-card">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Configured Templates</h2>
+                <div class="vpms-table-wrapper">
+                    <table class="table vpms-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Template</th>
+                                <th>Document Type</th>
+                                <th>Printed Date</th>
+                                <th>Status</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var setting in Model.Settings)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@setting.TemplateName</strong>
+                                        <div class="text-muted small">@setting.HeaderTitle</div>
+                                    </td>
+                                    <td>@setting.DocumentType</td>
+                                    <td>@(setting.ShowPrintedDate ? "Shown" : "Hidden")</td>
+                                    <td><span class="vpms-status-badge @(setting.IsActive ? "status-approved" : "status-draft")">@(setting.IsActive ? "Active" : "Inactive")</span></td>
+                                    <td class="text-end">
+                                        <form method="post" class="d-inline">
+                                            <button class="btn btn-sm vpms-btn-secondary" type="submit" asp-page-handler="Edit" asp-route-id="@setting.Id">Edit</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

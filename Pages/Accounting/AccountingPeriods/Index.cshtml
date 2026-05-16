@@ -1,0 +1,51 @@
+@page
+@model Vantage.PMS.Pages.Accounting.AccountingPeriods.IndexModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "Accounting Periods";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Accounting Setup</div>
+        <h1 class="page-title">Accounting Periods</h1>
+        <p class="page-subtitle">Open, close, and lock accounting date ranges for journal posting control.</p>
+    </div>
+</div>
+
+<form method="post" class="vpms-form-card mb-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-3"><label asp-for="Input.PeriodName" class="form-label">Period Name</label><input asp-for="Input.PeriodName" class="form-control" placeholder="2026-05" required /></div>
+        <div class="col-md-3"><label asp-for="Input.StartDate" class="form-label">Start Date</label><input asp-for="Input.StartDate" class="form-control" type="date" required /></div>
+        <div class="col-md-3"><label asp-for="Input.EndDate" class="form-label">End Date</label><input asp-for="Input.EndDate" class="form-control" type="date" required /></div>
+        <div class="col-md-3 d-flex align-items-end"><button class="btn vpms-btn-primary w-100" type="submit">Add Period</button></div>
+    </div>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table">
+        <thead><tr><th>Period</th><th>Start</th><th>End</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+        <tbody>
+        @foreach (var period in Model.Periods)
+        {
+            <tr>
+                <td class="fw-semibold">@period.PeriodName</td>
+                <td>@period.StartDate.ToString("yyyy-MM-dd")</td>
+                <td>@period.EndDate.ToString("yyyy-MM-dd")</td>
+                <td><span class="status-badge">@period.Status</span></td>
+                <td class="text-end">
+                    @if (period.Status == AccountingPeriodStatus.Open)
+                    {
+                        <form method="post" asp-page-handler="Close" asp-route-id="@period.Id" class="d-inline"><button class="btn btn-sm vpms-btn-secondary" type="submit">Close</button></form>
+                    }
+                    @if (period.Status == AccountingPeriodStatus.Closed)
+                    {
+                        <form method="post" asp-page-handler="Lock" asp-route-id="@period.Id" class="d-inline"><button class="btn btn-sm vpms-btn-warning" type="submit">Lock</button></form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

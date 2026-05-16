@@ -1,0 +1,38 @@
+@page
+@model Vantage.PMS.Pages.Accounting.AccountsPayable.IndexModel
+@{
+    ViewData["Title"] = "Accounts Payable Dashboard";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Back Office Finance</div>
+        <h1 class="page-title">Accounts Payable Dashboard</h1>
+        <p class="page-subtitle">Supplier invoices, payment vouchers, disbursements, banking, and month-end controls.</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/Accounting/AccountsPayable/APInvoices/Create">New AP Invoice</a>
+        <a class="btn vpms-btn-primary" asp-page="/Accounting/AccountsPayable/PaymentVouchers/Create">New Voucher</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">AP Balance</span><strong class="kpi-value">@Model.APBalance.ToString("C")</strong><span class="kpi-meta">Open supplier liability</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Overdue AP</span><strong class="kpi-value text-danger">@Model.APOverdue.ToString("C")</strong><span class="kpi-meta">Past due invoices</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Invoices Pending</span><strong class="kpi-value">@Model.PendingInvoices</strong><span class="kpi-meta">Draft or for approval</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Vouchers for Release</span><strong class="kpi-value">@Model.VouchersForRelease</strong><span class="kpi-meta">Approved payments</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Voucher Approvals</span><strong class="kpi-value">@Model.PendingVouchers</strong><span class="kpi-meta">Draft or for approval</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Bank Reconciliations</span><strong class="kpi-value">@Model.BankReconciliationsPending</strong><span class="kpi-meta">Open reconciliation work</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Open Period</span><strong class="kpi-value">@Model.OpenPeriodName</strong><span class="kpi-meta">Month-end close target</span></div></div>
+</div>
+
+<div class="quick-action-grid">
+    <a asp-page="/Accounting/AccountsPayable/APInvoices/Index" class="quick-action-card"><strong>AP Invoices</strong><small>Create, approve, and post supplier invoices</small></a>
+    <a asp-page="/Accounting/AccountsPayable/PaymentVouchers/Index" class="quick-action-card"><strong>Payment Vouchers</strong><small>Approve and release vendor payments</small></a>
+    <a asp-page="/Accounting/AccountsPayable/Disbursements/Index" class="quick-action-card"><strong>Disbursements</strong><small>Released payment history</small></a>
+    <a asp-page="/Accounting/Banking/BankReconciliations/Index" class="quick-action-card"><strong>Bank Reconciliation</strong><small>Match bank transactions and statements</small></a>
+    <a asp-page="/Accounting/MonthEnd/AccrualEntries/Index" class="quick-action-card"><strong>Accrual Entries</strong><small>Month-end accruals and reversals</small></a>
+    <a asp-page="/Accounting/MonthEnd/Close/Index" class="quick-action-card"><strong>Month-End Close</strong><small>Checklist and period close controls</small></a>
+    <a asp-page="/Accounting/Reports/APAging" class="quick-action-card"><strong>AP Aging</strong><small>Open supplier balance aging</small></a>
+    <a asp-page="/Accounting/Reports/CashPosition" class="quick-action-card"><strong>Cash Position</strong><small>Bank balances and clearing view</small></a>
+</div>

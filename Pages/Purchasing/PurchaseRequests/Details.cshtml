@@ -1,0 +1,86 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Purchasing.PurchaseRequests.DetailsModel
+@{
+    ViewData["Title"] = "Purchase Request";
+    var total = Model.PurchaseRequest.Items.Sum(item => item.EstimatedAmount);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Purchase Request @Model.PurchaseRequest.RequestNumber</h1>
+    <a asp-page="Index" class="btn btn-outline-secondary">Back</a>
+</div>
+
+@if (TempData["ErrorMessage"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Department</div><strong>@(Model.PurchaseRequest.Department?.Name ?? "General")</strong></div></div>
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Requested By</div><strong>@Model.PurchaseRequest.RequestedBy</strong></div></div>
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Status</div><span class="badge text-bg-secondary">@Model.PurchaseRequest.Status</span></div></div>
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Estimated Total</div><strong>@total.ToString("C")</strong></div></div>
+</div>
+
+<div class="mb-3 d-flex flex-wrap gap-2">
+    @if (Model.PurchaseRequest.Status == Vantage.PMS.Models.Inventory.PurchaseRequestStatus.Draft)
+    {
+        <form method="post" asp-page-handler="Submit"><button class="btn btn-primary">Submit</button></form>
+    }
+    @if (Model.PurchaseRequest.Status == Vantage.PMS.Models.Inventory.PurchaseRequestStatus.Submitted)
+    {
+        <form method="post" asp-page-handler="Approve"><button class="btn btn-success">Approve</button></form>
+        <form method="post" asp-page-handler="Reject"><button class="btn btn-outline-danger">Reject</button></form>
+    }
+    @if (Model.PurchaseRequest.Status == Vantage.PMS.Models.Inventory.PurchaseRequestStatus.Approved)
+    {
+        <form method="post" asp-page-handler="ConvertToPO" class="d-flex gap-2">
+            <select asp-for="SupplierId" asp-items="Model.SupplierOptions" class="form-select"><option value="">Select supplier</option></select>
+            <button class="btn btn-success">Convert to PO</button>
+        </form>
+    }
+    @if (Model.PurchaseRequest.Status is not Vantage.PMS.Models.Inventory.PurchaseRequestStatus.ConvertedToPO and not Vantage.PMS.Models.Inventory.PurchaseRequestStatus.Cancelled)
+    {
+        <form method="post" asp-page-handler="Cancel"><button class="btn btn-outline-secondary">Cancel Request</button></form>
+    }
+</div>
+
+<h2 class="h5">Items</h2>
+<table class="table table-striped align-middle">
+    <thead><tr><th>Item</th><th class="text-end">Qty</th><th class="text-end">Estimated Cost</th><th class="text-end">Amount</th><th>Notes</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var item in Model.PurchaseRequest.Items)
+        {
+            <tr>
+                <td>@item.InventoryItem?.ItemCode - @item.InventoryItem?.ItemName</td>
+                <td class="text-end">@item.Quantity.ToString("N2")</td>
+                <td class="text-end">@item.EstimatedUnitCost.ToString("C")</td>
+                <td class="text-end">@item.EstimatedAmount.ToString("C")</td>
+                <td>@item.Notes</td>
+                <td class="text-end">
+                    @if (Model.CanEditItems)
+                    {
+                        <form method="post" asp-page-handler="DeleteItem" asp-route-itemId="@item.Id">
+                            <button class="btn btn-sm btn-outline-danger">Remove</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.CanEditItems)
+{
+    <h2 class="h5 mt-4">Add Item</h2>
+    <form method="post" asp-page-handler="AddItem" class="row g-3">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="col-md-4"><label asp-for="NewItem.InventoryItemId" class="form-label">Item</label><select asp-for="NewItem.InventoryItemId" asp-items="Model.InventoryItemOptions" class="form-select"></select></div>
+        <div class="col-md-2"><label asp-for="NewItem.Quantity" class="form-label"></label><input asp-for="NewItem.Quantity" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="NewItem.EstimatedUnitCost" class="form-label"></label><input asp-for="NewItem.EstimatedUnitCost" class="form-control" /></div>
+        <div class="col-md-4"><label asp-for="NewItem.Notes" class="form-label"></label><input asp-for="NewItem.Notes" class="form-control" /></div>
+        <div class="col-12"><button class="btn btn-primary">Add Item</button></div>
+    </form>
+}
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

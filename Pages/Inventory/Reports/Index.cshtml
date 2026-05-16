@@ -1,0 +1,130 @@
+@page
+@model Vantage.PMS.Pages.Inventory.Reports.IndexModel
+@{
+    ViewData["Title"] = "Inventory Reports";
+}
+
+<h1 class="h3 mb-3">Inventory Reports</h1>
+
+<h2 class="h5 mt-4">Stock on Hand Report</h2>
+<table class="table table-sm table-striped align-middle">
+    <thead><tr><th>Code</th><th>Item</th><th>Category</th><th>UOM</th><th class="text-end">Current Stock</th><th class="text-end">Standard Cost</th><th class="text-end">Value</th></tr></thead>
+    <tbody>
+        @foreach (var item in Model.StockOnHand)
+        {
+            <tr>
+                <td>@item.ItemCode</td>
+                <td>@item.ItemName</td>
+                <td>@item.InventoryCategory?.Name</td>
+                <td>@item.UnitOfMeasure</td>
+                <td class="text-end">@item.CurrentStock.ToString("N2")</td>
+                <td class="text-end">@item.StandardCost.ToString("C")</td>
+                <td class="text-end">@((item.CurrentStock * item.StandardCost).ToString("C"))</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2 class="h5 mt-4">Low Stock Report</h2>
+<table class="table table-sm table-striped align-middle">
+    <thead><tr><th>Code</th><th>Item</th><th class="text-end">Current</th><th class="text-end">Reorder</th><th class="text-end">Par</th></tr></thead>
+    <tbody>
+        @foreach (var item in Model.LowStockItems)
+        {
+            <tr>
+                <td>@item.ItemCode</td>
+                <td>@item.ItemName</td>
+                <td class="text-end">@item.CurrentStock.ToString("N2")</td>
+                <td class="text-end">@item.ReorderLevel.ToString("N2")</td>
+                <td class="text-end">@item.ParStockLevel.ToString("N2")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2 class="h5 mt-4">Expiring Items Report</h2>
+<table class="table table-sm table-striped align-middle">
+    <thead><tr><th>Code</th><th>Item</th><th>Category</th><th>Expiry Date</th><th class="text-end">Current Stock</th></tr></thead>
+    <tbody>
+        @foreach (var item in Model.ExpiringItems)
+        {
+            <tr>
+                <td>@item.ItemCode</td>
+                <td>@item.ItemName</td>
+                <td>@item.InventoryCategory?.Name</td>
+                <td>@item.ExpiryDate?.ToString("d")</td>
+                <td class="text-end">@item.CurrentStock.ToString("N2")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2 class="h5 mt-4">Purchase Request Summary</h2>
+<table class="table table-sm table-striped align-middle">
+    <thead><tr><th>Request #</th><th>Department</th><th>Date</th><th>Status</th><th class="text-end">Estimated Amount</th></tr></thead>
+    <tbody>
+        @foreach (var request in Model.PurchaseRequests)
+        {
+            <tr>
+                <td>@request.RequestNumber</td>
+                <td>@request.Department?.Name</td>
+                <td>@request.RequestDate.ToString("d")</td>
+                <td>@request.Status</td>
+                <td class="text-end">@request.Items.Sum(item => item.EstimatedAmount).ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2 class="h5 mt-4">Purchase Order Summary</h2>
+<table class="table table-sm table-striped align-middle">
+    <thead><tr><th>PO #</th><th>Supplier</th><th>Date</th><th>Status</th><th class="text-end">Total</th></tr></thead>
+    <tbody>
+        @foreach (var order in Model.PurchaseOrders)
+        {
+            <tr>
+                <td>@order.PONumber</td>
+                <td>@order.Supplier?.SupplierName</td>
+                <td>@order.OrderDate.ToString("d")</td>
+                <td>@order.Status</td>
+                <td class="text-end">@order.TotalAmount.ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2 class="h5 mt-4">Receiving Summary</h2>
+<table class="table table-sm table-striped align-middle">
+    <thead><tr><th>Receiving #</th><th>PO</th><th>Supplier</th><th>Date</th><th>Status</th><th class="text-end">Amount</th></tr></thead>
+    <tbody>
+        @foreach (var record in Model.ReceivingRecords)
+        {
+            <tr>
+                <td>@record.ReceivingNumber</td>
+                <td>@record.PurchaseOrder?.PONumber</td>
+                <td>@record.Supplier?.SupplierName</td>
+                <td>@record.ReceivedDate.ToString("d")</td>
+                <td>@record.Status</td>
+                <td class="text-end">@record.Items.Sum(item => item.Amount).ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2 class="h5 mt-4">Stock Movement Report</h2>
+<table class="table table-sm table-striped align-middle">
+    <thead><tr><th>Date</th><th>Item</th><th>Type</th><th class="text-end">Quantity</th><th>Department</th><th>Reference</th></tr></thead>
+    <tbody>
+        @foreach (var movement in Model.StockMovements)
+        {
+            <tr>
+                <td>@movement.MovementDate.ToString("g")</td>
+                <td>@movement.InventoryItem?.ItemCode - @movement.InventoryItem?.ItemName</td>
+                <td>@movement.MovementType</td>
+                <td class="text-end">@movement.Quantity.ToString("N2")</td>
+                <td>@movement.Department?.Name</td>
+                <td>@movement.ReferenceType #@movement.ReferenceId</td>
+            </tr>
+        }
+    </tbody>
+</table>

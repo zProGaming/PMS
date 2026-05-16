@@ -1,0 +1,76 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Sales.Accounts.EditModel
+
+@{
+    ViewData["Title"] = "Edit Sales Account";
+}
+
+<h1>Edit Sales Account</h1>
+
+<form method="post" class="mt-3">
+    <input type="hidden" asp-for="SalesAccount.Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="SalesAccount.AccountName" class="form-label">Account Name</label>
+            <input asp-for="SalesAccount.AccountName" class="form-control" />
+            <span asp-validation-for="SalesAccount.AccountName" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="SalesAccount.AccountType" class="form-label">Account Type</label>
+            <select asp-for="SalesAccount.AccountType" class="form-select" asp-items="Model.AccountTypeOptions"></select>
+            <span asp-validation-for="SalesAccount.AccountType" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SalesAccount.Address" class="form-label"></label>
+        <textarea asp-for="SalesAccount.Address" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="SalesAccount.Address" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label asp-for="SalesAccount.Phone" class="form-label"></label>
+            <input asp-for="SalesAccount.Phone" class="form-control" />
+            <span asp-validation-for="SalesAccount.Phone" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="SalesAccount.Email" class="form-label"></label>
+            <input asp-for="SalesAccount.Email" class="form-control" />
+            <span asp-validation-for="SalesAccount.Email" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="SalesAccount.Website" class="form-label"></label>
+            <input asp-for="SalesAccount.Website" class="form-control" />
+            <span asp-validation-for="SalesAccount.Website" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label asp-for="SalesAccount.CreditLimit" class="form-label">Credit Limit</label>
+            <input asp-for="SalesAccount.CreditLimit" class="form-control" />
+            <span asp-validation-for="SalesAccount.CreditLimit" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SalesAccount.Notes" class="form-label"></label>
+        <textarea asp-for="SalesAccount.Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="SalesAccount.Notes" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="SalesAccount.IsActive" class="form-check-input" />
+        <label asp-for="SalesAccount.IsActive" class="form-check-label">Active</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

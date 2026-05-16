@@ -1,0 +1,48 @@
+@page
+@model Vantage.PMS.Pages.ManagementAI.Settings.IndexModel
+@{
+    ViewData["Title"] = "AI Integration Settings";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">AI Integration Settings</h1>
+    <a class="btn btn-outline-secondary" asp-page="/ManagementAI/Index">Dashboard</a>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+<div class="alert alert-warning">
+    External AI integration is disabled in MVP. Rule-based recommendations are currently used.
+</div>
+
+<form method="post" class="card card-body">
+    <input type="hidden" asp-for="Setting.Id" />
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label" asp-for="Setting.ProviderName">Provider name</label>
+            <input class="form-control" asp-for="Setting.ProviderName" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label" asp-for="Setting.ModelName">Model name</label>
+            <input class="form-control" asp-for="Setting.ModelName" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Enabled</label>
+            <input class="form-control" value="False - disabled for MVP" disabled />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">API key configured</label>
+            <input class="form-control" value="False - no API keys are stored" disabled />
+        </div>
+        <div class="col-md-12">
+            <label class="form-label" asp-for="Setting.Notes">Notes</label>
+            <textarea class="form-control" asp-for="Setting.Notes" rows="4"></textarea>
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+        </div>
+    </div>
+</form>

@@ -12,7 +12,7 @@ public class CreateModel(ApplicationDbContext context) : PageModel
     private readonly ApplicationDbContext _context = context;
 
     [BindProperty]
-    public Room Room { get; set; } = new() { IsActive = true, Status = RoomStatus.VacantClean };
+    public Room Room { get; set; } = new() { IsActive = true, Status = RoomStatus.Available };
 
     public SelectList PropertyOptions { get; set; } = default!;
 
@@ -40,7 +40,7 @@ public class CreateModel(ApplicationDbContext context) : PageModel
         return RedirectToPage("./Index");
     }
 
-    private async Task LoadSelectListsAsync(object? selectedProperty = null, object? selectedRoomType = null, RoomStatus selectedStatus = RoomStatus.VacantClean)
+    private async Task LoadSelectListsAsync(object? selectedProperty = null, object? selectedRoomType = null, RoomStatus selectedStatus = RoomStatus.Available)
     {
         var properties = await _context.Properties
             .AsNoTracking()

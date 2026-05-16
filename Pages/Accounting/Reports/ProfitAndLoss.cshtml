@@ -1,0 +1,19 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Reports.ProfitAndLossModel
+@{
+    ViewData["Title"] = "Profit and Loss";
+}
+<div class="page-header"><div><div class="page-kicker">Accounting Reports</div><h1 class="page-title">Profit and Loss</h1><p class="page-subtitle">Standard accounting P&L from posted GL activity.</p></div><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div>
+<form method="get" class="vpms-card mb-3 report-filter"><div class="row g-3 align-items-end"><div class="col-md-4"><label class="form-label">From</label><input name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-4"><label class="form-label">To</label><input name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-4"><button class="btn vpms-btn-primary w-100">Run</button></div></div></form>
+<section class="vpms-print-document">
+    <div class="vpms-card">
+        <dl class="row mb-0">
+            <dt class="col-8">Revenue</dt><dd class="col-4 text-end">@Model.Revenue.ToString("C")</dd>
+            <dt class="col-8">Cost of Sales</dt><dd class="col-4 text-end">@Model.CostOfSales.ToString("C")</dd>
+            <dt class="col-8">Gross Profit</dt><dd class="col-4 text-end">@Model.GrossProfit.ToString("C")</dd>
+            <dt class="col-8">Expenses</dt><dd class="col-4 text-end">@Model.Expenses.ToString("C")</dd>
+            <dt class="col-8">Other Income / Expenses</dt><dd class="col-4 text-end">@Model.OtherNet.ToString("C")</dd>
+            <dt class="col-8 h5">Net Income</dt><dd class="col-4 text-end h5">@Model.NetIncome.ToString("C")</dd>
+        </dl>
+    </div>
+</section>

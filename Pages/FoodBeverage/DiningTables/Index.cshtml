@@ -1,0 +1,41 @@
+@page
+@model Vantage.PMS.Pages.FoodBeverage.DiningTables.IndexModel
+
+@{
+    ViewData["Title"] = "Dining Tables";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="mb-1">Dining Tables</h1>
+        <p class="text-muted mb-0">Outlet table setup and current table status.</p>
+    </div>
+    <a class="btn btn-primary" asp-page="./Create">Create Table</a>
+</div>
+
+<table class="table table-striped table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Outlet</th>
+            <th>Table</th>
+            <th class="text-end">Seats</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var table in Model.DiningTables)
+        {
+            <tr>
+                <td>@table.Outlet?.Name</td>
+                <td>@table.TableName</td>
+                <td class="text-end">@table.SeatingCapacity</td>
+                <td>@table.Status</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@table.Id">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="./Delete" asp-route-id="@table.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

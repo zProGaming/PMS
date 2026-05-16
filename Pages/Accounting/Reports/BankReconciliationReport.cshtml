@@ -1,0 +1,12 @@
+@page
+@model Vantage.PMS.Pages.Accounting.Reports.BankReconciliationReportModel
+@{
+    ViewData["Title"] = "Bank Reconciliation Report";
+}
+<div class="page-header"><div><div class="page-kicker">Banking Report</div><h1 class="page-title">Bank Reconciliation Report</h1><p class="page-subtitle">Prepared and approved bank reconciliations.</p></div><div class="page-actions no-print"><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div></div>
+<div class="vpms-table-wrapper"><table class="table vpms-table align-middle"><thead><tr><th>Bank</th><th>Date</th><th>Status</th><th class="text-end">Statement</th><th class="text-end">Book</th><th class="text-end">Difference</th><th>Approved By</th></tr></thead><tbody>
+@foreach (var item in Model.Reconciliations)
+{
+    <tr><td>@item.BankAccount?.AccountName</td><td>@item.ReconciliationDate.ToString("yyyy-MM-dd")</td><td><span class="status-badge">@item.Status</span></td><td class="text-end">@item.StatementEndingBalance.ToString("C")</td><td class="text-end">@item.BookEndingBalance.ToString("C")</td><td class="text-end">@item.Difference.ToString("C")</td><td>@item.ApprovedBy</td></tr>
+}
+</tbody></table></div>

@@ -1,0 +1,65 @@
+@page
+@model Vantage.PMS.Pages.Accounting.AccountsPayable.APInvoices.CreateModel
+@{
+    ViewData["Title"] = "Create AP Invoice";
+}
+
+<div class="page-header">
+    <div><div class="page-kicker">Accounts Payable</div><h1 class="page-title">Create AP Invoice</h1><p class="page-subtitle">Record a supplier invoice manually or from purchase and receiving records.</p></div>
+</div>
+
+<section class="vpms-card mb-4">
+    <h2 class="h6">Create from source document</h2>
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label">Purchase Order</label>
+            <select name="purchaseOrderId" class="form-select" asp-items="Model.PurchaseOrderOptions"><option value="">Select PO</option></select>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">Receiving Record</label>
+            <select name="receivingRecordId" class="form-select" asp-items="Model.ReceivingRecordOptions"><option value="">Select receiving</option></select>
+        </div>
+        <div class="col-md-2"><button type="submit" class="btn vpms-btn-secondary w-100">Load</button></div>
+    </form>
+</section>
+
+<form method="post" class="vpms-form-card">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input asp-for="Input.PurchaseOrderId" type="hidden" />
+    <input asp-for="Input.ReceivingRecordId" type="hidden" />
+    <div class="row g-3">
+        <div class="col-md-4"><label asp-for="Input.SupplierId" class="form-label">Supplier</label><select asp-for="Input.SupplierId" asp-items="Model.SupplierOptions" class="form-select"><option value="">Select supplier</option></select></div>
+        <div class="col-md-3"><label asp-for="Input.InvoiceNumber" class="form-label">Invoice Number</label><input asp-for="Input.InvoiceNumber" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="Input.InvoiceDate" class="form-label">Invoice Date</label><input asp-for="Input.InvoiceDate" type="date" class="form-control" /></div>
+        <div class="col-md-2"><label asp-for="Input.DueDate" class="form-label">Due Date</label><input asp-for="Input.DueDate" type="date" class="form-control" /></div>
+        <div class="col-md-1"><label asp-for="Input.DiscountAmount" class="form-label">Discount</label><input asp-for="Input.DiscountAmount" class="form-control" /></div>
+        <div class="col-12"><label asp-for="Input.Notes" class="form-label">Notes</label><textarea asp-for="Input.Notes" rows="2" class="form-control"></textarea></div>
+    </div>
+
+    <hr />
+    <h2 class="h6">Invoice Lines</h2>
+    <div class="table-responsive">
+        <table class="table vpms-table align-middle">
+            <thead><tr><th>Description</th><th>GL Account</th><th>Inventory Item</th><th class="text-end">Qty</th><th class="text-end">Unit Cost</th><th class="text-end">Tax</th><th class="text-end">WHT</th></tr></thead>
+            <tbody>
+            @for (var i = 0; i < Math.Max(Model.Lines.Count, 5); i++)
+            {
+                if (i >= Model.Lines.Count) { Model.Lines.Add(new()); }
+                <tr>
+                    <td><input asp-for="Lines[i].Description" class="form-control" /></td>
+                    <td><select asp-for="Lines[i].GLAccountId" asp-items="Model.GLAccountOptions" class="form-select"><option value="">Auto</option></select></td>
+                    <td><select asp-for="Lines[i].InventoryItemId" asp-items="Model.InventoryItemOptions" class="form-select"><option value="">None</option></select></td>
+                    <td><input asp-for="Lines[i].Quantity" class="form-control text-end" /></td>
+                    <td><input asp-for="Lines[i].UnitCost" class="form-control text-end" /></td>
+                    <td><input asp-for="Lines[i].TaxAmount" class="form-control text-end" /></td>
+                    <td><input asp-for="Lines[i].WithholdingTaxAmount" class="form-control text-end" /></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <div class="vpms-actions">
+        <button type="submit" class="btn vpms-btn-primary">Save AP Invoice</button>
+        <a asp-page="Index" class="btn vpms-btn-secondary">Cancel</a>
+    </div>
+</form>

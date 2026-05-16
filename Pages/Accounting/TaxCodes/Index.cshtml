@@ -1,0 +1,19 @@
+@page
+@model Vantage.PMS.Pages.Accounting.TaxCodes.IndexModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "Tax Codes";
+}
+
+<div class="page-header"><div><div class="page-kicker">Accounting Setup</div><h1 class="page-title">Tax Codes</h1><p class="page-subtitle">Configurable VAT and withholding tax mappings for report readiness.</p></div></div>
+<form method="post" class="vpms-form-card mb-4">
+    <div class="row g-3">
+        <div class="col-md-2"><label asp-for="Input.Code" class="form-label">Code</label><input asp-for="Input.Code" class="form-control" required /></div>
+        <div class="col-md-3"><label asp-for="Input.Name" class="form-label">Name</label><input asp-for="Input.Name" class="form-control" required /></div>
+        <div class="col-md-2"><label asp-for="Input.TaxType" class="form-label">Type</label><select asp-for="Input.TaxType" asp-items="Html.GetEnumSelectList<TaxType>()" class="form-select"></select></div>
+        <div class="col-md-2"><label asp-for="Input.Rate" class="form-label">Rate %</label><input asp-for="Input.Rate" class="form-control" type="number" step="0.01" /></div>
+        <div class="col-md-3"><label asp-for="Input.GLAccountId" class="form-label">GL Account</label><select asp-for="Input.GLAccountId" asp-items="Model.AccountOptions" class="form-select"><option value="">None</option></select></div>
+    </div>
+    <button class="btn vpms-btn-primary mt-3" type="submit">Add Tax Code</button>
+</form>
+<div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>Code</th><th>Name</th><th>Type</th><th>Rate</th><th>Account</th></tr></thead><tbody>@foreach (var item in Model.TaxCodes){<tr><td class="fw-semibold">@item.Code</td><td>@item.Name</td><td>@item.TaxType</td><td>@item.Rate.ToString("N2")%</td><td>@item.GLAccount?.AccountCode - @item.GLAccount?.AccountName</td></tr>}</tbody></table></div>

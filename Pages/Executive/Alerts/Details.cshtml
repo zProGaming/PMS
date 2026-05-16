@@ -1,0 +1,7 @@
+@page "{id:int}"
+@model Vantage.PMS.Pages.Executive.Alerts.DetailsModel
+@{
+    ViewData["Title"] = "Executive Alert Details";
+}
+<div class="page-header"><div><div class="page-kicker">Executive Intelligence</div><h1 class="page-title">Executive Alert Details</h1><p class="page-subtitle">Alert context, risk message, and recommended management action.</p></div><a class="btn vpms-btn-secondary" asp-page="/Executive/Alerts/Index">Back</a></div>
+@if(Model.Alert is not null){<section class="vpms-card"><div class="d-flex justify-content-between"><h2 class="h5">@Model.Alert.Title</h2><span class="status-badge">@Model.Alert.Severity</span></div><dl class="row mt-3"><dt class="col-md-3">Date</dt><dd class="col-md-9">@Model.Alert.AlertDate.ToString("MMM d, yyyy")</dd><dt class="col-md-3">Module</dt><dd class="col-md-9">@Model.Alert.Module</dd><dt class="col-md-3">Type</dt><dd class="col-md-9">@Model.Alert.AlertType</dd><dt class="col-md-3">Message</dt><dd class="col-md-9">@Model.Alert.Message</dd><dt class="col-md-3">Recommended Action</dt><dd class="col-md-9">@Model.Alert.RecommendedAction</dd><dt class="col-md-3">Status</dt><dd class="col-md-9">@(Model.Alert.IsResolved ? $"Resolved by {Model.Alert.ResolvedBy} on {Model.Alert.ResolvedAt:g}" : "Open")</dd></dl>@if(!Model.Alert.IsResolved){<form method="post" asp-page-handler="Resolve" asp-route-id="@Model.Alert.Id"><button class="btn vpms-btn-primary">Mark Resolved</button></form>}</section>}

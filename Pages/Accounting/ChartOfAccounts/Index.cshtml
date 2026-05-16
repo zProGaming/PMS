@@ -1,0 +1,108 @@
+@page
+@model Vantage.PMS.Pages.Accounting.ChartOfAccounts.IndexModel
+@using Vantage.PMS.Models.Accounting
+@{
+    ViewData["Title"] = "Chart of Accounts";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Accounting Setup</div>
+        <h1 class="page-title">Chart of Accounts</h1>
+        <p class="page-subtitle">Hotel GL accounts with USALI and Philippine report mappings.</p>
+    </div>
+</div>
+
+<form method="post" asp-page-handler="Create" class="vpms-form-card mb-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-2">
+            <label asp-for="Input.AccountCode" class="form-label">Code</label>
+            <input asp-for="Input.AccountCode" class="form-control" required />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Input.AccountName" class="form-label">Name</label>
+            <input asp-for="Input.AccountName" class="form-control" required />
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Input.AccountType" class="form-label">Type</label>
+            <select asp-for="Input.AccountType" asp-items="Html.GetEnumSelectList<GLAccountType>()" class="form-select"></select>
+        </div>
+        <div class="col-md-2">
+            <label asp-for="Input.NormalBalance" class="form-label">Normal</label>
+            <select asp-for="Input.NormalBalance" asp-items="Html.GetEnumSelectList<NormalBalance>()" class="form-select"></select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <div class="form-check">
+                <input asp-for="Input.IsControlAccount" class="form-check-input" />
+                <label asp-for="Input.IsControlAccount" class="form-check-label">Control account</label>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Input.ParentGLAccountId" class="form-label">Parent</label>
+            <select asp-for="Input.ParentGLAccountId" asp-items="Model.GLAccountOptions" class="form-select">
+                <option value="">None</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Input.UsaliDepartmentId" class="form-label">USALI Department</label>
+            <select asp-for="Input.UsaliDepartmentId" asp-items="Model.DepartmentOptions" class="form-select">
+                <option value="">None</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Input.UsaliReportLineId" class="form-label">USALI Report Line</label>
+            <select asp-for="Input.UsaliReportLineId" asp-items="Model.ReportLineOptions" class="form-select">
+                <option value="">None</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Input.PhilippineReportCategory" class="form-label">PH Report Category</label>
+            <input asp-for="Input.PhilippineReportCategory" class="form-control" />
+        </div>
+        <div class="col-12">
+            <label asp-for="Input.Notes" class="form-label">Notes</label>
+            <textarea asp-for="Input.Notes" class="form-control" rows="2"></textarea>
+        </div>
+    </div>
+    <div class="vpms-actions mt-3">
+        <button class="btn vpms-btn-primary" type="submit">Add GL Account</button>
+    </div>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Account</th>
+                <th>Type</th>
+                <th>USALI</th>
+                <th>PH Category</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var account in Model.Accounts)
+        {
+            <tr>
+                <td class="fw-semibold">@account.AccountCode</td>
+                <td>@account.AccountName</td>
+                <td>@account.AccountType</td>
+                <td>@account.UsaliDepartment?.Name / @account.UsaliReportLine?.Name</td>
+                <td>@account.PhilippineReportCategory</td>
+                <td><span class="status-badge @(account.IsActive ? "status-paid" : "status-cancelled")">@(account.IsActive ? "Active" : "Inactive")</span></td>
+                <td class="text-end">
+                    @if (account.IsActive)
+                    {
+                        <form method="post" asp-page-handler="Deactivate" asp-route-id="@account.Id" class="d-inline">
+                            <button class="btn btn-sm vpms-btn-secondary" type="submit">Deactivate</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

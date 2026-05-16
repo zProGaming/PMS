@@ -1,0 +1,25 @@
+@page
+@model Vantage.PMS.Pages.Finance.CashDrops.IndexModel
+@{
+    ViewData["Title"] = "Cash Drops";
+}
+
+<h1 class="h3 mb-3">Cash Drops</h1>
+<p><a asp-page="/Finance/CashierShifts/Index" class="btn btn-primary">Open Cashier Shifts</a></p>
+
+<table class="table table-striped table-hover align-middle">
+    <thead><tr><th>Date</th><th>Shift</th><th>Dropped By</th><th>Received By</th><th class="text-end">Amount</th><th>Notes</th></tr></thead>
+    <tbody>
+        @foreach (var drop in Model.CashDrops)
+        {
+            <tr>
+                <td>@drop.DropDate.ToString("g")</td>
+                <td><a asp-page="/Finance/CashierShifts/Details" asp-route-id="@drop.CashierShiftId">@drop.CashierShift?.ShiftNumber</a></td>
+                <td>@drop.DroppedBy</td>
+                <td>@drop.ReceivedBy</td>
+                <td class="text-end">@drop.Amount.ToString("C")</td>
+                <td>@drop.Notes</td>
+            </tr>
+        }
+    </tbody>
+</table>

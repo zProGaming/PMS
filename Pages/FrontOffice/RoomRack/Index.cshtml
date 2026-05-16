@@ -1,0 +1,146 @@
+@page
+@model Vantage.PMS.Pages.FrontOffice.RoomRack.IndexModel
+
+@{
+    ViewData["Title"] = "Room Rack";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/FrontOffice/Index">Front Office</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Room Rack</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Front Office</div>
+        <h1 class="page-title">Room Rack</h1>
+        <p class="page-subtitle">Physical rooms only. Pseudo rooms and paymaster accounts are excluded from occupancy and room inventory.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn vpms-btn-primary" asp-page="/FrontOffice/Reservations/Create">New Reservation</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Housekeeping/Index">Housekeeping Board</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Total Rooms</div>
+            <div class="kpi-value">@Model.TotalRooms</div>
+            <div class="kpi-note">Active physical inventory</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Available</div>
+            <div class="kpi-value">@Model.AvailableRooms</div>
+            <div class="kpi-note">Available, clean, or inspected</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Occupied</div>
+            <div class="kpi-value">@Model.OccupiedRooms</div>
+            <div class="kpi-note">Current in-house rooms</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Dirty</div>
+            <div class="kpi-value">@Model.DirtyRooms</div>
+            <div class="kpi-note">Turnover attention</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl">
+        <div class="kpi-card">
+            <div class="kpi-label">Unavailable</div>
+            <div class="kpi-value">@Model.OutOfOrderRooms</div>
+            <div class="kpi-note">Maintenance or out of order</div>
+        </div>
+    </div>
+</div>
+
+@if (Model.FloorGroups.Count == 0)
+{
+    <section class="vpms-empty-state">
+        <strong>No physical rooms are configured yet.</strong>
+        <span>Create rooms from Admin setup before using the Room Rack.</span>
+    </section>
+}
+else
+{
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="status-badge status-available">Available</span>
+        <span class="status-badge status-clean">Clean</span>
+        <span class="status-badge status-inspected">Inspected</span>
+        <span class="status-badge status-occupied">Occupied</span>
+        <span class="status-badge status-dirty">Dirty</span>
+        <span class="status-badge status-maintenance">Maintenance</span>
+        <span class="status-badge status-outoforder">Out of Order</span>
+    </div>
+
+    <div class="d-grid gap-4">
+        @foreach (var floor in Model.FloorGroups)
+        {
+            <section class="vpms-card p-3">
+                <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                    <div>
+                        <h2 class="h5 mb-1">Floor @floor.Floor</h2>
+                        <div class="text-muted small">@floor.Rooms.Count room@(floor.Rooms.Count == 1 ? "" : "s")</div>
+                    </div>
+                </div>
+                <div class="room-rack">
+                    @foreach (var room in floor.Rooms)
+                    {
+                        var roomStatusClass = room.Status.ToString().ToLowerInvariant();
+                        <article class="room-card @roomStatusClass">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <div>
+                                    <div class="fw-bold">Room @room.RoomNumber</div>
+                                    <div class="text-muted small">@room.RoomTypeName</div>
+                                </div>
+                                <span class="status-badge status-@roomStatusClass">@room.Status</span>
+                            </div>
+
+                            <div class="small text-muted mt-2">@room.PropertyName</div>
+
+                            @if (!string.IsNullOrWhiteSpace(room.GuestName))
+                            {
+                                <div class="mt-3 p-2 rounded border bg-light">
+                                    <div class="fw-semibold">@room.GuestName</div>
+                                    <div class="small text-muted">
+                                        @room.ConfirmationNumber
+                                        @if (room.ArrivalDate is not null && room.DepartureDate is not null)
+                                        {
+                                            <span> - @room.ArrivalDate.Value.ToString("MMM d") - @room.DepartureDate.Value.ToString("MMM d")</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="small text-muted mt-3">No active in-house reservation linked.</div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(room.StatusNotes))
+                            {
+                                <div class="small mt-2">@room.StatusNotes</div>
+                            }
+
+                            <div class="d-flex flex-wrap gap-2 mt-3">
+                                <a class="btn btn-sm vpms-btn-secondary" asp-page="/Housekeeping/Rooms/UpdateStatus" asp-route-id="@room.RoomId">Update Status</a>
+                                @if (room.ReservationId is not null)
+                                {
+                                    <a class="btn btn-sm vpms-btn-secondary" asp-page="/FrontOffice/Reservations/Details" asp-route-id="@room.ReservationId">Reservation</a>
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+    </div>
+}

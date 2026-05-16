@@ -1,0 +1,71 @@
+@page
+@model Vantage.PMS.Pages.Labor.ServiceChargePools.IndexModel
+@using Vantage.PMS.Models.Labor
+@{
+    ViewData["Title"] = "Service Charge Pools";
+}
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Labor Costing</div>
+        <h1 class="page-title">Service Charge Pools</h1>
+        <p class="page-subtitle">Configurable service charge distribution support. Validate treatment with hotel finance before production use.</p>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage)) { <div class="alert alert-success">@Model.StatusMessage</div> }
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage)) { <div class="alert alert-danger">@Model.ErrorMessage</div> }
+
+<form method="post" asp-page-handler="Create" class="vpms-card mb-4">
+    <h2 class="h5">Create Service Charge Pool</h2>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3"><label class="form-label">Pool Name</label><input asp-for="Input.PoolName" class="form-control" required /></div>
+        <div class="col-md-2"><label class="form-label">Period Start</label><input asp-for="Input.PeriodStart" type="date" class="form-control" /></div>
+        <div class="col-md-2"><label class="form-label">Period End</label><input asp-for="Input.PeriodEnd" type="date" class="form-control" /></div>
+        <div class="col-md-2"><label class="form-label">Total Collected</label><input asp-for="Input.TotalServiceChargeCollected" class="form-control" /></div>
+        <div class="col-md-2"><label class="form-label">Method</label><select asp-for="Input.DistributionMethod" class="form-select" asp-items="Html.GetEnumSelectList<ServiceChargeDistributionMethod>()"></select></div>
+        <div class="col-md-1"><button class="btn vpms-btn-primary w-100">Create</button></div>
+    </div>
+</form>
+
+<div class="vpms-table-wrapper">
+    <table class="table vpms-table align-middle">
+        <thead><tr><th>Pool</th><th>Period</th><th>Method</th><th>Status</th><th class="text-end">Total</th><th class="text-end">Distributed</th><th>Journal</th><th class="text-end">Actions</th></tr></thead>
+        <tbody>
+        @foreach (var pool in Model.Pools)
+        {
+            <tr>
+                <td><a class="fw-semibold" asp-page="Details" asp-route-id="@pool.Id">@pool.PoolName</a></td>
+                <td>@pool.PeriodStart.ToString("yyyy-MM-dd") - @pool.PeriodEnd.ToString("yyyy-MM-dd")</td>
+                <td>@pool.DistributionMethod</td>
+                <td><span class="status-badge">@pool.Status</span></td>
+                <td class="text-end">@pool.TotalServiceChargeCollected.ToString("C")</td>
+                <td class="text-end">@pool.DistributionLines.Sum(line => line.Amount).ToString("C")</td>
+                <td>@(pool.JournalEntry?.JournalNumber ?? "Not posted")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm vpms-btn-secondary" asp-page="Details" asp-route-id="@pool.Id">Details</a>
+                    @if (pool.Status is ServiceChargePoolStatus.Draft or ServiceChargePoolStatus.ForApproval)
+                    {
+                        <form method="post" asp-page-handler="Generate" asp-route-id="@pool.Id" class="d-inline"><button class="btn btn-sm vpms-btn-secondary">Generate</button></form>
+                        <form method="post" asp-page-handler="Approve" asp-route-id="@pool.Id" class="d-inline"><button class="btn btn-sm vpms-btn-primary">Approve</button></form>
+                    }
+                    @if (pool.Status == ServiceChargePoolStatus.Draft)
+                    {
+                        <form method="post" asp-page-handler="Submit" asp-route-id="@pool.Id" class="d-inline"><button class="btn btn-sm vpms-btn-secondary">Submit</button></form>
+                    }
+                    @if (pool.Status == ServiceChargePoolStatus.Approved)
+                    {
+                        <form method="post" asp-page-handler="Post" asp-route-id="@pool.Id" class="d-inline"><button class="btn btn-sm vpms-btn-primary">Post</button></form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.Pools.Count == 0)
+{
+    <div class="vpms-empty-state mt-3">No service charge pools yet.</div>
+}
