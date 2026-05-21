@@ -54,6 +54,21 @@ public class CreateModel(ApplicationDbContext context, AccountsPayableService ac
             ModelState.AddModelError("Input.Amount", "Voucher amount must be positive.");
         }
 
+        if (Input.WithholdingTaxAmount < 0)
+        {
+            ModelState.AddModelError("Input.WithholdingTaxAmount", "Withholding tax cannot be negative.");
+        }
+
+        if (Input.WithholdingTaxAmount > Input.Amount)
+        {
+            ModelState.AddModelError("Input.WithholdingTaxAmount", "Withholding tax cannot exceed voucher amount.");
+        }
+
+        if (Input.Amount - Input.WithholdingTaxAmount <= 0)
+        {
+            ModelState.AddModelError("Input.NetPaymentAmount", "Net payment amount must be greater than zero.");
+        }
+
         var invoice = Input.APInvoiceId is null ? null : await context.APInvoices.AsNoTracking().FirstOrDefaultAsync(item => item.Id == Input.APInvoiceId.Value);
         if (invoice is not null)
         {
@@ -61,6 +76,11 @@ public class CreateModel(ApplicationDbContext context, AccountsPayableService ac
             if (Input.Amount > invoice.Balance)
             {
                 ModelState.AddModelError("Input.Amount", "Voucher amount cannot exceed AP invoice balance.");
+            }
+
+            if (invoice.WithholdingTaxAmount > 0 && Input.WithholdingTaxAmount > 0)
+            {
+                ModelState.AddModelError("Input.WithholdingTaxAmount", "Withholding tax is already recorded on the AP invoice. Set voucher withholding tax to zero.");
             }
         }
 

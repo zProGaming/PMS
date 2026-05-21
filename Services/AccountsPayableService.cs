@@ -63,6 +63,11 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
 
     public async Task<APInvoice> BuildInvoiceFromPurchaseOrderAsync(int purchaseOrderId, string createdBy)
     {
+        if (await HasActiveInvoiceForPurchaseOrderAsync(purchaseOrderId))
+        {
+            throw new InvalidOperationException("An active AP invoice already exists for this purchase order. Cancel or void the existing invoice before creating another one.");
+        }
+
         var purchaseOrder = await _context.PurchaseOrders
             .AsNoTracking()
             .Include(order => order.Items)
@@ -96,6 +101,11 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
 
     public async Task<APInvoice> BuildInvoiceFromReceivingRecordAsync(int receivingRecordId, string createdBy)
     {
+        if (await HasActiveInvoiceForReceivingRecordAsync(receivingRecordId))
+        {
+            throw new InvalidOperationException("An active AP invoice already exists for this receiving record. Cancel or void the existing invoice before creating another one.");
+        }
+
         var receiving = await _context.ReceivingRecords
             .AsNoTracking()
             .Include(record => record.PurchaseOrder)
@@ -158,6 +168,38 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
             errors.Add("Invoice number already exists for this supplier.");
         }
 
+        if (string.IsNullOrWhiteSpace(invoice.SupplierInvoiceNumber))
+        {
+            errors.Add("Supplier invoice/reference number is required before approval.");
+        }
+        else if (await _context.APInvoices.AnyAsync(item =>
+                     item.Id != invoice.Id &&
+                     item.SupplierId == invoice.SupplierId &&
+                     item.SupplierInvoiceNumber == invoice.SupplierInvoiceNumber &&
+                     item.Status != APInvoiceStatus.Cancelled &&
+                     item.Status != APInvoiceStatus.Voided))
+        {
+            errors.Add("Supplier invoice/reference number already exists for this supplier.");
+        }
+
+        if (invoice.PurchaseOrderId is not null && await _context.APInvoices.AnyAsync(item =>
+                item.Id != invoice.Id &&
+                item.PurchaseOrderId == invoice.PurchaseOrderId &&
+                item.Status != APInvoiceStatus.Cancelled &&
+                item.Status != APInvoiceStatus.Voided))
+        {
+            errors.Add("An active AP invoice already exists for this purchase order.");
+        }
+
+        if (invoice.ReceivingRecordId is not null && await _context.APInvoices.AnyAsync(item =>
+                item.Id != invoice.Id &&
+                item.ReceivingRecordId == invoice.ReceivingRecordId &&
+                item.Status != APInvoiceStatus.Cancelled &&
+                item.Status != APInvoiceStatus.Voided))
+        {
+            errors.Add("An active AP invoice already exists for this receiving record.");
+        }
+
         RecalculateAPInvoice(invoice);
         if (invoice.Lines.Count == 0 || invoice.TotalAmount <= 0)
         {
@@ -180,7 +222,17 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
             return errors;
         }
 
-        var journalEntry = await CreateAPInvoiceJournalEntryAsync(invoice, approvedBy);
+        JournalEntry journalEntry;
+        try
+        {
+            journalEntry = await CreateAPInvoiceJournalEntryAsync(invoice, approvedBy);
+        }
+        catch (InvalidOperationException ex)
+        {
+            errors.Add(ex.Message);
+            return errors;
+        }
+
         var postErrors = await _postingService.PostJournalEntryAsync(journalEntry.Id, approvedBy);
         if (postErrors.Count > 0)
         {
@@ -221,9 +273,31 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
             errors.Add("Voucher amount must be greater than zero.");
         }
 
+        if (voucher.WithholdingTaxAmount < 0)
+        {
+            errors.Add("Withholding tax cannot be negative.");
+        }
+
+        if (voucher.WithholdingTaxAmount > voucher.Amount)
+        {
+            errors.Add("Withholding tax cannot exceed voucher amount.");
+        }
+
+        if (voucher.Amount - voucher.WithholdingTaxAmount <= 0)
+        {
+            errors.Add("Net payment amount must be greater than zero.");
+        }
+
         if (voucher.APInvoice is not null && voucher.Amount > voucher.APInvoice.Balance)
         {
             errors.Add("Voucher amount cannot exceed AP invoice balance.");
+        }
+
+        if (voucher.APInvoice is not null &&
+            voucher.APInvoice.WithholdingTaxAmount > 0 &&
+            voucher.WithholdingTaxAmount > 0)
+        {
+            errors.Add("Withholding tax is already recorded on the AP invoice. Set voucher withholding tax to zero.");
         }
 
         if (errors.Count > 0)
@@ -266,6 +340,32 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
             return errors;
         }
 
+        if (voucher.NetPaymentAmount == 0)
+        {
+            errors.Add("Net payment must be greater than zero.");
+            return errors;
+        }
+
+        if (voucher.WithholdingTaxAmount > voucher.Amount)
+        {
+            errors.Add("Withholding tax cannot exceed voucher amount.");
+            return errors;
+        }
+
+        if (voucher.APInvoice is not null &&
+            voucher.APInvoice.WithholdingTaxAmount > 0 &&
+            voucher.WithholdingTaxAmount > 0)
+        {
+            errors.Add("Withholding tax is already recorded on the AP invoice. Set voucher withholding tax to zero.");
+            return errors;
+        }
+
+        if (RequiresBankAccount(voucher.PaymentMethod) && bankAccountId is null)
+        {
+            errors.Add("Select a bank account for bank, card, or e-wallet disbursements.");
+            return errors;
+        }
+
         var alreadyPosted = await _context.JournalEntries.AnyAsync(entry =>
             entry.Status == JournalEntryStatus.Posted &&
             entry.SourceModule == SourceModule.Finance &&
@@ -277,7 +377,17 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
             return errors;
         }
 
-        var journalEntry = await CreatePaymentVoucherJournalEntryAsync(voucher, bankAccountId, releasedBy);
+        JournalEntry journalEntry;
+        try
+        {
+            journalEntry = await CreatePaymentVoucherJournalEntryAsync(voucher, bankAccountId, releasedBy);
+        }
+        catch (InvalidOperationException ex)
+        {
+            errors.Add(ex.Message);
+            return errors;
+        }
+
         var postErrors = await _postingService.PostJournalEntryAsync(journalEntry.Id, releasedBy);
         if (postErrors.Count > 0)
         {
@@ -325,6 +435,7 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
                 CreditAmount = voucher.NetPaymentAmount,
                 SourceModule = SourceModule.Finance,
                 SourceReferenceId = voucher.Id,
+                JournalEntryId = journalEntry.Id,
                 Notes = voucher.Notes
             });
         }
@@ -350,10 +461,16 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
             return errors;
         }
 
-        RecalculateBankReconciliation(reconciliation);
+        await RecalculateBankReconciliationAsync(reconciliation);
         if (reconciliation.Difference != 0)
         {
             errors.Add("Difference must be zero before bank reconciliation can be approved.");
+            return errors;
+        }
+
+        if (reconciliation.Items.Any(item => item.BankTransactionId is null && item.IsCleared))
+        {
+            errors.Add("Reconciliation adjustments must be supported by posted GL-backed bank transactions before approval.");
             return errors;
         }
 
@@ -378,22 +495,48 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
         return errors;
     }
 
-    public void RecalculateBankReconciliation(BankReconciliation reconciliation)
+    public async Task RecalculateBankReconciliationAsync(BankReconciliation reconciliation)
     {
-        var openingBalance = reconciliation.BankAccount?.OpeningBalance ?? 0;
-        var clearedAdjustments = reconciliation.Items
-            .Where(item => item.BankTransactionId is null && item.IsCleared)
-            .Sum(item => item.Amount);
-        var clearedTransactions = reconciliation.Items
-            .Where(item => item.BankTransaction is not null && item.IsCleared)
-            .Sum(item => (item.BankTransaction!.DebitAmount - item.BankTransaction.CreditAmount));
-
-        reconciliation.BookEndingBalance = openingBalance + clearedTransactions + clearedAdjustments;
-        reconciliation.Difference = reconciliation.StatementEndingBalance - reconciliation.BookEndingBalance;
+        reconciliation.BookEndingBalance = await CalculateBankBookBalanceAsync(reconciliation.BankAccountId, reconciliation.ReconciliationDate);
+        reconciliation.Difference = Math.Round(reconciliation.StatementEndingBalance - reconciliation.BookEndingBalance, 2, MidpointRounding.AwayFromZero);
         if (reconciliation.Difference == 0 && reconciliation.Status == BankReconciliationStatus.Draft)
         {
             reconciliation.Status = BankReconciliationStatus.Balanced;
         }
+    }
+
+    public async Task<decimal> CalculateBankBookBalanceAsync(int bankAccountId, DateTime asOfDate)
+    {
+        var bankAccount = await _context.BankAccounts
+            .AsNoTracking()
+            .Where(account => account.Id == bankAccountId)
+            .Select(account => new { account.OpeningBalance, account.GLAccountId })
+            .FirstOrDefaultAsync();
+
+        if (bankAccount is null)
+        {
+            return 0;
+        }
+
+        var endExclusive = asOfDate.Date.AddDays(1);
+        if (bankAccount.GLAccountId is not null)
+        {
+            return await _context.JournalEntryLines
+                .AsNoTracking()
+                .Where(line =>
+                    line.GLAccountId == bankAccount.GLAccountId.Value &&
+                    line.JournalEntry != null &&
+                    line.JournalEntry.Status == JournalEntryStatus.Posted &&
+                    line.JournalEntry.JournalDate < endExclusive)
+                .SumAsync(line => line.DebitAmount - line.CreditAmount);
+        }
+
+        var movement = await _context.BankTransactions
+            .AsNoTracking()
+            .Where(transaction => transaction.BankAccountId == bankAccountId && transaction.TransactionDate < endExclusive)
+            .SumAsync(transaction => transaction.DebitAmount - transaction.CreditAmount);
+
+        return bankAccount.OpeningBalance + movement;
     }
 
     public async Task<IList<string>> ApproveAccrualAsync(int accrualId, string approvedBy)
@@ -557,6 +700,13 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
         }
 
         var checklist = await _context.MonthEndCloseChecklists.Where(item => item.AccountingPeriodId == accountingPeriodId).ToListAsync();
+        var readinessErrors = await ValidatePeriodCloseReadinessAsync(period);
+        if (readinessErrors.Count > 0)
+        {
+            errors.AddRange(readinessErrors);
+            return errors;
+        }
+
         var complete = checklist.All(item => item.Status is MonthEndChecklistStatus.Completed or MonthEndChecklistStatus.NotApplicable);
         if (!complete && !overrideIncomplete)
         {
@@ -574,11 +724,12 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
 
     private async Task<JournalEntry> CreateAPInvoiceJournalEntryAsync(APInvoice invoice, string createdBy)
     {
-        var apAccountId = await GetRequiredAccountIdAsync("2000");
-        var inputVatAccountId = await GetRequiredAccountIdAsync("2020");
-        var whtAccountId = await GetRequiredAccountIdAsync("2030");
-        var defaultExpenseAccountId = await GetRequiredAccountIdAsync("6200");
-        var inventoryAccountId = await GetRequiredAccountIdAsync("1200");
+        var apAccountId = await GetConfiguredAccountIdAsync("AccountsPayable.ControlAccountCode", "2000");
+        var inputVatAccountId = await GetConfiguredAccountIdAsync("AccountsPayable.InputVatAccountCode", "2020");
+        var whtAccountId = await GetConfiguredAccountIdAsync("AccountsPayable.WithholdingTaxAccountCode", "2030");
+        var defaultExpenseAccountId = await GetConfiguredAccountIdAsync("AccountsPayable.DefaultExpenseAccountCode", "6200");
+        var purchaseDiscountAccountId = await GetConfiguredAccountIdAsync("AccountsPayable.PurchaseDiscountAccountCode", "6200");
+        var inventoryAccountId = await GetConfiguredAccountIdAsync("AccountsPayable.InventoryAccountCode", "1200");
         var journal = new JournalEntry
         {
             JournalNumber = await GenerateJournalNumberAsync("APJE"),
@@ -613,7 +764,7 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
 
         if (invoice.DiscountAmount > 0)
         {
-            journal.Lines.Add(new JournalEntryLine { GLAccountId = defaultExpenseAccountId, CreditAmount = invoice.DiscountAmount, Description = $"Purchase discount - {invoice.InvoiceNumber}" });
+            journal.Lines.Add(new JournalEntryLine { GLAccountId = purchaseDiscountAccountId, CreditAmount = invoice.DiscountAmount, Description = $"Purchase discount - {invoice.InvoiceNumber}" });
         }
 
         var apCredit = invoice.TotalAmount - invoice.WithholdingTaxAmount;
@@ -634,8 +785,8 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
 
     private async Task<JournalEntry> CreatePaymentVoucherJournalEntryAsync(PaymentVoucher voucher, int? bankAccountId, string createdBy)
     {
-        var apAccountId = await GetRequiredAccountIdAsync("2000");
-        var whtAccountId = await GetRequiredAccountIdAsync("2030");
+        var apAccountId = await GetConfiguredAccountIdAsync("AccountsPayable.ControlAccountCode", "2000");
+        var whtAccountId = await GetConfiguredAccountIdAsync("AccountsPayable.WithholdingTaxAccountCode", "2030");
         var cashAccountId = await ResolveCashAccountIdAsync(voucher.PaymentMethod, bankAccountId);
         var journal = new JournalEntry
         {
@@ -682,10 +833,21 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
 
         return paymentMethod switch
         {
-            FinancePaymentMethod.Cash => await GetRequiredAccountIdAsync("1000"),
-            FinancePaymentMethod.EWallet => await GetRequiredAccountIdAsync("1020"),
-            _ => await GetRequiredAccountIdAsync("1010")
+            FinancePaymentMethod.Cash => await GetConfiguredAccountIdAsync("Treasury.CashOnHandAccountCode", "1000"),
+            FinancePaymentMethod.EWallet => await GetConfiguredAccountIdAsync("Treasury.EWalletAccountCode", "1020"),
+            _ => await GetConfiguredAccountIdAsync("Treasury.CashInBankAccountCode", "1010")
         };
+    }
+
+    private async Task<int> GetConfiguredAccountIdAsync(string settingKey, string fallbackAccountCode)
+    {
+        var configuredCode = await _context.SystemSettings
+            .AsNoTracking()
+            .Where(setting => setting.SettingKey == settingKey)
+            .Select(setting => setting.SettingValue)
+            .FirstOrDefaultAsync();
+
+        return await GetRequiredAccountIdAsync(string.IsNullOrWhiteSpace(configuredCode) ? fallbackAccountCode : configuredCode.Trim());
     }
 
     private async Task<int> GetRequiredAccountIdAsync(string accountCode)
@@ -697,6 +859,94 @@ public class AccountsPayableService(ApplicationDbContext context, AccountingPost
         }
 
         return id.Value;
+    }
+
+    private async Task<bool> HasActiveInvoiceForPurchaseOrderAsync(int purchaseOrderId)
+    {
+        return await _context.APInvoices.AnyAsync(invoice =>
+            invoice.PurchaseOrderId == purchaseOrderId &&
+            invoice.Status != APInvoiceStatus.Cancelled &&
+            invoice.Status != APInvoiceStatus.Voided);
+    }
+
+    private async Task<bool> HasActiveInvoiceForReceivingRecordAsync(int receivingRecordId)
+    {
+        return await _context.APInvoices.AnyAsync(invoice =>
+            invoice.ReceivingRecordId == receivingRecordId &&
+            invoice.Status != APInvoiceStatus.Cancelled &&
+            invoice.Status != APInvoiceStatus.Voided);
+    }
+
+    private async Task<IList<string>> ValidatePeriodCloseReadinessAsync(AccountingPeriod period)
+    {
+        var errors = new List<string>();
+
+        var unpostedApInvoices = await _context.APInvoices.CountAsync(invoice =>
+            invoice.InvoiceDate >= period.StartDate &&
+            invoice.InvoiceDate <= period.EndDate &&
+            invoice.Status == APInvoiceStatus.Approved &&
+            invoice.JournalEntryId == null);
+        if (unpostedApInvoices > 0)
+        {
+            errors.Add($"{unpostedApInvoices} approved AP invoice(s) are missing journal entries.");
+        }
+
+        var unreleasedApprovedVouchers = await _context.PaymentVouchers.CountAsync(voucher =>
+            voucher.VoucherDate >= period.StartDate &&
+            voucher.VoucherDate <= period.EndDate &&
+            voucher.Status == PaymentVoucherStatus.Approved);
+        if (unreleasedApprovedVouchers > 0)
+        {
+            errors.Add($"{unreleasedApprovedVouchers} approved payment voucher(s) are not yet released.");
+        }
+
+        var releasedVouchersWithoutJournal = await _context.PaymentVouchers.CountAsync(voucher =>
+            voucher.VoucherDate >= period.StartDate &&
+            voucher.VoucherDate <= period.EndDate &&
+            voucher.Status == PaymentVoucherStatus.Released &&
+            voucher.JournalEntryId == null);
+        if (releasedVouchersWithoutJournal > 0)
+        {
+            errors.Add($"{releasedVouchersWithoutJournal} released payment voucher(s) are missing journal entries.");
+        }
+
+        var manualBankTransactionsWithoutJournal = await _context.BankTransactions.CountAsync(transaction =>
+            transaction.TransactionDate >= period.StartDate &&
+            transaction.TransactionDate <= period.EndDate &&
+            transaction.SourceModule == SourceModule.Manual &&
+            transaction.JournalEntryId == null);
+        if (manualBankTransactionsWithoutJournal > 0)
+        {
+            errors.Add($"{manualBankTransactionsWithoutJournal} manual bank transaction(s) are not backed by posted journal entries.");
+        }
+
+        var unreconciledBankTransactions = await _context.BankTransactions.CountAsync(transaction =>
+            transaction.TransactionDate >= period.StartDate &&
+            transaction.TransactionDate <= period.EndDate &&
+            !transaction.IsReconciled);
+        if (unreconciledBankTransactions > 0)
+        {
+            errors.Add($"{unreconciledBankTransactions} bank transaction(s) in the period are not reconciled.");
+        }
+
+        var approvedReconciliationAdjustments = await _context.BankReconciliationItems.CountAsync(item =>
+            item.BankReconciliation != null &&
+            item.BankReconciliation.ReconciliationDate >= period.StartDate &&
+            item.BankReconciliation.ReconciliationDate <= period.EndDate &&
+            item.BankTransactionId == null &&
+            item.IsCleared &&
+            item.BankReconciliation.Status == BankReconciliationStatus.Approved);
+        if (approvedReconciliationAdjustments > 0)
+        {
+            errors.Add($"{approvedReconciliationAdjustments} approved bank reconciliation adjustment(s) are not backed by bank transactions.");
+        }
+
+        return errors;
+    }
+
+    private static bool RequiresBankAccount(FinancePaymentMethod paymentMethod)
+    {
+        return paymentMethod is FinancePaymentMethod.BankTransfer or FinancePaymentMethod.DebitCard or FinancePaymentMethod.CreditCard or FinancePaymentMethod.EWallet;
     }
 
     private async Task<int?> FindOpenPeriodIdAsync(DateTime date)

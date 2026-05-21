@@ -666,15 +666,74 @@ public class DataValidationService(ApplicationDbContext context)
             count += await AddIssueAsync("Banking", nameof(BankReconciliation), id, DataValidationIssueType.InconsistentBalance, SystemSeverity.Critical, "Approved bank reconciliation has a non-zero difference.", "Reopen review and correct bank reconciliation items.");
         }
 
+        var manualBankTransactionsWithoutJournal = await _context.BankTransactions
+            .AsNoTracking()
+            .Where(transaction => transaction.SourceModule == SourceModule.Manual && transaction.JournalEntryId == null)
+            .Select(transaction => transaction.Id)
+            .ToListAsync();
+        foreach (var id in manualBankTransactionsWithoutJournal)
+        {
+            count += await AddIssueAsync("Banking", nameof(BankTransaction), id, DataValidationIssueType.MissingRequiredData, SystemSeverity.High, "Manual bank transaction has no posted journal entry.", "Create a GL-backed bank transaction or reverse the unsupported manual entry.");
+        }
+
+        var approvedReconAdjustmentsWithoutBankTransaction = await _context.BankReconciliationItems
+            .AsNoTracking()
+            .Where(item =>
+                item.BankReconciliation != null &&
+                item.BankReconciliation.Status == BankReconciliationStatus.Approved &&
+                item.BankTransactionId == null &&
+                item.IsCleared)
+            .Select(item => item.Id)
+            .ToListAsync();
+        foreach (var id in approvedReconAdjustmentsWithoutBankTransaction)
+        {
+            count += await AddIssueAsync("Banking", nameof(BankReconciliationItem), id, DataValidationIssueType.MissingRequiredData, SystemSeverity.High, "Approved bank reconciliation has a cleared adjustment without bank transaction support.", "Post the adjustment through GL-backed bank transaction workflow before approval.");
+        }
+
         var duplicateSupplierInvoices = await _context.APInvoices
             .AsNoTracking()
-            .GroupBy(invoice => new { invoice.SupplierId, invoice.InvoiceNumber })
+            .Where(invoice => invoice.SupplierInvoiceNumber != null && invoice.SupplierInvoiceNumber != "" && invoice.Status != APInvoiceStatus.Cancelled && invoice.Status != APInvoiceStatus.Voided)
+            .GroupBy(invoice => new { invoice.SupplierId, invoice.SupplierInvoiceNumber })
             .Where(group => group.Count() > 1)
             .Select(group => group.Min(invoice => invoice.Id))
             .ToListAsync();
         foreach (var id in duplicateSupplierInvoices)
         {
-            count += await AddIssueAsync("Accounts Payable", nameof(APInvoice), id, DataValidationIssueType.DuplicateRecord, SystemSeverity.High, "Supplier has duplicate AP invoice numbers.", "Review supplier invoice records and void/cancel duplicates.");
+            count += await AddIssueAsync("Accounts Payable", nameof(APInvoice), id, DataValidationIssueType.DuplicateRecord, SystemSeverity.High, "Supplier has duplicate invoice/reference numbers.", "Review supplier invoice records and void/cancel duplicates.");
+        }
+
+        var apInvoicesMissingSupplierReference = await _context.APInvoices
+            .AsNoTracking()
+            .Where(invoice => invoice.Status != APInvoiceStatus.Cancelled && invoice.Status != APInvoiceStatus.Voided && (invoice.SupplierInvoiceNumber == null || invoice.SupplierInvoiceNumber == ""))
+            .Select(invoice => invoice.Id)
+            .ToListAsync();
+        foreach (var id in apInvoicesMissingSupplierReference)
+        {
+            count += await AddIssueAsync("Accounts Payable", nameof(APInvoice), id, DataValidationIssueType.MissingRequiredData, SystemSeverity.Medium, "AP invoice is missing supplier invoice/reference number.", "Enter the supplier invoice or reference number for duplicate vendor-bill control.");
+        }
+
+        var duplicatePurchaseOrderInvoices = await _context.APInvoices
+            .AsNoTracking()
+            .Where(invoice => invoice.PurchaseOrderId != null && invoice.Status != APInvoiceStatus.Cancelled && invoice.Status != APInvoiceStatus.Voided)
+            .GroupBy(invoice => invoice.PurchaseOrderId)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Min(invoice => invoice.Id))
+            .ToListAsync();
+        foreach (var id in duplicatePurchaseOrderInvoices)
+        {
+            count += await AddIssueAsync("Accounts Payable", nameof(APInvoice), id, DataValidationIssueType.DuplicateRecord, SystemSeverity.Critical, "Multiple active AP invoices are linked to the same purchase order.", "Cancel or void duplicate AP invoices or implement controlled partial invoicing.");
+        }
+
+        var duplicateReceivingInvoices = await _context.APInvoices
+            .AsNoTracking()
+            .Where(invoice => invoice.ReceivingRecordId != null && invoice.Status != APInvoiceStatus.Cancelled && invoice.Status != APInvoiceStatus.Voided)
+            .GroupBy(invoice => invoice.ReceivingRecordId)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Min(invoice => invoice.Id))
+            .ToListAsync();
+        foreach (var id in duplicateReceivingInvoices)
+        {
+            count += await AddIssueAsync("Accounts Payable", nameof(APInvoice), id, DataValidationIssueType.DuplicateRecord, SystemSeverity.Critical, "Multiple active AP invoices are linked to the same receiving record.", "Cancel or void duplicate AP invoices or implement controlled partial invoicing.");
         }
 
         var closedPeriodsWithUnpostedAp = await _context.AccountingPeriods

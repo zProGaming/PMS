@@ -29,6 +29,12 @@
         Night audit cannot run until all blocking issues are resolved.
     </div>
 }
+else if (Model.HasWarnings)
+{
+    <div class="alert alert-info">
+        No blocking issues found. Review the warnings below before running night audit.
+    </div>
+}
 else
 {
     <div class="alert alert-success">
@@ -40,6 +46,22 @@ else
     @foreach (var item in Model.Checklist)
     {
         <div class="col-md-6 col-xl-4">
+            <div class="border rounded p-3 h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="fw-semibold">@item.Name</div>
+                    <span class="badge @(item.Count == 0 ? "bg-success" : "bg-danger")">@item.Count</span>
+                </div>
+                <div class="text-muted small mt-2">@item.Description</div>
+            </div>
+        </div>
+    }
+</div>
+
+<h2 class="h4">Finance Close Controls</h2>
+<div class="row g-3 mb-4">
+    @foreach (var item in Model.FinanceCloseControls)
+    {
+        <div class="col-md-6 col-xl-3">
             <div class="border rounded p-3 h-100">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="fw-semibold">@item.Name</div>
@@ -115,7 +137,10 @@ else
     </tbody>
 </table>
 
+<h2 class="h4 mt-4">Advisory Details</h2>
+
 <h3 class="h5 mt-3">Checked-in Guests With Outstanding Balances</h3>
+<p class="text-muted small">These balances are shown for review and collection follow-up. They no longer block normal in-house night audit rollover.</p>
 <table class="table table-sm table-striped align-middle">
     <thead>
         <tr>

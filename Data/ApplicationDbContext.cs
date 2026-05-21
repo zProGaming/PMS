@@ -1850,6 +1850,25 @@ namespace Vantage.PMS.Data
                 .IsUnique();
 
             builder.Entity<APInvoice>()
+                .Property(invoice => invoice.SupplierInvoiceNumber)
+                .HasMaxLength(80);
+
+            builder.Entity<APInvoice>()
+                .HasIndex(invoice => new { invoice.SupplierId, invoice.SupplierInvoiceNumber })
+                .IsUnique()
+                .HasFilter("[SupplierInvoiceNumber] IS NOT NULL AND [SupplierInvoiceNumber] <> ''");
+
+            builder.Entity<APInvoice>()
+                .HasIndex(invoice => invoice.PurchaseOrderId)
+                .IsUnique()
+                .HasFilter("[PurchaseOrderId] IS NOT NULL AND [Status] <> 5 AND [Status] <> 6");
+
+            builder.Entity<APInvoice>()
+                .HasIndex(invoice => invoice.ReceivingRecordId)
+                .IsUnique()
+                .HasFilter("[ReceivingRecordId] IS NOT NULL AND [Status] <> 5 AND [Status] <> 6");
+
+            builder.Entity<APInvoice>()
                 .Property(invoice => invoice.SubTotal)
                 .HasPrecision(18, 2);
 
@@ -2021,6 +2040,12 @@ namespace Vantage.PMS.Data
                 .HasOne(transaction => transaction.BankAccount)
                 .WithMany(account => account.BankTransactions)
                 .HasForeignKey(transaction => transaction.BankAccountId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<BankTransaction>()
+                .HasOne(transaction => transaction.JournalEntry)
+                .WithMany()
+                .HasForeignKey(transaction => transaction.JournalEntryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<BankReconciliation>()

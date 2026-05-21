@@ -32,17 +32,28 @@
 @if (Model.HasOutstandingBalance)
 {
     <div class="alert alert-warning">
-        Guest has outstanding balance. Please settle the folio before check-out.
+        Guest has outstanding balance. Please settle the folio before check-out, or use an authorized manager override to check out while keeping the folio open for collection follow-up.
     </div>
 }
 
 <form method="post">
     <input type="hidden" asp-for="Reservation.Id" />
-    <div class="form-check mb-3">
-        <input asp-for="ManagerOverrideRequested" class="form-check-input" />
-        <label asp-for="ManagerOverrideRequested" class="form-check-label">Manager override requested (future use)</label>
-    </div>
-    <button type="submit" class="btn btn-warning" disabled="@(!Model.CanCheckOut)">Confirm Check Out</button>
+    @if (Model.HasOutstandingBalance)
+    {
+        <div class="form-check mb-3">
+            <input asp-for="ManagerOverrideRequested" class="form-check-input" disabled="@(!Model.CanUseManagerOverride)" />
+            <label asp-for="ManagerOverrideRequested" class="form-check-label">Authorize checkout with outstanding balance</label>
+            @if (!Model.CanUseManagerOverride)
+            {
+                <div class="form-text text-muted">Manager override is restricted to SystemAdmin, GeneralManager, FrontOfficeManager, and FinanceManager.</div>
+            }
+            else
+            {
+                <div class="form-text text-muted">The reservation will check out, the room will become Dirty, and any unpaid folio remains open for finance collection.</div>
+            }
+        </div>
+    }
+    <button type="submit" class="btn btn-warning" disabled="@(!Model.CanSubmitCheckOut)">Confirm Check Out</button>
     @if (Model.FolioId is not null)
     {
         <a class="btn btn-outline-primary" asp-page="/FrontOffice/Folios/Details" asp-route-id="@Model.FolioId">View Folio</a>

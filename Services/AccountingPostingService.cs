@@ -90,9 +90,15 @@ public class AccountingPostingService(ApplicationDbContext context)
             ? SourceTransactionType.POSChargeToRoom
             : SourceTransactionType.POSPayment;
 
+        var fbChargeCodeId = await _context.ChargeCodes
+            .AsNoTracking()
+            .Where(chargeCode => chargeCode.Code == "FB" && chargeCode.IsActive)
+            .Select(chargeCode => (int?)chargeCode.Id)
+            .FirstOrDefaultAsync();
+
         var paymentMethod = order.PaymentStatus == POSPaymentStatus.ChargedToRoom
             ? null
-            : "Cash";
+            : ResolvePOSPaymentMethod(order.Notes);
 
         return await CreateJournalFromRuleAsync(
             SourceModule.FoodBeverage,
@@ -103,7 +109,7 @@ public class AccountingPostingService(ApplicationDbContext context)
             $"F&B order - {order.Outlet?.Name ?? "Outlet"} - Order #{order.OrderNumber}",
             order.ClosedAt ?? order.OrderDate,
             createdBy,
-            null,
+            fbChargeCodeId,
             paymentMethod,
             null);
     }
@@ -298,7 +304,8 @@ public class AccountingPostingService(ApplicationDbContext context)
             return false;
         }
 
-        return journalEntry.Lines.Sum(line => line.DebitAmount) == journalEntry.Lines.Sum(line => line.CreditAmount);
+        return Math.Round(journalEntry.Lines.Sum(line => line.DebitAmount), 2, MidpointRounding.AwayFromZero) ==
+            Math.Round(journalEntry.Lines.Sum(line => line.CreditAmount), 2, MidpointRounding.AwayFromZero);
     }
 
     public async Task<IList<string>> PostJournalEntryAsync(int journalEntryId, string postedBy)
@@ -542,9 +549,12 @@ public class AccountingPostingService(ApplicationDbContext context)
                 .Where(payment => payment.Status == PaymentStatus.Completed && payment.PaymentDate >= startDate && payment.PaymentDate < endExclusive)
                 .Select(payment => new { payment.Id, payment.ReferenceNumber })
                 .ToListAsync();
-            foreach (var payment in payments.Where(payment => !HasPostedJournalAsync(SourceModule.Finance, SourceTransactionType.FolioPayment, payment.Id).Result))
+            foreach (var payment in payments)
             {
-                items.Add(BatchItem(SourceTransactionType.FolioPayment, payment.Id, payment.ReferenceNumber ?? payment.Id.ToString()));
+                if (!await HasPostedJournalAsync(SourceModule.Finance, SourceTransactionType.FolioPayment, payment.Id))
+                {
+                    items.Add(BatchItem(SourceTransactionType.FolioPayment, payment.Id, payment.ReferenceNumber ?? payment.Id.ToString()));
+                }
             }
         }
 
@@ -572,9 +582,12 @@ public class AccountingPostingService(ApplicationDbContext context)
                 .Where(charge => !charge.IsVoided && charge.ChargeDate >= startDate && charge.ChargeDate < endExclusive)
                 .Select(charge => new { charge.Id, charge.Description })
                 .ToListAsync();
-            foreach (var charge in charges.Where(charge => !HasPostedJournalAsync(SourceModule.Banquet, SourceTransactionType.BanquetCharge, charge.Id).Result))
+            foreach (var charge in charges)
             {
-                items.Add(BatchItem(SourceTransactionType.BanquetCharge, charge.Id, charge.Description));
+                if (!await HasPostedJournalAsync(SourceModule.Banquet, SourceTransactionType.BanquetCharge, charge.Id))
+                {
+                    items.Add(BatchItem(SourceTransactionType.BanquetCharge, charge.Id, charge.Description));
+                }
             }
         }
 
@@ -585,9 +598,12 @@ public class AccountingPostingService(ApplicationDbContext context)
                 .Where(invoice => invoice.InvoiceDate >= startDate && invoice.InvoiceDate < endExclusive && invoice.Status != ARInvoiceStatus.Cancelled)
                 .Select(invoice => new { invoice.Id, invoice.InvoiceNumber })
                 .ToListAsync();
-            foreach (var invoice in invoices.Where(invoice => !HasPostedJournalAsync(SourceModule.AccountsReceivable, SourceTransactionType.ARInvoice, invoice.Id).Result))
+            foreach (var invoice in invoices)
             {
-                items.Add(BatchItem(SourceTransactionType.ARInvoice, invoice.Id, invoice.InvoiceNumber));
+                if (!await HasPostedJournalAsync(SourceModule.AccountsReceivable, SourceTransactionType.ARInvoice, invoice.Id))
+                {
+                    items.Add(BatchItem(SourceTransactionType.ARInvoice, invoice.Id, invoice.InvoiceNumber));
+                }
             }
 
             var payments = await _context.ARPayments
@@ -595,9 +611,12 @@ public class AccountingPostingService(ApplicationDbContext context)
                 .Where(payment => payment.PaymentDate >= startDate && payment.PaymentDate < endExclusive)
                 .Select(payment => new { payment.Id, payment.ReferenceNumber })
                 .ToListAsync();
-            foreach (var payment in payments.Where(payment => !HasPostedJournalAsync(SourceModule.AccountsReceivable, SourceTransactionType.ARPayment, payment.Id).Result))
+            foreach (var payment in payments)
             {
-                items.Add(BatchItem(SourceTransactionType.ARPayment, payment.Id, payment.ReferenceNumber ?? payment.Id.ToString()));
+                if (!await HasPostedJournalAsync(SourceModule.AccountsReceivable, SourceTransactionType.ARPayment, payment.Id))
+                {
+                    items.Add(BatchItem(SourceTransactionType.ARPayment, payment.Id, payment.ReferenceNumber ?? payment.Id.ToString()));
+                }
             }
         }
 
@@ -608,9 +627,12 @@ public class AccountingPostingService(ApplicationDbContext context)
                 .Where(record => record.Status == ReceivingStatus.Posted && record.ReceivedDate >= startDate && record.ReceivedDate < endExclusive)
                 .Select(record => new { record.Id, record.ReceivingNumber })
                 .ToListAsync();
-            foreach (var record in receivingRecords.Where(record => !HasPostedJournalAsync(SourceModule.Purchasing, SourceTransactionType.PurchaseReceiving, record.Id).Result))
+            foreach (var record in receivingRecords)
             {
-                items.Add(BatchItem(SourceTransactionType.PurchaseReceiving, record.Id, record.ReceivingNumber));
+                if (!await HasPostedJournalAsync(SourceModule.Purchasing, SourceTransactionType.PurchaseReceiving, record.Id))
+                {
+                    items.Add(BatchItem(SourceTransactionType.PurchaseReceiving, record.Id, record.ReceivingNumber));
+                }
             }
         }
 
@@ -784,5 +806,25 @@ public class AccountingPostingService(ApplicationDbContext context)
             "COMPANYCHARGE" or "CITYLEDGER" => "CompanyCharge",
             _ => paymentMethod.Trim()
         };
+    }
+
+    private static string ResolvePOSPaymentMethod(string? notes)
+    {
+        if (string.IsNullOrWhiteSpace(notes))
+        {
+            return "Cash";
+        }
+
+        var settlementLine = notes
+            .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .LastOrDefault(line => line.StartsWith("Settlement:", StringComparison.OrdinalIgnoreCase));
+
+        if (settlementLine is null)
+        {
+            return "Cash";
+        }
+
+        var rawMethod = settlementLine["Settlement:".Length..].Trim();
+        return NormalizePaymentMethod(rawMethod) ?? "Cash";
     }
 }

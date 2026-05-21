@@ -6,16 +6,23 @@ namespace Vantage.PMS.Services;
 
 public class ReportCatalogService
 {
-    public IReadOnlyList<ReportCatalogEntry> GetCatalog() => DefaultCatalog;
+    private readonly bool _showPlannedReports;
+
+    public ReportCatalogService(IConfiguration configuration)
+    {
+        _showPlannedReports = configuration.GetValue<bool>("Reports:ShowPlannedReports");
+    }
+
+    public IReadOnlyList<ReportCatalogEntry> GetCatalog() => GetVisibleCatalog();
 
     public IReadOnlyList<ReportCatalogEntry> GetAuthorizedCatalog(ClaimsPrincipal user)
     {
         if (user.IsInRole(PmsRoles.SystemAdmin))
         {
-            return DefaultCatalog;
+            return GetVisibleCatalog();
         }
 
-        return DefaultCatalog
+        return GetVisibleCatalog()
             .Where(item => item.RequiredRoles.Length == 0 || item.RequiredRoles.Any(user.IsInRole))
             .ToList();
     }
@@ -23,6 +30,13 @@ public class ReportCatalogService
     public ReportCatalogEntry? Find(string reportKey)
     {
         return DefaultCatalog.FirstOrDefault(item => item.ReportKey.Equals(reportKey, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private IReadOnlyList<ReportCatalogEntry> GetVisibleCatalog()
+    {
+        return _showPlannedReports
+            ? DefaultCatalog
+            : DefaultCatalog.Where(item => item.IsAvailable).ToList();
     }
 
     public static string FormatCategory(ReportCategory category)

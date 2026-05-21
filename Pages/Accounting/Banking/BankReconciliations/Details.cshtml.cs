@@ -70,7 +70,7 @@ public class DetailsModel(ApplicationDbContext context, AccountsPayableService a
             .FirstOrDefaultAsync(item => item.Id == id);
         if (reconciliation is not null)
         {
-            accountsPayableService.RecalculateBankReconciliation(reconciliation);
+            await accountsPayableService.RecalculateBankReconciliationAsync(reconciliation);
             await context.SaveChangesAsync();
         }
         return reconciliation;

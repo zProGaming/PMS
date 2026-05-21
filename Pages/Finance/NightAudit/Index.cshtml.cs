@@ -33,9 +33,17 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
     public IList<ChecklistItem> FinanceWarnings { get; set; } = new List<ChecklistItem>();
 
+    public IList<ChecklistItem> FinanceCloseControls { get; set; } = new List<ChecklistItem>();
+
     public IList<NightAuditRecord> AuditHistory { get; set; } = new List<NightAuditRecord>();
 
-    public bool HasBlockingIssues => Checklist.Any(item => item.Count > 0);
+    public bool HasBlockingIssues => HasOperationalBlockingIssues || HasFinanceBlockingIssues;
+
+    public bool HasOperationalBlockingIssues => Checklist.Any(item => item.Count > 0);
+
+    public bool HasFinanceBlockingIssues => FinanceCloseControls.Any(item => item.Count > 0);
+
+    public bool HasWarnings => FinanceWarnings.Any(item => item.Count > 0);
 
     public async Task OnGetAsync()
     {
@@ -49,14 +57,34 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
         await LoadChecklistAsync(BusinessDate);
 
-        if (HasBlockingIssues)
+        if (HasOperationalBlockingIssues)
         {
             await LoadHistoryAsync();
             ModelState.AddModelError(string.Empty, "Night audit cannot run until all blocking issues are resolved.");
             return Page();
         }
 
+        if (HasFinanceBlockingIssues)
+        {
+            await LoadHistoryAsync();
+            ModelState.AddModelError(string.Empty, "Post all eligible finance items to accounting before advancing the business date.");
+            return Page();
+        }
+
         var startedAt = DateTime.Now;
+        var roomChargesPosted = await PostNightlyRoomChargesAsync(BusinessDate);
+
+        await LoadChecklistAsync(BusinessDate);
+        if (HasFinanceBlockingIssues)
+        {
+            await LoadHistoryAsync();
+            var message = roomChargesPosted > 0
+                ? $"Nightly room/tax/service-charge lines were posted for review. Post all eligible finance items to accounting before advancing the business date. New folio charge lines posted: {roomChargesPosted}."
+                : "Post all eligible finance items to accounting before advancing the business date.";
+            ModelState.AddModelError(string.Empty, message);
+            return Page();
+        }
+
         var lockedCharges = await LockChargesAsync(BusinessDate);
         var lockedPayments = await LockPaymentsAsync(BusinessDate);
 
@@ -67,7 +95,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             CompletedAt = DateTime.Now,
             Status = NightAuditStatus.Completed,
             CompletedBy = User.Identity?.Name ?? Environment.UserName,
-            Notes = BuildAuditSummary(BusinessDate, lockedCharges, lockedPayments, CompletionNotes)
+            Notes = BuildAuditSummary(BusinessDate, roomChargesPosted, lockedCharges, lockedPayments, CompletionNotes)
         };
 
         _context.NightAudits.Add(audit);
@@ -76,7 +104,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
         await _context.SaveChangesAsync();
 
-        TempData["NightAuditMessage"] = $"Night audit completed for {BusinessDate:d}. Business date advanced to {setting.CurrentBusinessDate:d}.";
+        TempData["NightAuditMessage"] = $"Night audit completed for {BusinessDate:d}. Posted {roomChargesPosted} nightly room/tax/service-charge line(s). Business date advanced to {setting.CurrentBusinessDate:d}.";
 
         return RedirectToPage("./Index");
     }
@@ -161,12 +189,17 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
         RoomIssues = await LoadRoomIssuesAsync(businessDate, nextBusinessDate);
         await LoadFinanceWarningsAsync(businessDate, nextBusinessDate);
+        FinanceWarnings.Insert(
+            0,
+            new ChecklistItem(
+                "In-house folio balances",
+                OutstandingFolios.Count,
+                "Checked-in guest balances are operational warnings. They do not block night audit rollover unless hotel policy requires settlement before each business date close."));
 
         Checklist = new List<ChecklistItem>
         {
             new("Unresolved arrivals", UnresolvedArrivals.Count, "Reservations due to arrive but not checked in."),
             new("Unresolved departures", UnresolvedDepartures.Count, "Reservations due to depart but not checked out."),
-            new("Outstanding balances", OutstandingFolios.Count, "Checked-in guests with folio balances greater than zero."),
             new("Open payments", OpenPayments.Count, "Payment records not completed, voided, or refunded for the business date."),
             new("Room status issues", RoomIssues.Count, "Rooms whose status conflicts with active reservation state.")
         };
@@ -220,16 +253,25 @@ public class IndexModel(ApplicationDbContext context) : PageModel
                         entry.Status == JournalEntryStatus.Posted &&
                         entry.SourceReferenceId == charge.Id &&
                         entry.SourceTransactionType == SourceTransactionType.BanquetCharge));
+        var checkedInReservationsWithoutRate = await _context.Reservations
+            .CountAsync(reservation =>
+                reservation.Status == ReservationStatus.CheckedIn &&
+                reservation.RateAmount <= 0);
 
-        FinanceWarnings = new List<ChecklistItem>
+        FinanceCloseControls = new List<ChecklistItem>
         {
             new("Open cashier shifts", openCashierShifts, "Cashier shifts still open for the business date."),
             new("Approved refunds not processed", unprocessedApprovedRefunds, "Approved refunds waiting for processing."),
             new("Pending void approvals", pendingVoidApprovals, "Void requests waiting for approval."),
             new("Pending discount approvals", pendingDiscountApprovals, "Discount requests waiting for approval."),
-            new("Unposted folio charges", unpostedFolioItems, "Folio charges not yet posted to accounting. Warning only for MVP."),
-            new("Unposted folio payments", unpostedPayments, "Completed payments not yet posted to accounting. Warning only for MVP."),
-            new("Unposted POS/banquet transactions", unpostedPosOrBanquet, "POS and banquet source transactions not yet posted to accounting. Warning only for MVP.")
+            new("Unposted folio charges", unpostedFolioItems, "Folio charges must be posted to accounting before business date rollover."),
+            new("Unposted folio payments", unpostedPayments, "Completed payments must be posted to accounting before business date rollover."),
+            new("Unposted POS/banquet transactions", unpostedPosOrBanquet, "POS and banquet source transactions must be posted to accounting before business date rollover.")
+        };
+
+        FinanceWarnings = new List<ChecklistItem>
+        {
+            new("Missing nightly rates", checkedInReservationsWithoutRate, "Checked-in reservations with zero or missing rate amount will not receive automatic room charges.")
         };
     }
 
@@ -270,6 +312,130 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         }
 
         return issues;
+    }
+
+    private async Task<int> PostNightlyRoomChargesAsync(DateTime businessDate)
+    {
+        var chargeCodes = await _context.ChargeCodes
+            .AsNoTracking()
+            .Where(chargeCode => chargeCode.IsActive && (chargeCode.Code == "ROOM" || chargeCode.Code == "TAX" || chargeCode.Code == "SVC" || chargeCode.Code == "SC"))
+            .Select(chargeCode => new ChargeCodeLookup(chargeCode.Id, chargeCode.Code, chargeCode.Name))
+            .ToListAsync();
+        var roomChargeCode = chargeCodes.FirstOrDefault(chargeCode => chargeCode.Code.Equals("ROOM", StringComparison.OrdinalIgnoreCase));
+        var taxChargeCode = chargeCodes.FirstOrDefault(chargeCode => chargeCode.Code.Equals("TAX", StringComparison.OrdinalIgnoreCase));
+        var serviceChargeCode = chargeCodes.FirstOrDefault(chargeCode => chargeCode.Code.Equals("SVC", StringComparison.OrdinalIgnoreCase))
+            ?? chargeCodes.FirstOrDefault(chargeCode => chargeCode.Code.Equals("SC", StringComparison.OrdinalIgnoreCase));
+        var serviceChargeRate = await GetSystemSettingDecimalAsync("Finance.DefaultServiceChargePercentage", 0);
+        var taxRate = await GetSystemSettingDecimalAsync("Finance.DefaultTaxPercentage", 0);
+
+        var reservations = await _context.Reservations
+            .Include(reservation => reservation.Guest)
+            .Include(reservation => reservation.Room)
+            .Include(reservation => reservation.Folios)
+                .ThenInclude(folio => folio.Items)
+            .Where(reservation =>
+                reservation.Status == ReservationStatus.CheckedIn &&
+                reservation.ArrivalDate.Date <= businessDate.Date &&
+                reservation.DepartureDate.Date > businessDate.Date &&
+                reservation.RateAmount > 0)
+            .ToListAsync();
+
+        var postedCount = 0;
+        var postedBy = User.Identity?.Name ?? Environment.UserName;
+
+        foreach (var reservation in reservations)
+        {
+            var alreadyPosted = reservation.Folios
+                .SelectMany(folio => folio.Items)
+                .Any(item =>
+                    !item.IsVoided &&
+                    item.PostingDate.Date == businessDate.Date &&
+                    string.Equals(item.ChargeCode, "ROOM", StringComparison.OrdinalIgnoreCase));
+
+            if (alreadyPosted)
+            {
+                continue;
+            }
+
+            var folio = reservation.Folios.FirstOrDefault(folio => folio.Status == FolioStatus.Open);
+
+            if (folio is null)
+            {
+                var hasExistingFolio = reservation.Folios.Any();
+                folio = new Folio
+                {
+                    PropertyId = reservation.PropertyId,
+                    ReservationId = reservation.Id,
+                    GuestId = reservation.GuestId,
+                    FolioNumber = hasExistingFolio
+                        ? $"FOL-{reservation.Id:000000}-{businessDate:yyyyMMdd}"
+                        : $"FOL-{reservation.Id:000000}",
+                    Status = FolioStatus.Open,
+                    OpenedAtUtc = DateTime.UtcNow
+                };
+                _context.Folios.Add(folio);
+                reservation.Folios.Add(folio);
+            }
+
+            AddFolioCharge(folio, roomChargeCode, "ROOM", $"Night audit room charge - {businessDate:yyyy-MM-dd}", reservation.RateAmount, businessDate, postedBy);
+            postedCount++;
+
+            var serviceChargeAmount = Math.Round(reservation.RateAmount * serviceChargeRate / 100, 2, MidpointRounding.AwayFromZero);
+            if (serviceChargeAmount > 0)
+            {
+                AddFolioCharge(folio, serviceChargeCode, "SVC", $"Night audit service charge - {businessDate:yyyy-MM-dd}", serviceChargeAmount, businessDate, postedBy);
+                postedCount++;
+            }
+
+            var taxBase = reservation.RateAmount + serviceChargeAmount;
+            var taxAmount = Math.Round(taxBase * taxRate / 100, 2, MidpointRounding.AwayFromZero);
+            if (taxAmount > 0)
+            {
+                AddFolioCharge(folio, taxChargeCode, "TAX", $"Night audit tax - {businessDate:yyyy-MM-dd}", taxAmount, businessDate, postedBy);
+                postedCount++;
+            }
+        }
+
+        if (postedCount > 0)
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        return postedCount;
+    }
+
+    private async Task<decimal> GetSystemSettingDecimalAsync(string settingKey, decimal fallback)
+    {
+        var value = await _context.SystemSettings
+            .AsNoTracking()
+            .Where(setting => setting.SettingKey == settingKey)
+            .Select(setting => setting.SettingValue)
+            .FirstOrDefaultAsync();
+
+        return decimal.TryParse(value, out var parsed) ? parsed : fallback;
+    }
+
+    private static void AddFolioCharge(
+        Folio folio,
+        ChargeCodeLookup? chargeCode,
+        string fallbackCode,
+        string description,
+        decimal amount,
+        DateTime businessDate,
+        string postedBy)
+    {
+        folio.Items.Add(new FolioItem
+        {
+            ChargeCodeId = chargeCode?.Id,
+            ChargeCode = chargeCode?.Code ?? fallbackCode,
+            Description = description,
+            Quantity = 1,
+            UnitPrice = amount,
+            Amount = amount,
+            PostingDate = businessDate.Date,
+            PostedBy = postedBy,
+            IsLocked = false
+        });
     }
 
     private async Task LoadHistoryAsync()
@@ -318,11 +484,12 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         return payments.Count;
     }
 
-    private static string BuildAuditSummary(DateTime businessDate, int lockedCharges, int lockedPayments, string? notes)
+    private static string BuildAuditSummary(DateTime businessDate, int roomChargesPosted, int lockedCharges, int lockedPayments, string? notes)
     {
         var summary = string.Join(Environment.NewLine, new[]
         {
             $"Business date closed: {businessDate:d}",
+            $"Nightly room/tax/service-charge lines posted: {roomChargesPosted}",
             $"Locked charges: {lockedCharges}",
             $"Locked payments: {lockedPayments}",
             $"Next business date: {businessDate.AddDays(1):d}"
@@ -336,4 +503,6 @@ public class IndexModel(ApplicationDbContext context) : PageModel
     public record ChecklistItem(string Name, int Count, string Description);
 
     public record RoomIssue(string RoomNumber, string Status, string Issue);
+
+    private record ChargeCodeLookup(int Id, string Code, string Name);
 }

@@ -141,6 +141,12 @@ public class CloseModel(ApplicationDbContext context) : PageModel
         var folio = await _context.Folios
             .FirstOrDefaultAsync(folio => folio.ReservationId == reservation.Id);
 
+        var fbChargeCode = await _context.ChargeCodes
+            .AsNoTracking()
+            .Where(chargeCode => chargeCode.Code == "FB" && chargeCode.IsActive)
+            .Select(chargeCode => new { chargeCode.Id, chargeCode.Code })
+            .FirstOrDefaultAsync();
+
         if (folio is null)
         {
             folio = new Folio
@@ -163,7 +169,7 @@ public class CloseModel(ApplicationDbContext context) : PageModel
                 .AnyAsync(item =>
                     item.FolioId == folio.Id &&
                     !item.IsVoided &&
-                    item.ChargeCode == "FNB" &&
+                    (item.ChargeCode == "FB" || (fbChargeCode != null && item.ChargeCodeId == fbChargeCode.Id)) &&
                     item.Description.Contains(orderToken));
 
             if (alreadyChargedToFolio)
@@ -179,7 +185,8 @@ public class CloseModel(ApplicationDbContext context) : PageModel
         {
             Folio = folio,
             Description = $"F&B Charge - {Order.Outlet?.Name} - Order #{Order.OrderNumber}",
-            ChargeCode = "FNB",
+            ChargeCodeId = fbChargeCode?.Id,
+            ChargeCode = fbChargeCode?.Code ?? "FB",
             Quantity = 1,
             UnitPrice = Order.TotalAmount,
             Amount = Order.TotalAmount,

@@ -78,6 +78,12 @@ public class CreateModel(ApplicationDbContext context, RevenueManagementService 
             return;
         }
 
+        if (!room.IsActive || !IsAssignableRoomStatus(room.Status))
+        {
+            ModelState.AddModelError("Reservation.RoomId", $"Room {room.RoomNumber} is {room.Status} and cannot be assigned to a new reservation.");
+            return;
+        }
+
         Reservation.PropertyId = room.PropertyId;
         Reservation.RoomTypeId = room.RoomTypeId;
         await ValidateRoomAvailabilityAsync(room.Id);
@@ -156,7 +162,10 @@ public class CreateModel(ApplicationDbContext context, RevenueManagementService 
             .Include(room => room.Property)
             .Include(room => room.RoomType)
             .AsNoTracking()
-            .Where(room => room.IsActive)
+            .Where(room => room.IsActive &&
+                (room.Status == RoomStatus.Available ||
+                    room.Status == RoomStatus.Clean ||
+                    room.Status == RoomStatus.Inspected))
             .OrderBy(room => room.Property!.Name)
             .ThenBy(room => room.RoomNumber)
             .ToListAsync();
@@ -173,7 +182,7 @@ public class CreateModel(ApplicationDbContext context, RevenueManagementService 
             rooms.Select(room => new
             {
                 room.Id,
-                Name = $"{room.Property?.Name} - {room.RoomNumber} ({room.RoomType?.Name})"
+                Name = $"{room.Property?.Name} - {room.RoomNumber} ({room.RoomType?.Name}, {room.Status})"
             }),
             "Id",
             "Name",
@@ -196,5 +205,10 @@ public class CreateModel(ApplicationDbContext context, RevenueManagementService 
     private static string CreateConfirmationNumber()
     {
         return $"RES-{DateTime.UtcNow:yyyyMMddHHmmss}";
+    }
+
+    private static bool IsAssignableRoomStatus(RoomStatus status)
+    {
+        return status is RoomStatus.Available or RoomStatus.Clean or RoomStatus.Inspected;
     }
 }

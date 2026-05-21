@@ -28,7 +28,10 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            query = query.Where(invoice => invoice.InvoiceNumber.Contains(search) || (invoice.Supplier != null && invoice.Supplier.SupplierName.Contains(search)));
+            query = query.Where(invoice =>
+                invoice.InvoiceNumber.Contains(search) ||
+                (invoice.SupplierInvoiceNumber != null && invoice.SupplierInvoiceNumber.Contains(search)) ||
+                (invoice.Supplier != null && invoice.Supplier.SupplierName.Contains(search)));
         }
 
         Invoices = await query.OrderByDescending(invoice => invoice.InvoiceDate).ThenByDescending(invoice => invoice.Id).Take(250).ToListAsync();

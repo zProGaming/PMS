@@ -89,6 +89,8 @@ public class APInvoice
 
     public string InvoiceNumber { get; set; } = string.Empty;
 
+    public string? SupplierInvoiceNumber { get; set; }
+
     public DateTime InvoiceDate { get; set; } = DateTime.Today;
 
     public DateTime DueDate { get; set; } = DateTime.Today.AddDays(30);
@@ -287,6 +289,10 @@ public class BankTransaction
     public SourceModule SourceModule { get; set; } = SourceModule.Finance;
 
     public int? SourceReferenceId { get; set; }
+
+    public int? JournalEntryId { get; set; }
+
+    public JournalEntry? JournalEntry { get; set; }
 
     public bool IsReconciled { get; set; }
 

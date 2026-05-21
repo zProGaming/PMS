@@ -9,10 +9,12 @@ namespace Vantage.PMS.Services;
 
 public class GuestPortalService(
     ApplicationDbContext context,
-    GuestPortalNotificationService notificationService)
+    GuestPortalNotificationService notificationService,
+    IConfiguration configuration)
 {
     private readonly ApplicationDbContext _context = context;
     private readonly GuestPortalNotificationService _notificationService = notificationService;
+    private readonly IConfiguration _configuration = configuration;
 
     public async Task<GuestPortalSetting> GetSettingsAsync()
     {
@@ -230,10 +232,16 @@ public class GuestPortalService(
             access.BookingRequestId == bookingRequestId &&
             access.GuestEmail == guestEmail &&
             (access.ExpiresAt == null || access.ExpiresAt > DateTime.Now));
+        var expiresAt = DateTime.Now.AddDays(GetAccessTokenLifetimeDays());
 
         if (existingAccess is not null)
         {
             existingAccess.LastAccessedAt = DateTime.Now;
+            if (existingAccess.ExpiresAt is null || existingAccess.ExpiresAt > expiresAt)
+            {
+                existingAccess.ExpiresAt = expiresAt;
+            }
+
             await _context.SaveChangesAsync();
             await _notificationService.SendPortalAccessAsync(existingAccess);
             return existingAccess;
@@ -247,7 +255,7 @@ public class GuestPortalService(
             AccessToken = Guid.NewGuid().ToString("N"),
             GuestEmail = guestEmail,
             GuestPhone = guestPhone,
-            ExpiresAt = DateTime.Now.AddDays(30),
+            ExpiresAt = expiresAt,
             IsActive = true,
             CreatedAt = DateTime.Now,
             LastAccessedAt = DateTime.Now
@@ -284,6 +292,12 @@ public class GuestPortalService(
         return string.IsNullOrWhiteSpace(phone)
             ? null
             : new string(phone.Where(char.IsDigit).ToArray());
+    }
+
+    private int GetAccessTokenLifetimeDays()
+    {
+        var configuredDays = _configuration.GetValue<int?>("GuestPortal:AccessTokenDays");
+        return configuredDays is >= 1 and <= 14 ? configuredDays.Value : 7;
     }
 
     public record GuestPortalLookupResult(bool Succeeded, string Message, GuestPortalAccess? Access);

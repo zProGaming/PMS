@@ -21,21 +21,31 @@ public class CreateModel(ApplicationDbContext context, AccountsPayableService ac
     public SelectList ReceivingRecordOptions { get; private set; } = default!;
     public SelectList GLAccountOptions { get; private set; } = default!;
     public SelectList InventoryItemOptions { get; private set; } = default!;
+    public string? StatusMessage { get; private set; }
 
     public async Task OnGetAsync(int? purchaseOrderId, int? receivingRecordId)
     {
-        if (purchaseOrderId is not null)
+        try
         {
-            Input = await accountsPayableService.BuildInvoiceFromPurchaseOrderAsync(purchaseOrderId.Value, User.Identity?.Name ?? "System");
-            Lines = Input.Lines.Select(LineInput.FromModel).ToList();
+            if (purchaseOrderId is not null)
+            {
+                Input = await accountsPayableService.BuildInvoiceFromPurchaseOrderAsync(purchaseOrderId.Value, User.Identity?.Name ?? "System");
+                Lines = Input.Lines.Select(LineInput.FromModel).ToList();
+            }
+            else if (receivingRecordId is not null)
+            {
+                Input = await accountsPayableService.BuildInvoiceFromReceivingRecordAsync(receivingRecordId.Value, User.Identity?.Name ?? "System");
+                Lines = Input.Lines.Select(LineInput.FromModel).ToList();
+            }
+            else
+            {
+                Input.InvoiceNumber = await accountsPayableService.GenerateNumberAsync("APINV");
+                Lines = [new LineInput()];
+            }
         }
-        else if (receivingRecordId is not null)
+        catch (InvalidOperationException ex)
         {
-            Input = await accountsPayableService.BuildInvoiceFromReceivingRecordAsync(receivingRecordId.Value, User.Identity?.Name ?? "System");
-            Lines = Input.Lines.Select(LineInput.FromModel).ToList();
-        }
-        else
-        {
+            StatusMessage = ex.Message;
             Input.InvoiceNumber = await accountsPayableService.GenerateNumberAsync("APINV");
             Lines = [new LineInput()];
         }
@@ -56,6 +66,11 @@ public class CreateModel(ApplicationDbContext context, AccountsPayableService ac
             ModelState.AddModelError("Input.InvoiceNumber", "Invoice number is required.");
         }
 
+        if (string.IsNullOrWhiteSpace(Input.SupplierInvoiceNumber))
+        {
+            ModelState.AddModelError("Input.SupplierInvoiceNumber", "Supplier invoice/reference number is required.");
+        }
+
         if (Input.DueDate < Input.InvoiceDate)
         {
             ModelState.AddModelError("Input.DueDate", "Due date cannot be before invoice date.");
@@ -64,6 +79,34 @@ public class CreateModel(ApplicationDbContext context, AccountsPayableService ac
         if (await context.APInvoices.AnyAsync(invoice => invoice.SupplierId == Input.SupplierId && invoice.InvoiceNumber == Input.InvoiceNumber))
         {
             ModelState.AddModelError("Input.InvoiceNumber", "Invoice number already exists for this supplier.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(Input.SupplierInvoiceNumber) &&
+            await context.APInvoices.AnyAsync(invoice =>
+                invoice.SupplierId == Input.SupplierId &&
+                invoice.SupplierInvoiceNumber == Input.SupplierInvoiceNumber &&
+                invoice.Status != APInvoiceStatus.Cancelled &&
+                invoice.Status != APInvoiceStatus.Voided))
+        {
+            ModelState.AddModelError("Input.SupplierInvoiceNumber", "Supplier invoice/reference number already exists for this supplier.");
+        }
+
+        if (Input.PurchaseOrderId is not null &&
+            await context.APInvoices.AnyAsync(invoice =>
+                invoice.PurchaseOrderId == Input.PurchaseOrderId &&
+                invoice.Status != APInvoiceStatus.Cancelled &&
+                invoice.Status != APInvoiceStatus.Voided))
+        {
+            ModelState.AddModelError("Input.PurchaseOrderId", "An active AP invoice already exists for this purchase order.");
+        }
+
+        if (Input.ReceivingRecordId is not null &&
+            await context.APInvoices.AnyAsync(invoice =>
+                invoice.ReceivingRecordId == Input.ReceivingRecordId &&
+                invoice.Status != APInvoiceStatus.Cancelled &&
+                invoice.Status != APInvoiceStatus.Voided))
+        {
+            ModelState.AddModelError("Input.ReceivingRecordId", "An active AP invoice already exists for this receiving record.");
         }
 
         if (Lines.Count == 0)
@@ -103,8 +146,26 @@ public class CreateModel(ApplicationDbContext context, AccountsPayableService ac
     private async Task LoadOptionsAsync()
     {
         SupplierOptions = new SelectList(await context.Suppliers.AsNoTracking().Where(supplier => supplier.IsActive).OrderBy(supplier => supplier.SupplierName).ToListAsync(), "Id", "SupplierName");
-        PurchaseOrderOptions = new SelectList(await context.PurchaseOrders.AsNoTracking().Include(order => order.Supplier).OrderByDescending(order => order.OrderDate).Take(100).Select(order => new { order.Id, Name = order.PONumber + " - " + (order.Supplier != null ? order.Supplier.SupplierName : "Supplier") }).ToListAsync(), "Id", "Name");
-        ReceivingRecordOptions = new SelectList(await context.ReceivingRecords.AsNoTracking().Include(record => record.Supplier).OrderByDescending(record => record.ReceivedDate).Take(100).Select(record => new { record.Id, Name = record.ReceivingNumber + " - " + (record.Supplier != null ? record.Supplier.SupplierName : "Supplier") }).ToListAsync(), "Id", "Name");
+        PurchaseOrderOptions = new SelectList(await context.PurchaseOrders.AsNoTracking()
+            .Include(order => order.Supplier)
+            .Where(order => !context.APInvoices.Any(invoice =>
+                invoice.PurchaseOrderId == order.Id &&
+                invoice.Status != APInvoiceStatus.Cancelled &&
+                invoice.Status != APInvoiceStatus.Voided))
+            .OrderByDescending(order => order.OrderDate)
+            .Take(100)
+            .Select(order => new { order.Id, Name = order.PONumber + " - " + (order.Supplier != null ? order.Supplier.SupplierName : "Supplier") })
+            .ToListAsync(), "Id", "Name");
+        ReceivingRecordOptions = new SelectList(await context.ReceivingRecords.AsNoTracking()
+            .Include(record => record.Supplier)
+            .Where(record => !context.APInvoices.Any(invoice =>
+                invoice.ReceivingRecordId == record.Id &&
+                invoice.Status != APInvoiceStatus.Cancelled &&
+                invoice.Status != APInvoiceStatus.Voided))
+            .OrderByDescending(record => record.ReceivedDate)
+            .Take(100)
+            .Select(record => new { record.Id, Name = record.ReceivingNumber + " - " + (record.Supplier != null ? record.Supplier.SupplierName : "Supplier") })
+            .ToListAsync(), "Id", "Name");
         GLAccountOptions = new SelectList(await context.GLAccounts.AsNoTracking().Where(account => account.IsActive).OrderBy(account => account.AccountCode).Select(account => new { account.Id, Name = account.AccountCode + " - " + account.AccountName }).ToListAsync(), "Id", "Name");
         InventoryItemOptions = new SelectList(await context.InventoryItems.AsNoTracking().Where(item => item.IsActive).OrderBy(item => item.ItemName).Select(item => new { item.Id, Name = item.ItemCode + " - " + item.ItemName }).ToListAsync(), "Id", "Name");
     }

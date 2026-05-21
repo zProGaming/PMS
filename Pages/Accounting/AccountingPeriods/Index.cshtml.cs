@@ -3,15 +3,19 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Accounting;
+using Vantage.PMS.Services;
 
 namespace Vantage.PMS.Pages.Accounting.AccountingPeriods;
 
-public class IndexModel(ApplicationDbContext context) : PageModel
+public class IndexModel(ApplicationDbContext context, AccountsPayableService accountsPayableService) : PageModel
 {
     public IList<AccountingPeriod> Periods { get; private set; } = [];
 
     [BindProperty]
     public AccountingPeriod Input { get; set; } = new() { StartDate = DateTime.Today, EndDate = DateTime.Today };
+
+    [TempData]
+    public string? StatusMessage { get; set; }
 
     public async Task OnGetAsync() => Periods = await context.AccountingPeriods.AsNoTracking().OrderByDescending(period => period.StartDate).ToListAsync();
 
@@ -42,14 +46,10 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
     public async Task<IActionResult> OnPostCloseAsync(int id)
     {
-        var period = await context.AccountingPeriods.FindAsync(id);
-        if (period?.Status == AccountingPeriodStatus.Open)
-        {
-            period.Status = AccountingPeriodStatus.Closed;
-            period.ClosedBy = User.Identity?.Name ?? "System";
-            period.ClosedAt = DateTime.Now;
-            await context.SaveChangesAsync();
-        }
+        var errors = await accountsPayableService.CloseAccountingPeriodAsync(id, User.Identity?.Name ?? "System", overrideIncomplete: false);
+        StatusMessage = errors.Count == 0
+            ? "Accounting period closed after month-end checklist validation."
+            : string.Join(" ", errors);
 
         return RedirectToPage();
     }
@@ -61,6 +61,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         {
             period.Status = AccountingPeriodStatus.Locked;
             await context.SaveChangesAsync();
+            StatusMessage = "Accounting period locked.";
         }
 
         return RedirectToPage();

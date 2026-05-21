@@ -31,6 +31,9 @@
 {
     <form method="post" asp-page-handler="AddAdjustment" asp-route-id="@Model.Reconciliation.Id" class="vpms-card mb-4">
         <h2 class="h6">Add Reconciliation Adjustment</h2>
+        <div class="alert alert-warning vpms-alert small">
+            Reconciliation adjustments are review items only. Approved reconciliations require adjustments to be supported by a posted GL-backed bank transaction.
+        </div>
         <div class="row g-3 align-items-end">
             <div class="col-md-4"><label asp-for="Adjustment.Description" class="form-label">Description</label><input asp-for="Adjustment.Description" class="form-control" /></div>
             <div class="col-md-2"><label asp-for="Adjustment.ItemType" class="form-label">Type</label><select asp-for="Adjustment.ItemType" asp-items="Html.GetEnumSelectList<BankReconciliationItemType>()" class="form-select"></select></div>

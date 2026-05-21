@@ -23,13 +23,19 @@
     </form>
 </section>
 
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-warning vpms-alert">@Model.StatusMessage</div>
+}
+
 <form method="post" class="vpms-form-card">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input asp-for="Input.PurchaseOrderId" type="hidden" />
     <input asp-for="Input.ReceivingRecordId" type="hidden" />
     <div class="row g-3">
-        <div class="col-md-4"><label asp-for="Input.SupplierId" class="form-label">Supplier</label><select asp-for="Input.SupplierId" asp-items="Model.SupplierOptions" class="form-select"><option value="">Select supplier</option></select></div>
-        <div class="col-md-3"><label asp-for="Input.InvoiceNumber" class="form-label">Invoice Number</label><input asp-for="Input.InvoiceNumber" class="form-control" /></div>
+        <div class="col-md-3"><label asp-for="Input.SupplierId" class="form-label">Supplier</label><select asp-for="Input.SupplierId" asp-items="Model.SupplierOptions" class="form-select"><option value="">Select supplier</option></select></div>
+        <div class="col-md-3"><label asp-for="Input.InvoiceNumber" class="form-label">AP Number</label><input asp-for="Input.InvoiceNumber" class="form-control" /></div>
+        <div class="col-md-3"><label asp-for="Input.SupplierInvoiceNumber" class="form-label">Supplier Invoice / Reference</label><input asp-for="Input.SupplierInvoiceNumber" class="form-control" /></div>
         <div class="col-md-2"><label asp-for="Input.InvoiceDate" class="form-label">Invoice Date</label><input asp-for="Input.InvoiceDate" type="date" class="form-control" /></div>
         <div class="col-md-2"><label asp-for="Input.DueDate" class="form-label">Due Date</label><input asp-for="Input.DueDate" type="date" class="form-control" /></div>
         <div class="col-md-1"><label asp-for="Input.DiscountAmount" class="form-label">Discount</label><input asp-for="Input.DiscountAmount" class="form-control" /></div>

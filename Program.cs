@@ -117,7 +117,7 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/ManagementAI/Settings", PmsPolicies.AIIntegrationSettings);
     options.Conventions.AuthorizeFolder("/System/AuditLogs", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/ErrorLogs", PmsPolicies.SystemAdministration);
-    options.Conventions.AuthorizeFolder("/System/Notifications");
+    options.Conventions.AuthorizeFolder("/System/Notifications", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/Settings", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/HealthCheck", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/DataValidationIssues", PmsPolicies.SystemManagement);
@@ -143,7 +143,8 @@ await using (var scope = app.Services.CreateAsyncScope())
         var logger = scope.ServiceProvider
             .GetRequiredService<ILoggerFactory>()
             .CreateLogger("StartupDataSeed");
-        logger.LogError(ex, "Startup data seeding failed. The application will continue to boot; review database connectivity, migrations, and seed data before production use.");
+        logger.LogCritical(ex, "Required startup data seeding failed. The application cannot start until database connectivity, migrations, and bootstrap configuration are corrected.");
+        throw;
     }
 }
 

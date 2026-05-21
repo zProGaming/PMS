@@ -322,13 +322,19 @@ public static class AccountingSeedData
         var roomChargeCodeId = await GetChargeCodeIdAsync(context, "ROOM");
         var fbChargeCodeId = await GetChargeCodeIdAsync(context, "FB");
         var banquetChargeCodeId = await GetChargeCodeIdAsync(context, "BNQ");
+        var taxChargeCodeId = await GetChargeCodeIdAsync(context, "TAX");
+        var serviceChargeCodeId = await GetChargeCodeIdAsync(context, "SVC") ?? await GetChargeCodeIdAsync(context, "SC");
 
         var defaults = new[]
         {
             Rule("Room Charge", SourceModule.FrontOffice, SourceTransactionType.RoomCharge, "1100", "4000", roomChargeCodeId, null, roomsDepartmentId, "2010", "2040", null),
             Rule("Folio Charge", SourceModule.Finance, SourceTransactionType.FolioCharge, "1100", "4300", null, null, null, "2010", "2040", null),
+            Rule("Folio Tax", SourceModule.Finance, SourceTransactionType.FolioCharge, "1100", "2010", taxChargeCodeId, null, null, null, null, null),
+            Rule("Folio Service Charge", SourceModule.Finance, SourceTransactionType.FolioCharge, "1100", "2040", serviceChargeCodeId, null, null, null, null, null),
             Rule("F&B Charge to Room", SourceModule.FoodBeverage, SourceTransactionType.POSChargeToRoom, "1100", "4100", fbChargeCodeId, null, fbDepartmentId, "2010", "2040", null),
             Rule("F&B POS Payment", SourceModule.FoodBeverage, SourceTransactionType.POSPayment, "1000", "4100", null, "Cash", fbDepartmentId, "2010", "2040", null),
+            Rule("F&B POS Payment Card", SourceModule.FoodBeverage, SourceTransactionType.POSPayment, "1010", "4100", null, "Card", fbDepartmentId, "2010", "2040", null),
+            Rule("F&B POS Payment E-Wallet", SourceModule.FoodBeverage, SourceTransactionType.POSPayment, "1020", "4100", null, "EWallet", fbDepartmentId, "2010", "2040", null),
             Rule("Banquet Charge", SourceModule.Banquet, SourceTransactionType.BanquetCharge, "1100", "4200", banquetChargeCodeId, null, banquetDepartmentId, "2010", "2040", null),
             Rule("Folio Payment Cash", SourceModule.Finance, SourceTransactionType.FolioPayment, "1000", "1100", null, "Cash", null, null, null, null),
             Rule("Folio Payment Card", SourceModule.Finance, SourceTransactionType.FolioPayment, "1010", "1100", null, "Card", null, null, null, null),

@@ -7,20 +7,17 @@ public class TrialBalanceModel(AccountingReportService reportService) : PageMode
 {
     public DateTime StartDate { get; private set; }
     public DateTime EndDate { get; private set; }
+    public DateTime AsOfDate => EndDate;
     public IList<AccountBalanceRow> Rows { get; private set; } = [];
     public decimal TotalDebits => Rows.Sum(row => row.DebitBalance);
     public decimal TotalCredits => Rows.Sum(row => row.CreditBalance);
-    public decimal Difference => TotalDebits - TotalCredits;
+    public decimal Difference => Math.Round(TotalDebits - TotalCredits, 2, MidpointRounding.AwayFromZero);
     public bool IsBalanced => Difference == 0;
     public bool HasRows => Rows.Count > 0;
-    public async Task OnGetAsync(DateTime? startDate, DateTime? endDate)
+    public async Task OnGetAsync(DateTime? asOfDate, DateTime? endDate)
     {
-        StartDate = startDate ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-        EndDate = endDate ?? DateTime.Today;
-        if (EndDate < StartDate)
-        {
-            EndDate = StartDate;
-        }
+        StartDate = DateTime.MinValue.Date;
+        EndDate = (asOfDate ?? endDate ?? DateTime.Today).Date;
 
         Rows = await reportService.GetAccountBalancesAsync(StartDate, EndDate);
     }

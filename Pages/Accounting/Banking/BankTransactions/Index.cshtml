@@ -17,6 +17,7 @@
         <div class="col-md-2"><label asp-for="Input.ReferenceNumber" class="form-label">Reference</label><input asp-for="Input.ReferenceNumber" class="form-control" /></div>
         <div class="col-md-1"><label asp-for="Input.DebitAmount" class="form-label">Debit</label><input asp-for="Input.DebitAmount" class="form-control" /></div>
         <div class="col-md-1"><label asp-for="Input.CreditAmount" class="form-label">Credit</label><input asp-for="Input.CreditAmount" class="form-control" /></div>
+        <div class="col-md-4"><label asp-for="OffsetGLAccountId" class="form-label">Offset GL Account</label><select asp-for="OffsetGLAccountId" asp-items="Model.OffsetAccountOptions" class="form-select"><option value="">Select offset account</option></select></div>
         <div class="col-12"><label asp-for="Input.Notes" class="form-label">Notes</label><input asp-for="Input.Notes" class="form-control" /></div>
     </div>
     <div class="vpms-actions mt-3"><button class="btn vpms-btn-primary" type="submit">Add Transaction</button></div>
@@ -24,7 +25,7 @@
 
 <div class="vpms-table-wrapper">
     <table class="table vpms-table align-middle">
-        <thead><tr><th>Date</th><th>Bank</th><th>Description</th><th>Reference</th><th>Source</th><th class="text-end">Debit</th><th class="text-end">Credit</th><th>Reconciled</th></tr></thead>
+        <thead><tr><th>Date</th><th>Bank</th><th>Description</th><th>Reference</th><th>Source</th><th>Journal</th><th class="text-end">Debit</th><th class="text-end">Credit</th><th>Reconciled</th></tr></thead>
         <tbody>
         @foreach (var transaction in Model.Transactions)
         {
@@ -34,6 +35,7 @@
                 <td>@transaction.Description</td>
                 <td>@transaction.ReferenceNumber</td>
                 <td>@transaction.SourceModule</td>
+                <td>@(transaction.JournalEntry?.JournalNumber ?? "-")</td>
                 <td class="text-end">@transaction.DebitAmount.ToString("C")</td>
                 <td class="text-end">@transaction.CreditAmount.ToString("C")</td>
                 <td><span class="status-badge @(transaction.IsReconciled ? "status-paid" : "status-pending")">@(transaction.IsReconciled ? "Yes" : "No")</span></td>

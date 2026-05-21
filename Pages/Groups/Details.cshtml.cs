@@ -255,6 +255,10 @@ public class DetailsModel(ApplicationDbContext context, GroupManagementService g
             {
                 ModelState.AddModelError("PickupInput.RoomId", "Selected room must match the room block room type.");
             }
+            else if (!selectedRoom.IsActive || selectedRoom.Status is RoomStatus.Occupied or RoomStatus.Dirty or RoomStatus.OutOfOrder or RoomStatus.Maintenance)
+            {
+                ModelState.AddModelError("PickupInput.RoomId", $"Room {selectedRoom.RoomNumber} is {selectedRoom.Status} and cannot be assigned to a group pickup reservation.");
+            }
             else
             {
                 var hasConflict = await context.Reservations.AsNoTracking().AnyAsync(reservation =>
@@ -595,7 +599,17 @@ public class DetailsModel(ApplicationDbContext context, GroupManagementService g
             .ToListAsync();
         BlockOptions = new SelectList(blockRows.Select(item => new { item.Id, Name = $"{item.BlockDate:yyyy-MM-dd} - {item.RoomTypeCode} ({item.Remaining} remaining)" }), "Id", "Name");
         GuestOptions = new SelectList(await context.Guests.AsNoTracking().OrderBy(item => item.LastName).ThenBy(item => item.FirstName).Select(item => new { item.Id, Name = item.LastName + ", " + item.FirstName }).ToListAsync(), "Id", "Name");
-        RoomOptions = new SelectList(await context.Rooms.AsNoTracking().Include(item => item.RoomType).Where(item => item.IsActive).OrderBy(item => item.RoomNumber).Select(item => new { item.Id, Name = item.RoomNumber + " - " + item.RoomType!.Code }).ToListAsync(), "Id", "Name");
+        RoomOptions = new SelectList(await context.Rooms
+            .AsNoTracking()
+            .Include(item => item.RoomType)
+            .Where(item =>
+                item.IsActive &&
+                (item.Status == RoomStatus.Available ||
+                    item.Status == RoomStatus.Clean ||
+                    item.Status == RoomStatus.Inspected))
+            .OrderBy(item => item.RoomNumber)
+            .Select(item => new { item.Id, Name = item.RoomNumber + " - " + item.RoomType!.Code + " (" + item.Status + ")" })
+            .ToListAsync(), "Id", "Name");
     }
 
     private static string CreateGroupPickupConfirmationNumber(int groupBookingId)

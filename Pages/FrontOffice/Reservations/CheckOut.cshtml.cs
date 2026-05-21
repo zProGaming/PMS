@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Vantage.PMS.Authorization;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Finance;
 using Vantage.PMS.Models.FrontOffice;
@@ -23,10 +24,21 @@ public class CheckOutModel(ApplicationDbContext context) : PageModel
 
     public bool HasOutstandingBalance => FolioBalance > 0;
 
-    public bool CanCheckOut =>
+    public bool CanUseManagerOverride =>
+        User.IsInRole(PmsRoles.SystemAdmin) ||
+        User.IsInRole(PmsRoles.GeneralManager) ||
+        User.IsInRole(PmsRoles.FrontOfficeManager) ||
+        User.IsInRole(PmsRoles.FinanceManager);
+
+    public bool BalanceOverrideAccepted => HasOutstandingBalance && ManagerOverrideRequested && CanUseManagerOverride;
+
+    public bool CanSubmitCheckOut =>
         Reservation.Status == ReservationStatus.CheckedIn &&
-        Reservation.RoomId is not null &&
-        !HasOutstandingBalance;
+        Reservation.RoomId is not null;
+
+    public bool CanCheckOut =>
+        CanSubmitCheckOut &&
+        (!HasOutstandingBalance || BalanceOverrideAccepted);
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
@@ -64,7 +76,7 @@ public class CheckOutModel(ApplicationDbContext context) : PageModel
 
         Reservation = reservation;
         LoadFolioState();
-        Reservation.ManagerOverrideRequested = ManagerOverrideRequested;
+        Reservation.ManagerOverrideRequested = ManagerOverrideRequested && CanUseManagerOverride;
         ValidateCanCheckOut();
 
         if (!ModelState.IsValid)
@@ -75,7 +87,7 @@ public class CheckOutModel(ApplicationDbContext context) : PageModel
         Reservation.Status = ReservationStatus.CheckedOut;
         Reservation.ActualCheckOutDate = DateTime.Now;
         Reservation.Room!.Status = RoomStatus.Dirty;
-        foreach (var folio in Reservation.Folios.Where(folio => folio.Status == FolioStatus.Open))
+        foreach (var folio in Reservation.Folios.Where(folio => folio.Status == FolioStatus.Open && folio.Balance <= 0))
         {
             folio.Status = FolioStatus.Closed;
             folio.ClosedAtUtc = DateTime.UtcNow;
@@ -124,9 +136,14 @@ public class CheckOutModel(ApplicationDbContext context) : PageModel
             ModelState.AddModelError(string.Empty, "A room must be assigned before check-out.");
         }
 
-        if (HasOutstandingBalance)
+        if (HasOutstandingBalance && !ManagerOverrideRequested)
         {
-            ModelState.AddModelError(string.Empty, "Guest has outstanding balance. Please settle the folio before check-out.");
+            ModelState.AddModelError(string.Empty, "Guest has outstanding balance. Please settle the folio before check-out or request an authorized manager override.");
+        }
+
+        if (HasOutstandingBalance && ManagerOverrideRequested && !CanUseManagerOverride)
+        {
+            ModelState.AddModelError(string.Empty, "Only SystemAdmin, GeneralManager, FrontOfficeManager, or FinanceManager can override checkout with an outstanding balance.");
         }
     }
 }

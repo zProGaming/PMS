@@ -54,7 +54,7 @@ public class ReportExportService(
             case "trial-balance":
             {
                 rows.Add(["Account Code", "Account Name", "Debit Balance", "Credit Balance"]);
-                var balances = await _accountingReportService.GetAccountBalancesAsync(startDate, endDate);
+                var balances = await _accountingReportService.GetAccountBalancesAsync(DateTime.MinValue.Date, endDate);
                 rows.AddRange(balances.Select(row => new[]
                 {
                     row.AccountCode,

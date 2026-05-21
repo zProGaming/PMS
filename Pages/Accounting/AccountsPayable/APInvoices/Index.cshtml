@@ -26,7 +26,7 @@
         </div>
         <div class="col-md-5">
             <label class="form-label">Search</label>
-            <input name="search" value="@Model.Search" class="form-control" placeholder="Invoice number or supplier" />
+            <input name="search" value="@Model.Search" class="form-control" placeholder="AP number, supplier reference, or supplier" />
         </div>
         <div class="col-md-2"><button class="btn vpms-btn-secondary" type="submit">Filter</button></div>
     </div>
@@ -34,12 +34,13 @@
 
 <div class="vpms-table-wrapper">
     <table class="table vpms-table align-middle">
-        <thead><tr><th>Invoice</th><th>Supplier</th><th>Invoice Date</th><th>Due Date</th><th>Status</th><th class="text-end">Total</th><th class="text-end">Paid</th><th class="text-end">Balance</th><th></th></tr></thead>
+        <thead><tr><th>AP Number</th><th>Supplier Ref</th><th>Supplier</th><th>Invoice Date</th><th>Due Date</th><th>Status</th><th class="text-end">Total</th><th class="text-end">Paid</th><th class="text-end">Balance</th><th></th></tr></thead>
         <tbody>
         @foreach (var invoice in Model.Invoices)
         {
             <tr>
                 <td class="fw-semibold">@invoice.InvoiceNumber</td>
+                <td>@(invoice.SupplierInvoiceNumber ?? "-")</td>
                 <td>@invoice.Supplier?.SupplierName</td>
                 <td>@invoice.InvoiceDate.ToString("yyyy-MM-dd")</td>
                 <td>@invoice.DueDate.ToString("yyyy-MM-dd")</td>

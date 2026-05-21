@@ -13,6 +13,11 @@
     </div>
 </div>
 
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
 <form method="post" class="vpms-form-card mb-4">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="row g-3">

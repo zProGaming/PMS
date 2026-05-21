@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Accounting;
+using Vantage.PMS.Services;
 
 namespace Vantage.PMS.Pages.Accounting.Banking.BankReconciliations;
 
-public class IndexModel(ApplicationDbContext context) : PageModel
+public class IndexModel(ApplicationDbContext context, AccountsPayableService accountsPayableService) : PageModel
 {
     public IList<BankReconciliation> Reconciliations { get; private set; } = [];
     public SelectList BankAccountOptions { get; private set; } = default!;
@@ -36,7 +37,8 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
         Input.PreparedBy = User.Identity?.Name ?? "System";
         Input.Status = BankReconciliationStatus.Draft;
-        Input.BookEndingBalance = bankAccount!.OpeningBalance;
+        Input.BookEndingBalance = await accountsPayableService.CalculateBankBookBalanceAsync(Input.BankAccountId, Input.ReconciliationDate);
+        Input.Difference = Math.Round(Input.StatementEndingBalance - Input.BookEndingBalance, 2, MidpointRounding.AwayFromZero);
         Input.Items = await context.BankTransactions.AsNoTracking()
             .Where(transaction => transaction.BankAccountId == Input.BankAccountId && !transaction.IsReconciled && transaction.TransactionDate <= Input.ReconciliationDate)
             .OrderBy(transaction => transaction.TransactionDate)

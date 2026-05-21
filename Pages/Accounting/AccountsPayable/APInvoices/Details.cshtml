@@ -41,6 +41,15 @@
 </div>
 
 <section class="vpms-card mb-4">
+    <h2 class="h6">Supplier Reference</h2>
+    <div class="row g-3">
+        <div class="col-md-4"><span class="text-muted small d-block">Internal AP number</span><strong>@Model.Invoice.InvoiceNumber</strong></div>
+        <div class="col-md-4"><span class="text-muted small d-block">Supplier invoice/reference</span><strong>@(!string.IsNullOrWhiteSpace(Model.Invoice.SupplierInvoiceNumber) ? Model.Invoice.SupplierInvoiceNumber : "Not set")</strong></div>
+        <div class="col-md-4"><span class="text-muted small d-block">Source document</span><strong>@(Model.Invoice.ReceivingRecord?.ReceivingNumber ?? Model.Invoice.PurchaseOrder?.PONumber ?? "Manual")</strong></div>
+    </div>
+</section>
+
+<section class="vpms-card mb-4">
     <h2 class="h6">Invoice Lines</h2>
     <div class="table-responsive">
         <table class="table vpms-table align-middle">

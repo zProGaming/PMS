@@ -39,7 +39,7 @@
         <div class="row g-3 align-items-end">
             <div class="col-md-5">
                 <label asp-for="BankAccountId" class="form-label">Bank Account for bank/check/e-wallet payments</label>
-                <select asp-for="BankAccountId" asp-items="Model.BankAccountOptions" class="form-select"><option value="">No bank transaction</option></select>
+                <select asp-for="BankAccountId" asp-items="Model.BankAccountOptions" class="form-select"><option value="">Cash payment / no bank account</option></select>
             </div>
             <div class="col-md-3"><button class="btn vpms-btn-primary" type="submit">Release & Post</button></div>
         </div>

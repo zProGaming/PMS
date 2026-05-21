@@ -65,7 +65,12 @@ public class StatementOfCashFlowsModel(ApplicationDbContext context, CashFlowRep
             (StartDate, EndDate) = (EndDate, StartDate);
         }
 
-        Method = method;
+        Method = method == CashFlowMethod.Indirect ? CashFlowMethod.Direct : method;
+        if (method == CashFlowMethod.Indirect)
+        {
+            StatusMessage = "Indirect method is planned. Direct method is currently available.";
+        }
+
         Result = await cashFlowReportService.GenerateStatementAsync(StartDate, EndDate, Method);
 
         var periods = await context.AccountingPeriods

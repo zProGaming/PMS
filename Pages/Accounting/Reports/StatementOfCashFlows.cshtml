@@ -52,7 +52,10 @@
         </div>
         <div class="col-md-2">
             <label class="form-label">Method</label>
-            <select asp-for="Method" asp-items="Html.GetEnumSelectList<CashFlowMethod>()" class="form-select"></select>
+            <select asp-for="Method" class="form-select">
+                <option value="@CashFlowMethod.Direct">Direct</option>
+                <option value="@CashFlowMethod.Indirect" disabled>Indirect - planned</option>
+            </select>
         </div>
         <div class="col-md-1">
             <button class="btn vpms-btn-primary w-100" type="submit">Run</button>

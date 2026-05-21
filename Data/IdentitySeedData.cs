@@ -10,9 +10,6 @@ namespace Vantage.PMS.Data;
 
 public static class IdentitySeedData
 {
-    private const string DefaultAdminEmail = "admin@vantage.local";
-    private const string DefaultAdminPassword = "VantageAdmin#2026";
-
     public static async Task SeedAsync(IServiceProvider services, IConfiguration configuration)
     {
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
@@ -38,8 +35,15 @@ public static class IdentitySeedData
             return;
         }
 
-        var adminEmail = configuration["DefaultAdmin:Email"] ?? DefaultAdminEmail;
-        var adminPassword = configuration["DefaultAdmin:Password"] ?? DefaultAdminPassword;
+        var adminEmail = configuration["DefaultAdmin:Email"];
+        var adminPassword = configuration["DefaultAdmin:Password"];
+
+        if (string.IsNullOrWhiteSpace(adminEmail) || string.IsNullOrWhiteSpace(adminPassword))
+        {
+            throw new InvalidOperationException(
+                "No users exist and DefaultAdmin:Email / DefaultAdmin:Password are not configured. " +
+                "Provision the first SystemAdmin through secure environment configuration, then rotate the password after first sign-in.");
+        }
 
         var adminUser = new IdentityUser
         {
@@ -172,6 +176,15 @@ public static class IdentitySeedData
             ("BusinessDate.UseHotelBusinessDate", "true", "Use configured hotel business date instead of relying only on server date.", "Core"),
             ("Finance.DefaultServiceChargePercentage", "10", "Default service charge percentage used for future calculations.", "Finance"),
             ("Finance.DefaultTaxPercentage", "12", "Default tax percentage used for future calculations.", "Finance"),
+            ("AccountsPayable.ControlAccountCode", "2000", "GL account code used for Accounts Payable control postings.", "Accounts Payable"),
+            ("AccountsPayable.InputVatAccountCode", "2020", "GL account code used for AP input VAT postings.", "Accounts Payable"),
+            ("AccountsPayable.WithholdingTaxAccountCode", "2030", "GL account code used for withholding tax payable postings.", "Accounts Payable"),
+            ("AccountsPayable.DefaultExpenseAccountCode", "6200", "Fallback expense GL account code for AP invoice lines without explicit mapping.", "Accounts Payable"),
+            ("AccountsPayable.InventoryAccountCode", "1200", "Fallback inventory GL account code for AP invoice inventory lines.", "Accounts Payable"),
+            ("AccountsPayable.PurchaseDiscountAccountCode", "6200", "Fallback GL account code for AP purchase discount postings.", "Accounts Payable"),
+            ("Treasury.CashOnHandAccountCode", "1000", "Default GL account code for cash-on-hand payments.", "Treasury"),
+            ("Treasury.CashInBankAccountCode", "1010", "Default GL account code for bank and card payments.", "Treasury"),
+            ("Treasury.EWalletAccountCode", "1020", "Default GL account code for e-wallet payments.", "Treasury"),
             ("FrontOffice.DefaultCheckoutTime", "12:00", "Default hotel checkout time.", "Front Office"),
             ("FrontOffice.DefaultCheckInTime", "14:00", "Default hotel check-in time.", "Front Office"),
             ("Finance.HighBalanceFolioWarningThreshold", "50000", "Warning threshold for high guest folio balances.", "Finance"),
