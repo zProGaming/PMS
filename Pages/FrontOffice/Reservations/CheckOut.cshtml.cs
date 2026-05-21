@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
+using Vantage.PMS.Models.Finance;
 using Vantage.PMS.Models.FrontOffice;
 
 namespace Vantage.PMS.Pages.FrontOffice.Reservations;
@@ -74,6 +75,11 @@ public class CheckOutModel(ApplicationDbContext context) : PageModel
         Reservation.Status = ReservationStatus.CheckedOut;
         Reservation.ActualCheckOutDate = DateTime.Now;
         Reservation.Room!.Status = RoomStatus.Dirty;
+        foreach (var folio in Reservation.Folios.Where(folio => folio.Status == FolioStatus.Open))
+        {
+            folio.Status = FolioStatus.Closed;
+            folio.ClosedAtUtc = DateTime.UtcNow;
+        }
 
         await _context.SaveChangesAsync();
 

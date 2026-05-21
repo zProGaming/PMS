@@ -109,6 +109,11 @@ public class CloseModel(ApplicationDbContext context) : PageModel
         {
             ModelState.AddModelError(string.Empty, "Add at least one active item before closing the order.");
         }
+
+        if (Order.TotalAmount <= 0)
+        {
+            ModelState.AddModelError(string.Empty, "Order total must be greater than zero before settlement.");
+        }
     }
 
     private async Task ValidateAndApplyChargeToRoomAsync()
@@ -149,6 +154,23 @@ public class CloseModel(ApplicationDbContext context) : PageModel
             };
 
             _context.Folios.Add(folio);
+        }
+        else
+        {
+            var orderToken = $"Order #{Order.OrderNumber}";
+            var alreadyChargedToFolio = await _context.FolioItems
+                .AsNoTracking()
+                .AnyAsync(item =>
+                    item.FolioId == folio.Id &&
+                    !item.IsVoided &&
+                    item.ChargeCode == "FNB" &&
+                    item.Description.Contains(orderToken));
+
+            if (alreadyChargedToFolio)
+            {
+                ModelState.AddModelError(string.Empty, "This POS order has already been charged to the guest folio.");
+                return;
+            }
         }
 
         var businessDate = await GetBusinessDateAsync();
@@ -197,7 +219,7 @@ public class CloseModel(ApplicationDbContext context) : PageModel
             .Include(reservation => reservation.Room)
             .AsNoTracking()
             .Where(reservation => reservation.Status == ReservationStatus.CheckedIn)
-            .OrderBy(reservation => reservation.Room!.RoomNumber)
+            .OrderBy(reservation => reservation.Room != null ? reservation.Room.RoomNumber : string.Empty)
             .ToListAsync();
 
         ReservationOptions = new SelectList(

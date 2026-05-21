@@ -283,6 +283,7 @@ public class DataValidationService(ApplicationDbContext context)
     private async Task<int> ScanFinanceAndArAsync()
     {
         var count = 0;
+        var today = DateTime.Today;
         var negativeArInvoices = await _context.ARInvoices
             .AsNoTracking()
             .Where(invoice => invoice.Balance < 0)
@@ -293,10 +294,84 @@ public class DataValidationService(ApplicationDbContext context)
             count += await AddIssueAsync("Accounts Receivable", nameof(ARInvoice), id, DataValidationIssueType.InconsistentBalance, SystemSeverity.High, "AR invoice has a negative balance.", "Review allocations, credit memos, debit memos, and invoice totals.");
         }
 
+        var unallocatedArPayments = await _context.ARPayments
+            .AsNoTracking()
+            .Select(payment => new
+            {
+                payment.Id,
+                payment.Amount,
+                Allocated = payment.Allocations.Sum(allocation => allocation.AllocatedAmount)
+            })
+            .Where(payment => payment.Amount > payment.Allocated)
+            .Select(payment => payment.Id)
+            .ToListAsync();
+        foreach (var id in unallocatedArPayments)
+        {
+            count += await AddIssueAsync("Accounts Receivable", nameof(ARPayment), id, DataValidationIssueType.InconsistentBalance, SystemSeverity.Medium, "AR payment has unapplied balance.", "Allocate the payment to open invoices or document the unapplied balance.");
+        }
+
+        var overdueCutoff = today.AddDays(-30);
+        var overdueAccountsWithoutRecentPayment = await _context.ARInvoices
+            .AsNoTracking()
+            .Where(invoice =>
+                invoice.Balance > 0 &&
+                invoice.DueDate.Date < today &&
+                invoice.Status != ARInvoiceStatus.Cancelled &&
+                invoice.Status != ARInvoiceStatus.WrittenOff &&
+                !_context.ARPayments.Any(payment => payment.ARAccountId == invoice.ARAccountId && payment.PaymentDate >= overdueCutoff))
+            .Select(invoice => invoice.ARAccountId)
+            .Distinct()
+            .ToListAsync();
+        foreach (var id in overdueAccountsWithoutRecentPayment)
+        {
+            count += await AddIssueAsync("Accounts Receivable", nameof(ARAccount), id, DataValidationIssueType.MissingRequiredData, SystemSeverity.Medium, "AR account has overdue balance and no payment in the last 30 days.", "Prioritize collection follow-up or update collection notes.");
+        }
+
+        var unappliedCreditMemos = await _context.CreditMemos
+            .AsNoTracking()
+            .Where(memo => memo.Status == MemoStatus.Approved)
+            .Select(memo => memo.Id)
+            .ToListAsync();
+        foreach (var id in unappliedCreditMemos)
+        {
+            count += await AddIssueAsync("Accounts Receivable", nameof(CreditMemo), id, DataValidationIssueType.InvalidStatus, SystemSeverity.Medium, "Approved credit memo has not been applied.", "Apply the credit memo to the invoice or cancel it after review.");
+        }
+
+        var unappliedDebitMemos = await _context.DebitMemos
+            .AsNoTracking()
+            .Where(memo => memo.Status == MemoStatus.Approved)
+            .Select(memo => memo.Id)
+            .ToListAsync();
+        foreach (var id in unappliedDebitMemos)
+        {
+            count += await AddIssueAsync("Accounts Receivable", nameof(DebitMemo), id, DataValidationIssueType.InvalidStatus, SystemSeverity.Medium, "Approved debit memo has not been applied.", "Apply the debit memo to the invoice or cancel it after review.");
+        }
+
+        var accountBalanceMismatches = await _context.ARAccounts
+            .AsNoTracking()
+            .Select(account => new
+            {
+                account.Id,
+                account.CurrentBalance,
+                InvoiceBalance = account.Invoices
+                    .Where(invoice =>
+                        invoice.Status != ARInvoiceStatus.Paid &&
+                        invoice.Status != ARInvoiceStatus.Cancelled &&
+                        invoice.Status != ARInvoiceStatus.WrittenOff)
+                    .Sum(invoice => invoice.Balance)
+            })
+            .Where(account => Math.Abs(account.CurrentBalance - account.InvoiceBalance) > 0.01m)
+            .Select(account => account.Id)
+            .ToListAsync();
+        foreach (var id in accountBalanceMismatches)
+        {
+            count += await AddIssueAsync("Accounts Receivable", nameof(ARAccount), id, DataValidationIssueType.InconsistentBalance, SystemSeverity.Medium, "AR account balance does not match open invoice balance.", "Recalculate the AR account balance and review invoice allocations.");
+        }
+
         var businessDate = await _context.BusinessDateSettings
             .AsNoTracking()
             .Select(setting => (DateTime?)setting.CurrentBusinessDate)
-            .FirstOrDefaultAsync() ?? DateTime.Today;
+            .FirstOrDefaultAsync() ?? today;
         var previousOpenShifts = await _context.CashierShifts
             .AsNoTracking()
             .Where(shift => shift.Status == CashierShiftStatus.Open && shift.BusinessDate < businessDate.Date)

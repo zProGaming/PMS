@@ -2,6 +2,7 @@
 @model Vantage.PMS.Pages.Finance.IndexModel
 @{
     ViewData["Title"] = "Finance Dashboard";
+    string Percent(decimal? value) => value is null ? "N/A" : value.Value.ToString("N1") + "%";
 }
 
 <nav aria-label="breadcrumb">
@@ -34,6 +35,10 @@
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Balance</div><div class="kpi-value">@Model.ARBalanceTotal.ToString("C")</div><div class="kpi-note">Open city ledger</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Overdue AR</div><div class="kpi-value">@Model.OverdueARTotal.ToString("C")</div><div class="kpi-note">Past due balance</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Due in 7 Days</div><div class="kpi-value">@Model.ARInvoicesDueWithin7Days</div><div class="kpi-note">Upcoming collections</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Collections Today</div><div class="kpi-value">@Model.ARCollectionsToday.ToString("C")</div><div class="kpi-note">Allocated AR payments</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Collections Week</div><div class="kpi-value">@Model.ARCollectionsThisWeek.ToString("C")</div><div class="kpi-note">Week-to-date collections</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Collections Month</div><div class="kpi-value">@Model.ARCollectionsThisMonth.ToString("C")</div><div class="kpi-note">Month-to-date collections</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Collection Rate</div><div class="kpi-value">@Percent(Model.ARCollectionRateThisMonth)</div><div class="kpi-note">Collections / opening AR plus billings</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Unposted Transactions</div><div class="kpi-value">@Model.UnpostedTransactions</div><div class="kpi-note">Accounting posting readiness</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Journal Entries Today</div><div class="kpi-value">@Model.JournalEntriesToday</div><div class="kpi-note">GL activity</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Trial Balance</div><div class="kpi-value">@Model.TrialBalanceStatus</div><div class="kpi-note">Posted journal status</div></div></div>
@@ -55,12 +60,80 @@
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Group Outstanding</div><div class="kpi-value">@Model.GroupOutstandingBalances.ToString("C")</div><div class="kpi-note">Linked master folios</div></div></div>
 </div>
 
+<div class="row g-4 mt-2">
+    <div class="col-lg-6">
+        <section class="vpms-card h-100">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <div class="page-kicker">Collection Risk</div>
+                    <h2 class="h5 mb-0">Top Overdue Accounts</h2>
+                </div>
+                <a asp-page="/AccountsReceivable/Aging/Index" class="btn vpms-btn-secondary btn-sm">Open Aging</a>
+            </div>
+            @if (Model.TopOverdueAccounts.Count == 0)
+            {
+                <div class="vpms-empty-state py-3">
+                    <strong>No overdue AR found.</strong>
+                    <span>Accounts receivable is clear for the current view.</span>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table vpms-report-table align-middle mb-0">
+                        <thead><tr><th>Account</th><th class="text-end">Balance</th><th>Last Payment</th></tr></thead>
+                        <tbody>
+                            @foreach (var row in Model.TopOverdueAccounts)
+                            {
+                                <tr><td>@row.AccountName</td><td class="text-end">@row.Amount.ToString("C")</td><td>@(row.LastPaymentDate?.ToString("d") ?? "-")</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+    <div class="col-lg-6">
+        <section class="vpms-card h-100">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <div class="page-kicker">Follow-Up Queue</div>
+                    <h2 class="h5 mb-0">No Payment in 30 Days</h2>
+                </div>
+                <a asp-page="/AccountsReceivable/Collections/Index" asp-route-period="monthly" class="btn vpms-btn-secondary btn-sm">Open Collections</a>
+            </div>
+            @if (Model.AccountsWithNoPaymentIn30Days.Count == 0)
+            {
+                <div class="vpms-empty-state py-3">
+                    <strong>No stale AR accounts.</strong>
+                    <span>Accounts with open balances have recent payment activity or no open risk.</span>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table vpms-report-table align-middle mb-0">
+                        <thead><tr><th>Account</th><th class="text-end">Open Balance</th><th>Last Payment</th></tr></thead>
+                        <tbody>
+                            @foreach (var row in Model.AccountsWithNoPaymentIn30Days)
+                            {
+                                <tr><td>@row.AccountName</td><td class="text-end">@row.Amount.ToString("C")</td><td>@(row.LastPaymentDate?.ToString("d") ?? "No payment found")</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
 <div class="quick-action-grid mt-4">
     <a asp-page="/Finance/ChargeCodes/Index" class="quick-action-card"><strong>Charge Codes</strong><small>Configure posting categories</small></a>
     <a asp-page="/Finance/CashierShifts/Index" class="quick-action-card"><strong>Cashier Shifts</strong><small>Open, close, and audit shifts</small></a>
     <a asp-page="/Finance/Documents/Index" class="quick-action-card"><strong>Finance Documents</strong><small>Invoices, receipts, and statements</small></a>
     <a asp-page="/Finance/Reports/Index" class="quick-action-card"><strong>Finance Reports</strong><small>Cashier and AR reporting</small></a>
     <a asp-page="/AccountsReceivable/Aging/Index" class="quick-action-card"><strong>AR Aging</strong><small>Monitor overdue balances</small></a>
+    <a asp-page="/AccountsReceivable/Collections/Index" asp-route-period="daily" class="quick-action-card"><strong>AR Collections</strong><small>Daily, weekly, monthly, and custom AR collection reports</small></a>
     <a asp-page="/Accounting/Index" class="quick-action-card"><strong>Accounting</strong><small>GL dashboard and posting control</small></a>
     <a asp-page="/Accounting/Reports/USALI" class="quick-action-card"><strong>USALI-style Statement</strong><small>Hotel management operating view</small></a>
     <a asp-page="/Accounting/Reports/VATOutput" class="quick-action-card"><strong>Philippine Reports</strong><small>VAT and statutory readiness</small></a>

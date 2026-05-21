@@ -14,6 +14,7 @@ public class ReportExportService(
     ApplicationDbContext context,
     AccountingReportService accountingReportService,
     CashFlowReportService cashFlowReportService,
+    ARCollectionReportService arCollectionReportService,
     ExecutiveKPIService executiveKPIService,
     DepartmentPerformanceService departmentPerformanceService,
     AuditLogService auditLogService)
@@ -21,6 +22,7 @@ public class ReportExportService(
     private readonly ApplicationDbContext _context = context;
     private readonly AccountingReportService _accountingReportService = accountingReportService;
     private readonly CashFlowReportService _cashFlowReportService = cashFlowReportService;
+    private readonly ARCollectionReportService _arCollectionReportService = arCollectionReportService;
     private readonly ExecutiveKPIService _executiveKPIService = executiveKPIService;
     private readonly DepartmentPerformanceService _departmentPerformanceService = departmentPerformanceService;
     private readonly AuditLogService _auditLogService = auditLogService;
@@ -146,36 +148,82 @@ public class ReportExportService(
             }
             case "ar-aging":
             {
-                rows.Add(["Account", "Current", "1-30", "31-60", "61-90", "Over 90", "Total"]);
-                var today = endDate;
-                var invoices = await _context.ARInvoices
-                    .AsNoTracking()
-                    .Where(invoice => invoice.Balance > 0)
-                    .Select(invoice => new
-                    {
-                        Account = invoice.ARAccount != null ? invoice.ARAccount.AccountName : "Unassigned",
-                        invoice.DueDate,
-                        invoice.Balance
-                    })
-                    .ToListAsync();
-                foreach (var group in invoices.GroupBy(invoice => invoice.Account).OrderBy(group => group.Key))
+                rows.Add(new[] { "AR Account", "Invoice Number", "Invoice Date", "Due Date", "Original Amount", "Payments Applied", "Credit Memos", "Debit Memos", "Balance", "Aging Bucket", "Days Overdue", "Last Payment Date", "Status" });
+                var aging = await _arCollectionReportService.GetAgingReportAsync(endDate);
+                rows.AddRange(aging.Rows.Select(row => new[]
                 {
-                    decimal Bucket(int from, int? to)
-                    {
-                        return group.Where(invoice =>
-                        {
-                            var days = (today - invoice.DueDate.Date).Days;
-                            return days >= from && (to is null || days <= to.Value);
-                        }).Sum(invoice => invoice.Balance);
-                    }
-
-                    var current = group.Where(invoice => invoice.DueDate.Date >= today).Sum(invoice => invoice.Balance);
-                    var oneToThirty = Bucket(1, 30);
-                    var thirtyOneToSixty = Bucket(31, 60);
-                    var sixtyOneToNinety = Bucket(61, 90);
-                    var overNinety = Bucket(91, null);
-                    rows.Add([group.Key, FormatCurrency(current), FormatCurrency(oneToThirty), FormatCurrency(thirtyOneToSixty), FormatCurrency(sixtyOneToNinety), FormatCurrency(overNinety), FormatCurrency(group.Sum(invoice => invoice.Balance))]);
+                    row.AccountName,
+                    row.InvoiceNumber,
+                    FormatDate(row.InvoiceDate),
+                    FormatDate(row.DueDate),
+                    FormatCurrency(row.OriginalAmount),
+                    FormatCurrency(row.PaymentsApplied),
+                    FormatCurrency(row.CreditMemos),
+                    FormatCurrency(row.DebitMemos),
+                    FormatCurrency(row.Balance),
+                    row.AgingBucket,
+                    row.DaysOverdue.ToString(CultureInfo.InvariantCulture),
+                    row.LastPaymentDate is null ? string.Empty : FormatDate(row.LastPaymentDate.Value),
+                    row.Status.ToString()
+                }));
+                rows.Add(Array.Empty<string>());
+                rows.Add(new[] { "Summary", "Current", FormatCurrency(aging.Summary.Current) });
+                rows.Add(new[] { "Summary", "1-30 days", FormatCurrency(aging.Summary.Days1To30) });
+                rows.Add(new[] { "Summary", "31-60 days", FormatCurrency(aging.Summary.Days31To60) });
+                rows.Add(new[] { "Summary", "61-90 days", FormatCurrency(aging.Summary.Days61To90) });
+                rows.Add(new[] { "Summary", "Over 90 days", FormatCurrency(aging.Summary.Over90) });
+                rows.Add(new[] { "Summary", "Total", FormatCurrency(aging.Summary.Total) });
+                break;
+            }
+            case "ar-collection-daily":
+            case "ar-collection-weekly":
+            case "ar-collection-monthly":
+            case "ar-collection-custom":
+            {
+                var reportStart = startDate;
+                var reportEnd = endDate;
+                if (catalogEntry.ReportKey == "ar-collection-daily")
+                {
+                    reportStart = endDate;
+                    reportEnd = endDate;
                 }
+                else if (catalogEntry.ReportKey == "ar-collection-weekly" && dateRangeStart is null)
+                {
+                    reportStart = endDate.AddDays(-6);
+                }
+                else if (catalogEntry.ReportKey == "ar-collection-monthly" && dateRangeStart is null)
+                {
+                    reportStart = new DateTime(endDate.Year, endDate.Month, 1);
+                }
+
+                var collection = await _arCollectionReportService.GetCollectionReportAsync(reportStart, reportEnd);
+                rows.Add(new[] { "Metric", "Amount" });
+                rows.Add(new[] { "Opening AR", FormatCurrency(collection.OpeningAR) });
+                rows.Add(new[] { "Billings", FormatCurrency(collection.Billings) });
+                rows.Add(new[] { "Debit Memos", FormatCurrency(collection.DebitMemos) });
+                rows.Add(new[] { "Collections", FormatCurrency(collection.Collections) });
+                rows.Add(new[] { "Credit Memos", FormatCurrency(collection.CreditMemos) });
+                rows.Add(new[] { "Adjustments", FormatCurrency(collection.Adjustments) });
+                rows.Add(new[] { "Ending AR", FormatCurrency(collection.EndingAR) });
+                rows.Add(new[] { "Overdue AR", FormatCurrency(collection.OverdueAR) });
+                rows.Add(new[] { "Collection Rate", FormatPercentage(collection.CollectionRate) });
+                rows.Add(new[] { "DSO", collection.DaysSalesOutstanding?.ToString("0.00", CultureInfo.InvariantCulture) ?? string.Empty });
+                rows.Add(Array.Empty<string>());
+                rows.Add(new[] { "Top Collected Accounts", "Amount", "Last Payment Date" });
+                rows.AddRange(collection.TopCollectedAccounts.Select(row => new[]
+                {
+                    row.AccountName,
+                    FormatCurrency(row.Amount),
+                    row.LastPaymentDate is null ? string.Empty : FormatDate(row.LastPaymentDate.Value)
+                }));
+                rows.Add(Array.Empty<string>());
+                rows.Add(new[] { "Top Overdue Accounts", "Amount", "Last Payment Date" });
+                rows.AddRange(collection.TopOverdueAccounts.Select(row => new[]
+                {
+                    row.AccountName,
+                    FormatCurrency(row.Amount),
+                    row.LastPaymentDate is null ? string.Empty : FormatDate(row.LastPaymentDate.Value)
+                }));
                 break;
             }
             case "ap-aging":

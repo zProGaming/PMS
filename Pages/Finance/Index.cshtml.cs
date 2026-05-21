@@ -5,12 +5,14 @@ using Vantage.PMS.Models.Accounting;
 using Vantage.PMS.Models.Finance;
 using Vantage.PMS.Models.Groups;
 using Vantage.PMS.Models.Labor;
+using Vantage.PMS.Services;
 
 namespace Vantage.PMS.Pages.Finance;
 
-public class IndexModel(ApplicationDbContext context) : PageModel
+public class IndexModel(ApplicationDbContext context, ARCollectionReportService arCollectionReportService) : PageModel
 {
     private readonly ApplicationDbContext _context = context;
+    private readonly ARCollectionReportService _arCollectionReportService = arCollectionReportService;
 
     public decimal TotalPaymentsToday { get; set; }
     public decimal CashPaymentsToday { get; set; }
@@ -22,6 +24,12 @@ public class IndexModel(ApplicationDbContext context) : PageModel
     public decimal ARBalanceTotal { get; set; }
     public decimal OverdueARTotal { get; set; }
     public int ARInvoicesDueWithin7Days { get; set; }
+    public decimal ARCollectionsToday { get; set; }
+    public decimal ARCollectionsThisWeek { get; set; }
+    public decimal ARCollectionsThisMonth { get; set; }
+    public decimal? ARCollectionRateThisMonth { get; set; }
+    public IList<ARCollectionAccountRow> TopOverdueAccounts { get; set; } = new List<ARCollectionAccountRow>();
+    public IList<ARCollectionAccountRow> AccountsWithNoPaymentIn30Days { get; set; } = new List<ARCollectionAccountRow>();
     public int UnpostedTransactions { get; set; }
     public int JournalEntriesToday { get; set; }
     public string TrialBalanceStatus { get; set; } = "Balanced";
@@ -49,6 +57,9 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         var today = DateTime.Today;
         var tomorrow = today.AddDays(1);
         var dueSoon = today.AddDays(7);
+        var weekStart = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
+        var monthStart = new DateTime(today.Year, today.Month, 1);
+        var nextMonth = monthStart.AddMonths(1);
 
         var completedPaymentsToday = _context.Payments
             .AsNoTracking()
@@ -76,6 +87,15 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             .SumAsync(invoice => invoice.Balance);
         ARInvoicesDueWithin7Days = await _context.ARInvoices
             .CountAsync(invoice => invoice.DueDate >= today && invoice.DueDate <= dueSoon && invoice.Balance > 0);
+        var dailyAr = await _arCollectionReportService.GetCollectionReportAsync(today, today);
+        var weeklyAr = await _arCollectionReportService.GetCollectionReportAsync(weekStart, today);
+        var monthlyAr = await _arCollectionReportService.GetCollectionReportAsync(monthStart, today);
+        ARCollectionsToday = dailyAr.Collections;
+        ARCollectionsThisWeek = weeklyAr.Collections;
+        ARCollectionsThisMonth = monthlyAr.Collections;
+        ARCollectionRateThisMonth = monthlyAr.CollectionRate;
+        TopOverdueAccounts = monthlyAr.TopOverdueAccounts.Take(5).ToList();
+        AccountsWithNoPaymentIn30Days = monthlyAr.AccountsWithNoRecentPayment.Take(5).ToList();
 
         JournalEntriesToday = await _context.JournalEntries.CountAsync(entry => entry.CreatedAt >= today);
         PendingPostingBatches = await _context.PostingBatches.CountAsync(batch => batch.Status == PostingBatchStatus.Draft || batch.Status == PostingBatchStatus.Processing);
@@ -123,8 +143,6 @@ public class IndexModel(ApplicationDbContext context) : PageModel
                 : (int)Math.Round(checklist.Count(item => item.Status is MonthEndChecklistStatus.Completed or MonthEndChecklistStatus.NotApplicable) * 100m / checklist.Count);
         }
 
-        var monthStart = new DateTime(today.Year, today.Month, 1);
-        var nextMonth = monthStart.AddMonths(1);
         PayrollPeriodsPendingApproval = await _context.PayrollPeriods.CountAsync(period => period.Status == PayrollPeriodStatus.ForApproval);
         PayrollPeriodsPendingPosting = await _context.PayrollPeriods.CountAsync(period => period.Status == PayrollPeriodStatus.Approved);
         LaborCostThisMonth = await _context.PayrollCostEntries

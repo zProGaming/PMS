@@ -1,8 +1,13 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Authorization;
 using Vantage.PMS.Data;
 using Vantage.PMS.Services;
+
+var philippineCulture = new CultureInfo("en-PH");
+CultureInfo.DefaultThreadCurrentCulture = philippineCulture;
+CultureInfo.DefaultThreadCurrentUICulture = philippineCulture;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,13 +15,14 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddScoped<BookingEngineService>();
 builder.Services.AddScoped<BookingNotificationService>();
 builder.Services.AddScoped<GuestPortalNotificationService>();
 builder.Services.AddScoped<GuestPortalService>();
 builder.Services.AddScoped<FinanceService>();
+builder.Services.AddScoped<ARCollectionReportService>();
 builder.Services.AddScoped<AccountingPostingService>();
 builder.Services.AddScoped<AccountingReportService>();
 builder.Services.AddScoped<AccountsPayableService>();
@@ -128,7 +134,17 @@ var app = builder.Build();
 
 await using (var scope = app.Services.CreateAsyncScope())
 {
-    await IdentitySeedData.SeedAsync(scope.ServiceProvider, app.Configuration);
+    try
+    {
+        await IdentitySeedData.SeedAsync(scope.ServiceProvider, app.Configuration);
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider
+            .GetRequiredService<ILoggerFactory>()
+            .CreateLogger("StartupDataSeed");
+        logger.LogError(ex, "Startup data seeding failed. The application will continue to boot; review database connectivity, migrations, and seed data before production use.");
+    }
 }
 
 // Configure the HTTP request pipeline.

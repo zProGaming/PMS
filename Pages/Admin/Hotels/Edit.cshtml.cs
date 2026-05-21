@@ -37,6 +37,14 @@ public class EditModel(ApplicationDbContext context) : PageModel
             return Page();
         }
 
+        Hotel.Code = Hotel.Code.Trim().ToUpperInvariant();
+
+        if (await _context.Hotels.AnyAsync(hotel => hotel.Id != Hotel.Id && hotel.Code == Hotel.Code))
+        {
+            ModelState.AddModelError("Hotel.Code", "Company Code must be unique.");
+            return Page();
+        }
+
         _context.Attach(Hotel).State = EntityState.Modified;
 
         try

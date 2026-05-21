@@ -6,6 +6,13 @@
 <div class="page-header"><div><div class="page-kicker">Accounting Reports</div><h1 class="page-title">Profit and Loss</h1><p class="page-subtitle">Standard accounting P&L from posted GL activity.</p></div><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div>
 <form method="get" class="vpms-card mb-3 report-filter"><div class="row g-3 align-items-end"><div class="col-md-4"><label class="form-label">From</label><input name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-4"><label class="form-label">To</label><input name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-4"><button class="btn vpms-btn-primary w-100">Run</button></div></div></form>
 <section class="vpms-print-document">
+    @if (!Model.HasActivity)
+    {
+        <section class="vpms-empty-state mb-3">
+            <strong>No posted journal activity found.</strong>
+            <span>Post journal entries for the selected period or seed demo data to populate the Profit and Loss report.</span>
+        </section>
+    }
     <div class="vpms-card">
         <dl class="row mb-0">
             <dt class="col-8">Revenue</dt><dd class="col-4 text-end">@Model.Revenue.ToString("C")</dd>

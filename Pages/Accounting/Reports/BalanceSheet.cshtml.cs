@@ -15,6 +15,7 @@ public class BalanceSheetModel(AccountingReportService reportService) : PageMode
     public decimal CurrentPeriodEarnings { get; private set; }
     public decimal LiabilitiesAndEquity => Liabilities + Equity + CurrentPeriodEarnings;
     public decimal Difference => Assets - LiabilitiesAndEquity;
+    public bool HasRows => Rows.Count > 0;
     public async Task OnGetAsync(DateTime? asOfDate)
     {
         AsOfDate = asOfDate ?? DateTime.Today;

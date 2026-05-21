@@ -4,14 +4,24 @@
     ViewData["Title"] = "Error";
 }
 
-<h1 class="text-danger">Something went wrong.</h1>
-<h2 class="h5">The issue has been logged for system review.</h2>
+<section class="vpms-error-panel" aria-labelledby="error-title">
+    <div class="vpms-error-mark" aria-hidden="true">!</div>
+    <div>
+        <div class="page-kicker">System Notice</div>
+        <h1 id="error-title" class="page-title">We could not complete that request.</h1>
+        <p class="page-subtitle">The issue has been logged for review. Please try again, or contact the system administrator if it continues.</p>
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+        @if (Model.ShowRequestId)
+        {
+            <div class="vpms-error-reference">
+                <span>Request ID</span>
+                <code>@Model.RequestId</code>
+            </div>
+        }
 
-<p class="text-muted">Please try again. If the problem continues, contact the system administrator and provide the request ID above.</p>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <a class="btn vpms-btn-primary" asp-page="/Index">Return to Dashboard</a>
+            <a class="btn vpms-btn-secondary" asp-page="/System/HealthCheck/Index">System Health</a>
+        </div>
+    </div>
+</section>

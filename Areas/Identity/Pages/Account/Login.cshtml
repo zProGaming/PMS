@@ -23,6 +23,12 @@
             <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
 
             <div class="vpms-floating-field">
+                <input asp-for="Input.CompanyCode" class="form-control text-uppercase" autocomplete="organization" aria-required="true" placeholder="VANTAGE" />
+                <label asp-for="Input.CompanyCode">Company Code</label>
+                <span asp-validation-for="Input.CompanyCode" class="text-danger"></span>
+            </div>
+
+            <div class="vpms-floating-field">
                 <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                 <label asp-for="Input.Email">Email Address</label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
@@ -49,7 +55,7 @@
         </form>
 
         <div class="vpms-login-footer">
-            <span>Copyright © 2026 Vantage Innovations PH. All rights reserved.</span>
+            <span>Copyright &copy; 2026 Vantage Innovations PH. All rights reserved.</span>
         </div>
     </div>
 </section>

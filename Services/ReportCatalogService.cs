@@ -136,7 +136,11 @@ public class ReportCatalogService
         Item("creditable-withholding-tax-summary", "Creditable Withholding Tax Summary", ReportCategory.PhilippineFinance, "Creditable withholding tax report placeholder.", "/Accounting/Reports/WithholdingTaxSummary", FinanceRoles),
         Item("books-of-accounts-export", "Books of Accounts Export Placeholder", ReportCategory.PhilippineFinance, "Books export placeholder for accountant validation.", "/Accounting/Reports/BooksExport", FinanceRoles),
 
-        Item("ar-aging", "AR Aging", ReportCategory.AccountsReceivable, "Accounts receivable aging by account.", "/AccountsReceivable/Aging/Index", ArRoles, true),
+        Item("ar-aging", "AR Aging Report", ReportCategory.AccountsReceivable, "Invoice-level accounts receivable aging by due date and collection bucket.", "/AccountsReceivable/Aging/Index", ArRoles, true),
+        Item("ar-collection-daily", "Daily AR Collection Report", ReportCategory.AccountsReceivable, "Daily opening AR, billings, collections, memos, and ending AR.", "/AccountsReceivable/Collections/Index?period=daily", ArRoles, true),
+        Item("ar-collection-weekly", "Weekly AR Collection Report", ReportCategory.AccountsReceivable, "Weekly AR collection movement, overdue risk, and account follow-up view.", "/AccountsReceivable/Collections/Index?period=weekly", ArRoles, true),
+        Item("ar-collection-monthly", "Monthly AR Collection Report", ReportCategory.AccountsReceivable, "Monthly AR movement, collection rate, DSO, and stale account review.", "/AccountsReceivable/Collections/Index?period=monthly", ArRoles, true),
+        Item("ar-collection-custom", "Custom AR Collection Report", ReportCategory.AccountsReceivable, "Custom date range AR collection report for finance review.", "/AccountsReceivable/Collections/Index?period=custom", ArRoles, true),
         Item("statement-of-account", "Statement of Account", ReportCategory.AccountsReceivable, "Printable statement of account.", "/Documents/Index", ArRoles),
         Item("ar-invoice-register", "AR Invoice Register", ReportCategory.AccountsReceivable, "AR invoice register.", "/AccountsReceivable/ARInvoices/Index", ArRoles),
         Item("ar-payment-register", "AR Payment Register", ReportCategory.AccountsReceivable, "AR payment register.", "/AccountsReceivable/ARPayments/Index", ArRoles),

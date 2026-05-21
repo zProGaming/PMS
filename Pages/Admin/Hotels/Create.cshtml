@@ -11,8 +11,9 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="mb-3">
-        <label asp-for="Hotel.Code" class="form-label"></label>
-        <input asp-for="Hotel.Code" class="form-control" />
+        <label asp-for="Hotel.Code" class="form-label">Company Code</label>
+        <input asp-for="Hotel.Code" class="form-control text-uppercase" autocomplete="organization" />
+        <div class="form-text">Used on the login screen. Keep this short, unique, and easy for the client to remember.</div>
         <span asp-validation-for="Hotel.Code" class="text-danger"></span>
     </div>
 

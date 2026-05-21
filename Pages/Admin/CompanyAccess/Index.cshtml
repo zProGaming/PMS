@@ -1,0 +1,135 @@
+@page
+@model Vantage.PMS.Pages.Admin.CompanyAccess.IndexModel
+@{
+    ViewData["Title"] = "Company Access";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/Admin/Index">Admin</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Company Access</li>
+    </ol>
+</nav>
+
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Global Administration</div>
+        <h1 class="page-title">Company Access</h1>
+        <p class="page-subtitle">Bind user accounts to the company codes required on the Vantage PMS login screen.</p>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-success">@Model.StatusMessage</div>
+}
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <section class="vpms-card h-100">
+            <h2 class="h5 mb-3">Grant Company Access</h2>
+            <form method="post" asp-page-handler="Grant">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.UserId" class="form-label">User</label>
+                    <select asp-for="Input.UserId" class="form-select" asp-items="Model.UserOptions">
+                        <option value="">Select user</option>
+                    </select>
+                    <span asp-validation-for="Input.UserId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.HotelId" class="form-label">Company Code</label>
+                    <select asp-for="Input.HotelId" class="form-select" asp-items="Model.HotelOptions">
+                        <option value="">Select company</option>
+                    </select>
+                    <span asp-validation-for="Input.HotelId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.RoleName" class="form-label">Operational Role</label>
+                    <select asp-for="Input.RoleName" class="form-select" asp-items="Model.RoleOptions"></select>
+                    <span asp-validation-for="Input.RoleName" class="text-danger"></span>
+                </div>
+
+                <label class="form-check mb-3">
+                    <input asp-for="Input.IsDefaultCompany" class="form-check-input" />
+                    <span class="form-check-label">Default company for this user</span>
+                </label>
+
+                <button class="btn vpms-btn-primary w-100" type="submit">Save Access</button>
+            </form>
+        </section>
+    </div>
+
+    <div class="col-lg-8">
+        <section class="vpms-card h-100">
+            <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center mb-3">
+                <div>
+                    <h2 class="h5 mb-1">Assigned Companies</h2>
+                    <p class="text-muted mb-0">Only active assignments can sign in with the selected company code. SystemAdmin can use VANTAGE for global administration.</p>
+                </div>
+            </div>
+
+            @if (!Model.AccessRows.Any())
+            {
+                <div class="vpms-empty-state">
+                    <strong>No company access assigned yet.</strong>
+                    <span>Grant access before giving trial users their company code.</span>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table vpms-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Company</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in Model.AccessRows)
+                            {
+                                <tr>
+                                    <td>@row.UserEmail</td>
+                                    <td>
+                                        <strong>@row.HotelCode</strong>
+                                        <div class="text-muted small">@row.HotelName</div>
+                                    </td>
+                                    <td>@row.RoleName</td>
+                                    <td>
+                                        <span class="status-badge @(row.IsActive ? "status-open" : "status-cancelled")">@(row.IsActive ? "Active" : "Inactive")</span>
+                                        @if (row.IsDefaultCompany)
+                                        {
+                                            <span class="status-badge status-approved ms-1">Default</span>
+                                        }
+                                    </td>
+                                    <td>@row.CreatedAt.ToString("MMM d, yyyy")</td>
+                                    <td class="text-end">
+                                        @if (row.IsActive)
+                                        {
+                                            <form method="post" asp-page-handler="Deactivate" asp-route-id="@row.Id" class="d-inline">
+                                                <button class="btn btn-sm btn-outline-danger" type="submit">Deactivate</button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

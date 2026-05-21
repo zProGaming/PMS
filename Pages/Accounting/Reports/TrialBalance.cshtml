@@ -7,5 +7,12 @@
 <form method="get" class="vpms-card mb-3 report-filter"><div class="row g-3 align-items-end"><div class="col-md-4"><label class="form-label">From</label><input name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-4"><label class="form-label">To</label><input name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-4"><button class="btn vpms-btn-primary w-100">Run</button></div></div></form>
 <section class="vpms-print-document">
     <div class="alert @(Model.IsBalanced ? "alert-success" : "alert-danger")">Trial balance status: @(Model.IsBalanced ? "Balanced" : "Out of balance") | Difference: @Model.Difference.ToString("C")</div>
+    @if (!Model.HasRows)
+    {
+        <section class="vpms-empty-state mb-3">
+            <strong>No posted journal entries found.</strong>
+            <span>Post accounting batches or seed demo data before generating the Trial Balance.</span>
+        </section>
+    }
     <div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>Account Code</th><th>Account Name</th><th class="text-end">Debit Balance</th><th class="text-end">Credit Balance</th></tr></thead><tbody>@foreach (var row in Model.Rows){<tr><td>@row.AccountCode</td><td>@row.AccountName</td><td class="text-end">@row.DebitBalance.ToString("C")</td><td class="text-end">@row.CreditBalance.ToString("C")</td></tr>}</tbody><tfoot><tr><th colspan="2">Totals</th><th class="text-end">@Model.TotalDebits.ToString("C")</th><th class="text-end">@Model.TotalCredits.ToString("C")</th></tr></tfoot></table></div>
 </section>

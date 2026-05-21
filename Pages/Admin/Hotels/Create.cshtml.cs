@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Core;
 
@@ -21,6 +22,14 @@ public class CreateModel(ApplicationDbContext context) : PageModel
     {
         if (!ModelState.IsValid)
         {
+            return Page();
+        }
+
+        Hotel.Code = Hotel.Code.Trim().ToUpperInvariant();
+
+        if (await _context.Hotels.AnyAsync(hotel => hotel.Code == Hotel.Code))
+        {
+            ModelState.AddModelError("Hotel.Code", "Company Code must be unique.");
             return Page();
         }
 

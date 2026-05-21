@@ -12,10 +12,16 @@ public class TrialBalanceModel(AccountingReportService reportService) : PageMode
     public decimal TotalCredits => Rows.Sum(row => row.CreditBalance);
     public decimal Difference => TotalDebits - TotalCredits;
     public bool IsBalanced => Difference == 0;
+    public bool HasRows => Rows.Count > 0;
     public async Task OnGetAsync(DateTime? startDate, DateTime? endDate)
     {
         StartDate = startDate ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
         EndDate = endDate ?? DateTime.Today;
+        if (EndDate < StartDate)
+        {
+            EndDate = StartDate;
+        }
+
         Rows = await reportService.GetAccountBalancesAsync(StartDate, EndDate);
     }
 }

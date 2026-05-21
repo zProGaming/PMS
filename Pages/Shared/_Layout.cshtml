@@ -24,6 +24,9 @@
     var canAccessPrintableDocuments = Vantage.PMS.Authorization.PmsRoles.PrintableDocuments.Any(role => User.IsInRole(role));
     var canAccessClientDemo = Vantage.PMS.Authorization.PmsRoles.ClientDemo.Any(role => User.IsInRole(role));
     var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var currentCompanyName = User.FindFirst("Vantage.CompanyName")?.Value ?? "No company selected";
+    var currentCompanyCode = User.FindFirst("Vantage.CompanyCode")?.Value ?? "Setup required";
+    var isGlobalAdminCompany = string.Equals(User.FindFirst("Vantage.IsGlobalAdmin")?.Value, "True", StringComparison.OrdinalIgnoreCase);
     var bodyClass = (string?)ViewData["BodyClass"] ?? string.Empty;
     var isLoginScreen = bodyClass.Contains("vpms-login-screen", StringComparison.Ordinal);
 }
@@ -80,13 +83,13 @@
                 </a>
 
                 <div class="vpms-property-card property-card" aria-label="Current property">
-                    <div class="vpms-property-mark" aria-hidden="true">VG</div>
+                    <div class="vpms-property-mark" aria-hidden="true">@((currentCompanyCode.Length >= 2 ? currentCompanyCode[..2] : "--"))</div>
                     <div>
-                        <div class="vpms-property-label property-card-label">Property</div>
-                        <div class="vpms-property-name property-card-name">Vantage Grand Hotel</div>
+                        <div class="vpms-property-label property-card-label">Company Context</div>
+                        <div class="vpms-property-name property-card-name">@currentCompanyName</div>
                     </div>
-                    <span class="vpms-badge vpms-property-badge property-card-badge">Local</span>
-                    <div class="vpms-property-meta property-card-meta">Hotel ID: VGP-LOCAL</div>
+                    <span class="vpms-badge vpms-property-badge property-card-badge">@(isGlobalAdminCompany ? "Global" : "Trial")</span>
+                    <div class="vpms-property-meta property-card-meta">Company Code: @currentCompanyCode</div>
                 </div>
 
                 <div class="vpms-sidebar-search sidebar-search">
@@ -365,6 +368,9 @@
                 <div class="d-flex align-items-center gap-3">
                     <button class="btn btn-outline-secondary app-menu-button d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar">
                         Menu
+                    </button>
+                    <button class="btn vpms-back-button vpms-no-print" type="button" data-vpms-back-button aria-label="Go back to previous page">
+                        Back
                     </button>
                     <div class="vpms-time-block" aria-label="Current local time">
                         <div class="vpms-time-label">Current Time</div>

@@ -50,6 +50,7 @@ public class CheckInModel(ApplicationDbContext context) : PageModel
 
         Reservation = reservation;
         ValidateCanCheckIn();
+        await ValidateRoomNotAssignedToAnotherInHouseReservationAsync();
 
         if (!ModelState.IsValid)
         {
@@ -107,6 +108,26 @@ public class CheckInModel(ApplicationDbContext context) : PageModel
         else if (Reservation.Room.Status is RoomStatus.Occupied or RoomStatus.Dirty or RoomStatus.OutOfOrder or RoomStatus.Maintenance)
         {
             ModelState.AddModelError(string.Empty, $"Room {Reservation.Room.RoomNumber} is {Reservation.Room.Status} and cannot be checked in until it is available, clean, or inspected.");
+        }
+    }
+
+    private async Task ValidateRoomNotAssignedToAnotherInHouseReservationAsync()
+    {
+        if (Reservation.RoomId is null)
+        {
+            return;
+        }
+
+        var roomHasAnotherInHouseGuest = await _context.Reservations
+            .AsNoTracking()
+            .AnyAsync(reservation =>
+                reservation.Id != Reservation.Id &&
+                reservation.RoomId == Reservation.RoomId &&
+                reservation.Status == ReservationStatus.CheckedIn);
+
+        if (roomHasAnotherInHouseGuest)
+        {
+            ModelState.AddModelError(string.Empty, "The assigned room already has an in-house reservation. Select a different room before check-in.");
         }
     }
 

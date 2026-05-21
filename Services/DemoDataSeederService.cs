@@ -361,6 +361,46 @@ public class DemoDataSeederService(
                 await userManager.AddToRoleAsync(user, role);
                 result.Inserted++;
             }
+
+            await EnsureDemoHotelAccessAsync(user, role, result);
+        }
+    }
+
+    private async Task EnsureDemoHotelAccessAsync(IdentityUser user, string role, DemoSeedResult result)
+    {
+        var hotelId = await context.Hotels
+            .Where(hotel => hotel.Code == "VGH")
+            .Select(hotel => (int?)hotel.Id)
+            .FirstOrDefaultAsync();
+
+        if (hotelId is null)
+        {
+            return;
+        }
+
+        var existing = await context.HotelUserAccesses
+            .FirstOrDefaultAsync(access => access.UserId == user.Id && access.HotelId == hotelId.Value);
+
+        if (existing is null)
+        {
+            context.HotelUserAccesses.Add(new HotelUserAccess
+            {
+                UserId = user.Id,
+                HotelId = hotelId.Value,
+                RoleName = role,
+                IsDefaultCompany = true,
+                IsActive = true,
+                CreatedAt = DateTime.Now,
+                CreatedBy = "DemoDataSeeder"
+            });
+            result.Inserted++;
+            return;
+        }
+
+        if (!existing.IsActive)
+        {
+            existing.IsActive = true;
+            result.Inserted++;
         }
     }
 

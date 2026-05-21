@@ -1,4 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const backButton = document.querySelector("[data-vpms-back-button]");
+  if (backButton) {
+    backButton.addEventListener("click", () => {
+      if (window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+
+      window.location.href = "/";
+    });
+  }
+
   const navIconMap = {
     "dashboard": "home",
     "executive dashboard": "chart",
@@ -347,7 +359,6 @@ document.addEventListener("DOMContentLoaded", () => {
         label: normalizeLabel(link.textContent),
         at: Date.now()
       }));
-      saveRecentLink(link);
     });
   });
 
@@ -393,6 +404,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  const closeSidebarGroupsExcept = (openGroup) => {
+    sidebarGroups.forEach((group) => {
+      if (group !== openGroup) {
+        setGroupOpen(group, false);
+      }
+    });
+  };
+
   const getSavedOpenGroups = () => {
     try {
       const saved = JSON.parse(localStorage.getItem(sidebarStorageKey) || "[]");
@@ -417,16 +436,18 @@ document.addEventListener("DOMContentLoaded", () => {
   if (sidebarGroups.length) {
     const savedValue = localStorage.getItem(sidebarStorageKey);
     const savedOpenGroups = getSavedOpenGroups();
+    const activeGroup = activeLink?.closest("[data-vpms-sidebar-group]") || null;
 
     sidebarGroups.forEach((group) => {
-      const shouldOpen = savedValue === null
-        ? group.dataset.groupId === "command-center"
-        : savedOpenGroups.has(group.dataset.groupId);
+      const shouldOpen = activeGroup
+        ? group === activeGroup
+        : savedValue === null
+          ? group.dataset.groupId === "command-center"
+          : savedOpenGroups.has(group.dataset.groupId);
       setGroupOpen(group, shouldOpen);
     });
 
     if (activeLink) {
-      const activeGroup = activeLink.closest("[data-vpms-sidebar-group]");
       if (activeGroup) {
         activeGroup.classList.add("has-active");
         setGroupOpen(activeGroup, true);
@@ -440,7 +461,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       toggle.addEventListener("click", () => {
-        setGroupOpen(group, !group.classList.contains("is-open"));
+        const shouldOpen = !group.classList.contains("is-open");
+        if (shouldOpen && !sidebarNav?.classList.contains("is-searching")) {
+          closeSidebarGroupsExcept(group);
+        }
+
+        setGroupOpen(group, shouldOpen);
         saveOpenGroups();
       });
     });
@@ -509,7 +535,35 @@ document.addEventListener("DOMContentLoaded", () => {
         section.classList.toggle("is-search-open", query.length > 0 && visibleLinks > 0);
       });
     });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+
+      const target = event.target;
+      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target?.isContentEditable) {
+        return;
+      }
+
+      event.preventDefault();
+      searchInput.focus();
+    });
   }
+
+  const sidebarOffcanvasElement = document.getElementById("appSidebar");
+  const closeMobileSidebar = () => {
+    if (!sidebarOffcanvasElement || window.innerWidth >= 992 || !window.bootstrap?.Offcanvas) {
+      return;
+    }
+
+    const instance = window.bootstrap.Offcanvas.getInstance(sidebarOffcanvasElement);
+    instance?.hide();
+  };
+
+  navLinks.forEach((link) => {
+    link.addEventListener("click", closeMobileSidebar);
+  });
 
   const compactToggle = document.getElementById("sidebarCompactToggle");
   const setSidebarCompact = (isCompact) => {

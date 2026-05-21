@@ -1,78 +1,114 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Finance;
+using Vantage.PMS.Services;
 
 namespace Vantage.PMS.Pages.AccountsReceivable.Aging;
 
-public class IndexModel(ApplicationDbContext context) : PageModel
+public class IndexModel(
+    ApplicationDbContext context,
+    ARCollectionReportService arCollectionReportService,
+    ReportExportService reportExportService) : PageModel
 {
     private readonly ApplicationDbContext _context = context;
+    private readonly ARCollectionReportService _arCollectionReportService = arCollectionReportService;
+    private readonly ReportExportService _reportExportService = reportExportService;
 
-    public IList<ARAgingRow> Rows { get; set; } = new List<ARAgingRow>();
+    [BindProperty(SupportsGet = true)]
+    public DateTime AsOfDate { get; set; } = DateTime.Today;
 
-    public decimal CurrentTotal => Rows.Sum(row => row.Current);
-    public decimal Days1To30Total => Rows.Sum(row => row.Days1To30);
-    public decimal Days31To60Total => Rows.Sum(row => row.Days31To60);
-    public decimal Days61To90Total => Rows.Sum(row => row.Days61To90);
-    public decimal Over90Total => Rows.Sum(row => row.Over90);
-    public decimal GrandTotal => Rows.Sum(row => row.Total);
+    [BindProperty(SupportsGet = true)]
+    public int? ARAccountId { get; set; }
+
+    [BindProperty(SupportsGet = true)]
+    public string? Status { get; set; }
+
+    [BindProperty(SupportsGet = true)]
+    public string? AgingBucket { get; set; }
+
+    [BindProperty(SupportsGet = true)]
+    public string? Search { get; set; }
+
+    [BindProperty(SupportsGet = true)]
+    public bool IncludePaid { get; set; }
+
+    public ARAgingReportResult Report { get; set; } = new(DateTime.Today, Array.Empty<ARAgingInvoiceRow>(), new ARAgingSummary(0, 0, 0, 0, 0));
+
+    public SelectList ARAccountOptions { get; set; } = null!;
+
+    public IEnumerable<SelectListItem> StatusOptions { get; set; } = Enumerable.Empty<SelectListItem>();
+
+    public IEnumerable<SelectListItem> AgingBucketOptions { get; set; } = Enumerable.Empty<SelectListItem>();
 
     public async Task OnGetAsync()
     {
-        var today = DateTime.Today;
-        var invoices = await _context.ARInvoices
-            .AsNoTracking()
-            .Include(invoice => invoice.ARAccount)
-            .Where(invoice => invoice.Balance > 0 &&
-                invoice.Status != ARInvoiceStatus.Cancelled &&
-                invoice.Status != ARInvoiceStatus.WrittenOff)
-            .ToListAsync();
-
-        Rows = invoices
-            .GroupBy(invoice => new { invoice.ARAccountId, invoice.ARAccount!.AccountName })
-            .Select(group =>
-            {
-                var row = new ARAgingRow(group.Key.AccountName);
-                foreach (var invoice in group)
-                {
-                    var age = (today - invoice.DueDate.Date).Days;
-                    if (age <= 0)
-                    {
-                        row.Current += invoice.Balance;
-                    }
-                    else if (age <= 30)
-                    {
-                        row.Days1To30 += invoice.Balance;
-                    }
-                    else if (age <= 60)
-                    {
-                        row.Days31To60 += invoice.Balance;
-                    }
-                    else if (age <= 90)
-                    {
-                        row.Days61To90 += invoice.Balance;
-                    }
-                    else
-                    {
-                        row.Over90 += invoice.Balance;
-                    }
-                }
-
-                return row;
-            })
-            .OrderBy(row => row.AccountName)
-            .ToList();
+        await LoadReportAsync();
     }
 
-    public class ARAgingRow(string accountName)
+    public async Task<IActionResult> OnGetCsvAsync()
     {
-        public string AccountName { get; set; } = accountName;
-        public decimal Current { get; set; }
-        public decimal Days1To30 { get; set; }
-        public decimal Days31To60 { get; set; }
-        public decimal Days61To90 { get; set; }
-        public decimal Over90 { get; set; }
-        public decimal Total => Current + Days1To30 + Days31To60 + Days61To90 + Over90;
+        await LoadReportAsync();
+
+        var rows = new List<string[]>
+        {
+            new[] { "AR Account", "Invoice Number", "Invoice Date", "Due Date", "Original Amount", "Payments Applied", "Credit Memos", "Debit Memos", "Adjustments", "Balance", "Aging Bucket", "Days Overdue", "Last Payment Date", "Status" }
+        };
+
+        rows.AddRange(Report.Rows.Select(row => new[]
+        {
+            row.AccountName,
+            row.InvoiceNumber,
+            _reportExportService.FormatDate(row.InvoiceDate),
+            _reportExportService.FormatDate(row.DueDate),
+            _reportExportService.FormatCurrency(row.OriginalAmount),
+            _reportExportService.FormatCurrency(row.PaymentsApplied),
+            _reportExportService.FormatCurrency(row.CreditMemos),
+            _reportExportService.FormatCurrency(row.DebitMemos),
+            _reportExportService.FormatCurrency(row.Adjustments),
+            _reportExportService.FormatCurrency(row.Balance),
+            row.AgingBucket,
+            row.DaysOverdue.ToString(),
+            row.LastPaymentDate is null ? string.Empty : _reportExportService.FormatDate(row.LastPaymentDate.Value),
+            row.Status.ToString()
+        }));
+
+        var content = _reportExportService.ExportToCsv("AR Aging Report", AsOfDate, AsOfDate, rows);
+        var fileName = _reportExportService.BuildSafeFileName("AR Aging Report", AsOfDate, AsOfDate, "csv");
+        return File(content, "text/csv; charset=utf-8", fileName);
+    }
+
+    private async Task LoadReportAsync()
+    {
+        AsOfDate = AsOfDate == default ? DateTime.Today : AsOfDate.Date;
+        Report = await _arCollectionReportService.GetAgingReportAsync(AsOfDate, ARAccountId, Status, AgingBucket, Search, IncludePaid);
+        await LoadOptionsAsync();
+    }
+
+    private async Task LoadOptionsAsync()
+    {
+        var accounts = await _context.ARAccounts
+            .AsNoTracking()
+            .OrderBy(account => account.AccountName)
+            .Select(account => new { account.Id, account.AccountName })
+            .ToListAsync();
+
+        ARAccountOptions = new SelectList(accounts, "Id", "AccountName", ARAccountId);
+        StatusOptions = Enum.GetValues<ARInvoiceStatus>()
+            .Select(status => new SelectListItem
+            {
+                Value = status.ToString(),
+                Text = status.ToString(),
+                Selected = status.ToString().Equals(Status, StringComparison.OrdinalIgnoreCase)
+            });
+        var buckets = new[] { "Current", "1-30 days", "31-60 days", "61-90 days", "Over 90 days" };
+        AgingBucketOptions = buckets.Select(bucket => new SelectListItem
+        {
+            Value = bucket,
+            Text = bucket,
+            Selected = bucket.Equals(AgingBucket, StringComparison.OrdinalIgnoreCase)
+        });
     }
 }

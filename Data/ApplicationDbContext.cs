@@ -32,6 +32,8 @@ namespace Vantage.PMS.Data
 
         public DbSet<Hotel> Hotels => Set<Hotel>();
 
+        public DbSet<HotelUserAccess> HotelUserAccesses => Set<HotelUserAccess>();
+
         public DbSet<Property> Properties => Set<Property>();
 
         public DbSet<Department> Departments => Set<Department>();
@@ -960,6 +962,30 @@ namespace Vantage.PMS.Data
             builder.Entity<BanquetCharge>()
                 .Property(charge => charge.Amount)
                 .HasPrecision(18, 2);
+
+            builder.Entity<Hotel>(entity =>
+            {
+                entity.HasIndex(hotel => hotel.Code).IsUnique();
+                entity.Property(hotel => hotel.Code).HasMaxLength(80);
+            });
+
+            builder.Entity<HotelUserAccess>(entity =>
+            {
+                entity.HasIndex(access => new { access.UserId, access.HotelId }).IsUnique();
+                entity.Property(access => access.UserId).HasMaxLength(450);
+                entity.Property(access => access.RoleName).HasMaxLength(120);
+                entity.Property(access => access.CreatedBy).HasMaxLength(180);
+
+                entity.HasOne(access => access.User)
+                    .WithMany()
+                    .HasForeignKey(access => access.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(access => access.Hotel)
+                    .WithMany()
+                    .HasForeignKey(access => access.HotelId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
 
             builder.Entity<Property>()
                 .HasOne(property => property.Hotel)

@@ -14,10 +14,16 @@ public class ProfitAndLossModel(AccountingReportService reportService) : PageMod
     public decimal OtherNet { get; private set; }
     public decimal GrossProfit => Revenue - CostOfSales;
     public decimal NetIncome => GrossProfit - Expenses + OtherNet;
+    public bool HasActivity => Revenue != 0 || CostOfSales != 0 || Expenses != 0 || OtherNet != 0;
     public async Task OnGetAsync(DateTime? startDate, DateTime? endDate)
     {
         StartDate = startDate ?? new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
         EndDate = endDate ?? DateTime.Today;
+        if (EndDate < StartDate)
+        {
+            EndDate = StartDate;
+        }
+
         var rows = await reportService.GetAccountBalancesAsync(StartDate, EndDate);
         Revenue = reportService.CreditNormalAmount(rows, GLAccountType.Revenue);
         CostOfSales = reportService.DebitNormalAmount(rows, GLAccountType.CostOfSales);

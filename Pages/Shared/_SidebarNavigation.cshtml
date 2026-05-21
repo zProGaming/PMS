@@ -36,21 +36,6 @@
         </button>
     </div>
 
-    <section class="vpms-sidebar-quick-panel" data-vpms-sidebar-shortcuts>
-        <div class="vpms-sidebar-shortcut-section">
-            <div class="vpms-sidebar-shortcut-heading">Favorites</div>
-            <div class="vpms-sidebar-shortcut-list" data-vpms-favorites-list>
-                <span class="vpms-sidebar-shortcut-empty">Daily shortcuts appear here.</span>
-            </div>
-        </div>
-        <div class="vpms-sidebar-shortcut-section">
-            <div class="vpms-sidebar-shortcut-heading">Recently Used</div>
-            <div class="vpms-sidebar-shortcut-list" data-vpms-recent-list>
-                <span class="vpms-sidebar-shortcut-empty">Open a module to build history.</span>
-            </div>
-        </div>
-    </section>
-
     <nav class="vpms-nav app-nav vpms-sidebar-scroll" aria-label="Primary navigation" data-vpms-sidebar-nav>
         <section class="vpms-sidebar-group is-open" data-sidebar-section data-vpms-sidebar-group data-group-id="command-center">
             <button class="vpms-sidebar-group-header" type="button" data-vpms-sidebar-toggle aria-expanded="true" aria-controls="sidebar-command-center">
@@ -162,6 +147,7 @@
                     {
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/AccountsReceivable/ARAccounts/Index" data-sidebar-link><span>Accounts Receivable</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/AccountsReceivable/Aging/Index" data-sidebar-link><span>AR Aging</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/AccountsReceivable/Collections/Index" asp-route-period="daily" data-sidebar-link><span>AR Collections</span></a>
                     }
                     @if (canAccessAccounting)
                     {
@@ -397,6 +383,7 @@
                     @if (canAccessSystemAdministration)
                     {
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Admin/UsersAndRoles/Index" data-sidebar-link><span>Users and Roles</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Admin/CompanyAccess/Index" data-sidebar-link><span>Company Access</span></a>
                     }
                     @if (canAccessSystemManagement)
                     {

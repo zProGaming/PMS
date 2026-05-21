@@ -6,6 +6,13 @@
 <div class="page-header"><div><div class="page-kicker">Accounting Reports</div><h1 class="page-title">Balance Sheet</h1><p class="page-subtitle">Assets, liabilities, and equity as of selected date.</p></div><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div>
 <form method="get" class="vpms-card mb-3 report-filter"><div class="row g-3 align-items-end"><div class="col-md-4"><label class="form-label">As of</label><input name="AsOfDate" value="@Model.AsOfDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-2"><button class="btn vpms-btn-primary w-100">Run</button></div></div></form>
 <section class="vpms-print-document">
+    @if (!Model.HasRows)
+    {
+        <section class="vpms-empty-state mb-3">
+            <strong>No posted journal entries found.</strong>
+            <span>Post accounting batches or seed demo data before generating the Balance Sheet.</span>
+        </section>
+    }
     <div class="row g-4">
         <div class="col-md-6"><div class="vpms-card"><h2 class="h5">Assets</h2><p class="display-6">@Model.Assets.ToString("C")</p></div></div>
         <div class="col-md-6"><div class="vpms-card"><h2 class="h5">Liabilities and Equity</h2><p class="display-6">@Model.LiabilitiesAndEquity.ToString("C")</p><div class="text-muted small">Includes current-period earnings of @Model.CurrentPeriodEarnings.ToString("C").</div></div></div>
