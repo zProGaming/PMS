@@ -143,8 +143,16 @@ await using (var scope = app.Services.CreateAsyncScope())
         var logger = scope.ServiceProvider
             .GetRequiredService<ILoggerFactory>()
             .CreateLogger("StartupDataSeed");
-        logger.LogCritical(ex, "Required startup data seeding failed. The application cannot start until database connectivity, migrations, and bootstrap configuration are corrected.");
-        throw;
+        var requireStartupSeed = app.Environment.IsDevelopment()
+            || app.Configuration.GetValue("Startup:RequireIdentitySeed", false);
+
+        if (requireStartupSeed)
+        {
+            logger.LogCritical(ex, "Required startup data seeding failed. The application cannot start until database connectivity, migrations, and bootstrap configuration are corrected.");
+            throw;
+        }
+
+        logger.LogError(ex, "Startup data seeding failed, but the application will continue because Startup:RequireIdentitySeed is disabled for this environment. Verify database connectivity and run setup seeding after startup.");
     }
 }
 
