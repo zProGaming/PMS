@@ -5800,6 +5800,128 @@ strong,
   min-width: 980px;
 }
 
+.vpms-command-brief,
+.vpms-control-brief,
+.vpms-housekeeping-command,
+.vpms-board-brief,
+.vpms-workflow-meter,
+.vpms-status-dock {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.vpms-command-brief,
+.vpms-control-brief,
+.vpms-housekeeping-command,
+.vpms-board-brief,
+.vpms-workflow-meter {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.vpms-command-brief > article,
+.vpms-control-brief > article,
+.vpms-housekeeping-command > article,
+.vpms-board-brief > article,
+.vpms-workflow-meter > article {
+  min-width: 0;
+  padding: 0.85rem 0.95rem;
+  background:
+    linear-gradient(135deg, rgba(20, 184, 166, 0.045), rgba(6, 182, 212, 0.018)),
+    #fff;
+  border: 1px solid var(--vpms-soft-border);
+  border-radius: 12px;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
+}
+
+.vpms-command-brief span,
+.vpms-control-brief span,
+.vpms-housekeeping-command span,
+.vpms-board-brief span,
+.vpms-workflow-meter span {
+  display: block;
+  color: #0f766e;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.vpms-command-brief strong,
+.vpms-control-brief strong,
+.vpms-housekeeping-command strong,
+.vpms-board-brief strong,
+.vpms-workflow-meter strong {
+  display: block;
+  margin-top: 0.16rem;
+  color: var(--vpms-navy);
+  font-size: 0.96rem;
+  font-weight: 920;
+  line-height: 1.25;
+}
+
+.vpms-command-brief p,
+.vpms-housekeeping-command p,
+.vpms-board-brief p,
+.vpms-workflow-meter small {
+  display: block;
+  margin: 0.28rem 0 0;
+  color: var(--vpms-muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.vpms-command-brief .positive strong,
+.vpms-control-brief .positive strong,
+.vpms-housekeeping-command .positive strong,
+.vpms-board-brief .positive strong {
+  color: #0f766e;
+}
+
+.vpms-command-brief .warning strong,
+.vpms-control-brief .warning strong,
+.vpms-housekeeping-command .warning strong,
+.vpms-board-brief .warning strong {
+  color: #b45309;
+}
+
+.vpms-command-brief .danger strong,
+.vpms-control-brief .danger strong,
+.vpms-housekeeping-command .danger strong,
+.vpms-board-brief .danger strong {
+  color: #b91c1c;
+}
+
+.vpms-status-dock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 0.45rem;
+  background: #fff;
+  border: 1px solid var(--vpms-soft-border);
+  border-radius: 999px;
+  box-shadow: var(--vpms-soft-shadow);
+}
+
+.vpms-status-dock a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0.42rem 0.72rem;
+  color: var(--vpms-slate);
+  font-size: 0.8rem;
+  font-weight: 850;
+  text-decoration: none;
+  border-radius: 999px;
+}
+
+.vpms-status-dock a:hover,
+.vpms-status-dock a:focus-visible,
+.vpms-status-dock a.active {
+  color: #0f766e;
+  background: rgba(20, 184, 166, 0.1);
+}
+
 .vpms-executive-board {
   display: grid;
   gap: 0.9rem;
@@ -5811,7 +5933,12 @@ strong,
 
 @media (max-width: 1199.98px) {
   .vpms-finance-grid,
-  .vpms-revenue-mix {
+  .vpms-revenue-mix,
+  .vpms-command-brief,
+  .vpms-control-brief,
+  .vpms-housekeeping-command,
+  .vpms-board-brief,
+  .vpms-workflow-meter {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -5856,6 +5983,11 @@ strong,
   .vpms-control-strip,
   .vpms-signal-strip,
   .vpms-filter-bar,
+  .vpms-command-brief,
+  .vpms-control-brief,
+  .vpms-housekeeping-command,
+  .vpms-board-brief,
+  .vpms-workflow-meter,
   .vpms-action-grid,
   .vpms-finance-grid,
   .vpms-revenue-mix,
@@ -5867,6 +5999,15 @@ strong,
   .vpms-section-titlebar,
   .vpms-form-section-heading {
     flex-direction: column;
+  }
+
+  .vpms-status-dock {
+    border-radius: 14px;
+  }
+
+  .vpms-status-dock a {
+    flex: 1 1 calc(50% - 0.35rem);
+    justify-content: center;
   }
 }
 
@@ -6559,6 +6700,145 @@ strong,
   margin-top: 0.8rem;
 }
 
+.vpms-booking-signature,
+.vpms-booking-stepper,
+.vpms-room-selection-brief,
+.vpms-booking-confidence-strip,
+.vpms-report-proof-strip,
+.vpms-document-readiness-strip,
+.vpms-placeholder-guidance {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.vpms-booking-signature {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1.25rem;
+}
+
+.vpms-booking-signature article {
+  min-width: 0;
+  padding: 0.72rem 0.78rem;
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 14px;
+}
+
+.vpms-booking-signature span,
+.vpms-booking-signature strong {
+  display: block;
+}
+
+.vpms-booking-signature span {
+  color: rgba(236, 254, 255, 0.78);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.vpms-booking-signature strong {
+  margin-top: 0.18rem;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.vpms-booking-stepper {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 0.35rem;
+  background: #f8fafc;
+  border: 1px solid var(--vpms-soft-border);
+  border-radius: 999px;
+}
+
+.vpms-booking-stepper span {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.32rem 0.48rem;
+  color: var(--vpms-muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+  text-align: center;
+  border-radius: 999px;
+}
+
+.vpms-booking-stepper span.active {
+  color: #0f766e;
+  background: #ccfbf1;
+}
+
+.vpms-room-selection-brief,
+.vpms-booking-confidence-strip,
+.vpms-report-proof-strip,
+.vpms-document-readiness-strip,
+.vpms-placeholder-guidance {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 1rem;
+}
+
+.vpms-room-selection-brief article,
+.vpms-booking-confidence-strip article,
+.vpms-report-proof-strip article,
+.vpms-document-readiness-strip article,
+.vpms-placeholder-guidance article {
+  min-width: 0;
+  padding: 0.88rem 0.95rem;
+  background:
+    linear-gradient(135deg, rgba(20, 184, 166, 0.052), rgba(6, 182, 212, 0.022)),
+    #fff;
+  border: 1px solid var(--vpms-soft-border);
+  border-radius: 14px;
+  box-shadow: var(--vpms-soft-shadow);
+}
+
+.vpms-room-selection-brief span,
+.vpms-booking-confidence-strip span,
+.vpms-report-proof-strip span,
+.vpms-document-readiness-strip span,
+.vpms-placeholder-guidance span {
+  display: block;
+  color: #0f766e;
+  font-size: 0.72rem;
+  font-weight: 930;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.vpms-room-selection-brief strong,
+.vpms-booking-confidence-strip strong,
+.vpms-report-proof-strip strong,
+.vpms-document-readiness-strip strong,
+.vpms-placeholder-guidance strong {
+  display: block;
+  margin-top: 0.18rem;
+  color: var(--vpms-navy);
+  font-size: 0.94rem;
+  font-weight: 900;
+  line-height: 1.3;
+}
+
+.vpms-report-proof-strip p {
+  margin: 0.28rem 0 0;
+  color: var(--vpms-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.vpms-room-confidence-note {
+  margin-top: 0.75rem;
+  padding: 0.62rem 0.72rem;
+  color: #475569;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  background: #f8fafc;
+  border: 1px solid var(--vpms-soft-border);
+  border-radius: 12px;
+}
+
 @media (max-width: 1199.98px) {
   .vpms-booking-hero,
   .vpms-booking-checkout,
@@ -6575,6 +6855,12 @@ strong,
   .vpms-booking-guest-grid,
   .vpms-booking-assurance,
   .vpms-document-assurance,
+  .vpms-booking-signature,
+  .vpms-room-selection-brief,
+  .vpms-booking-confidence-strip,
+  .vpms-report-proof-strip,
+  .vpms-document-readiness-strip,
+  .vpms-placeholder-guidance,
   .vpms-report-filter-premium form {
     grid-template-columns: 1fr;
   }
@@ -6591,6 +6877,7 @@ strong,
 @media (max-width: 767.98px) {
   .vpms-booking-date-grid,
   .vpms-addon-card,
+  .vpms-booking-stepper,
   .vpms-placeholder-panel {
     grid-template-columns: 1fr;
   }
@@ -6620,6 +6907,7 @@ strong,
 }
 
 .vpms-sidebar-nav-intro span,
+.vpms-sidebar-nav-intro small,
 .vpms-topbar-context span,
 .vpms-commandbar-label small,
 .vpms-report-legacy-card span,
@@ -6635,6 +6923,15 @@ strong,
   color: var(--vpms-navy);
   font-size: 0.86rem;
   font-weight: 800;
+}
+
+.vpms-sidebar-nav-intro small {
+  color: var(--vpms-muted);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-transform: none;
 }
 
 .vpms-sidebar .vpms-sidebar-group-header {
@@ -6717,6 +7014,19 @@ strong,
   white-space: nowrap;
 }
 
+.vpms-user-copy em {
+  display: block;
+  max-width: 230px;
+  overflow: hidden;
+  color: var(--vpms-muted);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .vpms-report-legacy-hero {
   display: flex;
   align-items: flex-end;
@@ -6754,6 +7064,42 @@ strong,
   border: 1px solid var(--vpms-soft-border);
   border-radius: 18px;
   box-shadow: 0 16px 42px rgba(15, 23, 42, 0.055);
+}
+
+.vpms-report-legacy-standard {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.vpms-report-legacy-standard article {
+  min-width: 0;
+  padding: 0.85rem 0.95rem;
+  background:
+    linear-gradient(135deg, rgba(20, 184, 166, 0.052), rgba(6, 182, 212, 0.022)),
+    #fff;
+  border: 1px solid var(--vpms-soft-border);
+  border-radius: 14px;
+  box-shadow: var(--vpms-soft-shadow);
+}
+
+.vpms-report-legacy-standard span {
+  display: block;
+  color: #0f766e;
+  font-size: 0.72rem;
+  font-weight: 930;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.vpms-report-legacy-standard strong {
+  display: block;
+  margin-top: 0.18rem;
+  color: var(--vpms-navy);
+  font-size: 0.94rem;
+  font-weight: 900;
+  line-height: 1.3;
 }
 
 .vpms-report-legacy-panel .vpms-card-header {
@@ -6850,9 +7196,14 @@ strong,
   }
 
   .vpms-report-legacy-hero,
-  .vpms-report-legacy-panel .vpms-card-header {
+  .vpms-report-legacy-panel .vpms-card-header,
+  .vpms-report-legacy-standard {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .vpms-report-legacy-standard {
+    grid-template-columns: 1fr;
   }
 }
 

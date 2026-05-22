@@ -378,7 +378,7 @@
                         <div id="vpmsCurrentDate" class="vpms-current-date">@DateTime.Now.ToString("dddd, MMM d, yyyy")</div>
                     </div>
                     <div class="vpms-topbar-context" aria-label="Current workspace context">
-                        <span>Workspace</span>
+                        <span>Operating Context</span>
                         <strong>@currentCompanyName</strong>
                         <small>@currentCompanyCode @(isGlobalAdminCompany ? "- Global Control" : "- Property Access")</small>
                     </div>
@@ -388,8 +388,8 @@
 
             <nav class="vpms-commandbar app-commandbar" aria-label="Quick command bar">
                 <span class="vpms-commandbar-label">
-                    <strong>Quick Actions</strong>
-                    <small>Daily command shortcuts</small>
+                    <strong>Command Bar</strong>
+                    <small>Role-aware daily shortcuts</small>
                 </span>
                 <a class="vpms-command-item" asp-page="/System/Notifications/Index"><span class="vpms-command-icon"></span>Alerts</a>
                 @if (canAccessReports)
@@ -409,7 +409,7 @@
                 }
                 @if (canAccessHousekeeping)
                 {
-                    <a class="vpms-command-item" asp-page="/Housekeeping/Index"><span class="vpms-command-icon"></span>Rack</a>
+                    <a class="vpms-command-item" asp-page="/Housekeeping/Index"><span class="vpms-command-icon"></span>Room Readiness</a>
                 }
                 @if (canAccessFinance)
                 {

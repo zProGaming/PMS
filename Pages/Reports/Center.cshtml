@@ -55,6 +55,24 @@
     </div>
 </section>
 
+<section class="vpms-report-proof-strip" aria-label="Report center readiness">
+    <article>
+        <span>Curated Inventory</span>
+        <strong>@availableCount live report@(availableCount == 1 ? "" : "s")</strong>
+        <p>Unavailable reports route to controlled status pages instead of broken links.</p>
+    </article>
+    <article>
+        <span>Print Governance</span>
+        <strong>@printCount print-ready surface@(printCount == 1 ? "" : "s")</strong>
+        <p>Browser print and Save as PDF remain the standard export path.</p>
+    </article>
+    <article>
+        <span>Data Export</span>
+        <strong>@csvCount CSV export@(csvCount == 1 ? "" : "s")</strong>
+        <p>CSV is surfaced only where simple table exports are supported safely.</p>
+    </article>
+</section>
+
 <section class="vpms-filter-bar vpms-report-filter-premium">
     <form method="get">
         <div>

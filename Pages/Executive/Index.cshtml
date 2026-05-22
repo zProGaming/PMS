@@ -3,6 +3,9 @@
 @{
     ViewData["Title"] = "Executive Dashboard";
     var summary = Model.Dashboard.Summary;
+    var performancePosture = summary.OpenCriticalIssues > 0 ? "Risk review required" : summary.TotalRevenue > 0 ? "Performance review ready" : "Awaiting posted activity";
+    var cashPosture = summary.ARBalance > summary.CashPaymentsToday ? "Monitor collections" : "Cash position steady";
+    var laborPosture = summary.LaborCostPercentage > 35 ? "Labor pressure watch" : "Labor ratio controlled";
 }
 
 @functions {
@@ -42,6 +45,24 @@
 </form>
 
 <section class="vpms-print-document vpms-executive-board">
+    <section class="vpms-board-brief" aria-label="Executive briefing">
+        <article class="@(summary.OpenCriticalIssues > 0 ? "danger" : "positive")">
+            <span>Board Posture</span>
+            <strong>@performancePosture</strong>
+            <p>@summary.OpenCriticalIssues critical alert@(summary.OpenCriticalIssues == 1 ? "" : "s") and @summary.PendingApprovals pending approval@(summary.PendingApprovals == 1 ? "" : "s").</p>
+        </article>
+        <article>
+            <span>Cash Discipline</span>
+            <strong>@cashPosture</strong>
+            <p>@summary.CashPaymentsToday.ToString("C0") cash payments today against @summary.ARBalance.ToString("C0") AR exposure.</p>
+        </article>
+        <article class="@(summary.LaborCostPercentage > 35 ? "warning" : "positive")">
+            <span>Labor Discipline</span>
+            <strong>@laborPosture</strong>
+            <p>@summary.LaborCostPercentage.ToString("N1")% labor cost against selected-period revenue.</p>
+        </article>
+    </section>
+
     <section class="vpms-control-strip vpms-executive-strip">
         <article>
             <span>Occupancy</span>

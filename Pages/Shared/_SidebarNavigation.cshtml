@@ -38,8 +38,9 @@
 
     <nav class="vpms-nav app-nav vpms-sidebar-scroll" aria-label="Primary navigation" data-vpms-sidebar-nav>
         <div class="vpms-sidebar-nav-intro">
-            <span>Workspace Navigation</span>
+            <span>Role-aware workspace</span>
             <strong>Department command map</strong>
+            <small>Curated shortcuts for the modules your role can operate.</small>
         </div>
 
         <section class="vpms-sidebar-group is-open" data-sidebar-section data-vpms-sidebar-group data-group-id="command-center">
@@ -169,8 +170,8 @@
         {
             <section class="vpms-sidebar-group" data-sidebar-section data-vpms-sidebar-group data-group-id="accounting-reports">
                 <button class="vpms-sidebar-group-header" type="button" data-vpms-sidebar-toggle aria-expanded="false" aria-controls="sidebar-accounting-reports">
-                    <span class="vpms-sidebar-group-icon" aria-hidden="true">AR</span>
-                    <span class="vpms-sidebar-group-title">Accounting &amp; Reports</span>
+                    <span class="vpms-sidebar-group-icon" aria-hidden="true">RP</span>
+                    <span class="vpms-sidebar-group-title">Accounting Reports</span>
                     <span class="vpms-sidebar-chevron" aria-hidden="true"></span>
                 </button>
                 <div class="vpms-sidebar-group-body" id="sidebar-accounting-reports" data-vpms-sidebar-body>
@@ -323,7 +324,7 @@
             </section>
         }
 
-        @if (canAccessAdmin || canAccessExecutiveReporting || canAccessReports)
+        @if (canAccessAdmin)
         {
             <section class="vpms-sidebar-group" data-sidebar-section data-vpms-sidebar-group data-group-id="multi-property">
                 <button class="vpms-sidebar-group-header" type="button" data-vpms-sidebar-toggle aria-expanded="false" aria-controls="sidebar-multi-property">

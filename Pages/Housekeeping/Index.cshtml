@@ -48,6 +48,24 @@
     </article>
 </section>
 
+<section class="vpms-housekeeping-command" aria-label="Housekeeping command priorities">
+    <article class="@(Model.VacantDirtyRooms > 0 ? "warning" : "positive")">
+        <span>Turnover Lane</span>
+        <strong>@Model.VacantDirtyRooms vacant dirty</strong>
+        <p>Prioritize arrivals and release-ready rooms before front desk pressure builds.</p>
+    </article>
+    <article class="positive">
+        <span>Release Lane</span>
+        <strong>@Model.InspectedRooms inspected</strong>
+        <p>Rooms already inspected can be released confidently for rooming and upsell recovery.</p>
+    </article>
+    <article class="@(Model.OutOfOrderRooms + Model.MaintenanceRooms > 0 ? "danger" : "")">
+        <span>Engineering Lane</span>
+        <strong>@(Model.OutOfOrderRooms + Model.MaintenanceRooms) blocked</strong>
+        <p>Coordinate unavailable inventory before it affects occupancy and walk-in decisions.</p>
+    </article>
+</section>
+
 <section class="vpms-card vpms-operational-panel">
     <div class="vpms-section-titlebar">
         <div>

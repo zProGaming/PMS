@@ -158,6 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "in-house": "people",
     "quick desk": "desk",
     "rack": "rooms",
+    "room readiness": "rooms",
     "front cash": "cash",
     "pos": "receipt",
     "management ai": "spark",

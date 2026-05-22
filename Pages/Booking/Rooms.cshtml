@@ -9,9 +9,24 @@
     <div>
         <div class="vpms-booking-kicker">Room Selection</div>
         <h1>Choose Your Room</h1>
-        <p>@Model.Input.CheckInDate.ToString("MMM d") to @Model.Input.CheckOutDate.ToString("MMM d, yyyy") · @nights night@(nights == 1 ? "" : "s") · @Model.Input.AdultCount adult@(Model.Input.AdultCount == 1 ? "" : "s")@if (Model.Input.ChildCount > 0) { <text>, @Model.Input.ChildCount child@(Model.Input.ChildCount == 1 ? "" : "ren")</text> }</p>
+        <p>@Model.Input.CheckInDate.ToString("MMM d") to @Model.Input.CheckOutDate.ToString("MMM d, yyyy") | @nights night@(nights == 1 ? "" : "s") | @Model.Input.AdultCount adult@(Model.Input.AdultCount == 1 ? "" : "s")@if (Model.Input.ChildCount > 0) { <text>, @Model.Input.ChildCount child@(Model.Input.ChildCount == 1 ? "" : "ren")</text> }</p>
     </div>
     <a asp-page="Index" class="btn vpms-booking-secondary">New Search</a>
+</section>
+
+<section class="vpms-room-selection-brief" aria-label="Room selection confidence">
+    <article>
+        <span>Stay Window</span>
+        <strong>@Model.Input.CheckInDate.ToString("MMM d") - @Model.Input.CheckOutDate.ToString("MMM d, yyyy")</strong>
+    </article>
+    <article>
+        <span>Occupancy</span>
+        <strong>@Model.Input.AdultCount adult@(Model.Input.AdultCount == 1 ? "" : "s")@(Model.Input.ChildCount > 0 ? $", {Model.Input.ChildCount} child{(Model.Input.ChildCount == 1 ? "" : "ren")}" : "")</strong>
+    </article>
+    <article>
+        <span>Reservation Handling</span>
+        <strong>Hotel-reviewed request</strong>
+    </article>
 </section>
 
 @if (!Model.Setting.IsBookingEngineEnabled)
@@ -60,6 +75,7 @@ else
                             <span>@nights night@(nights == 1 ? "" : "s")</span>
                             <span>Direct hotel confirmation</span>
                         </div>
+                        <div class="vpms-room-confidence-note">Rate and availability are presented for request review before final hotel confirmation.</div>
                         @if (!string.IsNullOrWhiteSpace(room.LongDescription))
                         {
                             <p class="vpms-room-long">@room.LongDescription</p>
@@ -89,6 +105,7 @@ else
                            asp-route-promoCode="@Model.Input.PromoCode"
                            asp-route-roomTypeId="@room.RoomTypeId"
                            asp-route-ratePlanId="@room.RatePlanId">Select Room</a>
+                        <p class="vpms-booking-fineprint">No payment is collected when selecting this room.</p>
                     </aside>
                 </div>
             </article>

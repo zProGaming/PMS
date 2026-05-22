@@ -50,6 +50,15 @@
     </article>
 </section>
 
+<nav class="vpms-status-dock" aria-label="Reservation status filters">
+    <a class="@(Model.Status is null ? "active" : "")" asp-page="./Index" asp-route-Search="@Model.Search" asp-route-StayDate="@(Model.StayDate?.ToString("yyyy-MM-dd"))">All</a>
+    <a class="@(Model.Status == ReservationStatus.Reserved ? "active" : "")" asp-page="./Index" asp-route-Status="@ReservationStatus.Reserved" asp-route-Search="@Model.Search" asp-route-StayDate="@(Model.StayDate?.ToString("yyyy-MM-dd"))">Reserved</a>
+    <a class="@(Model.Status == ReservationStatus.CheckedIn ? "active" : "")" asp-page="./Index" asp-route-Status="@ReservationStatus.CheckedIn" asp-route-Search="@Model.Search" asp-route-StayDate="@(Model.StayDate?.ToString("yyyy-MM-dd"))">In House</a>
+    <a class="@(Model.Status == ReservationStatus.CheckedOut ? "active" : "")" asp-page="./Index" asp-route-Status="@ReservationStatus.CheckedOut" asp-route-Search="@Model.Search" asp-route-StayDate="@(Model.StayDate?.ToString("yyyy-MM-dd"))">Checked Out</a>
+    <a class="@(Model.Status == ReservationStatus.NoShow ? "active" : "")" asp-page="./Index" asp-route-Status="@ReservationStatus.NoShow" asp-route-Search="@Model.Search" asp-route-StayDate="@(Model.StayDate?.ToString("yyyy-MM-dd"))">No Show</a>
+    <a class="@(Model.Status == ReservationStatus.Cancelled ? "active" : "")" asp-page="./Index" asp-route-Status="@ReservationStatus.Cancelled" asp-route-Search="@Model.Search" asp-route-StayDate="@(Model.StayDate?.ToString("yyyy-MM-dd"))">Cancelled</a>
+</nav>
+
 <form method="get" class="vpms-filter-bar">
     <div>
         <label class="form-label" for="reservationSearch">Search</label>

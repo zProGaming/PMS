@@ -7,6 +7,7 @@
     var balanceTone = Model.Folio.Balance > 0 ? "danger" : Model.Folio.Balance < 0 ? "warning" : "positive";
     var chargeCount = Model.Folio.Items.Count;
     var paymentCount = Model.Folio.Payments.Count;
+    var settlementLabel = Model.Folio.Balance == 0 ? "Settlement clear" : Model.Folio.Balance > 0 ? "Collect before checkout" : "Review credit balance";
 }
 
 <section class="vpms-ops-hero vpms-folio-hero">
@@ -53,6 +54,21 @@
         <span>Stay Dates</span>
         <strong>@(Model.Folio.Reservation?.ArrivalDate.ToString("MMM d") ?? "-")</strong>
         <small>to @(Model.Folio.Reservation?.DepartureDate.ToString("MMM d, yyyy") ?? "-")</small>
+    </article>
+</section>
+
+<section class="vpms-control-brief vpms-ledger-brief">
+    <article class="@balanceTone">
+        <span>Settlement Position</span>
+        <strong>@settlementLabel</strong>
+    </article>
+    <article>
+        <span>Posting Trace</span>
+        <strong>@chargeCount charge@(chargeCount == 1 ? "" : "s") reviewed</strong>
+    </article>
+    <article>
+        <span>Cashier Trace</span>
+        <strong>@paymentCount payment@(paymentCount == 1 ? "" : "s") recorded</strong>
     </article>
 </section>
 

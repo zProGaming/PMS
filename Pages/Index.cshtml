@@ -10,6 +10,9 @@
     var roomRevenueShare = Share(Model.RoomRevenueToday, revenueBase);
     var fbRevenueShare = Share(Model.FoodBeverageRevenueToday, revenueBase);
     var banquetRevenueShare = Share(Model.BanquetRevenueToday, revenueBase);
+    var roomReadinessHeadline = readinessPercent >= 80 ? "Protect ready rooms" : readinessPercent >= 55 ? "Tighten turnaround" : "Escalate turnover";
+    var revenueHeadline = Model.TotalRevenueToday > 0 ? "Revenue is posting" : "Revenue setup pending";
+    var serviceHeadline = riskCount <= 0 ? "Controls are calm" : riskCount <= 5 ? "Watch open signals" : "Management attention";
 }
 
 @functions {
@@ -84,6 +87,24 @@
             <span>Control Status</span>
             <strong>@RiskLabel(riskCount)</strong>
             <small>@riskCount open signal(s)</small>
+        </article>
+    </section>
+
+    <section class="vpms-command-brief" aria-label="Operating brief">
+        <article>
+            <span>Rooms Focus</span>
+            <strong>@roomReadinessHeadline</strong>
+            <p>@readinessPercent.ToString("0.#")% readiness with @Model.DirtyRooms dirty room@(Model.DirtyRooms == 1 ? "" : "s") and @Model.OutOfOrderRooms out of order.</p>
+        </article>
+        <article>
+            <span>Revenue Focus</span>
+            <strong>@revenueHeadline</strong>
+            <p>@Model.TotalRevenueToday.ToString("C0") posted today across rooms, F&amp;B, and banquet outlets.</p>
+        </article>
+        <article class="@RiskTone(riskCount)">
+            <span>Control Focus</span>
+            <strong>@serviceHeadline</strong>
+            <p>@riskCount open signal@(riskCount == 1 ? "" : "s") across approvals, folios, service, stock, and insights.</p>
         </article>
     </section>
 

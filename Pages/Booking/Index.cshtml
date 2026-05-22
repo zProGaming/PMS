@@ -19,12 +19,31 @@
             <span>Secure request handling</span>
             <span>Hotel-reviewed confirmation</span>
         </div>
+        <div class="vpms-booking-signature">
+            <article>
+                <span>Hotel direct</span>
+                <strong>@hotelName</strong>
+            </article>
+            <article>
+                <span>Payment</span>
+                <strong>No online charge yet</strong>
+            </article>
+            <article>
+                <span>Response</span>
+                <strong>Reviewed by reservations</strong>
+            </article>
+        </div>
     </div>
 
     <div class="vpms-booking-search-card">
         <div class="vpms-booking-search-header">
             <span>@hotelName</span>
             <strong>Find Your Stay</strong>
+        </div>
+        <div class="vpms-booking-stepper" aria-label="Booking flow">
+            <span class="active">Search</span>
+            <span>Rooms</span>
+            <span>Guest Details</span>
         </div>
 
         @if (!Model.Setting.IsBookingEngineEnabled)

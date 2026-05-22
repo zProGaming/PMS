@@ -17,9 +17,38 @@
         .Distinct(StringComparer.OrdinalIgnoreCase)
         .ToList();
     var primaryRole = roles.FirstOrDefault() ?? "Authorized User";
-    var roleLabel = roles.Count > 1 ? $"{primaryRole} +{roles.Count - 1}" : primaryRole;
+    var roleDisplayNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["SystemAdmin"] = "Global Admin",
+        ["GeneralManager"] = "General Manager",
+        ["FrontOfficeManager"] = "Front Office Manager",
+        ["FrontDesk"] = "Front Desk",
+        ["HousekeepingSupervisor"] = "Housekeeping Supervisor",
+        ["Housekeeper"] = "Housekeeper",
+        ["FinanceManager"] = "Finance Manager",
+        ["Cashier"] = "Cashier",
+        ["FBManager"] = "F&B Manager",
+        ["FBServer"] = "F&B Server",
+        ["FBCashier"] = "F&B Cashier",
+        ["KitchenStaff"] = "Kitchen Staff",
+        ["Chef"] = "Chef",
+        ["SalesManager"] = "Sales Manager",
+        ["BanquetManager"] = "Banquet Manager",
+        ["RevenueManager"] = "Revenue Manager",
+        ["PurchasingManager"] = "Purchasing Manager",
+        ["InventoryManager"] = "Inventory Manager",
+        ["HRManager"] = "HR Manager",
+        ["Authorized User"] = "Authorized User"
+    };
+    var primaryRoleLabel = roleDisplayNames.TryGetValue(primaryRole, out var friendlyRole) ? friendlyRole : primaryRole;
+    var roleLabel = roles.Count > 1 ? $"{primaryRoleLabel} +{roles.Count - 1}" : primaryRoleLabel;
     var companyName = User.FindFirst("Vantage.CompanyName")?.Value;
-    var accountContext = string.IsNullOrWhiteSpace(companyName) ? roleLabel : $"{roleLabel} - {companyName}";
+    var companyCode = User.FindFirst("Vantage.CompanyCode")?.Value;
+    var accountContext = string.IsNullOrWhiteSpace(companyName)
+        ? roleLabel
+        : string.IsNullOrWhiteSpace(companyCode)
+            ? $"{roleLabel} | {companyName}"
+            : $"{roleLabel} | {companyCode}";
 
     <div class="vpms-user-area">
         <a class="vpms-notification-link" asp-area="" asp-page="/System/Notifications/Index" aria-label="System notifications">
@@ -30,6 +59,10 @@
             <span class="vpms-user-copy">
                 <strong>@displayName</strong>
                 <small>@accountContext</small>
+                @if (!string.IsNullOrWhiteSpace(companyName))
+                {
+                    <em>@companyName</em>
+                }
             </span>
         </a>
         <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })">

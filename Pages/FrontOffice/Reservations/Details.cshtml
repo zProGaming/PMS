@@ -7,6 +7,15 @@
     var statusClass = Model.Reservation.Status.ToString().ToLowerInvariant();
     var nights = Math.Max(1, (Model.Reservation.DepartureDate.Date - Model.Reservation.ArrivalDate.Date).Days);
     var hasFolio = Model.FolioId is not null;
+    var nextAction = Model.Reservation.Status switch
+    {
+        ReservationStatus.Reserved => "Confirm room assignment and check in when the guest arrives.",
+        ReservationStatus.CheckedIn => "Review folio balance and prepare checkout controls.",
+        ReservationStatus.CheckedOut => "Stay is completed. Review final folio or guest history.",
+        ReservationStatus.Cancelled => "Reservation is cancelled. No operational action is pending.",
+        ReservationStatus.NoShow => "No-show recorded. Review policy charges if applicable.",
+        _ => "Review reservation status and next operational control."
+    };
 }
 
 <section class="vpms-ops-hero vpms-reservation-control">
@@ -57,6 +66,21 @@
         <span>Folio</span>
         <strong>@(hasFolio ? "Ready" : "Pending")</strong>
         <small>@(hasFolio ? "Posting enabled" : "Create on check-in")</small>
+    </article>
+</section>
+
+<section class="vpms-control-brief">
+    <article>
+        <span>Next Action</span>
+        <strong>@nextAction</strong>
+    </article>
+    <article class="@(Model.Reservation.RoomId is null ? "warning" : "positive")">
+        <span>Room Assignment</span>
+        <strong>@(Model.Reservation.RoomId is null ? "Needs rooming" : "Room assigned")</strong>
+    </article>
+    <article class="@(hasFolio ? "positive" : "warning")">
+        <span>Billing Control</span>
+        <strong>@(hasFolio ? "Folio active" : "Folio pending")</strong>
     </article>
 </section>
 
