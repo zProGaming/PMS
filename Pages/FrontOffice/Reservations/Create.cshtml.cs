@@ -32,9 +32,37 @@ public class CreateModel(ApplicationDbContext context, RevenueManagementService 
 
     public decimal? SuggestedRate { get; set; }
 
-    public async Task<IActionResult> OnGetAsync()
+    public async Task<IActionResult> OnGetAsync(int? roomId, DateTime? arrivalDate, DateTime? departureDate)
     {
-        await LoadSelectListsAsync();
+        if (arrivalDate.HasValue)
+        {
+            Reservation.ArrivalDate = arrivalDate.Value.Date;
+        }
+
+        if (departureDate.HasValue && departureDate.Value.Date > Reservation.ArrivalDate.Date)
+        {
+            Reservation.DepartureDate = departureDate.Value.Date;
+        }
+        else if (Reservation.DepartureDate <= Reservation.ArrivalDate)
+        {
+            Reservation.DepartureDate = Reservation.ArrivalDate.AddDays(1);
+        }
+
+        if (roomId.HasValue)
+        {
+            var room = await _context.Rooms
+                .AsNoTracking()
+                .FirstOrDefaultAsync(room => room.Id == roomId.Value && room.IsActive);
+
+            if (room is not null)
+            {
+                Reservation.RoomId = room.Id;
+                Reservation.PropertyId = room.PropertyId;
+                Reservation.RoomTypeId = room.RoomTypeId;
+            }
+        }
+
+        await LoadSelectListsAsync(selectedRoom: Reservation.RoomId);
         return Page();
     }
 

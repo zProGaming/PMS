@@ -1,146 +1,271 @@
 @page
 @model Vantage.PMS.Pages.FrontOffice.RoomRack.IndexModel
+@using Vantage.PMS.Models.FrontOffice
 
 @{
-    ViewData["Title"] = "Room Rack";
+    ViewData["Title"] = "Room Calendar";
+    var rangeEnd = Model.EffectiveEndDateExclusive.AddDays(-1);
+    var calendarStyle = $"--vpms-calendar-days:{Model.DateColumns.Count};";
+    var dateRangeLabel = $"{Model.EffectiveStartDate:MMM d} - {rangeEnd:MMM d, yyyy}";
+    var startDateValue = Model.EffectiveStartDate.ToString("yyyy-MM-dd");
 }
 
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
-        <li class="breadcrumb-item"><a asp-page="/FrontOffice/Index">Front Office</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Room Rack</li>
-    </ol>
-</nav>
-
-<div class="page-header">
+<section class="vpms-ops-hero vpms-room-calendar-hero">
     <div>
-        <div class="page-kicker">Front Office</div>
-        <h1 class="page-title">Room Rack</h1>
-        <p class="page-subtitle">Physical rooms only. Pseudo rooms and paymaster accounts are excluded from occupancy and room inventory.</p>
+        <div class="page-kicker">Front Office / Housekeeping Grid</div>
+        <h1 class="page-title">Room Calendar</h1>
+        <p class="page-subtitle">A date-range command view for physical room occupancy, arrivals, departures, housekeeping attention, and room inventory controls.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">@dateRangeLabel</span>
+            <span class="vpms-mini-chip">@Model.TotalRooms physical rooms</span>
+            <span class="vpms-mini-chip">@Model.AverageOccupancyInRange.ToString("N1")% average occupancy</span>
+        </div>
     </div>
-    <div class="d-flex flex-wrap gap-2">
+    <div class="vpms-hero-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/Housekeeping/Index">Housekeeping</a>
+        <a class="btn vpms-btn-secondary" href="@Model.BuildRouteFor(DateTime.Today)">Today</a>
         <a class="btn vpms-btn-primary" asp-page="/FrontOffice/Reservations/Create">New Reservation</a>
-        <a class="btn vpms-btn-secondary" asp-page="/Housekeeping/Index">Housekeeping Board</a>
     </div>
-</div>
+</section>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-6 col-xl">
-        <div class="kpi-card">
-            <div class="kpi-label">Total Rooms</div>
-            <div class="kpi-value">@Model.TotalRooms</div>
-            <div class="kpi-note">Active physical inventory</div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl">
-        <div class="kpi-card">
-            <div class="kpi-label">Available</div>
-            <div class="kpi-value">@Model.AvailableRooms</div>
-            <div class="kpi-note">Available, clean, or inspected</div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl">
-        <div class="kpi-card">
-            <div class="kpi-label">Occupied</div>
-            <div class="kpi-value">@Model.OccupiedRooms</div>
-            <div class="kpi-note">Current in-house rooms</div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl">
-        <div class="kpi-card">
-            <div class="kpi-label">Dirty</div>
-            <div class="kpi-value">@Model.DirtyRooms</div>
-            <div class="kpi-note">Turnover attention</div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl">
-        <div class="kpi-card">
-            <div class="kpi-label">Unavailable</div>
-            <div class="kpi-value">@Model.OutOfOrderRooms</div>
-            <div class="kpi-note">Maintenance or out of order</div>
-        </div>
-    </div>
-</div>
+<section class="vpms-calendar-command-strip" aria-label="Room calendar operating pulse">
+    <article>
+        <span>Available now</span>
+        <strong>@Model.AvailableRooms</strong>
+        <small>Ready, clean, or inspected</small>
+    </article>
+    <article>
+        <span>Occupied now</span>
+        <strong>@Model.OccupiedRooms</strong>
+        <small>Checked-in rooms</small>
+    </article>
+    <article class="@(Model.ArrivalsInRange > 0 ? "attention" : "")">
+        <span>Arrivals</span>
+        <strong>@Model.ArrivalsInRange</strong>
+        <small>In selected range</small>
+    </article>
+    <article>
+        <span>Departures</span>
+        <strong>@Model.DeparturesInRange</strong>
+        <small>In selected range</small>
+    </article>
+    <article class="@(Model.OpenHousekeepingTasks > 0 ? "warning" : "positive")">
+        <span>HK attention</span>
+        <strong>@Model.OpenHousekeepingTasks</strong>
+        <small>Open room tasks</small>
+    </article>
+    <article class="@(Model.OutOfOrderRooms > 0 ? "danger" : "")">
+        <span>Blocked rooms</span>
+        <strong>@Model.OutOfOrderRooms</strong>
+        <small>OOO / maintenance</small>
+    </article>
+</section>
 
-@if (Model.FloorGroups.Count == 0)
+<section class="vpms-card vpms-calendar-filter-card">
+    <form method="get" class="vpms-calendar-filters">
+        <div>
+            <label class="form-label" asp-for="Search">Search</label>
+            <input class="form-control" asp-for="Search" placeholder="Room, room type, guest, confirmation" />
+        </div>
+        <div>
+            <label class="form-label" asp-for="StartDate">Start date</label>
+            @Html.Raw($"<input class=\"form-control\" id=\"StartDate\" name=\"StartDate\" type=\"date\" value=\"{startDateValue}\" />")
+        </div>
+        <div>
+            <label class="form-label" asp-for="Days">Range</label>
+            <select class="form-select" asp-for="Days">
+                <option value="7">7 days</option>
+                <option value="14">14 days</option>
+                <option value="21">21 days</option>
+                <option value="30">30 days</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label" asp-for="RoomTypeId">Room type</label>
+            <select class="form-select" asp-for="RoomTypeId" asp-items="Model.RoomTypeOptions">
+                <option value="">All room types</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label" asp-for="Status">Room status</label>
+            <select class="form-select" asp-for="Status" asp-items="Model.StatusOptions">
+                <option value="">All statuses</option>
+            </select>
+        </div>
+        <div class="vpms-calendar-filter-actions">
+            <button type="submit" class="btn vpms-btn-primary">Apply</button>
+            <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/RoomRack/Index">Reset</a>
+        </div>
+    </form>
+</section>
+
+<section class="vpms-calendar-legend-panel" aria-label="Room calendar legend">
+    <div class="vpms-calendar-period-nav">
+        <a class="btn btn-sm vpms-btn-secondary" href="@Model.BuildRouteFor(Model.EffectiveStartDate.AddDays(-Model.Days))">Previous</a>
+        <strong>@dateRangeLabel</strong>
+        <a class="btn btn-sm vpms-btn-secondary" href="@Model.BuildRouteFor(Model.EffectiveStartDate.AddDays(Model.Days))">Next</a>
+    </div>
+    <div class="vpms-calendar-legend">
+        <span><i class="vpms-legend-dot reserved"></i> Reserved</span>
+        <span><i class="vpms-legend-dot pending"></i> Pending</span>
+        <span><i class="vpms-legend-dot checkedin"></i> In-house</span>
+        <span><i class="vpms-legend-dot checkedout"></i> Checked out</span>
+        <span><i class="vpms-legend-dot noshow"></i> No-show</span>
+        <span><i class="vpms-legend-dot today"></i> Today</span>
+        <span><i class="vpms-legend-dot task"></i> HK task</span>
+        <span><i class="vpms-legend-dot blocked"></i> OOO / Maintenance</span>
+    </div>
+</section>
+
+@if (Model.RoomTypeGroups.Count == 0)
 {
-    <section class="vpms-empty-state">
-        <strong>No physical rooms are configured yet.</strong>
-        <span>Create rooms from Admin setup before using the Room Rack.</span>
+    <section class="vpms-empty-state vpms-calendar-empty">
+        <strong>No rooms match this calendar view.</strong>
+        <span>Adjust the filters, create active physical rooms, or seed demo data to populate the room calendar. Pseudo rooms and paymaster accounts are intentionally excluded from occupancy inventory.</span>
+        <a class="btn vpms-btn-primary" asp-page="/FrontOffice/Rooms/Create">Create Room</a>
     </section>
 }
 else
 {
-    <div class="d-flex flex-wrap gap-2 mb-3">
-        <span class="status-badge status-available">Available</span>
-        <span class="status-badge status-clean">Clean</span>
-        <span class="status-badge status-inspected">Inspected</span>
-        <span class="status-badge status-occupied">Occupied</span>
-        <span class="status-badge status-dirty">Dirty</span>
-        <span class="status-badge status-maintenance">Maintenance</span>
-        <span class="status-badge status-outoforder">Out of Order</span>
-    </div>
-
-    <div class="d-grid gap-4">
-        @foreach (var floor in Model.FloorGroups)
-        {
-            <section class="vpms-card p-3">
-                <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
-                    <div>
-                        <h2 class="h5 mb-1">Floor @floor.Floor</h2>
-                        <div class="text-muted small">@floor.Rooms.Count room@(floor.Rooms.Count == 1 ? "" : "s")</div>
-                    </div>
+    <section class="vpms-room-calendar-shell" aria-label="Interactive room calendar">
+        <div class="vpms-room-calendar-grid" style="@calendarStyle">
+            <div class="vpms-calendar-header-row">
+                <div class="vpms-calendar-room-head">
+                    <span>Physical Rooms</span>
+                    <small>Pseudo rooms excluded from occupancy</small>
                 </div>
-                <div class="room-rack">
-                    @foreach (var room in floor.Rooms)
-                    {
-                        var roomStatusClass = room.Status.ToString().ToLowerInvariant();
-                        <article class="room-card @roomStatusClass">
-                            <div class="d-flex justify-content-between align-items-start gap-2">
-                                <div>
-                                    <div class="fw-bold">Room @room.RoomNumber</div>
-                                    <div class="text-muted small">@room.RoomTypeName</div>
-                                </div>
-                                <span class="status-badge status-@roomStatusClass">@room.Status</span>
-                            </div>
+                @foreach (var day in Model.DateColumns)
+                {
+                    var dayClass = day.IsToday ? "is-today" : day.IsWeekend ? "is-weekend" : string.Empty;
+                    <div class="vpms-calendar-day @dayClass">
+                        <span>@day.Date.ToString("ddd")</span>
+                        <strong>@day.Date.ToString("MMM d")</strong>
+                        <small>@day.AvailableRooms available / @day.OccupancyPercentage.ToString("N1")%</small>
+                    </div>
+                }
+            </div>
 
-                            <div class="small text-muted mt-2">@room.PropertyName</div>
-
-                            @if (!string.IsNullOrWhiteSpace(room.GuestName))
-                            {
-                                <div class="mt-3 p-2 rounded border bg-light">
-                                    <div class="fw-semibold">@room.GuestName</div>
-                                    <div class="small text-muted">
-                                        @room.ConfirmationNumber
-                                        @if (room.ArrivalDate is not null && room.DepartureDate is not null)
-                                        {
-                                            <span> - @room.ArrivalDate.Value.ToString("MMM d") - @room.DepartureDate.Value.ToString("MMM d")</span>
-                                        }
-                                    </div>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="small text-muted mt-3">No active in-house reservation linked.</div>
-                            }
-
-                            @if (!string.IsNullOrWhiteSpace(room.StatusNotes))
-                            {
-                                <div class="small mt-2">@room.StatusNotes</div>
-                            }
-
-                            <div class="d-flex flex-wrap gap-2 mt-3">
-                                <a class="btn btn-sm vpms-btn-secondary" asp-page="/Housekeeping/Rooms/UpdateStatus" asp-route-id="@room.RoomId">Update Status</a>
-                                @if (room.ReservationId is not null)
+            @foreach (var group in Model.RoomTypeGroups)
+            {
+                <details class="vpms-calendar-type-group" open>
+                    <summary class="vpms-calendar-type-row">
+                        <div class="vpms-calendar-type-title">
+                            <span>@group.RoomTypeName</span>
+                            <small>@group.Rooms.Count physical rooms</small>
+                        </div>
+                        @foreach (var summary in group.DateSummaries)
+                        {
+                            var summaryClass = summary.IsToday ? "is-today" : string.Empty;
+                            <div class="vpms-calendar-type-day @summaryClass">
+                                <strong>@summary.AvailableRooms</strong>
+                                <span>@summary.DisplayRate.ToString("C0")</span>
+                                @if (summary.IsStopSell)
                                 {
-                                    <a class="btn btn-sm vpms-btn-secondary" asp-page="/FrontOffice/Reservations/Details" asp-route-id="@room.ReservationId">Reservation</a>
+                                    <small>Stop sell</small>
+                                }
+                                else
+                                {
+                                    <small>@summary.OccupancyPercentage.ToString("N0")% occ</small>
                                 }
                             </div>
-                        </article>
+                        }
+                    </summary>
+
+                    @foreach (var room in group.Rooms)
+                    {
+                        var roomStatusClass = room.Status.ToString().ToLowerInvariant();
+                        var searchText = $"{room.RoomNumber} {room.RoomTypeName} {room.PropertyName} {string.Join(' ', room.ReservationBars.Select(bar => bar.GuestName))}";
+                        <div class="vpms-calendar-room-row status-@roomStatusClass" data-room-search="@searchText">
+                            <div class="vpms-calendar-room-label">
+                                <div>
+                                    <strong>Room @room.RoomNumber</strong>
+                                    <span>@room.RoomTypeName - Floor @room.Floor</span>
+                                </div>
+                                <div class="vpms-room-label-meta">
+                                    <span class="status-badge status-@roomStatusClass">@IndexModel.FormatEnum(room.Status.ToString())</span>
+                                    @if (room.UrgentTaskCount > 0)
+                                    {
+                                        <span class="vpms-calendar-alert-pill danger">@room.UrgentTaskCount urgent</span>
+                                    }
+                                    else if (room.OpenTaskCount > 0)
+                                    {
+                                        <span class="vpms-calendar-alert-pill">@room.OpenTaskCount task</span>
+                                    }
+                                </div>
+                            </div>
+
+                            @foreach (var cell in room.Cells)
+                            {
+                                var arrival = cell.Date.ToString("yyyy-MM-dd");
+                                var departure = cell.Date.AddDays(1).ToString("yyyy-MM-dd");
+                                var cellTitleDate = cell.Date.ToString("MMM d, yyyy");
+                                var cellClass = string.Join(" ", new[]
+                                {
+                                    cell.IsToday ? "is-today" : string.Empty,
+                                    cell.IsUnavailable ? "is-unavailable" : string.Empty,
+                                    cell.IsStopSell ? "is-stop-sell" : string.Empty,
+                                    cell.HasOpenTask ? "has-task" : string.Empty,
+                                    cell.HasUrgentTask ? "has-urgent-task" : string.Empty
+                                }.Where(value => !string.IsNullOrWhiteSpace(value)));
+                                <a class="vpms-calendar-cell @cellClass"
+                                   asp-page="/FrontOffice/Reservations/Create"
+                                   asp-route-roomId="@room.RoomId"
+                                   asp-route-arrivalDate="@arrival"
+                                   asp-route-departureDate="@departure"
+                                   title="Create reservation for Room @room.RoomNumber on @cellTitleDate">
+                                    @if (cell.HasArrival)
+                                    {
+                                        <span class="vpms-cell-marker arrival">CI</span>
+                                    }
+                                    @if (cell.HasDeparture)
+                                    {
+                                        <span class="vpms-cell-marker departure">CO</span>
+                                    }
+                                    @if (cell.HasOpenTask)
+                                    {
+                                        <span class="vpms-cell-marker task">HK</span>
+                                    }
+                                    @if (cell.IsStopSell)
+                                    {
+                                        <span class="vpms-cell-marker stop">Stop</span>
+                                    }
+                                </a>
+                            }
+
+                            @if (room.ReservationBars.Count > 0)
+                            {
+                                <div class="vpms-calendar-reservation-layer">
+                                    @foreach (var bar in room.ReservationBars)
+                                    {
+                                        var barStatusClass = bar.Status.ToString().ToLowerInvariant();
+                                        var barClass = $"{barStatusClass} {(bar.IsContinuedBefore ? "continues-before" : "")} {(bar.IsContinuedAfter ? "continues-after" : "")}";
+                                        var stayTitle = $"{bar.GuestName} - {bar.ConfirmationNumber} - {bar.ArrivalDate:MMM d} to {bar.DepartureDate:MMM d}";
+                                        <a class="vpms-stay-bar @barClass"
+                                           asp-page="/FrontOffice/Reservations/Details"
+                                           asp-route-id="@bar.ReservationId"
+                                           style="grid-column: @bar.StartOffset / span @bar.Span;"
+                                           title="@stayTitle">
+                                            <span>@bar.GuestName</span>
+                                            <small>@IndexModel.FormatEnum(bar.Status.ToString())</small>
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        </div>
                     }
-                </div>
-            </section>
-        }
-    </div>
+                </details>
+            }
+        </div>
+    </section>
 }
+
+<section class="vpms-card vpms-calendar-note">
+    <div>
+        <h2>Operational Notes</h2>
+        <p>This grid is designed for Front Office and Housekeeping coordination. It shows active physical rooms only, overlays reservations by stay dates, highlights room readiness risks, and links empty cells to a prefilled reservation workflow.</p>
+    </div>
+    <div class="vpms-calendar-note-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/Reservations/Index">Reservations</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Housekeeping/Tasks/Index">Housekeeping Tasks</a>
+    </div>
+</section>
