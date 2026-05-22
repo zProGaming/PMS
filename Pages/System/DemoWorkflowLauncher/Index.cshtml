@@ -2,31 +2,88 @@
 @model Vantage.PMS.Pages.System.DemoWorkflowLauncher.IndexModel
 @{
     ViewData["Title"] = "Demo Workflow Launcher";
+    var featuredItems = Model.Items.Take(6).ToList();
+    var operationsItems = Model.Items.Skip(6).Take(6).ToList();
+    var controlItems = Model.Items.Skip(12).ToList();
 }
 
-<div class="vpms-page-header">
+<section class="vpms-demo-stage">
     <div>
         <div class="page-kicker">Client Demo</div>
-        <h1 class="vpms-page-title">Demo Workflow Launcher</h1>
-        <p class="vpms-page-subtitle">Launch the major Vantage PMS demo flows from one polished control page.</p>
+        <h1 class="vpms-page-title">Guided Demo Command Deck</h1>
+        <p class="vpms-page-subtitle">A curated presenter surface for launching Vantage PMS workflows in a confident order, from command center to guest-facing and finance controls.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">@Model.Items.Count guided stops</span>
+            <span class="vpms-mini-chip">Client-safe sequence</span>
+            <span class="vpms-mini-chip">Philippine hospitality scope</span>
+        </div>
     </div>
     <div class="vpms-actions">
         <a class="btn vpms-btn-secondary" asp-page="/System/ClientDemoPackage/Index">Client Demo Package</a>
         <a class="btn vpms-btn-primary" asp-page="/Documents/Index">Printable Documents</a>
     </div>
-</div>
+</section>
 
-<div class="row g-4">
-    @foreach (var item in Model.Items)
-    {
-        <div class="col-md-6 col-xl-4">
-            <a class="vpms-module-card text-decoration-none h-100" href="@item.Url">
-                <div class="vpms-module-card-icon" aria-hidden="true"></div>
-                <div>
-                    <h2>@item.Title</h2>
-                    <p>@item.Description</p>
-                </div>
-            </a>
+<section class="vpms-product-proof-strip">
+    <article><span>01</span><strong>Start controlled</strong><p>Open the strongest dashboards before drilling into module details.</p></article>
+    <article><span>02</span><strong>Show real hotel flow</strong><p>Move from reservation, room status, folio, POS, and checkout support.</p></article>
+    <article><span>03</span><strong>Close with trust</strong><p>Finish on documents, AR, audit logs, and system health readiness.</p></article>
+</section>
+
+<section class="vpms-demo-launch-section">
+    <div class="vpms-card-header">
+        <div>
+            <h2>Recommended Opening Sequence</h2>
+            <p>Lead with the most polished operating views for owners, GMs, and front office managers.</p>
         </div>
-    }
-</div>
+    </div>
+    <div class="vpms-demo-launch-grid">
+        @foreach (var item in featuredItems)
+        {
+            <a class="vpms-demo-launch-card" href="@item.Url">
+                <span>Launch</span>
+                <strong>@item.Title</strong>
+                <p>@item.Description</p>
+            </a>
+        }
+    </div>
+</section>
+
+<section class="vpms-demo-launch-columns">
+    <div class="vpms-demo-launch-section">
+        <div class="vpms-card-header">
+            <div>
+                <h2>Operations and Commercial Flow</h2>
+                <p>Rooms, F&amp;B, banquet, revenue, booking, and guest experience surfaces.</p>
+            </div>
+        </div>
+        <div class="vpms-demo-launch-grid compact">
+            @foreach (var item in operationsItems)
+            {
+                <a class="vpms-demo-launch-card" href="@item.Url">
+                    <span>Open</span>
+                    <strong>@item.Title</strong>
+                    <p>@item.Description</p>
+                </a>
+            }
+        </div>
+    </div>
+    <div class="vpms-demo-launch-section">
+        <div class="vpms-card-header">
+            <div>
+                <h2>Controls and Proof Points</h2>
+                <p>Finance, AR, documents, auditability, and system readiness for pilot confidence.</p>
+            </div>
+        </div>
+        <div class="vpms-demo-launch-grid compact">
+            @foreach (var item in controlItems)
+            {
+                <a class="vpms-demo-launch-card" href="@item.Url">
+                    <span>Verify</span>
+                    <strong>@item.Title</strong>
+                    <p>@item.Description</p>
+                </a>
+            }
+        </div>
+    </div>
+</section>

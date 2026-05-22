@@ -11,6 +11,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  document.querySelectorAll("[data-vpms-confirm]").forEach((trigger) => {
+    trigger.addEventListener("click", (event) => {
+      const message = trigger.getAttribute("data-vpms-confirm");
+      if (message && !window.confirm(message)) {
+        event.preventDefault();
+      }
+    });
+  });
+
   const navIconMap = {
     "dashboard": "home",
     "executive dashboard": "chart",
@@ -109,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "department labor budgets": "chart",
     "service charge pools": "cash",
     "labor reports": "report",
-    "payroll import placeholder": "inbox",
+    "payroll import": "inbox",
     "group dashboard": "building",
     "organizations": "org",
     "consolidated reports": "report",
@@ -120,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "audit logs": "audit",
     "system health": "pulse",
     "qa checklist": "check",
-    "module qa stabilization": "check",
+    "module qa": "check",
     "admin": "shield",
     "properties": "building",
     "departments": "org",
@@ -129,9 +138,9 @@ document.addEventListener("DOMContentLoaded", () => {
     "settings": "gear",
     "system settings": "gear",
     "demo setup": "play",
-    "demo presentation": "screen",
-    "client demo package": "screen",
-    "demo workflow launcher": "play",
+    "presentation mode": "screen",
+    "client package": "screen",
+    "workflow launcher": "play",
     "error logs": "alert",
     "notifications": "request",
     "data validation issues": "pulse",
@@ -142,6 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const commandIconMap = {
     "support": "request",
+    "alerts": "request",
     "reports": "report",
     "room calendar": "calendar",
     "reservation": "plus",

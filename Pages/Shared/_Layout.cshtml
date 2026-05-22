@@ -88,7 +88,7 @@
                         <div class="vpms-property-label property-card-label">Company Context</div>
                         <div class="vpms-property-name property-card-name">@currentCompanyName</div>
                     </div>
-                    <span class="vpms-badge vpms-property-badge property-card-badge">@(isGlobalAdminCompany ? "Global" : "Trial")</span>
+                    <span class="vpms-badge vpms-property-badge property-card-badge">@(isGlobalAdminCompany ? "Global" : "Property")</span>
                     <div class="vpms-property-meta property-card-meta">Company Code: @currentCompanyCode</div>
                 </div>
 
@@ -367,7 +367,7 @@
             <header class="vpms-topbar app-topbar">
                 <div class="d-flex align-items-center gap-3">
                     <button class="btn btn-outline-secondary app-menu-button d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar">
-                        Menu
+                        Modules
                     </button>
                     <button class="btn vpms-back-button vpms-no-print" type="button" data-vpms-back-button aria-label="Go back to previous page">
                         Back
@@ -377,12 +377,21 @@
                         <time id="vpmsCurrentTime" class="vpms-current-time" datetime="@DateTime.Now.ToString("O")">@DateTime.Now.ToString("h:mm tt")</time>
                         <div id="vpmsCurrentDate" class="vpms-current-date">@DateTime.Now.ToString("dddd, MMM d, yyyy")</div>
                     </div>
+                    <div class="vpms-topbar-context" aria-label="Current workspace context">
+                        <span>Workspace</span>
+                        <strong>@currentCompanyName</strong>
+                        <small>@currentCompanyCode @(isGlobalAdminCompany ? "- Global Control" : "- Property Access")</small>
+                    </div>
                 </div>
                 <partial name="_LoginPartial" />
             </header>
 
             <nav class="vpms-commandbar app-commandbar" aria-label="Quick command bar">
-                <a class="vpms-command-item" asp-page="/System/Notifications/Index"><span class="vpms-command-icon"></span>Support</a>
+                <span class="vpms-commandbar-label">
+                    <strong>Quick Actions</strong>
+                    <small>Daily command shortcuts</small>
+                </span>
+                <a class="vpms-command-item" asp-page="/System/Notifications/Index"><span class="vpms-command-icon"></span>Alerts</a>
                 @if (canAccessReports)
                 {
                     <a class="vpms-command-item" asp-page="/Reports/Center"><span class="vpms-command-icon"></span>Reports</a>

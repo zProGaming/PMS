@@ -2,69 +2,96 @@
 @model Vantage.PMS.Pages.Booking.RoomsModel
 @{
     ViewData["Title"] = "Select Room";
+    var nights = Math.Max(1, (Model.Input.CheckOutDate.Date - Model.Input.CheckInDate.Date).Days);
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<section class="vpms-booking-flow-header">
     <div>
-        <h1 class="h3 mb-1">Select Room</h1>
-        <div class="text-muted">@Model.Input.CheckInDate.ToString("yyyy-MM-dd") - @Model.Input.CheckOutDate.ToString("yyyy-MM-dd"), @Model.Input.AdultCount adult(s), @Model.Input.ChildCount child(ren)</div>
+        <div class="vpms-booking-kicker">Room Selection</div>
+        <h1>Choose Your Room</h1>
+        <p>@Model.Input.CheckInDate.ToString("MMM d") to @Model.Input.CheckOutDate.ToString("MMM d, yyyy") · @nights night@(nights == 1 ? "" : "s") · @Model.Input.AdultCount adult@(Model.Input.AdultCount == 1 ? "" : "s")@if (Model.Input.ChildCount > 0) { <text>, @Model.Input.ChildCount child@(Model.Input.ChildCount == 1 ? "" : "ren")</text> }</p>
     </div>
-    <a asp-page="Index" class="btn btn-outline-secondary">New Search</a>
-</div>
+    <a asp-page="Index" class="btn vpms-booking-secondary">New Search</a>
+</section>
 
 @if (!Model.Setting.IsBookingEngineEnabled)
 {
-    <div class="alert alert-warning">Online booking is currently unavailable. Please contact the hotel directly.</div>
+    <div class="vpms-booking-unavailable">Online booking is currently unavailable. Please contact the hotel directly.</div>
 }
 else if (Model.AvailableRooms.Count == 0)
 {
-    <div class="alert alert-info">No available room types were found for the selected stay dates.</div>
+    <section class="vpms-booking-empty">
+        <span>No available rooms</span>
+        <h2>No room types matched your selected stay.</h2>
+        <p>Try a different date range, adjust guest count, or contact the hotel for direct assistance.</p>
+        <a asp-page="Index" class="btn vpms-booking-primary">Start a New Search</a>
+    </section>
 }
 else
 {
-    <div class="row g-3">
+    <div class="vpms-room-merchandising">
         @foreach (var room in Model.AvailableRooms)
         {
-            <div class="col-lg-6">
-                <div class="card h-100">
+            <article class="vpms-room-offer">
+                <div class="vpms-room-offer-media">
                     @if (!string.IsNullOrWhiteSpace(room.ImageUrl))
                     {
-                        <img src="@room.ImageUrl" class="card-img-top" alt="@room.DisplayName" style="max-height: 220px; object-fit: cover;" />
+                        <img src="@room.ImageUrl" alt="@room.DisplayName" />
                     }
-                    <div class="card-body d-flex flex-column">
-                        <h2 class="h5">@room.DisplayName</h2>
-                        <p class="text-muted">@room.ShortDescription</p>
-                        <dl class="row small">
-                            <dt class="col-6">Max occupancy</dt>
-                            <dd class="col-6">@room.MaxOccupancy</dd>
-                            <dt class="col-6">Rate per night</dt>
-                            <dd class="col-6">@room.RoomRate.ToString("C")</dd>
-                            <dt class="col-6">Stay total</dt>
-                            <dd class="col-6">@room.TotalRoomAmount.ToString("C")</dd>
+                    else
+                    {
+                        <div class="vpms-room-image-fallback">
+                            <span>Vantage PMS</span>
+                            <strong>@room.DisplayName</strong>
+                        </div>
+                    }
+                    @if (room.DiscountAmount > 0)
+                    {
+                        <span class="vpms-room-offer-badge">Promo Applied</span>
+                    }
+                </div>
+                <div class="vpms-room-offer-body">
+                    <div class="vpms-room-offer-main">
+                        <div class="vpms-booking-kicker">Recommended Room Type</div>
+                        <h2>@room.DisplayName</h2>
+                        <p>@(string.IsNullOrWhiteSpace(room.ShortDescription) ? "A carefully prepared room option for your selected stay." : room.ShortDescription)</p>
+                        <div class="vpms-room-inclusions">
+                            <span>Up to @room.MaxOccupancy guests</span>
+                            <span>@nights night@(nights == 1 ? "" : "s")</span>
+                            <span>Direct hotel confirmation</span>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(room.LongDescription))
+                        {
+                            <p class="vpms-room-long">@room.LongDescription</p>
+                        }
+                    </div>
+                    <aside class="vpms-room-rate-panel">
+                        <span>From</span>
+                        <strong>@room.RoomRate.ToString("C")</strong>
+                        <small>per night</small>
+                        <div class="vpms-rate-breakdown">
+                            <div><span>Room total</span><strong>@room.RoomTotalBeforeDiscount.ToString("C")</strong></div>
                             @if (room.DiscountAmount > 0)
                             {
-                                <dt class="col-6">Promo discount</dt>
-                                <dd class="col-6">@room.DiscountAmount.ToString("C")</dd>
+                                <div><span>Promo discount</span><strong>-@room.DiscountAmount.ToString("C")</strong></div>
                             }
+                            <div class="total"><span>Stay total</span><strong>@room.TotalRoomAmount.ToString("C")</strong></div>
                             @if (room.DepositRequired)
                             {
-                                <dt class="col-6">Deposit required</dt>
-                                <dd class="col-6">@room.DepositAmount.ToString("C")</dd>
+                                <div><span>Deposit guidance</span><strong>@room.DepositAmount.ToString("C")</strong></div>
                             }
-                        </dl>
-                        <div class="mt-auto">
-                            <a class="btn btn-primary" asp-page="GuestDetails"
-                               asp-route-checkInDate="@Model.Input.CheckInDate.ToString("yyyy-MM-dd")"
-                               asp-route-checkOutDate="@Model.Input.CheckOutDate.ToString("yyyy-MM-dd")"
-                               asp-route-adultCount="@Model.Input.AdultCount"
-                               asp-route-childCount="@Model.Input.ChildCount"
-                               asp-route-promoCode="@Model.Input.PromoCode"
-                               asp-route-roomTypeId="@room.RoomTypeId"
-                               asp-route-ratePlanId="@room.RatePlanId">Select</a>
                         </div>
-                    </div>
+                        <a class="btn vpms-booking-primary w-100" asp-page="GuestDetails"
+                           asp-route-checkInDate="@Model.Input.CheckInDate.ToString("yyyy-MM-dd")"
+                           asp-route-checkOutDate="@Model.Input.CheckOutDate.ToString("yyyy-MM-dd")"
+                           asp-route-adultCount="@Model.Input.AdultCount"
+                           asp-route-childCount="@Model.Input.ChildCount"
+                           asp-route-promoCode="@Model.Input.PromoCode"
+                           asp-route-roomTypeId="@room.RoomTypeId"
+                           asp-route-ratePlanId="@room.RatePlanId">Select Room</a>
+                    </aside>
                 </div>
-            </div>
+            </article>
         }
     </div>
 }

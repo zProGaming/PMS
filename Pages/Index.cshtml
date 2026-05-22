@@ -39,13 +39,18 @@
 }
 
 <div class="vpms-dashboard vpms-dashboard-refined">
-    <header class="vpms-dashboard-refined-header">
+    <header class="vpms-ops-hero vpms-dashboard-hero">
         <div>
             <div class="page-kicker">Command Center</div>
             <h1 class="page-title">Dashboard</h1>
-            <p class="page-subtitle">A focused operating snapshot for rooms, revenue, service, and management risk.</p>
+            <p class="page-subtitle">Executive operating command for rooms, revenue, service readiness, and management risk.</p>
+            <div class="vpms-hero-chip-row">
+                <span class="vpms-mini-chip">Business date @Model.BusinessDate.ToString("MMM d, yyyy")</span>
+                <span class="vpms-mini-chip">@Model.TotalRooms active rooms</span>
+                <span class="vpms-mini-chip">@riskCount open signal@(riskCount == 1 ? "" : "s")</span>
+            </div>
         </div>
-        <div class="vpms-dashboard-refined-actions">
+        <div class="vpms-hero-actions vpms-dashboard-refined-actions">
             <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/RoomRack/Index">Room Rack</a>
             <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/Reservations/Create">New Reservation</a>
             <a class="btn vpms-btn-primary" asp-page="/ManagementAI/Index">AI Summary</a>
@@ -59,23 +64,23 @@
         </div>
     }
 
-    <section class="vpms-exec-strip" aria-label="Dashboard highlights">
-        <article class="vpms-exec-card">
+    <section class="vpms-control-strip vpms-command-strip" aria-label="Dashboard highlights">
+        <article>
             <span>Occupancy</span>
             <strong>@Model.OccupancyPercentage.ToString("0.#")%</strong>
             <small>@Model.OccupiedRooms of @Model.TotalRooms rooms</small>
         </article>
-        <article class="vpms-exec-card">
+        <article>
             <span>Revenue Today</span>
             <strong>@Model.TotalRevenueToday.ToString("C0")</strong>
             <small>Rooms, F&amp;B, banquet</small>
         </article>
-        <article class="vpms-exec-card">
+        <article>
             <span>Guest Flow</span>
             <strong>@Model.ArrivalsToday / @Model.DeparturesToday</strong>
             <small>Arrivals / departures</small>
         </article>
-        <article class="vpms-exec-card @RiskTone(riskCount)">
+        <article class="@RiskTone(riskCount)">
             <span>Control Status</span>
             <strong>@RiskLabel(riskCount)</strong>
             <small>@riskCount open signal(s)</small>

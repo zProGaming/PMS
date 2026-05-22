@@ -2,13 +2,27 @@
 @model Vantage.PMS.Pages.Booking.GuestDetailsModel
 @{
     ViewData["Title"] = "Guest Details";
+    var quote = Model.QuoteResult.Quote;
 }
 
-<h1 class="h3 mb-3">Guest Details</h1>
+<section class="vpms-booking-flow-header">
+    <div>
+        <div class="vpms-booking-kicker">Guest Details</div>
+        <h1>Complete Your Booking Request</h1>
+        <p>Share your contact details and any arrival preferences. The hotel team will review the request before final confirmation.</p>
+    </div>
+    <a asp-page="Rooms"
+       asp-route-checkInDate="@Model.BookingInput.CheckInDate.ToString("yyyy-MM-dd")"
+       asp-route-checkOutDate="@Model.BookingInput.CheckOutDate.ToString("yyyy-MM-dd")"
+       asp-route-adultCount="@Model.BookingInput.AdultCount"
+       asp-route-childCount="@Model.BookingInput.ChildCount"
+       asp-route-promoCode="@Model.BookingInput.PromoCode"
+       class="btn vpms-booking-secondary">Back to Rooms</a>
+</section>
 
 @if (Model.QuoteResult.Errors.Count > 0)
 {
-    <div class="alert alert-warning">
+    <div class="vpms-booking-unavailable">
         @foreach (var error in Model.QuoteResult.Errors)
         {
             <div>@error</div>
@@ -16,59 +30,84 @@
     </div>
 }
 
-@if (Model.QuoteResult.Quote is not null)
+@if (quote is not null)
 {
-    <div class="row g-3">
-        <div class="col-lg-8">
-            <form method="post" asp-page="Summary" class="card">
-                <div class="card-body row g-3">
-                    <input type="hidden" asp-for="BookingInput.CheckInDate" />
-                    <input type="hidden" asp-for="BookingInput.CheckOutDate" />
-                    <input type="hidden" asp-for="BookingInput.AdultCount" />
-                    <input type="hidden" asp-for="BookingInput.ChildCount" />
-                    <input type="hidden" asp-for="BookingInput.PromoCode" />
-                    <input type="hidden" asp-for="BookingInput.RoomTypeId" />
-                    <input type="hidden" asp-for="BookingInput.RatePlanId" />
+    <div class="vpms-booking-checkout">
+        <main>
+            <form method="post" asp-page="Summary" class="vpms-guest-details-card">
+                <input type="hidden" asp-for="BookingInput.CheckInDate" />
+                <input type="hidden" asp-for="BookingInput.CheckOutDate" />
+                <input type="hidden" asp-for="BookingInput.AdultCount" />
+                <input type="hidden" asp-for="BookingInput.ChildCount" />
+                <input type="hidden" asp-for="BookingInput.PromoCode" />
+                <input type="hidden" asp-for="BookingInput.RoomTypeId" />
+                <input type="hidden" asp-for="BookingInput.RatePlanId" />
 
-                    <div class="col-md-6">
-                        <label asp-for="GuestInput.FirstName" class="form-label">First name</label>
-                        <input asp-for="GuestInput.FirstName" class="form-control" />
-                    </div>
-                    <div class="col-md-6">
-                        <label asp-for="GuestInput.LastName" class="form-label">Last name</label>
-                        <input asp-for="GuestInput.LastName" class="form-control" />
-                    </div>
-                    <div class="col-md-6">
-                        <label asp-for="GuestInput.Email" class="form-label">Email</label>
-                        <input asp-for="GuestInput.Email" type="email" class="form-control" />
-                    </div>
-                    <div class="col-md-6">
-                        <label asp-for="GuestInput.Phone" class="form-label">Phone</label>
-                        <input asp-for="GuestInput.Phone" class="form-control" />
-                    </div>
-                    <div class="col-12">
-                        <label asp-for="GuestInput.Address" class="form-label">Address</label>
-                        <textarea asp-for="GuestInput.Address" class="form-control" rows="2"></textarea>
-                    </div>
-                    @if (Model.QuoteResult.Quote.Setting.AllowSpecialRequests)
-                    {
-                        <div class="col-12">
-                            <label asp-for="GuestInput.SpecialRequests" class="form-label">Special requests</label>
-                            <textarea asp-for="GuestInput.SpecialRequests" class="form-control" rows="3"></textarea>
+                <section class="vpms-booking-form-section">
+                    <div class="vpms-booking-section-heading">
+                        <span>01</span>
+                        <div>
+                            <h2>Primary Guest</h2>
+                            <p>Use the name and contact details the hotel should use for confirmation.</p>
                         </div>
-                    }
-
-                    @if (Model.AvailableAddOns.Count > 0)
-                    {
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="GuestInput.FirstName" class="form-label">First Name</label>
+                            <input asp-for="GuestInput.FirstName" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="GuestInput.LastName" class="form-label">Last Name</label>
+                            <input asp-for="GuestInput.LastName" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="GuestInput.Email" class="form-label">Email Address</label>
+                            <input asp-for="GuestInput.Email" type="email" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="GuestInput.Phone" class="form-label">Mobile Number</label>
+                            <input asp-for="GuestInput.Phone" class="form-control" />
+                        </div>
                         <div class="col-12">
-                            <h2 class="h5">Add-ons</h2>
+                            <label asp-for="GuestInput.Address" class="form-label">Address</label>
+                            <textarea asp-for="GuestInput.Address" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </section>
+
+                @if (quote.Setting.AllowSpecialRequests)
+                {
+                    <section class="vpms-booking-form-section">
+                        <div class="vpms-booking-section-heading">
+                            <span>02</span>
+                            <div>
+                                <h2>Arrival Preferences</h2>
+                                <p>Optional requests are shared with the hotel team for review.</p>
+                            </div>
+                        </div>
+                        <label asp-for="GuestInput.SpecialRequests" class="form-label">Special Requests</label>
+                        <textarea asp-for="GuestInput.SpecialRequests" class="form-control" rows="4" placeholder="Arrival time, bed preference, accessibility notes, celebration details, or other requests"></textarea>
+                    </section>
+                }
+
+                @if (Model.AvailableAddOns.Count > 0)
+                {
+                    <section class="vpms-booking-form-section">
+                        <div class="vpms-booking-section-heading">
+                            <span>03</span>
+                            <div>
+                                <h2>Enhance Your Stay</h2>
+                                <p>Select optional add-ons available for this booking request.</p>
+                            </div>
+                        </div>
+                        <div class="vpms-addon-list">
                             @for (var i = 0; i < Model.AvailableAddOns.Count; i++)
                             {
                                 <input type="hidden" asp-for="AddOnSelections[i].BookingAddOnId" />
-                                <div class="row g-2 align-items-center border-bottom py-2">
-                                    <div class="col-md-8">
-                                        <div class="fw-semibold">@Model.AvailableAddOns[i].Name</div>
-                                        <div class="text-muted small">
+                                <article class="vpms-addon-card">
+                                    <div>
+                                        <strong>@Model.AvailableAddOns[i].Name</strong>
+                                        <p>
                                             @Model.AvailableAddOns[i].Description
                                             @if (Model.AvailableAddOns[i].IsPerNight)
                                             {
@@ -78,54 +117,56 @@
                                             {
                                                 <span> Per person.</span>
                                             }
-                                        </div>
+                                        </p>
                                     </div>
-                                    <div class="col-md-2">@Model.AvailableAddOns[i].Price.ToString("C")</div>
-                                    <div class="col-md-2">
+                                    <div class="vpms-addon-price">@Model.AvailableAddOns[i].Price.ToString("C")</div>
+                                    <div>
                                         <label asp-for="AddOnSelections[i].Quantity" class="form-label visually-hidden">Quantity</label>
                                         <input asp-for="AddOnSelections[i].Quantity" class="form-control" type="number" min="0" />
                                     </div>
-                                </div>
+                                </article>
                             }
                         </div>
-                    }
+                    </section>
+                }
 
-                    <div class="col-12">
-                        <div class="form-check">
-                            <input asp-for="GuestAcceptedTerms" class="form-check-input" />
-                            <label asp-for="GuestAcceptedTerms" class="form-check-label">I accept the booking terms and privacy policy.</label>
-                        </div>
+                <section class="vpms-booking-form-section compact">
+                    <div class="form-check">
+                        <input asp-for="GuestAcceptedTerms" class="form-check-input" />
+                        <label asp-for="GuestAcceptedTerms" class="form-check-label">I accept the booking terms and privacy policy.</label>
                     </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary">Review Booking</button>
-                        <a asp-page="Rooms"
-                           asp-route-checkInDate="@Model.BookingInput.CheckInDate.ToString("yyyy-MM-dd")"
-                           asp-route-checkOutDate="@Model.BookingInput.CheckOutDate.ToString("yyyy-MM-dd")"
-                           asp-route-adultCount="@Model.BookingInput.AdultCount"
-                           asp-route-childCount="@Model.BookingInput.ChildCount"
-                           asp-route-promoCode="@Model.BookingInput.PromoCode"
-                           class="btn btn-outline-secondary">Back</a>
-                    </div>
-                </div>
+                </section>
+
+                <button type="submit" class="btn vpms-booking-primary w-100">Review Booking</button>
             </form>
-        </div>
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header">Selected Room</div>
-                <div class="card-body">
-                    <h2 class="h5">@Model.QuoteResult.Quote.RoomTypeName</h2>
-                    <p class="text-muted">@Model.QuoteResult.Quote.ShortDescription</p>
-                    <dl class="row small mb-0">
-                        <dt class="col-6">Nights</dt>
-                        <dd class="col-6">@Model.QuoteResult.Quote.Nights</dd>
-                        <dt class="col-6">Rate</dt>
-                        <dd class="col-6">@Model.QuoteResult.Quote.RoomRate.ToString("C")</dd>
-                        <dt class="col-6">Total</dt>
-                        <dd class="col-6">@Model.QuoteResult.Quote.TotalRoomAmount.ToString("C")</dd>
-                    </dl>
+        </main>
+
+        <aside class="vpms-booking-summary-card">
+            @if (!string.IsNullOrWhiteSpace(quote.ImageUrl))
+            {
+                <img src="@quote.ImageUrl" alt="@quote.RoomTypeName" />
+            }
+            <div class="vpms-booking-summary-body">
+                <div class="vpms-booking-kicker">Selected Room</div>
+                <h2>@quote.RoomTypeName</h2>
+                <p>@(string.IsNullOrWhiteSpace(quote.ShortDescription) ? "Selected room type for your stay." : quote.ShortDescription)</p>
+                <div class="vpms-rate-breakdown">
+                    <div><span>Stay dates</span><strong>@quote.CheckInDate.ToString("MMM d") - @quote.CheckOutDate.ToString("MMM d, yyyy")</strong></div>
+                    <div><span>Nights</span><strong>@quote.Nights</strong></div>
+                    <div><span>Guests</span><strong>@quote.AdultCount adult@(quote.AdultCount == 1 ? "" : "s")@if (quote.ChildCount > 0) { <text>, @quote.ChildCount child@(quote.ChildCount == 1 ? "" : "ren")</text> }</strong></div>
+                    <div><span>Rate</span><strong>@quote.RoomRate.ToString("C")</strong></div>
+                    @if (quote.DiscountAmount > 0)
+                    {
+                        <div><span>Promo discount</span><strong>-@quote.DiscountAmount.ToString("C")</strong></div>
+                    }
+                    <div class="total"><span>Estimated total</span><strong>@quote.FinalEstimatedTotal.ToString("C")</strong></div>
+                    @if (quote.DepositRequired)
+                    {
+                        <div><span>Deposit guidance</span><strong>@quote.DepositAmount.ToString("C")</strong></div>
+                    }
                 </div>
             </div>
-        </div>
+        </aside>
     </div>
 }
 

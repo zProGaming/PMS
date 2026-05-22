@@ -8,13 +8,24 @@
     <div>
         <div class="page-kicker">Client Demo</div>
         <h1 class="vpms-page-title">Client Demo Package</h1>
-        <p class="vpms-page-subtitle">Client-facing product positioning, workflow guide, and implementation readiness package.</p>
+        <p class="vpms-page-subtitle">A presenter-ready package that frames Vantage PMS as a complete Philippine hospitality operating platform, not a loose collection of modules.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">Owner-ready</span>
+            <span class="vpms-mini-chip">Pilot discussion aid</span>
+            <span class="vpms-mini-chip">Browser print / Save as PDF</span>
+        </div>
     </div>
     <div class="vpms-actions">
         <a class="btn vpms-btn-secondary" asp-page="/System/DemoWorkflowLauncher/Index">Workflow Launcher</a>
         <button class="btn vpms-btn-primary" type="button" onclick="window.print()">Print / Save as PDF</button>
     </div>
 </div>
+
+<section class="vpms-product-proof-strip vpms-no-print">
+    <article><span>Coverage</span><strong>Rooms to finance</strong><p>Front office, folios, POS, banquet, inventory, AR, reports, and management controls in one story.</p></article>
+    <article><span>Market fit</span><strong>Philippine full-service</strong><p>Designed to speak to hotels, resorts, condotels, serviced apartments, restaurants, and event venues.</p></article>
+    <article><span>Demo control</span><strong>Curated walkthrough</strong><p>Package items keep client presentations focused on proven workflows and visible strengths.</p></article>
+</section>
 
 <div class="row g-4 vpms-no-print mb-4">
     <div class="col-lg-4">
@@ -73,7 +84,7 @@
         <h1>@(Model.ActivePackage?.PackageName ?? "Vantage PMS Client Demo Package")</h1>
         <p class="lead">Prepared for: @(Model.ActivePackage?.ClientName ?? "Sample Hotel Client")</p>
         <p>Demo hotel: @(Model.ActivePackage?.HotelName ?? "Vantage Grand Hotel")</p>
-        <p class="text-muted">A modern hospitality management platform for hotels, resorts, serviced apartments, condotels, restaurants, and event venues.</p>
+        <p class="text-muted">A Philippine hospitality operating platform for hotels, resorts, serviced apartments, condotels, restaurants, banquet venues, and multi-property operators.</p>
     </section>
 
     <section class="vpms-print-section">
@@ -129,11 +140,11 @@
             <li>Audit trail and system health included.</li>
         </ul>
         <h2>Suggested Next Implementation</h2>
-        <p>Pilot property setup · data migration planning · user role configuration · staff training · parallel run · go-live support.</p>
+        <p>Pilot property setup - data migration planning - user role configuration - staff training - parallel run - go-live support.</p>
     </section>
 
     <footer class="vpms-print-footer">
         <span>Vantage PMS</span>
-        <span>Copyright (C) 2026 Vantage Innovations PH. All rights reserved.</span>
+        <span>Copyright &copy; 2026 Vantage Innovations PH. All rights reserved.</span>
     </footer>
 </article>

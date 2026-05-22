@@ -24,6 +24,20 @@
     </div>
 </div>
 
+<section class="vpms-role-command">
+    <div>
+        <div class="page-kicker">Finance Control View</div>
+        <h2>Cashiering, AR, AP, group collections, and reporting controls for the daily close.</h2>
+        <p>Designed for Philippine hotel finance teams that need city ledger visibility, cashier controls, paymaster balances, print-ready reports, and audit review in one command surface.</p>
+    </div>
+    <div class="vpms-role-command-grid">
+        <a asp-page="/Finance/CashierShifts/Index"><span>01</span><strong>Control cashiers</strong><small>Open shifts, payments, refunds, and voids.</small></a>
+        <a asp-page="/AccountsReceivable/Aging/Index"><span>02</span><strong>Collect city ledger</strong><small>Aging, overdue accounts, and follow-up risk.</small></a>
+        <a asp-page="/Groups/Folios/Index"><span>03</span><strong>Review group folios</strong><small>Master folios, deposits, and outstanding balances.</small></a>
+        <a asp-page="/Reports/Center"><span>04</span><strong>Prepare reports</strong><small>Print, browser PDF, and CSV-ready report center.</small></a>
+    </div>
+</section>
+
 <div class="row g-3">
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Payments Today</div><div class="kpi-value">@Model.TotalPaymentsToday.ToString("C")</div><div class="kpi-note">Completed folio payments</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Cash Payments</div><div class="kpi-value">@Model.CashPaymentsToday.ToString("C")</div><div class="kpi-note">Cash collected today</div></div></div>

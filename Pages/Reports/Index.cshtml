@@ -3,54 +3,52 @@
 
 @{
     ViewData["Title"] = "Reports";
+
+    var reportCards = new[]
+    {
+        new { Title = "Occupancy Report", Description = "Room inventory, rooms sold, and occupancy percentage for daily rooms review.", Page = "./Occupancy", Accent = "Rooms" },
+        new { Title = "Arrivals Report", Description = "Reservations arriving on the business date with front-desk workflow visibility.", Page = "./Arrivals", Accent = "Front Desk" },
+        new { Title = "Departures Report", Description = "Expected departures, checkout control, and room-turnover planning.", Page = "./Departures", Accent = "Rooms" },
+        new { Title = "In-House Guest Report", Description = "Checked-in guests, stay status, and current folio balance visibility.", Page = "./InHouse", Accent = "Guests" },
+        new { Title = "Daily Revenue Report", Description = "Daily charges, payments, and open balances for finance review.", Page = "./DailyRevenue", Accent = "Finance" }
+    };
 }
 
-<div class="d-flex align-items-center justify-content-between mb-4">
+<section class="vpms-report-legacy-hero">
     <div>
-        <h1 class="mb-1">Reports</h1>
-        <p class="text-muted mb-0">Business date: @Model.BusinessDate.ToString("D")</p>
+        <div class="page-kicker">Reports Overview</div>
+        <h1 class="vpms-page-title">Operational Report Shortcuts</h1>
+        <p class="vpms-page-subtitle">A focused legacy route for core front-desk and finance reports. Use the Report Center for the full catalog, export capability, and category filters.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">Business date: @Model.BusinessDate.ToString("D")</span>
+            <span class="vpms-mini-chip">@reportCards.Length core reports</span>
+            <span class="vpms-mini-chip">Print-ready workflows</span>
+        </div>
     </div>
-</div>
+    <div class="vpms-hero-actions">
+        <a class="btn vpms-btn-primary" asp-page="/Reports/Center">Open Report Center</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Documents/Index">Printable Documents</a>
+    </div>
+</section>
 
-<div class="row g-3">
-    <div class="col-md-6 col-xl-4">
-        <a class="text-decoration-none text-dark" asp-page="./Occupancy">
-            <div class="border rounded p-3 h-100">
-                <div class="fw-semibold">Occupancy Report</div>
-                <div class="text-muted small mt-2">Room inventory and occupancy percentage.</div>
-            </div>
-        </a>
+<section class="vpms-report-legacy-panel">
+    <div class="vpms-card-header">
+        <div>
+            <h2>Core Daily Reports</h2>
+            <p>Curated for front office review, daily revenue checks, and quick print access.</p>
+        </div>
+        <span class="vpms-report-legacy-badge">Secondary route</span>
     </div>
-    <div class="col-md-6 col-xl-4">
-        <a class="text-decoration-none text-dark" asp-page="./Arrivals">
-            <div class="border rounded p-3 h-100">
-                <div class="fw-semibold">Arrivals Report</div>
-                <div class="text-muted small mt-2">Reservations arriving on the business date.</div>
-            </div>
-        </a>
+
+    <div class="vpms-report-legacy-grid">
+        @foreach (var report in reportCards)
+        {
+            <a class="vpms-report-legacy-card" asp-page="@report.Page">
+                <span>@report.Accent</span>
+                <strong>@report.Title</strong>
+                <p>@report.Description</p>
+                <em>Open report</em>
+            </a>
+        }
     </div>
-    <div class="col-md-6 col-xl-4">
-        <a class="text-decoration-none text-dark" asp-page="./Departures">
-            <div class="border rounded p-3 h-100">
-                <div class="fw-semibold">Departures Report</div>
-                <div class="text-muted small mt-2">Reservations departing on the business date.</div>
-            </div>
-        </a>
-    </div>
-    <div class="col-md-6 col-xl-4">
-        <a class="text-decoration-none text-dark" asp-page="./InHouse">
-            <div class="border rounded p-3 h-100">
-                <div class="fw-semibold">In-House Guest Report</div>
-                <div class="text-muted small mt-2">Checked-in guests and current balances.</div>
-            </div>
-        </a>
-    </div>
-    <div class="col-md-6 col-xl-4">
-        <a class="text-decoration-none text-dark" asp-page="./DailyRevenue">
-            <div class="border rounded p-3 h-100">
-                <div class="fw-semibold">Daily Revenue Report</div>
-                <div class="text-muted small mt-2">Charges, payments, and outstanding balances.</div>
-            </div>
-        </a>
-    </div>
-</div>
+</section>

@@ -2,69 +2,111 @@
 @model Vantage.PMS.Pages.Documents.IndexModel
 @{
     ViewData["Title"] = "Printable Documents";
+    var totalDocuments = Model.Sections.Sum(section => section.Links.Count);
+    var availableDocuments = Model.Sections.Sum(section => section.Links.Count(link => link.IsAvailable));
+    var canManageTemplates = Vantage.PMS.Authorization.PmsRoles.SystemManagement.Any(User.IsInRole)
+        || Vantage.PMS.Authorization.PmsRoles.ReportAdministration.Any(User.IsInRole);
 }
 
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
-        <li class="breadcrumb-item"><a asp-page="/Reports/Index">Reports</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Printable Documents</li>
-    </ol>
-</nav>
-
-<div class="vpms-page-header">
+<section class="vpms-document-hero">
     <div>
         <div class="page-kicker">Documents</div>
         <h1 class="vpms-page-title">Printable Documents</h1>
-        <p class="vpms-page-subtitle">Client-demo-ready browser print templates for hotel operations, finance, F&amp;B, banquet, purchasing, and management summaries.</p>
+        <p class="vpms-page-subtitle">Curated guest, finance, F&amp;B, banquet, purchasing, and management document templates for polished client demos and daily hotel operations.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">@totalDocuments templates</span>
+            <span class="vpms-mini-chip">@availableDocuments sample-ready</span>
+            <span class="vpms-mini-chip">Browser print / Save as PDF</span>
+        </div>
     </div>
-    <div class="vpms-actions">
-        <a class="btn vpms-btn-secondary" asp-page="/System/DocumentTemplateSettings/Index">Template Settings</a>
+    <div class="vpms-hero-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/Reports/Center">Report Center</a>
+        @if (canManageTemplates)
+        {
+            <a class="btn vpms-btn-primary" asp-page="/System/DocumentTemplateSettings/Index">Template Settings</a>
+        }
     </div>
-</div>
+</section>
 
-<div class="alert alert-info vpms-alert">
-    Print and Save as PDF use the browser print dialog. No external PDF service is configured in the MVP.
-</div>
+<section class="vpms-document-assurance">
+    <article>
+        <span>Brand-controlled</span>
+        <strong>Consistent templates</strong>
+        <p>Operational documents use the same Vantage PMS print language.</p>
+    </article>
+    <article>
+        <span>Demo-ready</span>
+        <strong>Sample-aware links</strong>
+        <p>Available samples open directly; missing samples explain what data is needed.</p>
+    </article>
+    <article>
+        <span>Finance-safe</span>
+        <strong>Browser PDF workflow</strong>
+        <p>No external PDF service or submission integration is required.</p>
+    </article>
+</section>
 
-<div class="row g-4">
+<section class="vpms-document-product-strip">
+    <div>
+        <span>Document governance</span>
+        <strong>Every printout should look client-ready before it leaves the system.</strong>
+        <p>Use template settings for branding and review finance or statutory-facing documents with authorized hotel finance personnel before official use.</p>
+    </div>
+    <div class="vpms-document-product-actions">
+        @if (canManageTemplates)
+        {
+            <a class="btn vpms-btn-secondary" asp-page="/Reports/TemplateSettings/Index">Report Templates</a>
+            <a class="btn vpms-btn-secondary" asp-page="/System/DocumentTemplateSettings/Index">Document Templates</a>
+        }
+        <a class="btn vpms-btn-secondary" asp-page="/Reports/Center">Report Center</a>
+    </div>
+</section>
+
+<div class="vpms-document-grid">
     @foreach (var documentSection in Model.Sections)
     {
-        <div class="col-lg-6 col-xxl-4">
-            <section class="vpms-card h-100">
-                <div class="card-body">
-                    <h2 class="h5">@documentSection.Title</h2>
-                    <div class="list-group list-group-flush">
-                        @foreach (var link in documentSection.Links)
-                        {
-                            <div class="list-group-item px-0 d-flex justify-content-between align-items-center gap-3">
-                                <div>
-                                    <strong>@link.Title</strong>
-                                    @if (!link.IsAvailable)
-                                    {
-                                        <div class="text-muted small">No sample record is available yet. Seed demo data from System &gt; Demo Setup or create a record first.</div>
-                                    }
-                                </div>
-                                @if (link.IsAvailable)
-                                {
-                                    if (link.Page is not null)
-                                    {
-                                        <a class="btn btn-sm vpms-btn-secondary" href="@link.Page">Open</a>
-                                    }
-                                    else
-                                    {
-                                        <a class="btn btn-sm vpms-btn-secondary" asp-page="/Documents/Print" asp-route-template="@link.Template" asp-route-id="@link.SampleId">Open</a>
-                                    }
-                                }
-                                else
-                                {
-                                    <span class="vpms-status-badge status-draft">No sample</span>
-                                }
-                            </div>
-                        }
-                    </div>
+        var availableInSection = documentSection.Links.Count(link => link.IsAvailable);
+        <section class="vpms-document-section">
+            <div class="vpms-document-section-header">
+                <div>
+                    <h2>@documentSection.Title</h2>
+                    <p>@availableInSection of @documentSection.Links.Count sample@(documentSection.Links.Count == 1 ? "" : "s") ready.</p>
                 </div>
-            </section>
-        </div>
+                <span>@availableInSection/@documentSection.Links.Count</span>
+            </div>
+            <div class="vpms-document-list">
+                @foreach (var link in documentSection.Links)
+                {
+                    <article class="vpms-document-item @(link.IsAvailable ? "is-ready" : "is-pending")">
+                        <div>
+                            <strong>@link.Title</strong>
+                            @if (link.IsAvailable)
+                            {
+                                <p>Sample record is available for review and browser print.</p>
+                            }
+                            else
+                            {
+                                <p>Create source records or seed demo data to activate this template.</p>
+                            }
+                        </div>
+                        @if (link.IsAvailable)
+                        {
+                            if (link.Page is not null)
+                            {
+                                <a class="btn btn-sm vpms-btn-secondary" href="@link.Page">Open</a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-sm vpms-btn-secondary" asp-page="/Documents/Print" asp-route-template="@link.Template" asp-route-id="@link.SampleId">Open</a>
+                            }
+                        }
+                        else
+                        {
+                            <span class="vpms-status-badge status-draft">No sample</span>
+                        }
+                    </article>
+                }
+            </div>
+        </section>
     }
 </div>

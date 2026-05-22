@@ -4,123 +4,200 @@
 @{
     ViewData["Title"] = "Folio Details";
     var statusClass = Model.Folio.Status.ToString().ToLowerInvariant();
+    var balanceTone = Model.Folio.Balance > 0 ? "danger" : Model.Folio.Balance < 0 ? "warning" : "positive";
+    var chargeCount = Model.Folio.Items.Count;
+    var paymentCount = Model.Folio.Payments.Count;
 }
 
-<div class="vpms-page-header page-header">
+<section class="vpms-ops-hero vpms-folio-hero">
     <div>
-        <div class="page-kicker">Finance Control</div>
-        <h1 class="vpms-page-title page-title">Folio @Model.Folio.FolioNumber</h1>
-        <p class="vpms-page-subtitle page-subtitle">
+        <div class="page-kicker">Folio Control</div>
+        <h1 class="page-title">@Model.Folio.FolioNumber</h1>
+        <p class="page-subtitle">
             @Model.Folio.Guest?.FirstName @Model.Folio.Guest?.LastName |
-            Room @(Model.Folio.Reservation?.Room?.RoomNumber ?? "-")
+            Room @(Model.Folio.Reservation?.Room?.RoomNumber ?? "Unassigned")
         </p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-status-badge status-@statusClass">@Model.Folio.Status</span>
+            <span class="vpms-mini-chip">@chargeCount charge@(chargeCount == 1 ? "" : "s")</span>
+            <span class="vpms-mini-chip">@paymentCount payment@(paymentCount == 1 ? "" : "s")</span>
+        </div>
     </div>
-    <div class="vpms-actions d-flex flex-wrap gap-2">
-        <span class="vpms-status-badge status-@statusClass">@Model.Folio.Status</span>
-        <a class="btn btn-primary" asp-page="./PostCharge" asp-route-folioId="@Model.Folio.Id">Post Charge</a>
-        <a class="btn btn-outline-primary" asp-page="./PostPayment" asp-route-folioId="@Model.Folio.Id">Post Payment</a>
+    <div class="vpms-hero-actions">
+        <a class="btn vpms-btn-primary" asp-page="./PostCharge" asp-route-folioId="@Model.Folio.Id">Post Charge</a>
+        <a class="btn vpms-btn-secondary" asp-page="./PostPayment" asp-route-folioId="@Model.Folio.Id">Post Payment</a>
         @if (Model.Folio.Reservation?.Status == Vantage.PMS.Models.FrontOffice.ReservationStatus.CheckedIn)
         {
             <a class="btn btn-warning" asp-page="/FrontOffice/Reservations/CheckOut" asp-route-id="@Model.Folio.ReservationId">Check Out</a>
         }
     </div>
-</div>
+</section>
 
-<div class="vpms-detail-grid mb-4">
-    <div class="vpms-stat-card border rounded p-3">
-            <div class="text-muted small">Guest</div>
-            <div class="fs-5">@Model.Folio.Guest?.FirstName @Model.Folio.Guest?.LastName</div>
-    </div>
-    <div class="vpms-stat-card border rounded p-3">
-            <div class="text-muted small">Room</div>
-            <div class="fs-5">@Model.Folio.Reservation?.Room?.RoomNumber</div>
-    </div>
-    <div class="vpms-stat-card border rounded p-3">
-            <div class="text-muted small">Reservation Dates</div>
-            <div class="fs-5">
-                @Model.Folio.Reservation?.ArrivalDate.ToString("d") - @Model.Folio.Reservation?.DepartureDate.ToString("d")
+<section class="vpms-control-strip vpms-finance-strip">
+    <article>
+        <span>Total Charges</span>
+        <strong>@Model.Folio.TotalCharges.ToString("C")</strong>
+        <small>Posted revenue and adjustments</small>
+    </article>
+    <article class="positive">
+        <span>Total Payments</span>
+        <strong>@Model.Folio.TotalPayments.ToString("C")</strong>
+        <small>Collected payments</small>
+    </article>
+    <article class="@balanceTone">
+        <span>Open Balance</span>
+        <strong>@Model.Folio.Balance.ToString("C")</strong>
+        <small>@(Model.Folio.Balance == 0 ? "Ready for settlement" : "Review before checkout")</small>
+    </article>
+    <article>
+        <span>Stay Dates</span>
+        <strong>@(Model.Folio.Reservation?.ArrivalDate.ToString("MMM d") ?? "-")</strong>
+        <small>to @(Model.Folio.Reservation?.DepartureDate.ToString("MMM d, yyyy") ?? "-")</small>
+    </article>
+</section>
+
+<div class="vpms-two-column">
+    <section class="vpms-card vpms-operational-panel">
+        <div class="vpms-section-titlebar">
+            <div>
+                <h2>Guest and Stay</h2>
+                <p>Reservation context for billing and checkout decisions.</p>
             </div>
-    </div>
+        </div>
+        <dl class="vpms-definition-list">
+            <dt>Guest</dt>
+            <dd>@Model.Folio.Guest?.FirstName @Model.Folio.Guest?.LastName</dd>
+            <dt>Room</dt>
+            <dd>@(Model.Folio.Reservation?.Room?.RoomNumber ?? "Unassigned")</dd>
+            <dt>Reservation</dt>
+            <dd>
+                @if (Model.Folio.ReservationId > 0)
+                {
+                    <a asp-page="/FrontOffice/Reservations/Details" asp-route-id="@Model.Folio.ReservationId">Open reservation</a>
+                }
+                else
+                {
+                    <span>Not linked</span>
+                }
+            </dd>
+        </dl>
+    </section>
+
+    <section class="vpms-card vpms-operational-panel">
+        <div class="vpms-section-titlebar">
+            <div>
+                <h2>Financial Readiness</h2>
+                <p>Balance review before payment, transfer, or checkout.</p>
+            </div>
+        </div>
+        <div class="vpms-ledger-readiness @balanceTone">
+            <span>@(Model.Folio.Balance == 0 ? "Settled" : "Balance open")</span>
+            <strong>@Model.Folio.Balance.ToString("C")</strong>
+            <small>@(Model.Folio.Balance == 0 ? "Folio is financially clear." : "Collect payment or review routing before final checkout.")</small>
+        </div>
+    </section>
 </div>
 
-<div class="vpms-detail-grid mb-4">
-    <div class="vpms-stat-card border rounded p-3">
-            <div class="text-muted small">Total Charges</div>
-            <div class="display-6">@Model.Folio.TotalCharges.ToString("C")</div>
+<section class="vpms-card vpms-operational-panel">
+    <div class="vpms-section-titlebar">
+        <div>
+            <h2>Charges</h2>
+            <p>All posted folio items, void flags, and posting responsibility.</p>
+        </div>
+        <a class="btn vpms-btn-secondary" asp-page="./PostCharge" asp-route-folioId="@Model.Folio.Id">Post Charge</a>
     </div>
-    <div class="vpms-stat-card border rounded p-3">
-            <div class="text-muted small">Total Payments</div>
-            <div class="display-6">@Model.Folio.TotalPayments.ToString("C")</div>
-    </div>
-    <div class="vpms-stat-card border rounded p-3">
-            <div class="text-muted small">Balance</div>
-            <div class="display-6">@Model.Folio.Balance.ToString("C")</div>
-    </div>
-</div>
 
-<h2 class="h4">Charges</h2>
-<div class="vpms-table-wrapper table-responsive">
-<table class="table vpms-table table-striped table-hover align-middle">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Code</th>
-            <th>Description</th>
-            <th class="text-end">Qty</th>
-            <th class="text-end">Unit Price</th>
-            <th class="text-end">Amount</th>
-            <th>Posted By</th>
-            <th>Voided</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Folio.Items.OrderBy(item => item.PostingDate))
-        {
-            <tr>
-                <td>@item.PostingDate.ToString("g")</td>
-                <td>@(item.ChargeCodeDefinition?.Code ?? item.ChargeCode)</td>
-                <td>@item.Description</td>
-                <td class="text-end">@item.Quantity.ToString("N2")</td>
-                <td class="text-end">@item.UnitPrice.ToString("N2")</td>
-                <td class="text-end">@item.Amount.ToString("N2")</td>
-                <td>@item.PostedBy</td>
-                <td>@(item.IsVoided ? "Yes" : "No")</td>
-            </tr>
-        }
-    </tbody>
-</table>
-</div>
+    @if (chargeCount == 0)
+    {
+        <div class="vpms-empty-state">
+            <strong>No charges posted.</strong>
+            <span>Room, F&amp;B, banquet, and manual charges will appear here once posted.</span>
+        </div>
+    }
+    else
+    {
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th class="text-end">Qty</th>
+                        <th class="text-end">Unit Price</th>
+                        <th class="text-end">Amount</th>
+                        <th>Posted By</th>
+                        <th>Control</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Folio.Items.OrderBy(item => item.PostingDate))
+                    {
+                        <tr>
+                            <td>@item.PostingDate.ToString("g")</td>
+                            <td><span class="vpms-mini-chip">@(item.ChargeCodeDefinition?.Code ?? item.ChargeCode)</span></td>
+                            <td>@item.Description</td>
+                            <td class="text-end">@item.Quantity.ToString("N2")</td>
+                            <td class="text-end">@item.UnitPrice.ToString("C")</td>
+                            <td class="text-end vpms-money">@item.Amount.ToString("C")</td>
+                            <td>@item.PostedBy</td>
+                            <td><span class="vpms-status-badge @(item.IsVoided ? "status-voided" : "status-posted")">@(item.IsVoided ? "Voided" : "Posted")</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
 
-<h2 class="h4 mt-4">Payments</h2>
-<div class="vpms-table-wrapper table-responsive">
-<table class="table vpms-table table-striped table-hover align-middle">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Method</th>
-            <th>Reference</th>
-            <th>Notes</th>
-            <th class="text-end">Amount</th>
-            <th>Cashier Shift</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var payment in Model.Folio.Payments.OrderBy(payment => payment.PaymentDate))
-        {
-            <tr>
-                <td>@payment.PaymentDate.ToString("g")</td>
-                <td>@payment.PaymentMethod</td>
-                <td>@payment.ReferenceNumber</td>
-                <td>@payment.Notes</td>
-                <td class="text-end">@payment.Amount.ToString("N2")</td>
-                <td>@payment.CashierTransactions.OrderByDescending(transaction => transaction.TransactionDate).FirstOrDefault()?.CashierShift?.ShiftNumber</td>
-            </tr>
-        }
-    </tbody>
-</table>
-</div>
+<section class="vpms-card vpms-operational-panel">
+    <div class="vpms-section-titlebar">
+        <div>
+            <h2>Payments</h2>
+            <p>Collected payments, cashier shift traceability, and references.</p>
+        </div>
+        <a class="btn vpms-btn-secondary" asp-page="./PostPayment" asp-route-folioId="@Model.Folio.Id">Post Payment</a>
+    </div>
+
+    @if (paymentCount == 0)
+    {
+        <div class="vpms-empty-state">
+            <strong>No payments posted.</strong>
+            <span>Cash, card, bank, and charge settlement payments will appear here.</span>
+        </div>
+    }
+    else
+    {
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Method</th>
+                        <th>Reference</th>
+                        <th>Notes</th>
+                        <th class="text-end">Amount</th>
+                        <th>Cashier Shift</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var payment in Model.Folio.Payments.OrderBy(payment => payment.PaymentDate))
+                    {
+                        <tr>
+                            <td>@payment.PaymentDate.ToString("g")</td>
+                            <td><span class="vpms-mini-chip">@payment.PaymentMethod</span></td>
+                            <td>@payment.ReferenceNumber</td>
+                            <td>@payment.Notes</td>
+                            <td class="text-end vpms-money">@payment.Amount.ToString("C")</td>
+                            <td>@payment.CashierTransactions.OrderByDescending(transaction => transaction.TransactionDate).FirstOrDefault()?.CashierShift?.ShiftNumber</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
 
 <div class="vpms-actions d-flex flex-wrap gap-2">
-    <a class="btn btn-outline-primary" asp-page="./Details" asp-route-id="@Model.Folio.Id">View Folio</a>
-    <a class="btn btn-outline-secondary" asp-page="/FrontOffice/Reservations/Details" asp-route-id="@Model.Folio.ReservationId">Back to Reservation</a>
+    <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/Reservations/Details" asp-route-id="@Model.Folio.ReservationId">Back to Reservation</a>
 </div>

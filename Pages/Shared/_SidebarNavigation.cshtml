@@ -37,6 +37,11 @@
     </div>
 
     <nav class="vpms-nav app-nav vpms-sidebar-scroll" aria-label="Primary navigation" data-vpms-sidebar-nav>
+        <div class="vpms-sidebar-nav-intro">
+            <span>Workspace Navigation</span>
+            <strong>Department command map</strong>
+        </div>
+
         <section class="vpms-sidebar-group is-open" data-sidebar-section data-vpms-sidebar-group data-group-id="command-center">
             <button class="vpms-sidebar-group-header" type="button" data-vpms-sidebar-toggle aria-expanded="true" aria-controls="sidebar-command-center">
                 <span class="vpms-sidebar-group-icon" aria-hidden="true">CC</span>
@@ -313,7 +318,7 @@
                     <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Labor/DepartmentLaborBudgets/Index" data-sidebar-link><span>Department Labor Budgets</span></a>
                     <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Labor/ServiceChargePools/Index" data-sidebar-link><span>Service Charge Pools</span></a>
                     <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Labor/Reports/Index" data-sidebar-link><span>Labor Reports</span></a>
-                    <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Labor/Import/Index" data-sidebar-link><span>Payroll Import Placeholder</span></a>
+                    <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Labor/Import/Index" data-sidebar-link><span>Payroll Import</span></a>
                 </div>
             </section>
         }
@@ -351,13 +356,13 @@
                     }
                     @if (canAccessSystemManagement)
                     {
-                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/DemoPresentation/Index" data-sidebar-link><span>Demo Presentation</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/DemoPresentation/Index" data-sidebar-link><span>Presentation Mode</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/DocumentTemplateSettings/Index" data-sidebar-link><span>Document Template Settings</span></a>
                     }
                     @if (canAccessClientDemo)
                     {
-                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/ClientDemoPackage/Index" data-sidebar-link><span>Client Demo Package</span></a>
-                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/DemoWorkflowLauncher/Index" data-sidebar-link><span>Demo Workflow Launcher</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/ClientDemoPackage/Index" data-sidebar-link><span>Client Package</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/DemoWorkflowLauncher/Index" data-sidebar-link><span>Workflow Launcher</span></a>
                     }
                     @if (canAccessPrintableDocuments)
                     {
@@ -392,7 +397,7 @@
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/ErrorLogs/Index" data-sidebar-link><span>Error Logs</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/Notifications/Index" data-sidebar-link><span>Notifications</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/QAChecklist/Index" data-sidebar-link><span>QA Checklist</span></a>
-                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/ModuleQA/Index" data-sidebar-link><span>Module QA Stabilization</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/ModuleQA/Index" data-sidebar-link><span>Module QA</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/DataValidationIssues/Index" data-sidebar-link><span>Data Validation Issues</span></a>
                     }
                     @if (canAccessGroupManagement)

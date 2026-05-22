@@ -16,13 +16,25 @@
 <div class="vpms-page-header">
     <div>
         <div class="page-kicker">System Administration</div>
-        <h1 class="vpms-page-title">Demo Setup</h1>
-        <p class="vpms-page-subtitle">Install safe, idempotent sample data for client demos, investor walkthroughs, and QA rehearsal.</p>
+        <h1 class="vpms-page-title">Demo Mode Setup</h1>
+        <p class="vpms-page-subtitle">Install safe, idempotent sample data and prepare a controlled walkthrough for client demos, investor previews, and pilot QA rehearsal.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">Idempotent seeding</span>
+            <span class="vpms-mini-chip">No destructive reset</span>
+            <span class="vpms-mini-chip">Presentation-safe records</span>
+        </div>
     </div>
     <div class="vpms-actions">
         <a class="btn vpms-btn-secondary" asp-page="/System/DemoPresentation/Index">Open Demo Presentation</a>
+        <a class="btn vpms-btn-primary" asp-page="/System/DemoWorkflowLauncher/Index">Workflow Launcher</a>
     </div>
 </div>
+
+<section class="vpms-product-proof-strip">
+    <article><span>Step 1</span><strong>Seed only what is missing</strong><p>Natural keys prevent duplicate demo records and protect existing trial data.</p></article>
+    <article><span>Step 2</span><strong>Review readiness</strong><p>Use presentation mode to verify sample rooms, reservations, POS, banquet, AR, and insights.</p></article>
+    <article><span>Step 3</span><strong>Launch guided flow</strong><p>Use the workflow launcher to keep demos on polished, high-confidence surfaces.</p></article>
+</section>
 
 @if (Model.Result is not null)
 {
@@ -93,7 +105,7 @@
                 <p class="text-muted mb-0">Each action checks natural keys such as codes, names, room numbers, emails, and references before inserting anything.</p>
             </div>
             <form method="post">
-                <button class="btn vpms-btn-primary" type="submit" asp-page-handler="Full">Seed Full Demo Dataset</button>
+                <button class="btn vpms-btn-primary" type="submit" asp-page-handler="Full" data-vpms-confirm="Seed missing records for the full demo dataset? Existing matching records will be kept.">Seed Full Demo Dataset</button>
             </form>
         </div>
 
@@ -102,42 +114,42 @@
                 <form method="post" class="vpms-section-card h-100">
                     <h3 class="h6">Demo Hotel</h3>
                     <p class="text-muted">Hotel, properties, departments, room types, rooms, roles, and demo users.</p>
-                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Hotel">Seed Demo Hotel</button>
+                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Hotel" data-vpms-confirm="Seed missing demo hotel setup records?">Seed Demo Hotel</button>
                 </form>
             </div>
             <div class="col-md-6 col-xl-4">
                 <form method="post" class="vpms-section-card h-100">
                     <h3 class="h6">Demo Operations</h3>
                     <p class="text-muted">Guests, reservations, folios, payments, housekeeping, revenue, booking, guest portal, and AI samples.</p>
-                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Operations">Seed Demo Operations</button>
+                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Operations" data-vpms-confirm="Seed missing demo operations records?">Seed Demo Operations</button>
                 </form>
             </div>
             <div class="col-md-6 col-xl-4">
                 <form method="post" class="vpms-section-card h-100">
                     <h3 class="h6">Demo Finance</h3>
                     <p class="text-muted">Charge codes, document sequences, AR accounts, AR invoices, memos, and accounting period sample.</p>
-                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Finance">Seed Demo Finance</button>
+                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Finance" data-vpms-confirm="Seed missing demo finance records?">Seed Demo Finance</button>
                 </form>
             </div>
             <div class="col-md-6 col-xl-4">
                 <form method="post" class="vpms-section-card h-100">
                     <h3 class="h6">Demo F&amp;B</h3>
                     <p class="text-muted">Outlets, dining tables, menu categories, menu items, kitchen stations, and POS orders.</p>
-                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="FoodBeverage">Seed Demo F&amp;B</button>
+                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="FoodBeverage" data-vpms-confirm="Seed missing demo food and beverage records?">Seed Demo F&amp;B</button>
                 </form>
             </div>
             <div class="col-md-6 col-xl-4">
                 <form method="post" class="vpms-section-card h-100">
                     <h3 class="h6">Demo Banquet</h3>
                     <p class="text-muted">Sales accounts, leads, function rooms, packages, events, charges, and BEOs.</p>
-                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Banquet">Seed Demo Banquet</button>
+                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Banquet" data-vpms-confirm="Seed missing demo banquet records?">Seed Demo Banquet</button>
                 </form>
             </div>
             <div class="col-md-6 col-xl-4">
                 <form method="post" class="vpms-section-card h-100">
                     <h3 class="h6">Demo Inventory</h3>
                     <p class="text-muted">Categories, items, suppliers, purchase request, purchase order, receiving, and stock movements.</p>
-                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Inventory">Seed Demo Inventory</button>
+                    <button class="btn vpms-btn-secondary w-100" type="submit" asp-page-handler="Inventory" data-vpms-confirm="Seed missing demo inventory records?">Seed Demo Inventory</button>
                 </form>
             </div>
         </div>

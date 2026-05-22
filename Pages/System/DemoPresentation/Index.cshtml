@@ -2,6 +2,9 @@
 @model Vantage.PMS.Pages.System.DemoPresentation.IndexModel
 @{
     ViewData["Title"] = "Demo Presentation";
+    var readyCount = Model.ReadinessItems.Count(item => item.Status == "Ready");
+    var readinessCount = Model.ReadinessItems.Count;
+    var readinessPercent = readinessCount == 0 ? 0 : (int)Math.Round(readyCount * 100m / readinessCount);
 }
 
 <nav aria-label="breadcrumb">
@@ -12,20 +15,32 @@
     </ol>
 </nav>
 
-<div class="vpms-page-header">
+<section class="vpms-demo-stage">
     <div>
         <div class="page-kicker">Vantage PMS</div>
-        <h1 class="vpms-page-title">Enterprise Hotel Property Management System</h1>
-        <p class="vpms-page-subtitle">Presentation guide for Vantage Grand Hotel demos, owner walkthroughs, and investor previews.</p>
+        <h1 class="vpms-page-title">Philippine Hospitality Command Platform</h1>
+        <p class="vpms-page-subtitle">A guided presentation surface for hotels, resorts, condotels, serviced apartments, restaurants, banquet venues, and multi-property operators.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">@readyCount of @readinessCount demo areas ready</span>
+            <span class="vpms-mini-chip">@Model.Status.Rooms rooms</span>
+            <span class="vpms-mini-chip">@Model.Status.Reservations reservations</span>
+            <span class="vpms-mini-chip">@Model.Status.ManagementInsights insights</span>
+        </div>
+    </div>
+    <div class="vpms-demo-stage-panel">
+        <span>Demo readiness</span>
+        <strong>@readinessPercent%</strong>
+        <p>Based on installed sample records and module readiness checks.</p>
     </div>
     <div class="vpms-actions">
         <a class="btn vpms-btn-primary" asp-page="/Index">Start at Dashboard</a>
+        <a class="btn vpms-btn-secondary" asp-page="/System/DemoWorkflowLauncher/Index">Workflow Launcher</a>
         @if (User.IsInRole(Vantage.PMS.Authorization.PmsRoles.SystemAdmin))
         {
             <a class="btn vpms-btn-secondary" asp-page="/Admin/DemoSetup/Index">Demo Setup</a>
         }
     </div>
-</div>
+</section>
 
 @if (!Model.HasDemoData)
 {
@@ -34,6 +49,12 @@
     </div>
 }
 
+<section class="vpms-product-proof-strip">
+    <article><span>Rooms</span><strong>Full-service PMS</strong><p>Reservations, room rack, housekeeping, folios, and guest portal surfaces.</p></article>
+    <article><span>Commercial</span><strong>POS + banquet + revenue</strong><p>F&amp;B service, kitchen display, event operations, rates, and booking flow.</p></article>
+    <article><span>Controls</span><strong>Finance + audit proof</strong><p>AR, reports, documents, Management AI, audit logs, and system health.</p></article>
+</section>
+
 <section class="vpms-card mb-4">
     <div class="card-body">
         <div class="row g-4 align-items-center">
@@ -41,7 +62,7 @@
                 <div class="page-kicker">Demo Hotel</div>
                 <h2 class="h3 mb-2">Vantage Grand Hotel</h2>
                 <p class="lead mb-3">Modern comfort. Smarter hotel operations.</p>
-                <p class="text-muted mb-0">Quezon City, Philippines · Vantage Hospitality · Prepared for professional guided demos and QA test runs.</p>
+                <p class="text-muted mb-0">Quezon City, Philippines - Vantage Hospitality - prepared for professional guided demos and QA test runs.</p>
             </div>
             <div class="col-lg-4">
                 <div class="vpms-section-card">

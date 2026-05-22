@@ -2,56 +2,96 @@
 @model Vantage.PMS.Pages.Booking.IndexModel
 @{
     ViewData["Title"] = Model.Setting.BookingEngineTitle;
+    var hotelName = string.IsNullOrWhiteSpace(Model.Setting.HotelName) ? "Vantage Hotel" : Model.Setting.HotelName;
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <h1 class="h3 mb-2">@Model.Setting.BookingEngineTitle</h1>
-        @if (!string.IsNullOrWhiteSpace(Model.Setting.WelcomeMessage))
-        {
-            <p class="text-muted">@Model.Setting.WelcomeMessage</p>
-        }
+<section class="vpms-booking-hero">
+    <div class="vpms-booking-hero-copy">
+        <div class="vpms-booking-kicker">Direct Booking</div>
+        <h1>@Model.Setting.BookingEngineTitle</h1>
+        <p>
+            @(string.IsNullOrWhiteSpace(Model.Setting.WelcomeMessage)
+                ? $"Plan a confident stay at {hotelName} with secure direct booking."
+                : Model.Setting.WelcomeMessage)
+        </p>
+        <div class="vpms-booking-trust-row">
+            <span>Best available direct rates</span>
+            <span>Secure request handling</span>
+            <span>Hotel-reviewed confirmation</span>
+        </div>
+    </div>
+
+    <div class="vpms-booking-search-card">
+        <div class="vpms-booking-search-header">
+            <span>@hotelName</span>
+            <strong>Find Your Stay</strong>
+        </div>
 
         @if (!Model.Setting.IsBookingEngineEnabled)
         {
-            <div class="alert alert-warning">Online booking is currently unavailable. Please contact the hotel directly.</div>
+            <div class="vpms-booking-unavailable">
+                Online booking is currently unavailable. Please contact the hotel directly.
+                @if (!string.IsNullOrWhiteSpace(Model.Setting.ContactNumber))
+                {
+                    <span>@Model.Setting.ContactNumber</span>
+                }
+            </div>
         }
         else
         {
-            <form method="post" class="card">
-                <div class="card-body row g-3">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="col-md-6">
-                        <label asp-for="Input.CheckInDate" class="form-label">Check-in date</label>
+            <form method="post" class="vpms-booking-form">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="vpms-booking-date-grid">
+                    <div>
+                        <label asp-for="Input.CheckInDate" class="form-label">Check-in</label>
                         <input asp-for="Input.CheckInDate" type="date" class="form-control" />
                     </div>
-                    <div class="col-md-6">
-                        <label asp-for="Input.CheckOutDate" class="form-label">Check-out date</label>
+                    <div>
+                        <label asp-for="Input.CheckOutDate" class="form-label">Check-out</label>
                         <input asp-for="Input.CheckOutDate" type="date" class="form-control" />
                     </div>
-                    <div class="col-md-4">
+                </div>
+                <div class="vpms-booking-guest-grid">
+                    <div>
                         <label asp-for="Input.AdultCount" class="form-label">Adults</label>
                         <input asp-for="Input.AdultCount" type="number" min="1" class="form-control" />
                     </div>
-                    <div class="col-md-4">
+                    <div>
                         <label asp-for="Input.ChildCount" class="form-label">Children</label>
                         <input asp-for="Input.ChildCount" type="number" min="0" class="form-control" />
                     </div>
                     @if (Model.Setting.AllowPromoCodes)
                     {
-                        <div class="col-md-4">
-                            <label asp-for="Input.PromoCode" class="form-label">Promo code</label>
-                            <input asp-for="Input.PromoCode" class="form-control" />
+                        <div>
+                            <label asp-for="Input.PromoCode" class="form-label">Promo Code</label>
+                            <input asp-for="Input.PromoCode" class="form-control" placeholder="Optional" />
                         </div>
                     }
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-primary">Search Availability</button>
-                    </div>
                 </div>
+                <button type="submit" class="btn vpms-booking-primary w-100">Search Availability</button>
+                <p class="vpms-booking-fineprint">No payment is collected on this step. Rates and availability are verified before confirmation.</p>
             </form>
         }
     </div>
-</div>
+</section>
+
+<section class="vpms-booking-assurance">
+    <article>
+        <span>01</span>
+        <strong>Select your stay</strong>
+        <p>Choose dates, occupancy, and optional promo code.</p>
+    </article>
+    <article>
+        <span>02</span>
+        <strong>Compare rooms</strong>
+        <p>Review room types, rates, deposit guidance, and stay totals.</p>
+    </article>
+    <article>
+        <span>03</span>
+        <strong>Submit securely</strong>
+        <p>Your booking request is reviewed by the hotel team.</p>
+    </article>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

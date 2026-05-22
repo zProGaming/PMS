@@ -5,16 +5,24 @@
     ViewData["Title"] = Model.ReportName;
 }
 
-<div class="vpms-page-header">
+<section class="vpms-placeholder-command">
     <div>
         <div class="page-kicker">@Model.Category</div>
         <h1 class="vpms-page-title">@Model.ReportName</h1>
-        <p class="vpms-page-subtitle">Report configuration placeholder.</p>
+        <p class="vpms-page-subtitle">This report surface is intentionally controlled until source data, mappings, or workflow configuration are ready.</p>
     </div>
     <a class="btn vpms-btn-secondary" asp-page="/Reports/Center">Back to Report Center</a>
-</div>
+</section>
 
-<section class="vpms-empty-state">
-    <strong>@Model.Message</strong>
-    <span>No records or configured report route is available yet. Seed demo data from System &gt; Demo Setup or create source records first.</span>
+<section class="vpms-placeholder-panel">
+    <div class="vpms-placeholder-mark">R</div>
+    <div>
+        <span>Planned or not yet configured</span>
+        <h2>@Model.Message</h2>
+        <p>No broken report route is exposed. Seed demo data, complete module setup, or configure the report route before using this report in production review.</p>
+        <div class="vpms-placeholder-actions">
+            <a class="btn vpms-btn-primary" asp-page="/Reports/Center">Open Report Center</a>
+            <a class="btn vpms-btn-secondary" asp-page="/Documents/Index">Printable Documents</a>
+        </div>
+    </div>
 </section>

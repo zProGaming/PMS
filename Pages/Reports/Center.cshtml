@@ -10,15 +10,42 @@
         .OrderBy(group => group.Key)
         .ToList();
     var canManageReports = Vantage.PMS.Authorization.PmsRoles.ReportAdministration.Any(User.IsInRole);
+    var availableCount = Model.Reports.Count(report => report.IsAvailable);
+    var printCount = Model.Reports.Count(report => report.SupportsPrint);
+    var csvCount = Model.Reports.Count(report => report.SupportsCsvExport);
 }
 
-<div class="vpms-page-header">
+@functions {
+    private static string CategoryStory(ReportCategory category) => category switch
+    {
+        ReportCategory.FrontOffice => "Arrival, departure, occupancy, and guest movement reporting.",
+        ReportCategory.Finance => "Revenue control, cashiering, payment, and financial operations reports.",
+        ReportCategory.Accounting => "GL, statements, close review, and finance leadership reporting.",
+        ReportCategory.USALI => "USALI-style management reporting for department performance review.",
+        ReportCategory.PhilippineFinance => "Configurable Philippine finance registers and tax-support summaries.",
+        ReportCategory.AccountsReceivable => "Aging, collections, statements, and credit-control visibility.",
+        ReportCategory.AccountsPayable => "Supplier liability, voucher, payment, and disbursement reporting.",
+        ReportCategory.Executive => "Owner, GM, and management committee reporting surfaces.",
+        ReportCategory.FoodBeverage => "F&B sales and outlet performance reporting.",
+        ReportCategory.Banquet => "Event, BEO, function room, and banquet revenue visibility.",
+        ReportCategory.Inventory => "Stock, risk, movement, adjustment, and valuation reporting.",
+        _ => "Operational reports curated for review, print, and export."
+    };
+}
+
+<section class="vpms-report-command">
     <div>
         <div class="page-kicker">Reports</div>
         <h1 class="vpms-page-title">Report Center</h1>
-        <p class="vpms-page-subtitle">Centralized printing, CSV export, and browser PDF access for Vantage PMS reports.</p>
+        <p class="vpms-page-subtitle">A curated command center for hotel reporting, browser print, CSV export, and management review packages.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">@Model.Reports.Count report@(Model.Reports.Count == 1 ? "" : "s") visible</span>
+            <span class="vpms-mini-chip">@availableCount available now</span>
+            <span class="vpms-mini-chip">@printCount print-ready</span>
+            <span class="vpms-mini-chip">@csvCount CSV export@(csvCount == 1 ? "" : "s")</span>
+        </div>
     </div>
-    <div class="vpms-actions">
+    <div class="vpms-hero-actions">
         <a class="btn vpms-btn-secondary" asp-page="/Documents/Index">Printable Documents</a>
         @if (canManageReports)
         {
@@ -26,23 +53,23 @@
             <a class="btn vpms-btn-secondary" asp-page="/Reports/TemplateSettings/Index">Template Settings</a>
         }
     </div>
-</div>
+</section>
 
-<section class="vpms-report-filters vpms-card mb-4">
-    <form method="get" class="row g-3 align-items-end">
-        <div class="col-md-5">
+<section class="vpms-filter-bar vpms-report-filter-premium">
+    <form method="get">
+        <div>
             <label class="form-label" for="search">Search</label>
             <input class="form-control" id="search" name="search" value="@Model.Search" placeholder="Search reports, categories, or descriptions" />
         </div>
-        <div class="col-md-4">
+        <div>
             <label class="form-label" for="category">Category</label>
             <select class="form-select" id="category" asp-for="Category" asp-items="Html.GetEnumSelectList<ReportCategory>()">
                 <option value="">All categories</option>
             </select>
         </div>
-        <div class="col-md-3 d-flex gap-2">
-            <button class="btn vpms-btn-primary flex-fill" type="submit">Filter</button>
-            <a class="btn vpms-btn-secondary flex-fill" asp-page="/Reports/Center">Reset</a>
+        <div class="vpms-filter-actions">
+            <button class="btn vpms-btn-primary" type="submit">Filter</button>
+            <a class="btn vpms-btn-secondary" asp-page="/Reports/Center">Reset</a>
         </div>
     </form>
 </section>
@@ -56,16 +83,21 @@
 }
 else
 {
-    <div class="vpms-report-center">
+    <div class="vpms-report-center vpms-report-center-premium">
         @foreach (var category in categories)
         {
+            var availableInCategory = category.Count(report => report.IsAvailable);
             <section class="vpms-section-card vpms-report-category">
                 <div class="vpms-report-category-header">
                     <div>
+                        <div class="vpms-report-card-kicker">@ReportCatalogService.FormatCategory(category.Key)</div>
                         <h2>@ReportCatalogService.FormatCategory(category.Key)</h2>
-                        <p>@category.Count() report@(category.Count() == 1 ? "" : "s") available.</p>
+                        <p>@CategoryStory(category.Key)</p>
                     </div>
-                    <span class="vpms-badge">@category.Key</span>
+                    <div class="vpms-report-category-meter">
+                        <strong>@availableInCategory / @category.Count()</strong>
+                        <span>available now</span>
+                    </div>
                 </div>
                 <div class="vpms-report-card-grid">
                     @foreach (var report in category)
@@ -75,9 +107,9 @@ else
                         var csvUrl = report.SupportsCsvExport
                             ? Url.Page("/Reports/Export", "Csv", new { reportKey = report.ReportKey })
                             : null;
-                        <article class="vpms-report-card">
+                        <article class="vpms-report-card @(report.IsAvailable ? "is-available" : "is-planned")">
                             <div class="vpms-report-card-body">
-                                <div class="vpms-report-card-kicker">@ReportCatalogService.FormatCategory(report.ReportCategory)</div>
+                                <div class="vpms-report-card-kicker">@(report.IsAvailable ? "Ready for review" : "Controlled placeholder")</div>
                                 <h3>@report.ReportName</h3>
                                 <p>@report.Description</p>
                             </div>
@@ -88,7 +120,7 @@ else
                                 <span class="@(report.SupportsHtmlExport ? "is-on" : "is-muted")">HTML</span>
                             </div>
                             <div class="vpms-report-card-actions">
-                                <a class="btn vpms-btn-primary btn-sm" href="@openUrl">Open</a>
+                                <a class="btn vpms-btn-primary btn-sm" href="@openUrl">@(report.IsAvailable ? "Open Report" : "View Status")</a>
                                 @if (!string.IsNullOrWhiteSpace(csvUrl))
                                 {
                                     <a class="btn vpms-btn-secondary btn-sm" href="@csvUrl">CSV</a>
@@ -100,7 +132,7 @@ else
                             </div>
                             @if (!report.IsAvailable)
                             {
-                                <div class="vpms-report-unavailable">Report not yet available.</div>
+                                <div class="vpms-report-unavailable">Capability is visible for planning, with no broken route exposed.</div>
                             }
                         </article>
                     }

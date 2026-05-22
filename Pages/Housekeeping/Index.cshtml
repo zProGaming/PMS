@@ -3,111 +3,109 @@
 
 @{
     ViewData["Title"] = "Housekeeping";
+    var totalRooms = Model.Rooms.Count;
+    var readyRooms = Model.InspectedRooms + Model.CleanRooms;
+    var readinessPercent = totalRooms <= 0 ? 0 : Math.Round((decimal)readyRooms / totalRooms * 100, 1);
 }
 
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Housekeeping</li>
-    </ol>
-</nav>
-
-<div class="page-header">
+<section class="vpms-ops-hero vpms-housekeeping-hero">
     <div>
         <div class="page-kicker">Room Readiness</div>
         <h1 class="page-title">Housekeeping</h1>
-        <p class="page-subtitle">Monitor dirty, clean, inspected, maintenance, and out-of-order rooms.</p>
+        <p class="page-subtitle">Operational room readiness, turnover urgency, and assignment control.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">@totalRooms active rooms</span>
+            <span class="vpms-mini-chip">@readinessPercent.ToString("N1")% readiness</span>
+            <span class="vpms-mini-chip">@(Model.VacantDirtyRooms + Model.OccupiedDirtyRooms) dirty rooms</span>
+        </div>
     </div>
-    <a class="btn btn-primary" asp-page="/Housekeeping/Tasks/Create">Create Task</a>
-</div>
+    <div class="vpms-hero-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/RoomRack/Index">Room Rack</a>
+        <a class="btn vpms-btn-primary" asp-page="/Housekeeping/Tasks/Create">Create Task</a>
+    </div>
+</section>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-4 col-lg-2">
-        <div class="kpi-card">
-            <div class="kpi-label">Vacant Dirty</div>
-            <div class="kpi-value">@Model.VacantDirtyRooms</div>
-            <div class="kpi-note">Priority turnover</div>
-        </div>
-    </div>
-    <div class="col-md-4 col-lg-2">
-        <div class="kpi-card">
-            <div class="kpi-label">Occupied Dirty</div>
-            <div class="kpi-value">@Model.OccupiedDirtyRooms</div>
-            <div class="kpi-note">Stayover attention</div>
-        </div>
-    </div>
-    <div class="col-md-4 col-lg-2">
-        <div class="kpi-card">
-            <div class="kpi-label">Clean</div>
-            <div class="kpi-value">@Model.CleanRooms</div>
-            <div class="kpi-note">Awaiting inspection</div>
-        </div>
-    </div>
-    <div class="col-md-4 col-lg-2">
-        <div class="kpi-card">
-            <div class="kpi-label">Inspected</div>
-            <div class="kpi-value">@Model.InspectedRooms</div>
-            <div class="kpi-note">Ready to release</div>
-        </div>
-    </div>
-    <div class="col-md-4 col-lg-2">
-        <div class="kpi-card">
-            <div class="kpi-label">Out of Order</div>
-            <div class="kpi-value">@Model.OutOfOrderRooms</div>
-            <div class="kpi-note">Unavailable inventory</div>
-        </div>
-    </div>
-    <div class="col-md-4 col-lg-2">
-        <div class="kpi-card">
-            <div class="kpi-label">Maintenance</div>
-            <div class="kpi-value">@Model.MaintenanceRooms</div>
-            <div class="kpi-note">Engineering follow-up</div>
-        </div>
-    </div>
-</div>
+<section class="vpms-control-strip vpms-housekeeping-strip">
+    <article class="@(Model.VacantDirtyRooms > 0 ? "warning" : "positive")">
+        <span>Vacant Dirty</span>
+        <strong>@Model.VacantDirtyRooms</strong>
+        <small>Priority turnover</small>
+    </article>
+    <article class="@(Model.OccupiedDirtyRooms > 0 ? "warning" : "")">
+        <span>Occupied Dirty</span>
+        <strong>@Model.OccupiedDirtyRooms</strong>
+        <small>Stayover attention</small>
+    </article>
+    <article class="positive">
+        <span>Clean / Inspected</span>
+        <strong>@readyRooms</strong>
+        <small>Ready or nearly ready</small>
+    </article>
+    <article class="@(Model.OutOfOrderRooms + Model.MaintenanceRooms > 0 ? "danger" : "")">
+        <span>Blocked Inventory</span>
+        <strong>@(Model.OutOfOrderRooms + Model.MaintenanceRooms)</strong>
+        <small>OOO and maintenance</small>
+    </article>
+</section>
 
-<div class="page-header">
-    <div>
-        <h2 class="h4 page-title">Room Rack</h2>
-        <p class="page-subtitle">Operational room cards with status, notes, and direct actions.</p>
+<section class="vpms-card vpms-operational-panel">
+    <div class="vpms-section-titlebar">
+        <div>
+            <h2>Room Readiness Board</h2>
+            <p>Scan rooms by condition, urgency, and operational action.</p>
+        </div>
+        <div class="vpms-legend-row">
+            <span class="status-badge status-available">Ready</span>
+            <span class="status-badge status-dirty">Dirty</span>
+            <span class="status-badge status-maintenance">Maintenance</span>
+            <span class="status-badge status-outoforder">Out of Order</span>
+        </div>
     </div>
-    <div class="d-flex flex-wrap gap-2">
-        <span class="status-badge status-available">Available/Clean</span>
-        <span class="status-badge status-occupied">Occupied</span>
-        <span class="status-badge status-dirty">Dirty</span>
-        <span class="status-badge status-maintenance">Maintenance</span>
-        <span class="status-badge status-outoforder">Out of Order</span>
-    </div>
-</div>
 
-@if (Model.Rooms.Count == 0)
-{
-    <div class="empty-state">No rooms are configured yet.</div>
-}
-else
-{
-    <div class="room-rack">
-        @foreach (var room in Model.Rooms)
-        {
-            var roomStatusClass = room.Status.ToString().ToLowerInvariant();
-            <article class="room-card @roomStatusClass">
-                <div class="d-flex justify-content-between align-items-start gap-2">
-                    <div>
-                        <div class="fw-bold">Room @room.RoomNumber</div>
-                        <div class="text-muted small">@room.RoomType?.Name</div>
-                    </div>
-                    <span class="status-badge status-@roomStatusClass">@room.Status</span>
-                </div>
-                <div class="small text-muted mt-2">@room.Property?.Name</div>
-                @if (!string.IsNullOrWhiteSpace(room.StatusNotes))
+    @if (Model.Rooms.Count == 0)
+    {
+        <div class="vpms-empty-state">
+            <strong>No rooms configured.</strong>
+            <span>Create rooms or seed demo data to populate the housekeeping board.</span>
+        </div>
+    }
+    else
+    {
+        <div class="room-rack vpms-room-rack-premium">
+            @foreach (var room in Model.Rooms)
+            {
+                var roomStatusClass = room.Status.ToString().ToLowerInvariant();
+                var priorityLabel = room.Status.ToString() switch
                 {
-                    <div class="small mt-2">@room.StatusNotes</div>
-                }
-                <div class="d-flex gap-2 mt-3">
-                    <a class="btn btn-sm btn-outline-primary" asp-page="/Housekeeping/Rooms/UpdateStatus" asp-route-id="@room.Id">Update</a>
-                    <a class="btn btn-sm btn-outline-secondary" asp-page="/Housekeeping/Tasks/Create" asp-route-roomId="@room.Id">Task</a>
-                </div>
-            </article>
-        }
-    </div>
-}
+                    "Dirty" => "Turnover",
+                    "Maintenance" => "Engineering",
+                    "OutOfOrder" => "Unavailable",
+                    "Clean" => "Inspect",
+                    "Inspected" => "Release",
+                    _ => "Monitor"
+                };
+                <article class="room-card vpms-room-card-premium @roomStatusClass">
+                    <div class="vpms-room-card-top">
+                        <div>
+                            <div class="vpms-room-number">Room @room.RoomNumber</div>
+                            <div class="vpms-muted-line">@room.RoomType?.Name</div>
+                        </div>
+                        <span class="status-badge status-@roomStatusClass">@room.Status</span>
+                    </div>
+                    <div class="vpms-room-card-meta">
+                        <span>@(room.Property?.Name ?? "Property not assigned")</span>
+                        <strong>@priorityLabel</strong>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(room.StatusNotes))
+                    {
+                        <div class="vpms-room-note">@room.StatusNotes</div>
+                    }
+                    <div class="vpms-room-actions">
+                        <a class="btn btn-sm vpms-btn-secondary" asp-page="/Housekeeping/Rooms/UpdateStatus" asp-route-id="@room.Id">Update</a>
+                        <a class="btn btn-sm btn-outline-secondary" asp-page="/Housekeeping/Tasks/Create" asp-route-roomId="@room.Id">Task</a>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>
