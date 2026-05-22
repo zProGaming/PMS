@@ -12,7 +12,7 @@
 
 <section class="vpms-ops-hero vpms-folio-hero">
     <div>
-        <div class="page-kicker">Folio Control</div>
+        <div class="page-kicker">Guest Ledger Control</div>
         <h1 class="page-title">@Model.Folio.FolioNumber</h1>
         <p class="page-subtitle">
             @Model.Folio.Guest?.FirstName @Model.Folio.Guest?.LastName |
@@ -59,7 +59,7 @@
 
 <section class="vpms-control-brief vpms-ledger-brief">
     <article class="@balanceTone">
-        <span>Settlement Position</span>
+        <span>Settlement Posture</span>
         <strong>@settlementLabel</strong>
     </article>
     <article>
@@ -76,7 +76,7 @@
     <section class="vpms-card vpms-operational-panel">
         <div class="vpms-section-titlebar">
             <div>
-                <h2>Guest and Stay</h2>
+                <h2>Guest and Stay Context</h2>
                 <p>Reservation context for billing and checkout decisions.</p>
             </div>
         </div>
@@ -102,7 +102,7 @@
     <section class="vpms-card vpms-operational-panel">
         <div class="vpms-section-titlebar">
             <div>
-                <h2>Financial Readiness</h2>
+                <h2>Settlement Readiness</h2>
                 <p>Balance review before payment, transfer, or checkout.</p>
             </div>
         </div>
@@ -118,7 +118,7 @@
     <div class="vpms-section-titlebar">
         <div>
             <h2>Charges</h2>
-            <p>All posted folio items, void flags, and posting responsibility.</p>
+            <p>Posted folio items, void flags, and posting responsibility.</p>
         </div>
         <a class="btn vpms-btn-secondary" asp-page="./PostCharge" asp-route-folioId="@Model.Folio.Id">Post Charge</a>
     </div>
@@ -170,7 +170,7 @@
     <div class="vpms-section-titlebar">
         <div>
             <h2>Payments</h2>
-            <p>Collected payments, cashier shift traceability, and references.</p>
+            <p>Collected payments, cashier traceability, and settlement references.</p>
         </div>
         <a class="btn vpms-btn-secondary" asp-page="./PostPayment" asp-route-folioId="@Model.Folio.Id">Post Payment</a>
     </div>

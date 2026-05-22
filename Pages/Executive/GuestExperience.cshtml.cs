@@ -26,14 +26,18 @@ public class GuestExperienceModel(ApplicationDbContext context) : PageModel
         var totalRequests = await context.GuestServiceRequests.AsNoTracking().CountAsync(request => request.CreatedAt >= since);
         var completedRequests = await context.GuestServiceRequests.AsNoTracking().CountAsync(request => request.CreatedAt >= since && request.Status == GuestServiceRequestStatus.Completed);
         CompletionRate = totalRequests == 0 ? 0 : completedRequests * 100m / totalRequests;
-        CommonRequests = await context.GuestServiceRequests
+        var commonRequests = await context.GuestServiceRequests
             .AsNoTracking()
             .Where(request => request.CreatedAt >= since)
             .GroupBy(request => request.RequestType)
-            .Select(group => new RequestTypeRow(group.Key.ToString(), group.Count()))
+            .Select(group => new { RequestType = group.Key, Count = group.Count() })
             .OrderByDescending(row => row.Count)
             .Take(8)
             .ToListAsync();
+
+        CommonRequests = commonRequests
+            .Select(row => new RequestTypeRow(row.RequestType.ToString(), row.Count))
+            .ToList();
     }
 }
 

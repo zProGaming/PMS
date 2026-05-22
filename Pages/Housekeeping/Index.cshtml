@@ -11,8 +11,8 @@
 <section class="vpms-ops-hero vpms-housekeeping-hero">
     <div>
         <div class="page-kicker">Room Readiness</div>
-        <h1 class="page-title">Housekeeping</h1>
-        <p class="page-subtitle">Operational room readiness, turnover urgency, and assignment control.</p>
+        <h1 class="page-title">Room Readiness Board</h1>
+        <p class="page-subtitle">A calm command view for turnover urgency, inspected inventory, room release, and engineering attention.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">@totalRooms active rooms</span>
             <span class="vpms-mini-chip">@readinessPercent.ToString("N1")% readiness</span>
@@ -50,17 +50,17 @@
 
 <section class="vpms-housekeeping-command" aria-label="Housekeeping command priorities">
     <article class="@(Model.VacantDirtyRooms > 0 ? "warning" : "positive")">
-        <span>Turnover Lane</span>
+        <span>Turnover Attention</span>
         <strong>@Model.VacantDirtyRooms vacant dirty</strong>
         <p>Prioritize arrivals and release-ready rooms before front desk pressure builds.</p>
     </article>
     <article class="positive">
-        <span>Release Lane</span>
+        <span>Release Confidence</span>
         <strong>@Model.InspectedRooms inspected</strong>
         <p>Rooms already inspected can be released confidently for rooming and upsell recovery.</p>
     </article>
     <article class="@(Model.OutOfOrderRooms + Model.MaintenanceRooms > 0 ? "danger" : "")">
-        <span>Engineering Lane</span>
+        <span>Engineering Attention</span>
         <strong>@(Model.OutOfOrderRooms + Model.MaintenanceRooms) blocked</strong>
         <p>Coordinate unavailable inventory before it affects occupancy and walk-in decisions.</p>
     </article>
@@ -70,7 +70,7 @@
     <div class="vpms-section-titlebar">
         <div>
             <h2>Room Readiness Board</h2>
-            <p>Scan rooms by condition, urgency, and operational action.</p>
+            <p>Scan rooms by condition, urgency, and release action.</p>
         </div>
         <div class="vpms-legend-row">
             <span class="status-badge status-available">Ready</span>

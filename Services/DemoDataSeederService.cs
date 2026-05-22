@@ -155,24 +155,24 @@ public class DemoDataSeederService(
     {
         var items = new List<DemoReadinessItem>
         {
-            await ReadyAsync("Admin Setup", context.Hotels.AnyAsync(), context.RoomTypes.AnyAsync()),
-            await ReadyAsync("Front Office", context.Reservations.AnyAsync(), context.Guests.AnyAsync()),
-            await ReadyAsync("Housekeeping", context.HousekeepingTasks.AnyAsync(), context.Rooms.AnyAsync(room => room.Status == RoomStatus.Dirty || room.Status == RoomStatus.Clean)),
-            await ReadyAsync("Finance", context.Folios.AnyAsync(), context.Payments.AnyAsync()),
-            await ReadyAsync("F&B Service", context.POSOrders.AnyAsync(), context.MenuItems.AnyAsync()),
-            await ReadyAsync("F&B Kitchen", context.KitchenStations.AnyAsync(), context.POSOrderItems.AnyAsync()),
-            await ReadyAsync("Sales CRM", context.SalesAccounts.AnyAsync(), context.SalesLeads.AnyAsync()),
-            await ReadyAsync("Banquet", context.BanquetEvents.AnyAsync(), context.BanquetEventOrders.AnyAsync()),
-            await ReadyAsync("Revenue", context.RatePlans.AnyAsync(), context.RoomTypeRates.AnyAsync()),
-            await ReadyAsync("Booking Engine", context.BookingEngineSettings.AnyAsync(), context.BookingRequests.AnyAsync()),
-            await ReadyAsync("Guest Portal", context.GuestPortalSettings.AnyAsync(), context.GuestServiceRequests.AnyAsync()),
-            await ReadyAsync("Inventory", context.InventoryItems.AnyAsync(), context.StockMovements.AnyAsync()),
-            await ReadyAsync("Purchasing", context.PurchaseOrders.AnyAsync(), context.ReceivingRecords.AnyAsync()),
-            await ReadyAsync("Accounts Receivable", context.ARAccounts.AnyAsync(), context.ARInvoices.AnyAsync()),
-            await ReadyAsync("Labor Costing", context.EmployeeCostProfiles.AnyAsync(), context.PayrollPeriods.AnyAsync()),
-            await ReadyAsync("Management AI", context.ManagementDailySummaries.AnyAsync(), context.ManagementInsights.AnyAsync()),
-            await ReadyAsync("Audit Trail", context.AuditLogs.AnyAsync(), Task.FromResult(true)),
-            await ReadyAsync("System Health", context.QATestChecklistItems.AnyAsync(), context.DataValidationIssues.AnyAsync())
+            await ReadyAsync("Admin Setup", () => context.Hotels.AnyAsync(), () => context.RoomTypes.AnyAsync()),
+            await ReadyAsync("Front Office", () => context.Reservations.AnyAsync(), () => context.Guests.AnyAsync()),
+            await ReadyAsync("Housekeeping", () => context.HousekeepingTasks.AnyAsync(), () => context.Rooms.AnyAsync(room => room.Status == RoomStatus.Dirty || room.Status == RoomStatus.Clean)),
+            await ReadyAsync("Finance", () => context.Folios.AnyAsync(), () => context.Payments.AnyAsync()),
+            await ReadyAsync("F&B Service", () => context.POSOrders.AnyAsync(), () => context.MenuItems.AnyAsync()),
+            await ReadyAsync("F&B Kitchen", () => context.KitchenStations.AnyAsync(), () => context.POSOrderItems.AnyAsync()),
+            await ReadyAsync("Sales CRM", () => context.SalesAccounts.AnyAsync(), () => context.SalesLeads.AnyAsync()),
+            await ReadyAsync("Banquet", () => context.BanquetEvents.AnyAsync(), () => context.BanquetEventOrders.AnyAsync()),
+            await ReadyAsync("Revenue", () => context.RatePlans.AnyAsync(), () => context.RoomTypeRates.AnyAsync()),
+            await ReadyAsync("Booking Engine", () => context.BookingEngineSettings.AnyAsync(), () => context.BookingRequests.AnyAsync()),
+            await ReadyAsync("Guest Portal", () => context.GuestPortalSettings.AnyAsync(), () => context.GuestServiceRequests.AnyAsync()),
+            await ReadyAsync("Inventory", () => context.InventoryItems.AnyAsync(), () => context.StockMovements.AnyAsync()),
+            await ReadyAsync("Purchasing", () => context.PurchaseOrders.AnyAsync(), () => context.ReceivingRecords.AnyAsync()),
+            await ReadyAsync("Accounts Receivable", () => context.ARAccounts.AnyAsync(), () => context.ARInvoices.AnyAsync()),
+            await ReadyAsync("Labor Costing", () => context.EmployeeCostProfiles.AnyAsync(), () => context.PayrollPeriods.AnyAsync()),
+            await ReadyAsync("Management AI", () => context.ManagementDailySummaries.AnyAsync(), () => context.ManagementInsights.AnyAsync()),
+            await ReadyAsync("Audit Trail", () => context.AuditLogs.AnyAsync(), () => Task.FromResult(true)),
+            await ReadyAsync("System Health", () => context.QATestChecklistItems.AnyAsync(), () => context.DataValidationIssues.AnyAsync())
         };
         return items;
     }
@@ -1945,10 +1945,10 @@ public class DemoDataSeederService(
         }
     }
 
-    private async Task<DemoReadinessItem> ReadyAsync(string module, Task<bool> primary, Task<bool> secondary)
+    private static async Task<DemoReadinessItem> ReadyAsync(string module, Func<Task<bool>> primary, Func<Task<bool>> secondary)
     {
-        var first = await primary;
-        var second = await secondary;
+        var first = await primary();
+        var second = await secondary();
         var status = first && second ? "Ready" : first || second ? "Needs Review" : "Not Configured";
         return new DemoReadinessItem(module, status);
     }

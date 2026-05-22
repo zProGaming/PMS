@@ -8,7 +8,7 @@
 <section class="vpms-booking-flow-header">
     <div>
         <div class="vpms-booking-kicker">Room Selection</div>
-        <h1>Choose Your Room</h1>
+        <h1>Choose your room</h1>
         <p>@Model.Input.CheckInDate.ToString("MMM d") to @Model.Input.CheckOutDate.ToString("MMM d, yyyy") | @nights night@(nights == 1 ? "" : "s") | @Model.Input.AdultCount adult@(Model.Input.AdultCount == 1 ? "" : "s")@if (Model.Input.ChildCount > 0) { <text>, @Model.Input.ChildCount child@(Model.Input.ChildCount == 1 ? "" : "ren")</text> }</p>
     </div>
     <a asp-page="Index" class="btn vpms-booking-secondary">New Search</a>
@@ -25,7 +25,7 @@
     </article>
     <article>
         <span>Reservation Handling</span>
-        <strong>Hotel-reviewed request</strong>
+        <strong>Hotel-reviewed confirmation</strong>
     </article>
 </section>
 

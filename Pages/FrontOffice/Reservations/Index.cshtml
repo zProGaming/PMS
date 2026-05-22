@@ -17,9 +17,9 @@
 
 <section class="vpms-ops-hero vpms-ops-hero-compact">
     <div>
-        <div class="page-kicker">Front Desk Control</div>
+        <div class="page-kicker">Front Desk Operating View</div>
         <h1 class="page-title">Reservations</h1>
-        <p class="page-subtitle">Arrival, stay, and rooming control for front desk teams.</p>
+        <p class="page-subtitle">A scan-ready desk view for arrivals, stay control, room assignment, and guest movement.</p>
     </div>
     <div class="vpms-hero-actions">
         <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/RoomRack/Index">Room Rack</a>
@@ -44,7 +44,7 @@
         <small>Checked-in stays</small>
     </article>
     <article class="@(Model.UnassignedReservations > 0 ? "needs-attention" : "")">
-        <span>Unassigned</span>
+        <span>Rooming Attention</span>
         <strong>@Model.UnassignedReservations</strong>
         <small>Need rooming</small>
     </article>

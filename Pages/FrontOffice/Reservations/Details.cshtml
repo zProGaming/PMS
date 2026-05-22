@@ -20,7 +20,7 @@
 
 <section class="vpms-ops-hero vpms-reservation-control">
     <div>
-        <div class="page-kicker">Reservation Control</div>
+        <div class="page-kicker">Stay Control</div>
         <h1 class="page-title">@Model.Reservation.ConfirmationNumber</h1>
         <p class="page-subtitle">
             @Model.Reservation.Guest?.FirstName @Model.Reservation.Guest?.LastName |
@@ -71,7 +71,7 @@
 
 <section class="vpms-control-brief">
     <article>
-        <span>Next Action</span>
+        <span>Next Best Action</span>
         <strong>@nextAction</strong>
     </article>
     <article class="@(Model.Reservation.RoomId is null ? "warning" : "positive")">
@@ -88,8 +88,8 @@
     <section class="vpms-card vpms-operational-panel">
         <div class="vpms-section-titlebar">
             <div>
-                <h2>Stay Profile</h2>
-                <p>Core reservation and arrival details.</p>
+                <h2>Guest Stay Profile</h2>
+                <p>Core reservation and arrival details for front desk control.</p>
             </div>
         </div>
         <dl class="vpms-definition-list">
@@ -109,7 +109,7 @@
     <section class="vpms-card vpms-operational-panel">
         <div class="vpms-section-titlebar">
             <div>
-                <h2>Operational Status</h2>
+                <h2>Stay Timeline</h2>
                 <p>Rooming, actual movement, and next action readiness.</p>
             </div>
         </div>
@@ -134,7 +134,7 @@
     <div class="vpms-section-titlebar">
         <div>
             <h2>Guest Folio Control</h2>
-            <p>Charge posting and payment actions tied to this stay.</p>
+            <p>Charge posting and payment actions connected to this stay.</p>
         </div>
         @if (hasFolio)
         {

@@ -15,18 +15,23 @@
 <section class="vpms-ops-hero vpms-executive-hero">
     <div>
         <div class="page-kicker">Owner / GM Intelligence</div>
-        <h1 class="page-title">Executive Dashboard</h1>
-        <p class="page-subtitle">A boardroom-ready view of hotel performance, finance exposure, operating risk, and department contribution.</p>
+        <h1 class="page-title">Executive Command View</h1>
+        <p class="page-subtitle">A boardroom-grade operating narrative for hotel performance, cash exposure, labor discipline, and management attention.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">@summary.HotelName</span>
             <span class="vpms-mini-chip">@Model.StartDate.ToString("MMM d") - @Model.EndDate.ToString("MMM d, yyyy")</span>
             <span class="vpms-mini-chip">Business date @summary.BusinessDate.ToString("MMM d, yyyy")</span>
         </div>
     </div>
-    <div class="vpms-hero-actions vpms-no-print">
-        <a class="btn vpms-btn-secondary" asp-page="/Executive/Snapshots/Index">Generate Snapshot</a>
-        <a class="btn vpms-btn-secondary" asp-page="/Executive/MonthlyOwnerReport">Monthly Owner Report</a>
-        <button type="button" class="btn vpms-btn-primary" onclick="window.print()">Print</button>
+    <div class="vpms-hero-intelligence vpms-no-print">
+        <span>Ownership posture</span>
+        <strong>@performancePosture</strong>
+        <small>@summary.TotalRevenue.ToString("C0") selected-period revenue with @summary.OpenCriticalIssues critical alert@(summary.OpenCriticalIssues == 1 ? "" : "s").</small>
+        <div class="vpms-hero-actions">
+            <a class="btn vpms-btn-secondary" asp-page="/Executive/Snapshots/Index">Generate Snapshot</a>
+            <a class="btn vpms-btn-secondary" asp-page="/Executive/MonthlyOwnerReport">Monthly Owner Report</a>
+            <button type="button" class="btn vpms-btn-primary" onclick="window.print()">Print</button>
+        </div>
     </div>
 </section>
 
@@ -47,7 +52,7 @@
 <section class="vpms-print-document vpms-executive-board">
     <section class="vpms-board-brief" aria-label="Executive briefing">
         <article class="@(summary.OpenCriticalIssues > 0 ? "danger" : "positive")">
-            <span>Board Posture</span>
+            <span>Ownership Posture</span>
             <strong>@performancePosture</strong>
             <p>@summary.OpenCriticalIssues critical alert@(summary.OpenCriticalIssues == 1 ? "" : "s") and @summary.PendingApprovals pending approval@(summary.PendingApprovals == 1 ? "" : "s").</p>
         </article>
@@ -91,8 +96,8 @@
             <section class="vpms-card vpms-operational-panel">
                 <div class="vpms-section-titlebar">
                     <div>
-                        <h2>Financial Highlights</h2>
-                        <p>Revenue, cash collection, receivables, payables, and labor cost.</p>
+                        <h2>Financial Position</h2>
+                        <p>Revenue, collection, receivables, payables, and labor exposure for leadership review.</p>
                     </div>
                 </div>
                 <div class="vpms-finance-grid">
@@ -110,8 +115,8 @@
             <section class="vpms-card vpms-operational-panel">
                 <div class="vpms-section-titlebar">
                     <div>
-                        <h2>Revenue Mix</h2>
-                        <p>Operating revenue share by stream.</p>
+                        <h2>Revenue Architecture</h2>
+                        <p>Operating revenue share by rooms, F&amp;B, banquet, and other streams.</p>
                     </div>
                 </div>
                 <div class="vpms-revenue-mix">
@@ -126,7 +131,7 @@
                 <div class="vpms-section-titlebar">
                     <div>
                         <h2>Department Performance</h2>
-                        <p>Revenue, labor, profit, and margin by department.</p>
+                        <p>Revenue, labor, profit, and margin contribution by department.</p>
                     </div>
                     <a class="btn vpms-btn-secondary vpms-no-print" asp-page="/Executive/DepartmentPerformance">Open Department View</a>
                 </div>
@@ -161,7 +166,7 @@
             <section class="vpms-card vpms-operational-panel">
                 <div class="vpms-section-titlebar">
                     <div>
-                        <h2>Operating Risk</h2>
+                        <h2>Operational Attention</h2>
                         <p>Open signals requiring management review.</p>
                     </div>
                 </div>
@@ -177,7 +182,7 @@
                 <div class="vpms-section-titlebar">
                     <div>
                         <h2>Executive Alerts</h2>
-                        <p>Unresolved alerts by severity and module.</p>
+                        <p>Unresolved alerts by severity and operating area.</p>
                     </div>
                 </div>
                 @if (Model.Dashboard.Alerts.Count == 0)
@@ -204,7 +209,7 @@
                 <div class="vpms-section-titlebar">
                     <div>
                         <h2>KPI Watchlist</h2>
-                        <p>Top KPIs and benchmark status.</p>
+                        <p>Key indicators and benchmark posture.</p>
                     </div>
                 </div>
                 @if (Model.Dashboard.Kpis.Count == 0)
@@ -230,8 +235,8 @@
             <section class="vpms-card vpms-operational-panel">
                 <div class="vpms-section-titlebar">
                     <div>
-                        <h2>7-Day Trend</h2>
-                        <p>Occupancy and revenue movement.</p>
+                        <h2>Seven-Day Movement</h2>
+                        <p>Occupancy and revenue direction.</p>
                     </div>
                 </div>
                 <div class="vpms-table-wrapper">

@@ -7,11 +7,11 @@
 
 <section class="vpms-booking-hero">
     <div class="vpms-booking-hero-copy">
-        <div class="vpms-booking-kicker">Direct Booking</div>
+        <div class="vpms-booking-kicker">Private Direct Booking</div>
         <h1>@Model.Setting.BookingEngineTitle</h1>
         <p>
             @(string.IsNullOrWhiteSpace(Model.Setting.WelcomeMessage)
-                ? $"Plan a confident stay at {hotelName} with secure direct booking."
+                ? $"Plan a refined stay at {hotelName} through the hotel's direct reservations desk."
                 : Model.Setting.WelcomeMessage)
         </p>
         <div class="vpms-booking-trust-row">
@@ -38,7 +38,7 @@
     <div class="vpms-booking-search-card">
         <div class="vpms-booking-search-header">
             <span>@hotelName</span>
-            <strong>Find Your Stay</strong>
+            <strong>Find your stay</strong>
         </div>
         <div class="vpms-booking-stepper" aria-label="Booking flow">
             <span class="active">Search</span>
@@ -87,7 +87,7 @@
                         </div>
                     }
                 </div>
-                <button type="submit" class="btn vpms-booking-primary w-100">Search Availability</button>
+                <button type="submit" class="btn vpms-booking-primary w-100">Search availability</button>
                 <p class="vpms-booking-fineprint">No payment is collected on this step. Rates and availability are verified before confirmation.</p>
             </form>
         }
@@ -97,7 +97,7 @@
 <section class="vpms-booking-assurance">
     <article>
         <span>01</span>
-        <strong>Select your stay</strong>
+        <strong>Set the stay</strong>
         <p>Choose dates, occupancy, and optional promo code.</p>
     </article>
     <article>
