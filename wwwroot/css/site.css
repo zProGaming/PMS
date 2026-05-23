@@ -9223,18 +9223,49 @@ body,
 }
 
 .vpms-command-modal .modal-content {
-  background: #ffffff;
+  z-index: 1;
+  isolation: isolate;
+  background-color: #ffffff !important;
+  background-image: none !important;
   border: 1px solid rgba(226, 232, 240, 0.86);
   border-radius: 24px;
   box-shadow: 0 30px 80px rgba(15, 23, 42, 0.22);
+  opacity: 1;
+}
+
+.vpms-command-modal .modal-content::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  background: #ffffff;
+  border-radius: inherit;
 }
 
 .modal.vpms-command-modal {
-  z-index: 11060;
+  z-index: 12000 !important;
 }
 
-.modal-backdrop.show {
-  z-index: 11050;
+body.vpms-modal-active .modal-backdrop.show {
+  opacity: 0 !important;
+}
+
+.modal.show::before {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  content: "";
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(3px);
+}
+
+.modal.show .modal-dialog {
+  z-index: 2;
+}
+
+body:not(.vpms-modal-active) .modal-backdrop.show {
+  z-index: 1100 !important;
 }
 
 .vpms-command-modal .modal-header {
@@ -9465,5 +9496,493 @@ body,
 
   .vpms-density-command .vpms-dashboard-compact-command {
     padding: 0.82rem;
+  }
+}
+
+/* Product-wide premium interaction layer. Keep this visual-only and shared. */
+:root {
+  --vpms-luxury-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --vpms-luxury-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+  --vpms-luxury-shadow-soft: 0 16px 42px rgba(15, 23, 42, 0.08);
+  --vpms-luxury-ring: 0 0 0 4px rgba(20, 184, 166, 0.13);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.vpms-body:not(.vpms-login-screen) {
+  background:
+    radial-gradient(circle at 14% 0%, rgba(20, 184, 166, 0.08), transparent 28rem),
+    radial-gradient(circle at 88% 8%, rgba(6, 182, 212, 0.07), transparent 30rem),
+    var(--vpms-bg);
+}
+
+.vpms-main {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(246, 248, 251, 0.96) 20rem),
+    transparent;
+}
+
+.app-content {
+  padding: clamp(0.85rem, 1.2vw, 1.1rem);
+}
+
+.vpms-content {
+  animation: vpmsPageSettle 0.38s var(--vpms-luxury-ease) both;
+}
+
+.vpms-content > .d-flex:first-child,
+.vpms-content > h1:first-child {
+  padding: 0.85rem 0;
+  margin-bottom: 0.65rem;
+}
+
+.vpms-content > .d-flex:first-child {
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.vpms-content > h1:first-child,
+.vpms-content > .d-flex:first-child h1 {
+  margin-bottom: 0;
+  letter-spacing: 0;
+}
+
+.vpms-ops-hero,
+.vpms-card,
+.vpms-operational-panel,
+.vpms-refined-card,
+.vpms-form-section,
+.vpms-form-card,
+.vpms-table-wrapper,
+.vpms-room-card-premium,
+.vpms-calendar-filter-card,
+.vpms-calendar-legend-panel,
+.vpms-command-brief > article,
+.vpms-board-brief > article,
+.vpms-signal-strip > article,
+.vpms-control-strip > article,
+.vpms-calendar-command-strip > article,
+.vpms-sidebar-group,
+.vpms-property-card,
+.vpms-public-panel,
+.vpms-booking-card {
+  position: relative;
+}
+
+.vpms-card,
+.vpms-operational-panel,
+.vpms-refined-card,
+.vpms-form-section,
+.vpms-form-card,
+.vpms-table-wrapper,
+.vpms-room-card-premium,
+.vpms-calendar-filter-card,
+.vpms-calendar-legend-panel,
+.vpms-signal-strip > article,
+.vpms-control-strip > article,
+.vpms-calendar-command-strip > article,
+.vpms-command-brief > article,
+.vpms-board-brief > article {
+  transition:
+    transform 0.22s var(--vpms-luxury-ease),
+    border-color 0.22s var(--vpms-luxury-ease),
+    box-shadow 0.22s var(--vpms-luxury-ease),
+    background-color 0.22s var(--vpms-luxury-ease);
+}
+
+.vpms-interactive-surface {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.vpms-interactive-surface::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  background:
+    radial-gradient(
+      circle at var(--vpms-pointer-x, 50%) var(--vpms-pointer-y, 50%),
+      rgba(20, 184, 166, 0.14),
+      rgba(6, 182, 212, 0.06) 24%,
+      transparent 46%
+    );
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.vpms-interactive-surface:hover::after,
+.vpms-interactive-surface:focus-within::after {
+  opacity: 1;
+}
+
+.vpms-card:hover,
+.vpms-operational-panel:hover,
+.vpms-refined-card:hover,
+.vpms-form-section:hover,
+.vpms-form-card:hover,
+.vpms-room-card-premium:hover,
+.vpms-signal-strip > article:hover,
+.vpms-control-strip > article:hover,
+.vpms-calendar-command-strip > article:hover,
+.vpms-command-brief > article:hover,
+.vpms-board-brief > article:hover {
+  border-color: rgba(20, 184, 166, 0.24);
+  box-shadow: var(--vpms-luxury-shadow-soft);
+  transform: translateY(-2px);
+}
+
+.vpms-table-wrapper:hover {
+  border-color: rgba(20, 184, 166, 0.22);
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.075);
+}
+
+.vpms-table tbody tr,
+.vpms-content .table tbody tr {
+  transition: background 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.vpms-table tbody tr:hover,
+.vpms-content .table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(20, 184, 166, 0.065), rgba(255, 255, 255, 0));
+  box-shadow: inset 3px 0 0 rgba(20, 184, 166, 0.58);
+}
+
+.vpms-table tbody tr:hover td,
+.vpms-content .table tbody tr:hover td {
+  color: #0f172a;
+}
+
+.btn,
+.vpms-command-item,
+.vpms-sidebar-link,
+.vpms-calendar-cell,
+.vpms-modal-action-grid a,
+.vpms-action-grid a,
+.vpms-compact-actions a {
+  transition:
+    transform 0.18s var(--vpms-luxury-ease),
+    box-shadow 0.18s var(--vpms-luxury-ease),
+    border-color 0.18s var(--vpms-luxury-ease),
+    background-color 0.18s var(--vpms-luxury-ease),
+    color 0.18s var(--vpms-luxury-ease);
+}
+
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover,
+.vpms-command-item:hover,
+.vpms-sidebar-link:hover,
+.vpms-calendar-cell:hover,
+.vpms-modal-action-grid a:hover,
+.vpms-action-grid a:hover,
+.vpms-compact-actions a:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active,
+.vpms-command-item:active,
+.vpms-sidebar-link:active,
+.vpms-calendar-cell:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.vpms-btn-primary:hover,
+.btn-primary:hover {
+  box-shadow: 0 16px 34px rgba(6, 182, 212, 0.22);
+}
+
+.vpms-btn-secondary:hover,
+.btn-outline-secondary:hover {
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.vpms-ripple {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.58);
+  border-radius: 999px;
+  transform: translate(-50%, -50%) scale(0);
+  animation: vpmsRipple 0.55s ease-out;
+}
+
+.vpms-btn-secondary .vpms-ripple,
+.btn-outline-secondary .vpms-ripple,
+.btn-light .vpms-ripple {
+  background: rgba(20, 184, 166, 0.18);
+}
+
+.form-control,
+.form-select,
+.form-check-input {
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.form-control:hover,
+.form-select:hover {
+  border-color: rgba(20, 184, 166, 0.36);
+}
+
+.form-control:focus,
+.form-select:focus {
+  transform: translateY(-1px);
+  box-shadow: var(--vpms-luxury-ring);
+}
+
+.vpms-empty-state,
+.empty-state {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(20, 184, 166, 0.08), rgba(6, 182, 212, 0.035)),
+    #ffffff;
+}
+
+.vpms-empty-state::before,
+.empty-state::before {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.5rem;
+  place-items: center;
+  color: #0f766e;
+  font-weight: 900;
+  content: "i";
+  background: #ccfbf1;
+  border: 1px solid #99f6e4;
+  border-radius: 999px;
+}
+
+.vpms-reveal {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.vpms-reveal.is-visible {
+  animation: vpmsReveal 0.46s var(--vpms-luxury-ease) both;
+  animation-delay: var(--vpms-reveal-delay, 0ms);
+}
+
+.vpms-topbar,
+.app-commandbar {
+  box-shadow: 0 10px 34px rgba(15, 23, 42, 0.045);
+}
+
+.vpms-topbar {
+  border-bottom-color: rgba(221, 229, 238, 0.72);
+}
+
+.app-commandbar {
+  min-height: 60px;
+  padding-block: 0.34rem;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+}
+
+.app-commandbar a,
+.commandbar-status {
+  min-height: 48px;
+  border-radius: 14px;
+}
+
+.app-commandbar a:hover,
+.app-commandbar a:focus-visible {
+  background:
+    linear-gradient(135deg, rgba(20, 184, 166, 0.11), rgba(6, 182, 212, 0.06)),
+    #ffffff;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.07);
+}
+
+.vpms-sidebar-group-header,
+.vpms-sidebar-link {
+  will-change: transform;
+}
+
+.vpms-sidebar-link.active {
+  box-shadow: inset 3px 0 0 var(--vpms-teal), 0 10px 24px rgba(20, 184, 166, 0.1);
+}
+
+.vpms-sidebar-group-body {
+  transition: grid-template-rows 0.24s var(--vpms-luxury-ease), opacity 0.18s ease;
+}
+
+.vpms-sidebar-group:not(.is-open):not(.is-search-open) .vpms-sidebar-group-body {
+  opacity: 0;
+}
+
+.modal.fade .modal-dialog {
+  transform: translateY(14px) scale(0.985);
+  transition: transform 0.24s var(--vpms-luxury-ease);
+}
+
+.modal.show .modal-dialog {
+  transform: none;
+}
+
+.modal-backdrop.show {
+  opacity: 0.42;
+  backdrop-filter: blur(3px);
+}
+
+.vpms-calendar-reservation-bar {
+  transition: transform 0.18s var(--vpms-luxury-ease), filter 0.18s ease, box-shadow 0.18s ease;
+}
+
+.vpms-calendar-reservation-bar:hover {
+  filter: saturate(1.05);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.16);
+  transform: translateY(-1px) scale(1.006);
+}
+
+.vpms-calendar-cell:focus-visible,
+.vpms-calendar-reservation-bar:focus-visible,
+.vpms-sidebar-link:focus-visible,
+.vpms-command-item:focus-visible,
+.btn:focus-visible {
+  outline: 0;
+  box-shadow: var(--vpms-luxury-ring);
+}
+
+.vpms-status-badge,
+.status-badge,
+.vpms-mini-chip {
+  transition: transform 0.16s var(--vpms-luxury-ease), box-shadow 0.16s ease;
+}
+
+.vpms-status-badge:hover,
+.status-badge:hover,
+.vpms-mini-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.07);
+}
+
+@keyframes vpmsPageSettle {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes vpmsReveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes vpmsRipple {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(14);
+  }
+}
+
+@media (max-width: 991.98px) {
+  .app-commandbar {
+    min-height: 56px;
+  }
+
+  .app-content {
+    padding: 0.8rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .vpms-topbar {
+    min-height: 58px;
+    padding: 0.48rem 0.62rem;
+  }
+
+  .vpms-topbar > .d-flex:first-child {
+    min-width: 0;
+    flex: 1 1 auto;
+    gap: 0.45rem !important;
+  }
+
+  .vpms-time-block,
+  .vpms-topbar-context,
+  .vpms-user-copy {
+    display: none !important;
+  }
+
+  .app-menu-button,
+  .vpms-back-button,
+  .vpms-logout-button {
+    min-height: 36px;
+    padding: 0.36rem 0.62rem;
+    border-radius: 11px;
+    font-size: 0.82rem;
+  }
+
+  .vpms-user-area {
+    flex: 0 0 auto;
+    gap: 0.34rem;
+  }
+
+  .vpms-notification-link {
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    border-radius: 12px;
+  }
+
+  .vpms-user-summary {
+    padding: 0.16rem;
+    border-radius: 999px;
+  }
+
+  .vpms-user-avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 0.72rem;
+  }
+
+  .app-commandbar {
+    top: 58px;
+    min-height: 54px;
+    padding: 0.32rem 0.62rem;
+  }
+
+  .app-commandbar a,
+  .commandbar-status {
+    min-width: 68px;
+    min-height: 44px;
+    padding: 0.28rem 0.42rem;
+    font-size: 0.72rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .vpms-reveal {
+    opacity: 1;
+    transform: none;
   }
 }

@@ -641,4 +641,112 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".vpms-content .border.rounded.p-3, .vpms-content .border.rounded.p-2").forEach((card) => {
     card.classList.add("vpms-stat-card");
   });
+
+  document.querySelectorAll(".modal").forEach((modal) => {
+    if (modal.parentElement !== document.body) {
+      document.body.appendChild(modal);
+    }
+
+    modal.addEventListener("show.bs.modal", () => {
+      document.body.classList.add("vpms-modal-active");
+    });
+
+    modal.addEventListener("hidden.bs.modal", () => {
+      if (!document.querySelector(".modal.show")) {
+        document.body.classList.remove("vpms-modal-active");
+      }
+    });
+  });
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const interactiveSurfaceSelector = [
+    ".vpms-card",
+    ".vpms-operational-panel",
+    ".vpms-refined-card",
+    ".vpms-form-section",
+    ".vpms-form-card",
+    ".vpms-table-wrapper",
+    ".vpms-room-card-premium",
+    ".vpms-calendar-filter-card",
+    ".vpms-calendar-legend-panel",
+    ".vpms-signal-strip > article",
+    ".vpms-control-strip > article",
+    ".vpms-calendar-command-strip > article",
+    ".vpms-command-brief > article",
+    ".vpms-board-brief > article",
+    ".vpms-property-card",
+    ".vpms-booking-card",
+    ".vpms-modal-signal-grid > article",
+    ".vpms-modal-action-grid > a"
+  ].join(", ");
+
+  document.querySelectorAll(interactiveSurfaceSelector).forEach((surface) => {
+    surface.classList.add("vpms-interactive-surface");
+
+    if (prefersReducedMotion) {
+      return;
+    }
+
+    surface.addEventListener("pointermove", (event) => {
+      const rect = surface.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 100;
+      const y = ((event.clientY - rect.top) / rect.height) * 100;
+      surface.style.setProperty("--vpms-pointer-x", `${x.toFixed(2)}%`);
+      surface.style.setProperty("--vpms-pointer-y", `${y.toFixed(2)}%`);
+    });
+  });
+
+  if (!prefersReducedMotion) {
+    const revealTargets = Array.from(document.querySelectorAll([
+      ".vpms-content > section",
+      ".vpms-content > div",
+      ".vpms-content > form",
+      ".vpms-content > main",
+      ".vpms-refined-main > section",
+      ".vpms-refined-side > section",
+      ".vpms-stack > section"
+    ].join(", "))).filter((element) => !element.classList.contains("modal"));
+
+    const revealObserver = "IntersectionObserver" in window
+      ? new IntersectionObserver((entries, observer) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) {
+              return;
+            }
+
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          });
+        }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 })
+      : null;
+
+    revealTargets.forEach((element, index) => {
+      element.classList.add("vpms-reveal");
+      element.style.setProperty("--vpms-reveal-delay", `${Math.min(index * 32, 220)}ms`);
+
+      if (revealObserver) {
+        revealObserver.observe(element);
+      } else {
+        element.classList.add("is-visible");
+      }
+    });
+
+    document.querySelectorAll(".btn:not(.dropdown-toggle)").forEach((button) => {
+      button.addEventListener("pointerdown", (event) => {
+        if (button.disabled || button.classList.contains("disabled")) {
+          return;
+        }
+
+        const rect = button.getBoundingClientRect();
+        const ripple = document.createElement("span");
+        ripple.className = "vpms-ripple";
+        ripple.style.left = `${event.clientX - rect.left}px`;
+        ripple.style.top = `${event.clientY - rect.top}px`;
+        button.appendChild(ripple);
+        ripple.addEventListener("animationend", () => ripple.remove(), { once: true });
+      });
+    });
+  }
+
+  document.body.classList.add("vpms-ui-ready");
 });
