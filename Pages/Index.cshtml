@@ -41,9 +41,9 @@
     };
 }
 
-<div class="vpms-dashboard vpms-dashboard-refined vpms-luxury-command">
-    <header class="vpms-ops-hero vpms-dashboard-hero">
-        <div>
+<div class="vpms-dashboard vpms-dashboard-refined vpms-luxury-command vpms-density-command">
+    <header class="vpms-ops-hero vpms-dashboard-hero vpms-dashboard-compact-command">
+        <div class="vpms-dashboard-title-block">
             <div class="page-kicker">Command Center</div>
             <h1 class="page-title">Hotel Command Center</h1>
             <p class="page-subtitle">A calm operating view for rooms movement, revenue pulse, service readiness, and management attention.</p>
@@ -53,15 +53,32 @@
                 <span class="vpms-mini-chip">@riskCount open signal@(riskCount == 1 ? "" : "s")</span>
             </div>
         </div>
-        <div class="vpms-hero-intelligence">
-            <span>Operational stability</span>
-            <strong>@RiskLabel(riskCount)</strong>
-            <small>@readinessPercent.ToString("0.#")% room readiness with @Model.TotalRevenueToday.ToString("C0") posted today.</small>
-            <div class="vpms-hero-actions vpms-dashboard-refined-actions">
-                <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/RoomRack/Index">Room Rack</a>
-                <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/Reservations/Create">New Reservation</a>
-                <a class="btn vpms-btn-primary" asp-page="/ManagementAI/Index">AI Summary</a>
-            </div>
+        <div class="vpms-dashboard-metric-ribbon" aria-label="Command center operating metrics">
+            <article>
+                <span>Occupancy</span>
+                <strong>@Model.OccupancyPercentage.ToString("0.#")%</strong>
+                <small>@Model.OccupiedRooms/@Model.TotalRooms rooms</small>
+            </article>
+            <article>
+                <span>Revenue</span>
+                <strong>@Model.TotalRevenueToday.ToString("C0")</strong>
+                <small>Posted today</small>
+            </article>
+            <article>
+                <span>Flow</span>
+                <strong>@Model.ArrivalsToday / @Model.DeparturesToday</strong>
+                <small>Arrivals / departures</small>
+            </article>
+            <article class="@RiskTone(riskCount)">
+                <span>Stability</span>
+                <strong>@RiskLabel(riskCount)</strong>
+                <small>@riskCount signal@(riskCount == 1 ? "" : "s")</small>
+            </article>
+        </div>
+        <div class="vpms-dashboard-refined-actions">
+            <button type="button" class="btn vpms-btn-secondary" data-bs-toggle="modal" data-bs-target="#dashboardCommandReview">Review Signals</button>
+            <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/RoomRack/Index">Room Calendar</a>
+            <a class="btn vpms-btn-primary" asp-page="/FrontOffice/Reservations/Create">Reservation</a>
         </div>
     </header>
 
@@ -71,47 +88,6 @@
             No operational data yet. Seed demo data or create rooms and reservations to populate this dashboard.
         </div>
     }
-
-    <section class="vpms-control-strip vpms-command-strip" aria-label="Dashboard highlights">
-        <article>
-            <span>Occupancy</span>
-            <strong>@Model.OccupancyPercentage.ToString("0.#")%</strong>
-            <small>@Model.OccupiedRooms of @Model.TotalRooms rooms</small>
-        </article>
-        <article>
-            <span>Revenue Today</span>
-            <strong>@Model.TotalRevenueToday.ToString("C0")</strong>
-            <small>Rooms, F&amp;B, banquet</small>
-        </article>
-        <article>
-            <span>Guest Flow</span>
-            <strong>@Model.ArrivalsToday / @Model.DeparturesToday</strong>
-            <small>Arrivals / departures</small>
-        </article>
-        <article class="@RiskTone(riskCount)">
-            <span>Operational Stability</span>
-            <strong>@RiskLabel(riskCount)</strong>
-            <small>@riskCount open signal(s)</small>
-        </article>
-    </section>
-
-    <section class="vpms-command-brief" aria-label="Operating brief">
-        <article>
-            <span>Room Readiness</span>
-            <strong>@roomReadinessHeadline</strong>
-            <p>@readinessPercent.ToString("0.#")% readiness with @Model.DirtyRooms dirty room@(Model.DirtyRooms == 1 ? "" : "s") and @Model.OutOfOrderRooms out of order.</p>
-        </article>
-        <article>
-            <span>Commercial Pulse</span>
-            <strong>@revenueHeadline</strong>
-            <p>@Model.TotalRevenueToday.ToString("C0") posted today across rooms, F&amp;B, and banquet outlets.</p>
-        </article>
-        <article class="@RiskTone(riskCount)">
-            <span>Operational Attention</span>
-            <strong>@serviceHeadline</strong>
-            <p>@riskCount open signal@(riskCount == 1 ? "" : "s") across approvals, folios, service, stock, and insights.</p>
-        </article>
-    </section>
 
     <div class="vpms-refined-grid">
         <main class="vpms-refined-main">
@@ -262,5 +238,47 @@
                 </dl>
             </section>
         </aside>
+    </div>
+</div>
+
+<div class="modal fade vpms-command-modal" id="dashboardCommandReview" tabindex="-1" aria-labelledby="dashboardCommandReviewLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="page-kicker">Command Review</div>
+                    <h2 class="modal-title" id="dashboardCommandReviewLabel">Operational Signals</h2>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="vpms-modal-signal-grid">
+                    <article>
+                        <span>Room Readiness</span>
+                        <strong>@roomReadinessHeadline</strong>
+                        <p>@readinessPercent.ToString("0.#")% readiness with @Model.DirtyRooms dirty room@(Model.DirtyRooms == 1 ? "" : "s") and @Model.OutOfOrderRooms out of order.</p>
+                    </article>
+                    <article>
+                        <span>Commercial Pulse</span>
+                        <strong>@revenueHeadline</strong>
+                        <p>@Model.TotalRevenueToday.ToString("C0") posted today across rooms, F&amp;B, and banquet outlets.</p>
+                    </article>
+                    <article class="@RiskTone(riskCount)">
+                        <span>Operational Attention</span>
+                        <strong>@serviceHeadline</strong>
+                        <p>@riskCount open signal@(riskCount == 1 ? "" : "s") across approvals, folios, service, stock, and insights.</p>
+                    </article>
+                </div>
+
+                <div class="vpms-modal-action-grid" aria-label="Command review actions">
+                    <a asp-page="/FrontOffice/RoomRack/Index"><strong>Room Calendar</strong><span>Stay grid, room readiness, and housekeeping pressure.</span></a>
+                    <a asp-page="/FrontOffice/Reservations/Index"><strong>Reservations</strong><span>Arrivals, departures, in-house stays, and rooming gaps.</span></a>
+                    <a asp-page="/ManagementAI/Insights/Index"><strong>Open Insights</strong><span>High and critical management signals.</span></a>
+                    <a asp-page="/Finance/NightAudit/Index"><strong>Night Audit</strong><span>Daily close controls and posting readiness.</span></a>
+                    <a asp-page="/Reports/Center"><strong>Report Center</strong><span>Owner, finance, and operating reports.</span></a>
+                    <a asp-page="/Housekeeping/Index"><strong>Room Readiness</strong><span>Dirty, inspected, clean, and blocked inventory.</span></a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

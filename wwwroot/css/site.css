@@ -8990,3 +8990,480 @@ body,
     grid-template-columns: repeat(var(--vpms-calendar-days), minmax(96px, 1fr));
   }
 }
+
+/* Density and flow pass: premium means every pixel has a job. */
+.vpms-density-command {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.vpms-density-command .vpms-dashboard-compact-command {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.1fr) minmax(480px, 1.3fr) auto;
+  gap: 0.9rem;
+  align-items: center;
+  min-height: 0;
+  padding: 0.98rem 1.12rem;
+  margin-bottom: 0;
+  border-radius: 18px;
+}
+
+.vpms-density-command .vpms-dashboard-compact-command::after {
+  height: 2px;
+}
+
+.vpms-dashboard-title-block {
+  min-width: 0;
+}
+
+.vpms-density-command .page-kicker {
+  margin-bottom: 0.2rem;
+  font-size: 0.68rem;
+}
+
+.vpms-density-command .page-title {
+  margin-bottom: 0.18rem;
+  font-size: clamp(1.38rem, 2vw, 1.72rem);
+  line-height: 1.05;
+}
+
+.vpms-density-command .page-subtitle {
+  max-width: 760px;
+  margin-bottom: 0.45rem;
+  font-size: 0.84rem;
+  line-height: 1.32;
+}
+
+.vpms-density-command .vpms-hero-chip-row {
+  gap: 0.32rem;
+}
+
+.vpms-density-command .vpms-mini-chip {
+  min-height: 25px;
+  padding: 0.24rem 0.48rem;
+  font-size: 0.68rem;
+  border-radius: 999px;
+}
+
+.vpms-dashboard-metric-ribbon {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.46rem;
+  min-width: 0;
+}
+
+.vpms-dashboard-metric-ribbon article {
+  min-width: 0;
+  padding: 0.62rem 0.68rem;
+  background: rgba(248, 250, 252, 0.86);
+  border: 1px solid rgba(226, 232, 240, 0.82);
+  border-radius: 14px;
+}
+
+.vpms-dashboard-metric-ribbon article.warning {
+  background: linear-gradient(180deg, rgba(255, 251, 235, 0.82), rgba(248, 250, 252, 0.9));
+  border-color: rgba(245, 158, 11, 0.28);
+}
+
+.vpms-dashboard-metric-ribbon article.danger {
+  background: linear-gradient(180deg, rgba(254, 242, 242, 0.82), rgba(248, 250, 252, 0.9));
+  border-color: rgba(239, 68, 68, 0.26);
+}
+
+.vpms-dashboard-metric-ribbon article.positive {
+  border-color: rgba(20, 184, 166, 0.22);
+}
+
+.vpms-dashboard-metric-ribbon span,
+.vpms-dashboard-metric-ribbon small {
+  display: block;
+  overflow: hidden;
+  color: #64748b;
+  font-size: 0.66rem;
+  font-weight: 680;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vpms-dashboard-metric-ribbon strong {
+  display: block;
+  overflow: hidden;
+  margin: 0.12rem 0;
+  color: #0f172a;
+  font-size: clamp(1.05rem, 1.42vw, 1.4rem);
+  font-weight: 780;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vpms-dashboard-metric-ribbon .danger strong,
+.vpms-dashboard-metric-ribbon .warning strong {
+  font-size: clamp(0.92rem, 1.05vw, 1.08rem);
+  line-height: 1.08;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.vpms-dashboard-metric-ribbon .danger strong {
+  color: #b91c1c;
+}
+
+.vpms-dashboard-metric-ribbon .warning strong {
+  color: #b45309;
+}
+
+.vpms-density-command .vpms-dashboard-refined-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.38rem;
+  min-width: 132px;
+  justify-content: stretch;
+}
+
+.vpms-density-command .vpms-dashboard-refined-actions .btn {
+  min-height: 33px;
+  padding: 0.4rem 0.62rem;
+  font-size: 0.76rem;
+  border-radius: 10px;
+}
+
+.vpms-density-command .vpms-refined-grid {
+  grid-template-columns: minmax(0, 1.7fr) minmax(260px, 0.62fr);
+  gap: 0.68rem;
+}
+
+.vpms-density-command .vpms-refined-main,
+.vpms-density-command .vpms-refined-side {
+  gap: 0.68rem;
+}
+
+.vpms-density-command .vpms-refined-card {
+  min-height: 0 !important;
+  padding: 0.7rem 0.78rem;
+  border-radius: 15px;
+}
+
+.vpms-density-command .vpms-refined-card-header {
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.55rem;
+}
+
+.vpms-density-command .vpms-refined-card-header h2 {
+  font-size: 0.95rem;
+  line-height: 1.12;
+}
+
+.vpms-density-command .vpms-refined-card-header p {
+  margin-top: 0.08rem;
+  font-size: 0.72rem;
+  line-height: 1.22;
+}
+
+.vpms-density-command .vpms-flow-list {
+  gap: 0.42rem;
+}
+
+.vpms-density-command .vpms-flow-item {
+  padding: 0.55rem 0.58rem;
+  border-radius: 12px;
+}
+
+.vpms-density-command .vpms-flow-item span,
+.vpms-density-command .vpms-flow-item small {
+  font-size: 0.66rem;
+}
+
+.vpms-density-command .vpms-flow-item strong {
+  margin: 0.12rem 0;
+  font-size: 1.2rem;
+}
+
+.vpms-density-command .vpms-compact-status,
+.vpms-density-command .vpms-compact-revenue,
+.vpms-density-command .vpms-signal-list,
+.vpms-density-command .vpms-compact-actions {
+  gap: 0.36rem;
+}
+
+.vpms-density-command .vpms-compact-status > div,
+.vpms-density-command .vpms-compact-revenue > div {
+  gap: 0.2rem 0.48rem;
+}
+
+.vpms-density-command .vpms-compact-status span,
+.vpms-density-command .vpms-compact-revenue span,
+.vpms-density-command .vpms-compact-revenue small,
+.vpms-density-command .summary-list dt,
+.vpms-density-command .summary-list dd {
+  font-size: 0.72rem;
+}
+
+.vpms-density-command .vpms-compact-status strong,
+.vpms-density-command .vpms-compact-revenue strong {
+  font-size: 0.84rem;
+}
+
+.vpms-density-command .vpms-compact-status .progress,
+.vpms-density-command .vpms-compact-revenue .progress {
+  height: 5px;
+}
+
+.vpms-density-command .vpms-signal-list li,
+.vpms-density-command .vpms-compact-actions a {
+  padding: 0.42rem 0.52rem;
+  font-size: 0.74rem;
+  border-radius: 10px;
+}
+
+.vpms-density-command .summary-list {
+  margin-bottom: 0;
+}
+
+.vpms-command-modal .modal-content {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.86);
+  border-radius: 24px;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.22);
+}
+
+.modal.vpms-command-modal {
+  z-index: 11060;
+}
+
+.modal-backdrop.show {
+  z-index: 11050;
+}
+
+.vpms-command-modal .modal-header {
+  padding: 1rem 1.12rem 0.75rem;
+  border-bottom-color: rgba(226, 232, 240, 0.78);
+}
+
+.vpms-command-modal .modal-title {
+  color: #0f172a;
+  font-size: 1.28rem;
+  font-weight: 760;
+  letter-spacing: 0;
+}
+
+.vpms-command-modal .modal-body {
+  display: grid;
+  gap: 0.86rem;
+  padding: 1rem 1.12rem 1.15rem;
+}
+
+.vpms-modal-signal-grid,
+.vpms-modal-action-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.62rem;
+}
+
+.vpms-modal-signal-grid article,
+.vpms-modal-action-grid a {
+  min-width: 0;
+  padding: 0.85rem;
+  background: #f8fafc;
+  border: 1px solid rgba(226, 232, 240, 0.82);
+  border-radius: 16px;
+}
+
+.vpms-modal-signal-grid span,
+.vpms-modal-action-grid span {
+  display: block;
+  color: #64748b;
+  font-size: 0.74rem;
+}
+
+.vpms-modal-signal-grid strong,
+.vpms-modal-action-grid strong {
+  display: block;
+  margin-bottom: 0.16rem;
+  color: #0f172a;
+  font-size: 0.94rem;
+  font-weight: 760;
+}
+
+.vpms-modal-signal-grid p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.78rem;
+  line-height: 1.34;
+}
+
+.vpms-modal-signal-grid .danger strong {
+  color: #b91c1c;
+}
+
+.vpms-modal-signal-grid .warning strong {
+  color: #b45309;
+}
+
+.vpms-modal-action-grid a {
+  color: inherit;
+  text-decoration: none;
+  background: #ffffff;
+}
+
+.vpms-modal-action-grid a:hover,
+.vpms-modal-action-grid a:focus-visible {
+  border-color: rgba(20, 184, 166, 0.42);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+
+/* Compact working surfaces across high-frequency pages. */
+.vpms-ops-hero.vpms-ops-hero-compact,
+.vpms-room-calendar-hero,
+.vpms-executive-hero {
+  padding: clamp(0.92rem, 1.55vw, 1.25rem);
+  margin-bottom: 0.72rem;
+  border-radius: 18px;
+}
+
+.vpms-ops-hero.vpms-ops-hero-compact .page-title,
+.vpms-room-calendar-hero .page-title,
+.vpms-executive-hero .page-title {
+  font-size: clamp(1.34rem, 1.85vw, 1.72rem);
+  line-height: 1.06;
+}
+
+.vpms-ops-hero.vpms-ops-hero-compact .page-subtitle,
+.vpms-room-calendar-hero .page-subtitle,
+.vpms-executive-hero .page-subtitle {
+  max-width: 820px;
+  margin-bottom: 0;
+  font-size: 0.84rem;
+  line-height: 1.34;
+}
+
+.vpms-signal-strip,
+.vpms-control-strip,
+.vpms-command-brief,
+.vpms-board-brief,
+.vpms-calendar-command-strip,
+.vpms-calendar-legend-panel {
+  gap: 0.55rem;
+  margin-bottom: 0.72rem;
+}
+
+.vpms-signal-strip > article,
+.vpms-control-strip > article,
+.vpms-command-brief > article,
+.vpms-board-brief > article,
+.vpms-calendar-command-strip article {
+  min-height: 0;
+  padding: 0.68rem 0.76rem;
+  border-radius: 15px;
+}
+
+.vpms-signal-strip strong,
+.vpms-control-strip strong,
+.vpms-calendar-command-strip strong {
+  margin-top: 0.12rem;
+  font-size: clamp(1.15rem, 1.6vw, 1.48rem);
+  line-height: 1;
+}
+
+.vpms-status-dock {
+  gap: 0.26rem;
+  margin-bottom: 0.62rem;
+  padding: 0.24rem;
+  border-radius: 999px;
+}
+
+.vpms-status-dock a {
+  min-height: 30px;
+  padding: 0.32rem 0.58rem;
+  font-size: 0.76rem;
+}
+
+.vpms-filter-bar,
+.vpms-calendar-filter-card {
+  margin-bottom: 0.66rem;
+  padding: 0.68rem 0.76rem;
+  border-radius: 16px;
+}
+
+.vpms-filter-bar .form-label,
+.vpms-calendar-filters .form-label {
+  margin-bottom: 0.22rem;
+  font-size: 0.7rem;
+}
+
+.vpms-filter-bar .form-control,
+.vpms-filter-bar .form-select,
+.vpms-calendar-filters .form-control,
+.vpms-calendar-filters .form-select {
+  min-height: 36px;
+  padding-top: 0.38rem;
+  padding-bottom: 0.38rem;
+  font-size: 0.82rem;
+  border-radius: 11px;
+}
+
+.vpms-filter-actions .btn,
+.vpms-calendar-filter-actions .btn {
+  min-height: 36px;
+  padding: 0.4rem 0.68rem;
+  font-size: 0.78rem;
+}
+
+.vpms-reservation-board .vpms-table th,
+.vpms-reservation-board .vpms-table td {
+  padding-top: 0.58rem;
+  padding-bottom: 0.58rem;
+}
+
+.vpms-reservation-board .vpms-row-actions .btn {
+  min-height: 30px;
+  padding: 0.28rem 0.5rem;
+  font-size: 0.74rem;
+}
+
+.vpms-calendar-command-strip article {
+  padding: 0.62rem 0.68rem;
+}
+
+.vpms-calendar-filter-card {
+  padding: 0.7rem;
+}
+
+.vpms-calendar-legend-panel {
+  padding: 0.58rem 0.7rem;
+  border-radius: 16px;
+}
+
+@media (max-width: 1399.98px) {
+  .vpms-density-command .vpms-dashboard-compact-command {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vpms-density-command .vpms-dashboard-refined-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1199.98px) {
+  .vpms-density-command .vpms-refined-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .vpms-dashboard-metric-ribbon,
+  .vpms-modal-signal-grid,
+  .vpms-modal-action-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vpms-density-command .vpms-dashboard-refined-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vpms-density-command .vpms-dashboard-compact-command {
+    padding: 0.82rem;
+  }
+}
