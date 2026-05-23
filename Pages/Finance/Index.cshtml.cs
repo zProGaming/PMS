@@ -114,7 +114,7 @@ public class IndexModel(ApplicationDbContext context, ARCollectionReportService 
             .Select(group => new { Debit = group.Sum(line => line.DebitAmount), Credit = group.Sum(line => line.CreditAmount) })
             .FirstOrDefaultAsync();
         TrialBalanceStatus = (trialBalance?.Debit ?? 0) == (trialBalance?.Credit ?? 0) ? "Balanced" : "Out of balance";
-        UnpostedTransactions = await _context.FolioItems.CountAsync(item => !item.IsVoided && !_context.JournalEntries.Any(entry => entry.Status == JournalEntryStatus.Posted && entry.SourceReferenceId == item.Id && (entry.SourceTransactionType == SourceTransactionType.FolioCharge || entry.SourceTransactionType == SourceTransactionType.RoomCharge)))
+        UnpostedTransactions = await _context.FolioItems.CountAsync(item => !item.IsVoided && (item.ChargeCode != "FB" || !item.Description.Contains("Order #")) && !_context.JournalEntries.Any(entry => entry.Status == JournalEntryStatus.Posted && entry.SourceReferenceId == item.Id && (entry.SourceTransactionType == SourceTransactionType.FolioCharge || entry.SourceTransactionType == SourceTransactionType.RoomCharge)))
             + await _context.Payments.CountAsync(payment => payment.Status == PaymentStatus.Completed && !_context.JournalEntries.Any(entry => entry.Status == JournalEntryStatus.Posted && entry.SourceReferenceId == payment.Id && entry.SourceTransactionType == SourceTransactionType.FolioPayment));
 
         APBalance = await _context.APInvoices

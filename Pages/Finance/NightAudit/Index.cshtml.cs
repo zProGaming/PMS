@@ -220,6 +220,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
                 item.PostingDate >= businessDate &&
                 item.PostingDate < nextBusinessDate &&
                 !item.IsVoided &&
+                (item.ChargeCode != "FB" || !item.Description.Contains("Order #")) &&
                 !_context.JournalEntries.Any(entry =>
                     entry.Status == JournalEntryStatus.Posted &&
                     entry.SourceReferenceId == item.Id &&

@@ -16,9 +16,15 @@ public class AccountingPostingService(ApplicationDbContext context)
         var item = await _context.FolioItems
             .AsNoTracking()
             .Include(folioItem => folioItem.Folio)
+            .Include(folioItem => folioItem.ChargeCodeDefinition)
             .FirstOrDefaultAsync(folioItem => folioItem.Id == folioItemId && !folioItem.IsVoided);
 
         if (item is null)
+        {
+            return null;
+        }
+
+        if (IsChargeToRoomDisplayFolioItem(item.ChargeCode, item.Description))
         {
             return null;
         }
@@ -41,7 +47,8 @@ public class AccountingPostingService(ApplicationDbContext context)
             createdBy,
             item.ChargeCodeId,
             null,
-            null);
+            null,
+            PostingAmounts.FromFolioItem(item));
     }
 
     public async Task<JournalEntry?> CreateJournalEntryFromPaymentAsync(int paymentId, string createdBy)
@@ -111,7 +118,8 @@ public class AccountingPostingService(ApplicationDbContext context)
             createdBy,
             fbChargeCodeId,
             paymentMethod,
-            null);
+            null,
+            PostingAmounts.FromPOSOrder(order));
     }
 
     public async Task<JournalEntry?> CreateJournalEntryFromBanquetChargeAsync(int banquetChargeId, string createdBy)
@@ -530,10 +538,15 @@ public class AccountingPostingService(ApplicationDbContext context)
             var folioItems = await _context.FolioItems
                 .AsNoTracking()
                 .Where(item => !item.IsVoided && item.PostingDate >= startDate && item.PostingDate < endExclusive)
-                .Select(item => new { item.Id, item.ChargeCode, Reference = item.Id.ToString() })
+                .Select(item => new { item.Id, item.ChargeCode, item.Description, Reference = item.Id.ToString() })
                 .ToListAsync();
             foreach (var item in folioItems)
             {
+                if (IsChargeToRoomDisplayFolioItem(item.ChargeCode, item.Description))
+                {
+                    continue;
+                }
+
                 var transactionType = item.ChargeCode.Equals("ROOM", StringComparison.OrdinalIgnoreCase)
                     ? SourceTransactionType.RoomCharge
                     : SourceTransactionType.FolioCharge;
@@ -685,9 +698,11 @@ public class AccountingPostingService(ApplicationDbContext context)
         string createdBy,
         int? chargeCodeId,
         string? paymentMethod,
-        int? usaliDepartmentId)
+        int? usaliDepartmentId,
+        PostingAmounts? postingAmounts = null)
     {
-        if (amount <= 0 || await HasPostedJournalAsync(sourceModule, transactionType, sourceReferenceId))
+        var amounts = postingAmounts ?? PostingAmounts.FromAmount(amount);
+        if (amounts.IsZero || await HasPostedJournalAsync(sourceModule, transactionType, sourceReferenceId))
         {
             return null;
         }
@@ -710,31 +725,13 @@ public class AccountingPostingService(ApplicationDbContext context)
             SourceReferenceNumber = sourceReferenceNumber,
             Description = description,
             Status = JournalEntryStatus.Draft,
-            CreatedBy = createdBy,
-            Lines =
-            {
-                new JournalEntryLine
-                {
-                    GLAccountId = rule.DebitGLAccountId,
-                    USALIDepartmentId = usaliDepartmentId ?? rule.USALIDepartmentId,
-                    DebitAmount = amount,
-                    CreditAmount = 0,
-                    Description = description,
-                    LineReferenceType = transactionType.ToString(),
-                    LineReferenceId = sourceReferenceId
-                },
-                new JournalEntryLine
-                {
-                    GLAccountId = rule.CreditGLAccountId,
-                    USALIDepartmentId = usaliDepartmentId ?? rule.USALIDepartmentId,
-                    DebitAmount = 0,
-                    CreditAmount = amount,
-                    Description = description,
-                    LineReferenceType = transactionType.ToString(),
-                    LineReferenceId = sourceReferenceId
-                }
-            }
+            CreatedBy = createdBy
         };
+
+        foreach (var line in BuildPostingLines(rule, amounts, transactionType, sourceReferenceId, description, usaliDepartmentId))
+        {
+            journalEntry.Lines.Add(line);
+        }
 
         _context.JournalEntries.Add(journalEntry);
         await _context.SaveChangesAsync();
@@ -762,6 +759,165 @@ public class AccountingPostingService(ApplicationDbContext context)
             entry.SourceTransactionType == transactionType &&
             entry.SourceReferenceId == sourceReferenceId &&
             entry.Status == JournalEntryStatus.Posted);
+    }
+
+    private static List<JournalEntryLine> BuildPostingLines(
+        PostingRule rule,
+        PostingAmounts amounts,
+        SourceTransactionType transactionType,
+        int sourceReferenceId,
+        string description,
+        int? usaliDepartmentId)
+    {
+        var departmentId = usaliDepartmentId ?? rule.USALIDepartmentId;
+        var lines = new List<JournalEntryLine>();
+
+        AddSignedControlLine(lines, rule.DebitGLAccountId, amounts.ControlAmount, departmentId, description, transactionType, sourceReferenceId);
+
+        var revenueCredit = amounts.RevenueAmount;
+        if (amounts.TaxAmount > 0)
+        {
+            if (rule.TaxGLAccountId is not null)
+            {
+                AddCreditLine(lines, rule.TaxGLAccountId.Value, amounts.TaxAmount, null, $"{description} - output tax", transactionType, sourceReferenceId);
+            }
+            else
+            {
+                revenueCredit += amounts.TaxAmount;
+            }
+        }
+
+        if (amounts.ServiceChargeAmount > 0)
+        {
+            if (rule.ServiceChargeGLAccountId is not null)
+            {
+                AddCreditLine(lines, rule.ServiceChargeGLAccountId.Value, amounts.ServiceChargeAmount, null, $"{description} - service charge", transactionType, sourceReferenceId);
+            }
+            else
+            {
+                revenueCredit += amounts.ServiceChargeAmount;
+            }
+        }
+
+        if (amounts.DiscountAmount > 0)
+        {
+            if (rule.DiscountGLAccountId is not null)
+            {
+                AddDebitLine(lines, rule.DiscountGLAccountId.Value, amounts.DiscountAmount, departmentId, $"{description} - discount", transactionType, sourceReferenceId);
+            }
+            else
+            {
+                revenueCredit -= amounts.DiscountAmount;
+            }
+        }
+
+        AddSignedRevenueLine(lines, rule.CreditGLAccountId, revenueCredit, departmentId, description, transactionType, sourceReferenceId);
+        return lines;
+    }
+
+    private static void AddSignedControlLine(
+        ICollection<JournalEntryLine> lines,
+        int glAccountId,
+        decimal amount,
+        int? usaliDepartmentId,
+        string description,
+        SourceTransactionType transactionType,
+        int sourceReferenceId)
+    {
+        amount = Round(amount);
+        if (amount > 0)
+        {
+            AddDebitLine(lines, glAccountId, amount, usaliDepartmentId, description, transactionType, sourceReferenceId);
+        }
+        else if (amount < 0)
+        {
+            AddCreditLine(lines, glAccountId, Math.Abs(amount), usaliDepartmentId, description, transactionType, sourceReferenceId);
+        }
+    }
+
+    private static void AddSignedRevenueLine(
+        ICollection<JournalEntryLine> lines,
+        int glAccountId,
+        decimal amount,
+        int? usaliDepartmentId,
+        string description,
+        SourceTransactionType transactionType,
+        int sourceReferenceId)
+    {
+        amount = Round(amount);
+        if (amount > 0)
+        {
+            AddCreditLine(lines, glAccountId, amount, usaliDepartmentId, description, transactionType, sourceReferenceId);
+        }
+        else if (amount < 0)
+        {
+            AddDebitLine(lines, glAccountId, Math.Abs(amount), usaliDepartmentId, $"{description} - reduction", transactionType, sourceReferenceId);
+        }
+    }
+
+    private static void AddDebitLine(
+        ICollection<JournalEntryLine> lines,
+        int glAccountId,
+        decimal amount,
+        int? usaliDepartmentId,
+        string description,
+        SourceTransactionType transactionType,
+        int sourceReferenceId)
+    {
+        amount = Round(amount);
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        lines.Add(new JournalEntryLine
+        {
+            GLAccountId = glAccountId,
+            USALIDepartmentId = usaliDepartmentId,
+            DebitAmount = amount,
+            CreditAmount = 0,
+            Description = description,
+            LineReferenceType = transactionType.ToString(),
+            LineReferenceId = sourceReferenceId
+        });
+    }
+
+    private static void AddCreditLine(
+        ICollection<JournalEntryLine> lines,
+        int glAccountId,
+        decimal amount,
+        int? usaliDepartmentId,
+        string description,
+        SourceTransactionType transactionType,
+        int sourceReferenceId)
+    {
+        amount = Round(amount);
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        lines.Add(new JournalEntryLine
+        {
+            GLAccountId = glAccountId,
+            USALIDepartmentId = usaliDepartmentId,
+            DebitAmount = 0,
+            CreditAmount = amount,
+            Description = description,
+            LineReferenceType = transactionType.ToString(),
+            LineReferenceId = sourceReferenceId
+        });
+    }
+
+    private static bool IsChargeToRoomDisplayFolioItem(string? chargeCode, string? description)
+    {
+        return string.Equals(chargeCode, "FB", StringComparison.OrdinalIgnoreCase) &&
+            description?.Contains("Order #", StringComparison.OrdinalIgnoreCase) == true;
+    }
+
+    private static decimal Round(decimal amount)
+    {
+        return Math.Round(amount, 2, MidpointRounding.AwayFromZero);
     }
 
     private async Task<int?> FindOpenPeriodIdAsync(DateTime journalDate)
@@ -826,5 +982,50 @@ public class AccountingPostingService(ApplicationDbContext context)
 
         var rawMethod = settlementLine["Settlement:".Length..].Trim();
         return NormalizePaymentMethod(rawMethod) ?? "Cash";
+    }
+
+    private sealed record PostingAmounts(
+        decimal ControlAmount,
+        decimal RevenueAmount,
+        decimal TaxAmount,
+        decimal ServiceChargeAmount,
+        decimal DiscountAmount)
+    {
+        public bool IsZero =>
+            ControlAmount == 0 &&
+            RevenueAmount == 0 &&
+            TaxAmount == 0 &&
+            ServiceChargeAmount == 0 &&
+            DiscountAmount == 0;
+
+        public static PostingAmounts FromAmount(decimal amount)
+        {
+            amount = Round(amount);
+            return amount >= 0
+                ? new PostingAmounts(amount, amount, 0, 0, 0)
+                : new PostingAmounts(amount, 0, 0, 0, Math.Abs(amount));
+        }
+
+        public static PostingAmounts FromFolioItem(FolioItem item)
+        {
+            if (item.Amount < 0 ||
+                item.ChargeCodeDefinition?.ChargeCategory == ChargeCategory.Discount ||
+                string.Equals(item.ChargeCode, "DISC", StringComparison.OrdinalIgnoreCase))
+            {
+                return new PostingAmounts(Round(item.Amount), 0, 0, 0, Math.Abs(Round(item.Amount)));
+            }
+
+            return FromAmount(item.Amount);
+        }
+
+        public static PostingAmounts FromPOSOrder(POSOrder order)
+        {
+            return new PostingAmounts(
+                Round(order.TotalAmount),
+                Round(order.SubTotal),
+                Round(order.TaxAmount),
+                Round(order.ServiceCharge),
+                Round(order.DiscountAmount));
+        }
     }
 }

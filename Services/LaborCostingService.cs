@@ -232,10 +232,13 @@ public class LaborCostingService(ApplicationDbContext context, AccountingPosting
             .Where(employee => employee.IsActive)
             .OrderBy(employee => employee.FullName)
             .ToListAsync();
+        employees = employees
+            .Where(ServiceChargeEligibility.IsEligible)
+            .ToList();
 
         if (employees.Count == 0)
         {
-            errors.Add("Create active employee cost profiles before generating distribution lines.");
+            errors.Add("No eligible active non-managerial employee cost profiles were found. Review employee positions, agency profiles, or add manual distribution lines for validated eligible workers.");
             return errors;
         }
 
@@ -258,7 +261,7 @@ public class LaborCostingService(ApplicationDbContext context, AccountingPosting
                 DepartmentId = employee.DepartmentId,
                 EligibleDays = eligibleDays,
                 EligibleHours = eligibleHours,
-                Notes = "Generated distribution line."
+                Notes = ServiceChargeEligibility.BuildGeneratedLineNote(employee)
             });
         }
 
@@ -285,6 +288,7 @@ public class LaborCostingService(ApplicationDbContext context, AccountingPosting
         var errors = new List<string>();
         var pool = await _context.ServiceChargePools
             .Include(item => item.DistributionLines)
+            .ThenInclude(line => line.EmployeeCostProfile)
             .FirstOrDefaultAsync(item => item.Id == poolId);
 
         if (pool is null)
@@ -303,11 +307,7 @@ public class LaborCostingService(ApplicationDbContext context, AccountingPosting
             errors.Add("Service charge pool amount must be greater than zero.");
         }
 
-        var distributedAmount = pool.DistributionLines.Sum(line => line.Amount);
-        if (Math.Abs(distributedAmount - pool.TotalServiceChargeCollected) > 0.01m)
-        {
-            errors.Add("Service charge distribution total must match the pool total before approval.");
-        }
+        ValidateServiceChargeDistribution(pool, errors, "approval");
 
         if (errors.Count > 0)
         {
@@ -326,6 +326,7 @@ public class LaborCostingService(ApplicationDbContext context, AccountingPosting
         var errors = new List<string>();
         var pool = await _context.ServiceChargePools
             .Include(item => item.DistributionLines)
+            .ThenInclude(line => line.EmployeeCostProfile)
             .FirstOrDefaultAsync(item => item.Id == poolId);
 
         if (pool is null)
@@ -350,10 +351,7 @@ public class LaborCostingService(ApplicationDbContext context, AccountingPosting
             errors.Add("Service charge pool amount must be greater than zero.");
         }
 
-        if (Math.Abs(pool.DistributionLines.Sum(line => line.Amount) - pool.TotalServiceChargeCollected) > 0.01m)
-        {
-            errors.Add("Service charge distribution total must match the pool total before posting.");
-        }
+        ValidateServiceChargeDistribution(pool, errors, "posting");
 
         if (errors.Count > 0)
         {
@@ -559,6 +557,36 @@ public class LaborCostingService(ApplicationDbContext context, AccountingPosting
         }
 
         return string.IsNullOrWhiteSpace(entry.Position) ? "Department payroll cost" : $"Payroll cost - {entry.Position}";
+    }
+
+    private static void ValidateServiceChargeDistribution(ServiceChargePool pool, IList<string> errors, string action)
+    {
+        if (!pool.DistributionLines.Any())
+        {
+            errors.Add($"Service charge pool must have distribution lines before {action}.");
+            return;
+        }
+
+        if (pool.DistributionLines.Any(line => line.Amount < 0 || line.EligibleDays < 0 || line.EligibleHours < 0 || line.DistributionPercentage < 0))
+        {
+            errors.Add("Service charge distribution lines cannot contain negative amounts, days, hours, or percentages.");
+        }
+
+        var distributedAmount = pool.DistributionLines.Sum(line => line.Amount);
+        if (Math.Abs(distributedAmount - pool.TotalServiceChargeCollected) > 0.01m)
+        {
+            errors.Add($"Service charge distribution total must match the pool total before {action}.");
+        }
+
+        var ineligibleNames = pool.DistributionLines
+            .Where(line => line.EmployeeCostProfileId is not null && !ServiceChargeEligibility.IsEligible(line.EmployeeCostProfile))
+            .Select(line => line.EmployeeCostProfile?.FullName ?? $"employee profile #{line.EmployeeCostProfileId}")
+            .Distinct()
+            .ToList();
+        if (ineligibleNames.Count > 0)
+        {
+            errors.Add($"Service charge distribution includes inactive, agency, or managerial/executive employee profiles: {string.Join(", ", ineligibleNames)}. Review eligibility before {action}.");
+        }
     }
 
     private static bool HasNegativePayrollAmount(PayrollCostEntry entry)

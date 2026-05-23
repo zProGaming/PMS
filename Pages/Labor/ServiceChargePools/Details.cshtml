@@ -1,5 +1,6 @@
 @page "{id:int}"
 @model Vantage.PMS.Pages.Labor.ServiceChargePools.DetailsModel
+@using Vantage.PMS.Services
 @{
     ViewData["Title"] = "Service Charge Pool Details";
     var pool = Model.Pool!;
@@ -19,6 +20,10 @@
 </div>
 
 @if (!string.IsNullOrWhiteSpace(Model.StatusMessage)) { <div class="alert alert-success">@Model.StatusMessage</div> }
+
+<div class="alert alert-info">
+    Service-charge distribution is generated for active non-managerial employee cost profiles. Agency and managerial/executive roles are excluded from auto-distribution and must be reviewed by payroll or finance before any manual handling.
+</div>
 
 <div class="row g-3 mb-4">
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Total Collected</div><div class="kpi-value">@pool.TotalServiceChargeCollected.ToString("C")</div><div class="kpi-note">Manual or estimated</div></div></div>
@@ -51,7 +56,13 @@
         @foreach (var line in pool.DistributionLines.OrderBy(line => line.EmployeeCostProfile?.FullName))
         {
             <tr>
-                <td>@(line.EmployeeCostProfile?.FullName ?? "Department line")</td>
+                <td>
+                    <div class="fw-semibold">@(line.EmployeeCostProfile?.FullName ?? "Department line")</div>
+                    @if (line.EmployeeCostProfile is not null)
+                    {
+                        <small class="text-muted">@ServiceChargeEligibility.GetReadinessLabel(line.EmployeeCostProfile)</small>
+                    }
+                </td>
                 <td>@(line.Department?.Name ?? "Unassigned")</td>
                 <td class="text-end">@line.EligibleDays.ToString("N2")</td>
                 <td class="text-end">@line.EligibleHours.ToString("N2")</td>

@@ -4,8 +4,8 @@
 @{
     ViewData["Title"] = "Philippine Tax Report Lines";
 }
-<div class="page-header"><div><div class="page-kicker">Accounting Setup</div><h1 class="page-title">Philippine Tax Report Lines</h1><p class="page-subtitle">Configurable mappings for Philippine finance report readiness.</p></div></div>
-<div class="alert alert-warning">Formats and mappings must be validated by a Philippine CPA/accountant before filing or official submission.</div>
+<div class="page-header"><div><div class="page-kicker">Accounting Setup</div><h1 class="page-title">Philippine Tax Report Lines</h1><p class="page-subtitle">Configurable mappings for internal Philippine tax-support reports.</p></div></div>
+<div class="alert alert-warning">These mappings support internal review only. Validate report treatment and official formats with a Philippine CPA/accountant before filing or submission.</div>
 <form method="post" class="vpms-form-card mb-4">
     <div class="row g-3">
         <div class="col-md-3"><label asp-for="Input.ReportType" class="form-label">Report</label><select asp-for="Input.ReportType" asp-items="Html.GetEnumSelectList<PhilippineReportType>()" class="form-select"></select></div>

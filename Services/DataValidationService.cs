@@ -8,6 +8,7 @@ using Vantage.PMS.Models.Finance;
 using Vantage.PMS.Models.FoodBeverage;
 using Vantage.PMS.Models.FrontOffice;
 using Vantage.PMS.Models.Groups;
+using Vantage.PMS.Models.GuestPortal;
 using Vantage.PMS.Models.Inventory;
 using Vantage.PMS.Models.Labor;
 using Vantage.PMS.Models.SystemAdministration;
@@ -29,7 +30,9 @@ public class DataValidationService(ApplicationDbContext context)
         issueCount += await ScanPurchasingInventoryAsync();
         issueCount += await ScanFinanceAndArAsync();
         issueCount += await ScanAccountingAsync();
+        issueCount += await ScanPhilippineReportControlsAsync();
         issueCount += await ScanLaborCostingAsync();
+        issueCount += await ScanGuestPortalPrivacyAsync();
         issueCount += await ScanExecutiveReportingAsync();
         issueCount += await ScanRevenueAndBookingAsync();
         issueCount += await ScanGroupManagementAsync();
@@ -805,6 +808,72 @@ public class DataValidationService(ApplicationDbContext context)
         return count;
     }
 
+    private async Task<int> ScanPhilippineReportControlsAsync()
+    {
+        var count = 0;
+
+        if (!await _context.PhilippineTaxReportLines.AsNoTracking().AnyAsync(line => line.IsActive))
+        {
+            count += await AddIssueAsync("Philippine Reports", nameof(PhilippineTaxReportLine), 0, DataValidationIssueType.MissingRequiredData, SystemSeverity.Medium, "No active Philippine tax report lines are configured.", "Configure Philippine tax report lines before relying on tax-support reports for finance review.");
+        }
+
+        var invalidReportLineAccounts = await _context.PhilippineTaxReportLines
+            .AsNoTracking()
+            .Where(line =>
+                line.IsActive &&
+                line.GLAccountId != null &&
+                !_context.GLAccounts.Any(account => account.Id == line.GLAccountId.Value && account.IsActive))
+            .Select(line => line.Id)
+            .ToListAsync();
+        foreach (var id in invalidReportLineAccounts)
+        {
+            count += await AddIssueAsync("Philippine Reports", nameof(PhilippineTaxReportLine), id, DataValidationIssueType.SecurityConfiguration, SystemSeverity.High, "Active Philippine tax report line points to a missing or inactive GL account.", "Update the report line with a valid active GL account or deactivate the line.");
+        }
+
+        var invalidReportLineTaxCodes = await _context.PhilippineTaxReportLines
+            .AsNoTracking()
+            .Where(line =>
+                line.IsActive &&
+                line.TaxCodeId != null &&
+                !_context.TaxCodes.Any(taxCode => taxCode.Id == line.TaxCodeId.Value && taxCode.IsActive))
+            .Select(line => line.Id)
+            .ToListAsync();
+        foreach (var id in invalidReportLineTaxCodes)
+        {
+            count += await AddIssueAsync("Philippine Reports", nameof(PhilippineTaxReportLine), id, DataValidationIssueType.SecurityConfiguration, SystemSeverity.High, "Active Philippine tax report line points to a missing or inactive tax code.", "Update the report line with a valid active tax code or deactivate the line.");
+        }
+
+        var activeTaxCodesWithoutValidGl = await _context.TaxCodes
+            .AsNoTracking()
+            .Where(taxCode =>
+                taxCode.IsActive &&
+                taxCode.TaxType != TaxType.Other &&
+                (taxCode.GLAccountId == null ||
+                    !_context.GLAccounts.Any(account => account.Id == taxCode.GLAccountId.Value && account.IsActive)))
+            .Select(taxCode => taxCode.Id)
+            .ToListAsync();
+        foreach (var id in activeTaxCodesWithoutValidGl)
+        {
+            count += await AddIssueAsync("Philippine Reports", nameof(TaxCode), id, DataValidationIssueType.SecurityConfiguration, SystemSeverity.High, "Active VAT/withholding tax code has no valid GL account mapping.", "Map the tax code to an active GL control account before using Philippine tax-support reports.");
+        }
+
+        var accountsWithUnmappedPhilippineCategory = await _context.GLAccounts
+            .AsNoTracking()
+            .Where(account =>
+                account.IsActive &&
+                account.PhilippineReportCategory != null &&
+                account.PhilippineReportCategory != "" &&
+                !_context.PhilippineTaxReportLines.Any(line => line.IsActive && line.GLAccountId == account.Id))
+            .Select(account => account.Id)
+            .ToListAsync();
+        foreach (var id in accountsWithUnmappedPhilippineCategory)
+        {
+            count += await AddIssueAsync("Philippine Reports", nameof(GLAccount), id, DataValidationIssueType.MissingRequiredData, SystemSeverity.Low, "GL account has a Philippine report category but no active Philippine tax report line.", "Review whether this account should be mapped to an active Philippine tax-support report line.");
+        }
+
+        return count;
+    }
+
     private async Task<int> ScanLaborCostingAsync()
     {
         var count = 0;
@@ -875,6 +944,20 @@ public class DataValidationService(ApplicationDbContext context)
             count += await AddIssueAsync("Labor Costing", nameof(ServiceChargePool), pool.Id, DataValidationIssueType.InconsistentBalance, SystemSeverity.High, "Service charge distribution total does not match pool total.", "Regenerate or manually adjust service charge distribution lines.");
         }
 
+        var ineligibleServiceChargeLines = await _context.ServiceChargeDistributionLines
+            .AsNoTracking()
+            .Include(line => line.EmployeeCostProfile)
+            .Include(line => line.ServiceChargePool)
+            .Where(line =>
+                line.EmployeeCostProfileId != null &&
+                line.ServiceChargePool != null &&
+                line.ServiceChargePool.Status != ServiceChargePoolStatus.Cancelled)
+            .ToListAsync();
+        foreach (var line in ineligibleServiceChargeLines.Where(line => !ServiceChargeEligibility.IsEligible(line.EmployeeCostProfile)))
+        {
+            count += await AddIssueAsync("Labor Costing", nameof(ServiceChargeDistributionLine), line.Id, DataValidationIssueType.SecurityConfiguration, SystemSeverity.High, "Service charge distribution includes an inactive, agency, or managerial/executive employee profile.", "Review service-charge eligibility and regenerate or manually correct the distribution line before approval/posting.");
+        }
+
         var employeeProfilesMissingMapping = await _context.EmployeeCostProfiles
             .AsNoTracking()
             .Where(employee => employee.IsActive && (employee.DepartmentId == null || employee.DefaultLaborGLAccountId == null))
@@ -883,6 +966,70 @@ public class DataValidationService(ApplicationDbContext context)
         foreach (var id in employeeProfilesMissingMapping)
         {
             count += await AddIssueAsync("Labor Costing", nameof(EmployeeCostProfile), id, DataValidationIssueType.MissingRequiredData, SystemSeverity.Medium, "Active employee cost profile is missing department or GL mapping.", "Complete the employee cost profile mapping before payroll posting.");
+        }
+
+        return count;
+    }
+
+    private async Task<int> ScanGuestPortalPrivacyAsync()
+    {
+        var count = 0;
+        var now = DateTime.Now;
+
+        var riskyPortalSettings = await _context.GuestPortalSettings
+            .AsNoTracking()
+            .Where(setting => setting.IsGuestPortalEnabled && !setting.RequireReservationLookupVerification)
+            .Select(setting => setting.Id)
+            .ToListAsync();
+        foreach (var id in riskyPortalSettings)
+        {
+            count += await AddIssueAsync("Guest Portal", nameof(GuestPortalSetting), id, DataValidationIssueType.SecurityConfiguration, SystemSeverity.High, "Guest portal lookup verification is disabled while the portal is enabled.", "Require email or phone verification before exposing stay details through the guest portal.");
+        }
+
+        var settingsWithoutPrivacyNotice = await _context.GuestPortalSettings
+            .AsNoTracking()
+            .Where(setting => setting.IsGuestPortalEnabled && (setting.PrivacyPolicy == null || setting.PrivacyPolicy == ""))
+            .Select(setting => setting.Id)
+            .ToListAsync();
+        foreach (var id in settingsWithoutPrivacyNotice)
+        {
+            count += await AddIssueAsync("Guest Portal", nameof(GuestPortalSetting), id, DataValidationIssueType.MissingRequiredData, SystemSeverity.Medium, "Guest portal is enabled without a privacy policy notice.", "Add a hotel-reviewed privacy policy before trial use of guest self-service screens.");
+        }
+
+        var expiredActiveAccess = await _context.GuestPortalAccesses
+            .AsNoTracking()
+            .Where(access => access.IsActive && access.ExpiresAt != null && access.ExpiresAt < now)
+            .Select(access => access.Id)
+            .ToListAsync();
+        foreach (var id in expiredActiveAccess)
+        {
+            count += await AddIssueAsync("Guest Portal", nameof(GuestPortalAccess), id, DataValidationIssueType.InvalidStatus, SystemSeverity.Medium, "Expired guest portal access token is still active.", "Deactivate expired access tokens during portal housekeeping.");
+        }
+
+        var accessWithoutVerificationContact = await _context.GuestPortalAccesses
+            .AsNoTracking()
+            .Where(access =>
+                access.IsActive &&
+                (access.GuestEmail == null || access.GuestEmail == "") &&
+                (access.GuestPhone == null || access.GuestPhone == ""))
+            .Select(access => access.Id)
+            .ToListAsync();
+        foreach (var id in accessWithoutVerificationContact)
+        {
+            count += await AddIssueAsync("Guest Portal", nameof(GuestPortalAccess), id, DataValidationIssueType.SecurityConfiguration, SystemSeverity.High, "Active guest portal access has no email or phone verification contact.", "Expire the access token or restore verified guest contact details before continuing guest portal use.");
+        }
+
+        var longLivedAccess = (await _context.GuestPortalAccesses
+                .AsNoTracking()
+                .Where(access => access.IsActive && access.ExpiresAt != null)
+                .Select(access => new { access.Id, access.CreatedAt, access.ExpiresAt })
+                .ToListAsync())
+            .Where(access => access.ExpiresAt!.Value.Date > access.CreatedAt.Date.AddDays(14))
+            .Select(access => access.Id)
+            .ToList();
+        foreach (var id in longLivedAccess)
+        {
+            count += await AddIssueAsync("Guest Portal", nameof(GuestPortalAccess), id, DataValidationIssueType.SecurityConfiguration, SystemSeverity.Medium, "Guest portal access token lifetime is longer than the recommended trial limit.", "Shorten active guest portal access to 14 days or less unless management approves an exception.");
         }
 
         return count;

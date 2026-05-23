@@ -1,6 +1,7 @@
 @page
 @model Vantage.PMS.Pages.Labor.EmployeeCostProfiles.IndexModel
 @using Vantage.PMS.Models.Labor
+@using Vantage.PMS.Services
 @{
     ViewData["Title"] = "Employee Cost Profiles";
 }
@@ -9,7 +10,7 @@
     <div>
         <div class="page-kicker">Labor Setup</div>
         <h1 class="page-title">Employee Cost Profiles</h1>
-        <p class="page-subtitle">PMS-side employee cost placeholders for future Vantage HRIS integration.</p>
+        <p class="page-subtitle">PMS-side employee cost profiles for labor costing, payroll posting, and reviewable service-charge eligibility.</p>
     </div>
     <div class="page-actions"><a class="btn vpms-btn-secondary" asp-page="/Labor/Index">Labor Dashboard</a></div>
 </div>
@@ -62,7 +63,10 @@
                     <small class="d-block">@((employee.DefaultLaborGLAccount?.AccountCode ?? "Fallback")) labor</small>
                     <small class="text-muted">@((employee.DefaultPayrollLiabilityGLAccount?.AccountCode ?? "Fallback")) liability</small>
                 </td>
-                <td><span class="status-badge">@(employee.IsActive ? "Active" : "Inactive")</span></td>
+                <td>
+                    <span class="status-badge">@(employee.IsActive ? "Active" : "Inactive")</span>
+                    <small class="d-block text-muted mt-1">@ServiceChargeEligibility.GetReadinessLabel(employee)</small>
+                </td>
                 <td class="text-end">
                     <button class="btn btn-sm vpms-btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#edit-@employee.Id">Edit</button>
                     @if (employee.IsActive)

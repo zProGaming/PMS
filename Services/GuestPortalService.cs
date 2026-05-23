@@ -1,4 +1,7 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Booking;
 using Vantage.PMS.Models.Finance;
@@ -10,11 +13,15 @@ namespace Vantage.PMS.Services;
 public class GuestPortalService(
     ApplicationDbContext context,
     GuestPortalNotificationService notificationService,
-    IConfiguration configuration)
+    IConfiguration configuration,
+    IMemoryCache memoryCache,
+    ILogger<GuestPortalService> logger)
 {
     private readonly ApplicationDbContext _context = context;
     private readonly GuestPortalNotificationService _notificationService = notificationService;
     private readonly IConfiguration _configuration = configuration;
+    private readonly IMemoryCache _memoryCache = memoryCache;
+    private readonly ILogger<GuestPortalService> _logger = logger;
 
     public async Task<GuestPortalSetting> GetSettingsAsync()
     {
@@ -37,7 +44,7 @@ public class GuestPortalService(
         };
     }
 
-    public async Task<GuestPortalLookupResult> LookupAsync(string reference, string? email, string? phone)
+    public async Task<GuestPortalLookupResult> LookupAsync(string reference, string? email, string? phone, string? clientKey = null)
     {
         var setting = await GetSettingsAsync();
         if (!setting.IsGuestPortalEnabled)
@@ -53,6 +60,11 @@ public class GuestPortalService(
         var normalizedReference = reference.Trim();
         var normalizedEmail = email?.Trim();
         var normalizedPhone = phone?.Trim();
+        var throttleResult = GetLookupThrottleBlock(clientKey);
+        if (throttleResult is not null)
+        {
+            return throttleResult;
+        }
 
         var reservation = await _context.Reservations
             .Include(reservation => reservation.Guest)
@@ -66,7 +78,7 @@ public class GuestPortalService(
         {
             if (!IsVerified(setting, reservation.Guest?.Email, reservation.Guest?.PhoneNumber, normalizedEmail, normalizedPhone))
             {
-                return new GuestPortalLookupResult(false, "No matching reservation was found for the provided guest verification details.", null);
+                return RecordLookupFailure(clientKey, "No matching reservation was found for the provided guest verification details.");
             }
 
             var access = await CreateOrReuseAccessAsync(
@@ -76,6 +88,7 @@ public class GuestPortalService(
                 reservation.Guest?.Email ?? normalizedEmail ?? string.Empty,
                 reservation.Guest?.PhoneNumber ?? normalizedPhone);
 
+            ClearLookupThrottle(clientKey);
             return new GuestPortalLookupResult(true, "Reservation found.", access);
         }
 
@@ -94,7 +107,7 @@ public class GuestPortalService(
 
             if (!IsVerified(setting, matchEmail, matchPhone, normalizedEmail, normalizedPhone))
             {
-                return new GuestPortalLookupResult(false, "No matching booking request was found for the provided guest verification details.", null);
+                return RecordLookupFailure(clientKey, "No matching booking request was found for the provided guest verification details.");
             }
 
             var access = await CreateOrReuseAccessAsync(
@@ -104,10 +117,11 @@ public class GuestPortalService(
                 matchEmail,
                 matchPhone);
 
+            ClearLookupThrottle(clientKey);
             return new GuestPortalLookupResult(true, "Booking request found.", access);
         }
 
-        return new GuestPortalLookupResult(false, "No reservation or booking request matched the provided details.", null);
+        return RecordLookupFailure(clientKey, "No reservation or booking request matched the provided details.");
     }
 
     public async Task<GuestPortalAccess?> GetAccessAsync(string? token, bool asTracking = false)
@@ -300,7 +314,99 @@ public class GuestPortalService(
         return configuredDays is >= 1 and <= 14 ? configuredDays.Value : 7;
     }
 
+    private GuestPortalLookupResult? GetLookupThrottleBlock(string? clientKey)
+    {
+        var key = BuildLookupThrottleKey(clientKey);
+        var now = DateTimeOffset.UtcNow;
+        var state = _memoryCache.Get<GuestPortalLookupThrottleState>(key);
+        if (state?.LockedUntil is null)
+        {
+            return null;
+        }
+
+        if (state.LockedUntil > now)
+        {
+            return BuildLookupThrottleResult(state.LockedUntil.Value - now);
+        }
+
+        _memoryCache.Remove(key);
+        return null;
+    }
+
+    private GuestPortalLookupResult RecordLookupFailure(string? clientKey, string message)
+    {
+        var key = BuildLookupThrottleKey(clientKey);
+        var now = DateTimeOffset.UtcNow;
+        var options = GetLookupThrottleOptions();
+        var state = _memoryCache.Get<GuestPortalLookupThrottleState>(key);
+
+        if (state is null || now - state.FirstAttemptAt > options.Window)
+        {
+            state = new GuestPortalLookupThrottleState
+            {
+                Attempts = 1,
+                FirstAttemptAt = now
+            };
+        }
+        else
+        {
+            state.Attempts++;
+        }
+
+        if (state.Attempts >= options.MaxAttempts)
+        {
+            state.LockedUntil = now.Add(options.Lockout);
+            _logger.LogWarning("Guest portal lookup temporarily throttled after repeated failed attempts.");
+        }
+
+        _memoryCache.Set(
+            key,
+            state,
+            new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = options.Window.Add(options.Lockout) });
+
+        return state.LockedUntil is not null && state.LockedUntil > now
+            ? BuildLookupThrottleResult(state.LockedUntil.Value - now)
+            : new GuestPortalLookupResult(false, message, null);
+    }
+
+    private void ClearLookupThrottle(string? clientKey)
+    {
+        _memoryCache.Remove(BuildLookupThrottleKey(clientKey));
+    }
+
+    private GuestPortalLookupThrottleOptions GetLookupThrottleOptions()
+    {
+        var maxAttempts = Math.Clamp(_configuration.GetValue("GuestPortal:LookupMaxAttempts", 5), 3, 20);
+        var windowMinutes = Math.Clamp(_configuration.GetValue("GuestPortal:LookupWindowMinutes", 15), 5, 60);
+        var lockoutMinutes = Math.Clamp(_configuration.GetValue("GuestPortal:LookupLockoutMinutes", 15), 5, 60);
+        return new GuestPortalLookupThrottleOptions(maxAttempts, TimeSpan.FromMinutes(windowMinutes), TimeSpan.FromMinutes(lockoutMinutes));
+    }
+
+    private static string BuildLookupThrottleKey(string? clientKey)
+    {
+        var normalized = string.IsNullOrWhiteSpace(clientKey) ? "unknown" : clientKey.Trim();
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(normalized));
+        return $"GuestPortalLookup:{Convert.ToHexString(hash).ToLowerInvariant()}";
+    }
+
+    private static GuestPortalLookupResult BuildLookupThrottleResult(TimeSpan retryAfter)
+    {
+        var minutes = Math.Max(1, (int)Math.Ceiling(retryAfter.TotalMinutes));
+        return new GuestPortalLookupResult(false, $"For guest privacy, lookup is temporarily limited after repeated failed attempts. Please try again in {minutes} minute(s).", null);
+    }
+
     public record GuestPortalLookupResult(bool Succeeded, string Message, GuestPortalAccess? Access);
 
     public record ExpressCheckoutCompletionResult(bool Succeeded, string Message);
+
+    private sealed class GuestPortalLookupThrottleState
+    {
+        public int Attempts { get; set; }
+
+        public DateTimeOffset FirstAttemptAt { get; set; }
+
+        public DateTimeOffset? LockedUntil { get; set; }
+    }
+
+    private sealed record GuestPortalLookupThrottleOptions(int MaxAttempts, TimeSpan Window, TimeSpan Lockout);
 }

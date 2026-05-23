@@ -28,7 +28,8 @@ public class IndexModel(GuestPortalService guestPortalService) : PageModel
     public async Task<IActionResult> OnPostAsync()
     {
         Setting = await _guestPortalService.GetSettingsAsync();
-        var result = await _guestPortalService.LookupAsync(Reference, GuestEmail, GuestPhone);
+        var clientKey = $"{HttpContext.Connection.RemoteIpAddress}|{Request.Headers["User-Agent"]}";
+        var result = await _guestPortalService.LookupAsync(Reference, GuestEmail, GuestPhone, clientKey);
         if (!result.Succeeded || result.Access is null)
         {
             ModelState.AddModelError(string.Empty, result.Message);

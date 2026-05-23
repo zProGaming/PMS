@@ -246,10 +246,11 @@ public class ManagementInsightService(ApplicationDbContext context, CashFlowRepo
         }
 
         var unpostedFinanceTransactions = await _context.FolioItems.CountAsync(item =>
-                !item.IsVoided &&
-                !_context.JournalEntries.Any(entry =>
-                    entry.Status == JournalEntryStatus.Posted &&
-                    entry.SourceReferenceId == item.Id &&
+            !item.IsVoided &&
+            (item.ChargeCode != "FB" || !item.Description.Contains("Order #")) &&
+            !_context.JournalEntries.Any(entry =>
+                entry.Status == JournalEntryStatus.Posted &&
+                entry.SourceReferenceId == item.Id &&
                     (entry.SourceTransactionType == SourceTransactionType.FolioCharge ||
                         entry.SourceTransactionType == SourceTransactionType.RoomCharge)))
             + await _context.Payments.CountAsync(payment =>

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Labor;
+using Vantage.PMS.Services;
 
 namespace Vantage.PMS.Pages.Labor.ServiceChargePools;
 
@@ -53,7 +54,17 @@ public class DetailsModel(ApplicationDbContext context) : PageModel
         if (Input.EmployeeCostProfileId is not null)
         {
             var employee = await context.EmployeeCostProfiles.AsNoTracking().FirstOrDefaultAsync(item => item.Id == Input.EmployeeCostProfileId);
+            if (!ServiceChargeEligibility.IsEligible(employee))
+            {
+                ModelState.AddModelError("Input.EmployeeCostProfileId", "Selected employee profile is inactive, agency, or managerial/executive. Review service-charge eligibility before adding this line.");
+            }
+
             Input.DepartmentId ??= employee?.DepartmentId;
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return Page();
         }
 
         Input.ServiceChargePoolId = id;
@@ -73,7 +84,21 @@ public class DetailsModel(ApplicationDbContext context) : PageModel
             .ThenInclude(line => line.Department)
             .Include(pool => pool.JournalEntry)
             .FirstOrDefaultAsync(pool => pool.Id == id);
-        EmployeeOptions = new SelectList(await context.EmployeeCostProfiles.AsNoTracking().Where(employee => employee.IsActive).OrderBy(employee => employee.FullName).ToListAsync(), "Id", "FullName");
+        var eligibleEmployees = (await context.EmployeeCostProfiles
+                .AsNoTracking()
+                .Where(employee => employee.IsActive)
+                .OrderBy(employee => employee.FullName)
+                .ToListAsync())
+            .Where(ServiceChargeEligibility.IsEligible)
+            .Select(employee => new
+            {
+                employee.Id,
+                Label = string.IsNullOrWhiteSpace(employee.Position)
+                    ? employee.FullName
+                    : $"{employee.FullName} - {employee.Position}"
+            })
+            .ToList();
+        EmployeeOptions = new SelectList(eligibleEmployees, "Id", "Label");
         DepartmentOptions = new SelectList(await context.Departments.AsNoTracking().Where(department => department.IsActive).OrderBy(department => department.Name).ToListAsync(), "Id", "Name");
     }
 }

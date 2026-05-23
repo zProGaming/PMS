@@ -84,7 +84,9 @@ public class IndexModel(ApplicationDbContext context, CashFlowReportService cash
             .FirstOrDefaultAsync();
         TrialBalanceDifference = (postedLines?.Debit ?? 0) - (postedLines?.Credit ?? 0);
 
-        var unpostedFolioItems = await context.FolioItems.AsNoTracking().CountAsync(item => !item.IsVoided && !context.JournalEntries.Any(entry =>
+        var unpostedFolioItems = await context.FolioItems.AsNoTracking().CountAsync(item => !item.IsVoided &&
+            (item.ChargeCode != "FB" || !item.Description.Contains("Order #")) &&
+            !context.JournalEntries.Any(entry =>
             entry.Status == JournalEntryStatus.Posted &&
             (entry.SourceTransactionType == SourceTransactionType.FolioCharge || entry.SourceTransactionType == SourceTransactionType.RoomCharge) &&
             entry.SourceReferenceId == item.Id));
