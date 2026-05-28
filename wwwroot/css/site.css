@@ -809,7 +809,7 @@ a {
 .app-content {
   width: min(100%, 1680px);
   flex: 1 0 auto;
-  padding: 1.35rem;
+  padding: 1.35rem 1.35rem 5rem;
   margin: 0 auto;
 }
 
@@ -818,6 +818,9 @@ a {
 }
 
 .app-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
   display: flex;
   flex: 0 0 auto;
   justify-content: space-between;
@@ -826,7 +829,8 @@ a {
   color: var(--vantage-muted);
   font-size: 0.86rem;
   border-top: 1px solid rgba(221, 229, 238, 0.8);
-  background: rgba(246, 248, 251, 0.92);
+  background: rgba(246, 248, 251, 0.96);
+  backdrop-filter: blur(16px);
 }
 
 @media (min-width: 992px) {
@@ -852,7 +856,7 @@ a {
   }
 
   .app-content {
-    padding: 1rem;
+    padding: 1rem 1rem 5.75rem;
   }
 
   .app-footer {
@@ -2201,12 +2205,12 @@ a {
   display: grid;
   width: 100%;
   min-height: 100vh;
-  padding: clamp(1.25rem, 4vw, 3rem);
+  padding: clamp(1.25rem, 4vw, 3rem) clamp(1.25rem, 4vw, 3rem) 4.75rem;
   place-items: center;
 }
 
 .vpms-login-screen .vpms-auth-card {
-  width: min(100%, 520px);
+  width: min(100%, 680px);
   padding: 0 !important;
   background: transparent;
   border: 0;
@@ -2220,7 +2224,7 @@ a {
 .vpms-login-card {
   position: relative;
   overflow: hidden;
-  padding: clamp(1.5rem, 4vw, 2.4rem);
+  padding: clamp(1.5rem, 4vw, 2.65rem);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.9)),
     #fff;
@@ -2249,14 +2253,14 @@ a {
 .vpms-login-logo-wrap {
   position: relative;
   display: grid;
-  width: min(460px, 88vw);
-  min-height: 150px;
+  width: min(620px, 92vw);
+  min-height: 205px;
   place-items: center;
 }
 
 .vpms-login-brand img {
   position: relative;
-  width: min(430px, 84vw);
+  width: min(590px, 88vw);
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 20px 32px rgba(15, 23, 42, 0.16));
@@ -2430,13 +2434,20 @@ a {
 }
 
 .vpms-login-footer {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
   display: block;
-  margin-top: 1.45rem;
-  padding-top: 1rem;
+  margin-top: 0;
+  padding: 0.85rem 1rem;
   color: #64748b;
   font-size: 0.76rem;
   text-align: center;
-  border-top: 1px solid #e2e8f0;
+  background: rgba(248, 250, 252, 0.9);
+  border-top: 1px solid rgba(226, 232, 240, 0.82);
+  backdrop-filter: blur(16px);
 }
 
 @keyframes vpms-login-flow {
@@ -4987,7 +4998,7 @@ strong,
 }
 
 .app-content {
-  padding: clamp(0.9rem, 1.35vw, 1.25rem);
+  padding: clamp(0.9rem, 1.35vw, 1.25rem) clamp(0.9rem, 1.35vw, 1.25rem) 5rem;
 }
 
 .app-footer {
@@ -5215,7 +5226,7 @@ strong,
 
 @media (max-width: 767.98px) {
   .app-content {
-    padding: 0.75rem;
+    padding: 0.75rem 0.75rem 5.75rem;
   }
 
   .vpms-dashboard-refined-actions .btn,
@@ -8210,8 +8221,9 @@ body {
 }
 
 .app-footer {
-  background: transparent;
+  background: rgba(246, 248, 251, 0.96);
   border-top-color: rgba(226, 232, 240, 0.7);
+  backdrop-filter: blur(16px);
 }
 
 @media (min-width: 1200px) {
@@ -8358,11 +8370,11 @@ body,
   .vpms-login-logo-wrap {
     width: 100%;
     max-width: 100%;
-    min-height: 128px;
+    min-height: 156px;
   }
 
   .vpms-login-brand img {
-    width: min(100%, 340px);
+    width: min(100%, 430px);
   }
 }
 
