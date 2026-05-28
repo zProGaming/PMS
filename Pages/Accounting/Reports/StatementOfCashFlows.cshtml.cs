@@ -68,7 +68,7 @@ public class StatementOfCashFlowsModel(ApplicationDbContext context, CashFlowRep
         Method = method == CashFlowMethod.Indirect ? CashFlowMethod.Direct : method;
         if (method == CashFlowMethod.Indirect)
         {
-            StatusMessage = "Indirect method is planned. Direct method is currently available.";
+            StatusMessage = "Indirect method is not currently enabled. Direct method is currently available.";
         }
 
         Result = await cashFlowReportService.GenerateStatementAsync(StartDate, EndDate, Method);

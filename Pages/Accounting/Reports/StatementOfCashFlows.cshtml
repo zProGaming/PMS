@@ -54,7 +54,7 @@
             <label class="form-label">Method</label>
             <select asp-for="Method" class="form-select">
                 <option value="@CashFlowMethod.Direct">Direct</option>
-                <option value="@CashFlowMethod.Indirect" disabled>Indirect - planned</option>
+                <option value="@CashFlowMethod.Indirect" disabled>Indirect - not enabled</option>
             </select>
         </div>
         <div class="col-md-1">
@@ -96,7 +96,7 @@
     @if (Model.Method == CashFlowMethod.Indirect)
     {
         <div class="vpms-empty-state">
-            <h2>Indirect method is planned</h2>
+            <h2>Indirect method is not enabled</h2>
             <p>Direct method is currently available for generated cash flow reporting.</p>
         </div>
     }

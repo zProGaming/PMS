@@ -28,13 +28,13 @@ public class ExportModel(ReportCatalogService catalogService, ReportExportServic
 
         if (!catalogEntry.SupportsCsvExport)
         {
-            return RedirectToPage("/Reports/Placeholder", new { reportName = catalogEntry.ReportName, category = ReportCatalogService.FormatCategory(catalogEntry.ReportCategory), message = "CSV export is planned for this report." });
+            return RedirectToPage("/Reports/Placeholder", new { reportName = catalogEntry.ReportName, category = ReportCatalogService.FormatCategory(catalogEntry.ReportCategory), message = "CSV export is not currently enabled for this report." });
         }
 
         var csv = await exportService.BuildCsvForReportAsync(catalogEntry, dateRangeStart, dateRangeEnd);
         if (csv is null)
         {
-            return RedirectToPage("/Reports/Placeholder", new { reportName = catalogEntry.ReportName, category = ReportCatalogService.FormatCategory(catalogEntry.ReportCategory), message = "CSV export is planned for this report." });
+            return RedirectToPage("/Reports/Placeholder", new { reportName = catalogEntry.ReportName, category = ReportCatalogService.FormatCategory(catalogEntry.ReportCategory), message = "CSV export is not currently enabled for this report." });
         }
 
         await exportService.LogExportAsync(catalogEntry, ReportExportType.Csv, User.Identity?.Name ?? "System", dateRangeStart, dateRangeEnd, csv.FileName);

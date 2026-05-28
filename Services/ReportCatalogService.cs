@@ -106,7 +106,7 @@ public class ReportCatalogService
         Item("housekeeping-task-report", "Housekeeping Task Report", ReportCategory.Housekeeping, "Open and completed housekeeping tasks.", "/Housekeeping/Tasks/Index", HousekeepingRoles),
         Item("dirty-rooms-report", "Dirty Rooms Report", ReportCategory.Housekeeping, "Rooms requiring cleaning attention.", null, HousekeepingRoles),
         Item("out-of-order-rooms-report", "Out of Order Rooms Report", ReportCategory.Housekeeping, "Blocked and out-of-order room inventory.", null, HousekeepingRoles),
-        Item("lost-and-found-report", "Lost and Found Report", ReportCategory.Housekeeping, "Lost and found tracking placeholder.", null, HousekeepingRoles),
+        Item("lost-and-found-report", "Lost and Found Report", ReportCategory.Housekeeping, "Lost and found tracking report awaiting property configuration.", null, HousekeepingRoles),
 
         Item("daily-revenue-report", "Daily Revenue Report", ReportCategory.Finance, "Charges, payments, and outstanding balances.", "/Reports/DailyRevenue", FinanceRoles),
         Item("payment-summary-report", "Payment Summary Report", ReportCategory.Finance, "Payment collection summary by method.", null, FinanceRoles),
@@ -189,28 +189,28 @@ public class ReportCatalogService
 
         Item("kitchen-order-report", "Kitchen Order Report", ReportCategory.Kitchen, "Kitchen order ticket and status report.", "/FoodBeverageKitchen/Index", KitchenRoles),
         Item("delayed-items-report", "Delayed Items Report", ReportCategory.Kitchen, "Delayed kitchen items report.", null, KitchenRoles),
-        Item("station-performance-report", "Station Performance Report", ReportCategory.Kitchen, "Kitchen station performance placeholder.", null, KitchenRoles),
+        Item("station-performance-report", "Station Performance Report", ReportCategory.Kitchen, "Kitchen station performance report awaiting outlet configuration.", null, KitchenRoles),
 
         Item("banquet-event-report", "Banquet Event Report", ReportCategory.Banquet, "Banquet events and status report.", "/Banquet/Index", BanquetRoles),
         Item("banquet-revenue-report", "Banquet Revenue Report", ReportCategory.Banquet, "Banquet charges and revenue report.", null, BanquetRoles),
         Item("beo-list", "Banquet Event Order List", ReportCategory.Banquet, "BEO readiness list.", "/Documents/Index", BanquetRoles),
-        Item("function-room-utilization", "Function Room Utilization", ReportCategory.Banquet, "Function room utilization placeholder.", null, BanquetRoles),
-        Item("event-profitability-report", "Event Profitability Report", ReportCategory.Banquet, "Banquet event profitability placeholder.", null, BanquetRoles),
+        Item("function-room-utilization", "Function Room Utilization", ReportCategory.Banquet, "Function room utilization report awaiting event calendar configuration.", null, BanquetRoles),
+        Item("event-profitability-report", "Event Profitability Report", ReportCategory.Banquet, "Banquet event profitability report awaiting charge and cost mapping.", null, BanquetRoles),
 
         Item("sales-account-report", "Sales Account Report", ReportCategory.Sales, "Sales account production and contacts.", "/Sales/Index", SalesRoles),
         Item("sales-pipeline-report", "Sales Pipeline Report", ReportCategory.Sales, "Sales lead pipeline report.", null, SalesRoles),
         Item("sales-activity-report", "Sales Activity Report", ReportCategory.Sales, "Sales activity report.", null, SalesRoles),
-        Item("account-production-report", "Account Production Report", ReportCategory.Sales, "Account production placeholder.", null, SalesRoles),
+        Item("account-production-report", "Account Production Report", ReportCategory.Sales, "Account production report awaiting sales production mapping.", null, SalesRoles),
 
         Item("revenue-dashboard", "Revenue Dashboard", ReportCategory.Revenue, "Revenue dashboard and controls.", "/Revenue/Index", RevenueRoles),
         Item("revenue-calendar", "Revenue Calendar", ReportCategory.Revenue, "Rate and inventory calendar.", "/Revenue/Calendar/Index", RevenueRoles),
-        Item("rate-plan-report", "Rate Plan Report", ReportCategory.Revenue, "Rate plan setup and production placeholder.", null, RevenueRoles),
-        Item("promotion-usage-report", "Promotion Usage Report", ReportCategory.Revenue, "Promo code usage placeholder.", null, RevenueRoles),
-        Item("booking-pace-report", "Booking Pace Report", ReportCategory.Revenue, "Booking pace placeholder.", null, RevenueRoles),
+        Item("rate-plan-report", "Rate Plan Report", ReportCategory.Revenue, "Rate plan setup and production report awaiting revenue mapping.", null, RevenueRoles),
+        Item("promotion-usage-report", "Promotion Usage Report", ReportCategory.Revenue, "Promo code usage report awaiting booking conversion mapping.", null, RevenueRoles),
+        Item("booking-pace-report", "Booking Pace Report", ReportCategory.Revenue, "Booking pace report awaiting pickup history configuration.", null, RevenueRoles),
 
         Item("booking-request-report", "Booking Request Report", ReportCategory.BookingEngine, "Booking engine request report.", "/BookingManagement/Requests/Index", BookingRoles),
-        Item("booking-conversion-report", "Booking Conversion Report", ReportCategory.BookingEngine, "Booking conversion report placeholder.", null, BookingRoles),
-        Item("promo-code-usage-report", "Promo Code Usage Report", ReportCategory.BookingEngine, "Promo usage report placeholder.", null, BookingRoles),
+        Item("booking-conversion-report", "Booking Conversion Report", ReportCategory.BookingEngine, "Booking conversion report awaiting channel analytics configuration.", null, BookingRoles),
+        Item("promo-code-usage-report", "Promo Code Usage Report", ReportCategory.BookingEngine, "Promo usage report awaiting booking engine analytics configuration.", null, BookingRoles),
 
         Item("pre-check-in-report", "Pre-Check-In Report", ReportCategory.GuestPortal, "Guest portal pre-check-in report.", "/GuestPortalManagement/PreCheckIns/Index", GuestPortalRoles),
         Item("guest-service-request-report", "Guest Service Request Report", ReportCategory.GuestPortal, "Guest service request report.", "/GuestPortalManagement/ServiceRequests/Index", GuestPortalRoles),

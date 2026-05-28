@@ -33,7 +33,7 @@ public class CashFlowReportService(ApplicationDbContext context, AuditLogService
 
         if (method == CashFlowMethod.Indirect)
         {
-            warnings.Add("Indirect method is planned. Direct method is currently available.");
+            warnings.Add("Indirect method is not currently enabled. Direct method is available for configured cash-flow mappings.");
         }
 
         var lines = await BuildStatementLinesAsync(beginningCash, endingCash, movements);

@@ -7,21 +7,146 @@
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
-        <li class="breadcrumb-item"><a asp-page="/Admin/Hotels/Index">Admin</a></li>
+        <li class="breadcrumb-item"><a asp-page="/Admin/Index">Admin</a></li>
         <li class="breadcrumb-item active" aria-current="page">Users and Roles</li>
     </ol>
 </nav>
 
 <div class="page-header">
     <div>
-        <div class="page-kicker">Administration</div>
+        <div class="page-kicker">Global Administration</div>
         <h1 class="page-title">Users and Roles</h1>
-        <p class="page-subtitle">Identity administration placeholder for the Vantage PMS MVP.</p>
+        <p class="page-subtitle">Create staff accounts, assign operational roles, and confirm company-code access before trial sign-in.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-secondary" asp-page="/Admin/CompanyAccess/Index">Company Access</a>
+        <a class="btn btn-outline-secondary" asp-page="/System/AuditLogs/Index">Audit Logs</a>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        <p class="mb-0 text-muted">Role seeding and the default SystemAdmin user are configured through ASP.NET Core Identity. Full user management screens can be added in a later security administration pass.</p>
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-info">@Model.StatusMessage</div>
+}
+
+<div class="row g-3">
+    <div class="col-xl-4">
+        <section class="vpms-card h-100">
+            <div class="mb-3">
+                <div class="page-kicker">Secure Onboarding</div>
+                <h2 class="h5 mb-1">Create Staff Account</h2>
+                <p class="text-muted mb-0">After creation, bind the account to one or more company codes in Company Access.</p>
+            </div>
+
+            <form method="post" asp-page-handler="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="CreateUser.Email" class="form-label"></label>
+                    <input asp-for="CreateUser.Email" class="form-control" autocomplete="username" />
+                    <span asp-validation-for="CreateUser.Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CreateUser.Password" class="form-label"></label>
+                    <input asp-for="CreateUser.Password" class="form-control" type="password" autocomplete="new-password" />
+                    <div class="form-text">Use a temporary password and require the user to change it through the account recovery process.</div>
+                    <span asp-validation-for="CreateUser.Password" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CreateUser.RoleName" class="form-label"></label>
+                    <select asp-for="CreateUser.RoleName" asp-items="Model.RoleOptions" class="form-select"></select>
+                    <span asp-validation-for="CreateUser.RoleName" class="text-danger"></span>
+                </div>
+
+                <button class="btn vpms-btn-primary w-100" type="submit">Create Account</button>
+            </form>
+        </section>
+    </div>
+
+    <div class="col-xl-8">
+        <section class="vpms-card h-100">
+            <div class="d-flex flex-wrap justify-content-between gap-2 align-items-start mb-3">
+                <div>
+                    <div class="page-kicker">Access Control</div>
+                    <h2 class="h5 mb-1">Identity Users</h2>
+                    <p class="text-muted mb-0">Users need both a role and active company access before normal property sign-in.</p>
+                </div>
+                <span class="status-badge status-approved">@Model.Users.Count account(s)</span>
+            </div>
+
+            @if (!Model.Users.Any())
+            {
+                <div class="vpms-empty-state">
+                    <strong>No users have been provisioned.</strong>
+                    <span>Create a SystemAdmin or staff account, then assign company access.</span>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table vpms-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Company Access</th>
+                                <th>Status</th>
+                                <th class="text-end">Controls</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model.Users)
+                            {
+                                var primaryRole = user.Roles.FirstOrDefault() ?? "No role";
+                                <tr>
+                                    <td>
+                                        <strong>@user.Email</strong>
+                                        <div class="text-muted small">@user.UserName</div>
+                                    </td>
+                                    <td>
+                                        <form method="post" asp-page-handler="SetRole" asp-route-id="@user.Id" class="d-flex gap-2">
+                                            <select name="roleName" class="form-select form-select-sm" asp-items="Model.RoleOptions">
+                                                <option selected>@primaryRole</option>
+                                            </select>
+                                            <button class="btn btn-sm btn-outline-secondary" type="submit">Update</button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge @(user.CompanyAccessCount > 0 ? "status-approved" : "status-warning")">
+                                            @user.CompanyAccessCount company code(s)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge @(user.IsLockedOut ? "status-cancelled" : "status-open")">
+                                            @(user.IsLockedOut ? "Inactive" : "Active")
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        @if (user.IsLockedOut)
+                                        {
+                                            <form method="post" asp-page-handler="Reactivate" asp-route-id="@user.Id" class="d-inline">
+                                                <button class="btn btn-sm btn-outline-success" type="submit">Reactivate</button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" asp-page-handler="Deactivate" asp-route-id="@user.Id" class="d-inline">
+                                                <button class="btn btn-sm btn-outline-danger" type="submit">Deactivate</button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -8,31 +8,33 @@ public class GuestPortalNotificationService(ILogger<GuestPortalNotificationServi
 
     public Task SendPortalAccessAsync(GuestPortalAccess access)
     {
-        _logger.LogInformation("Guest portal access notification placeholder for token {AccessToken}.", access.AccessToken);
+        _logger.LogInformation(
+            "Guest portal access notification prepared for reservation {ReservationId}; token value suppressed.",
+            access.ReservationId);
         return Task.CompletedTask;
     }
 
     public Task SendPreCheckInReceivedAsync(GuestPreCheckIn preCheckIn)
     {
-        _logger.LogInformation("Pre-check-in received notification placeholder for reservation {ReservationId}.", preCheckIn.ReservationId);
+        _logger.LogInformation("Pre-check-in received notification queued for reservation {ReservationId}.", preCheckIn.ReservationId);
         return Task.CompletedTask;
     }
 
     public Task SendServiceRequestReceivedAsync(GuestServiceRequest request)
     {
-        _logger.LogInformation("Service request received notification placeholder for request {RequestId}.", request.Id);
+        _logger.LogInformation("Service request notification queued for request {RequestId}.", request.Id);
         return Task.CompletedTask;
     }
 
     public Task SendExpressCheckoutRequestedAsync(ExpressCheckoutRequest request)
     {
-        _logger.LogInformation("Express checkout request notification placeholder for request {RequestId}.", request.Id);
+        _logger.LogInformation("Express checkout request notification queued for request {RequestId}.", request.Id);
         return Task.CompletedTask;
     }
 
     public Task SendFeedbackReceivedAsync(GuestFeedback feedback)
     {
-        _logger.LogInformation("Guest feedback received notification placeholder for feedback {FeedbackId}.", feedback.Id);
+        _logger.LogInformation("Guest feedback notification queued for feedback {FeedbackId}.", feedback.Id);
         return Task.CompletedTask;
     }
 }

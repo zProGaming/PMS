@@ -228,7 +228,7 @@ public static class AccountingSeedData
                 Rate = 10,
                 LiabilityGLAccountId = await GetAccountIdAsync(context, "2040"),
                 IsActive = true,
-                Notes = "Configurable MVP default. Validate local service-charge treatment before production use."
+                Notes = "Configurable default. Validate local service-charge treatment before production use."
             });
             await context.SaveChangesAsync();
         }
@@ -247,7 +247,7 @@ public static class AccountingSeedData
                 Currency = "PHP",
                 OpeningBalance = 0,
                 IsActive = true,
-                Notes = "Seeded MVP bank account. Replace with actual bank details before production use."
+                Notes = "Seeded bank account. Replace with actual bank details before production use."
             });
             await context.SaveChangesAsync();
         }
@@ -378,7 +378,7 @@ public static class AccountingSeedData
                     ServiceChargeGLAccountId = ruleTemplate.ServiceChargeCode is null ? null : await GetAccountIdAsync(context, ruleTemplate.ServiceChargeCode),
                     DiscountGLAccountId = ruleTemplate.DiscountCode is null ? null : await GetAccountIdAsync(context, ruleTemplate.DiscountCode),
                     IsActive = true,
-                    Notes = "Seeded configurable MVP posting rule."
+                    Notes = "Seeded configurable posting rule."
                 });
             }
         }

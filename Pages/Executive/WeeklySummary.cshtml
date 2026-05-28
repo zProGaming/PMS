@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Weekly Executive Summary";
 }
-<div class="page-header"><div><div class="page-kicker">Executive Reports</div><h1 class="page-title">Weekly Executive Summary</h1><p class="page-subtitle">Seven-day trend, department revenue, guest experience, labor cost, risks, and actions.</p></div><div class="page-actions vpms-no-print"><button class="btn vpms-btn-primary" onclick="window.print()">Print</button><span class="btn vpms-btn-secondary disabled">CSV export planned</span></div></div>
+<div class="page-header"><div><div class="page-kicker">Executive Reports</div><h1 class="page-title">Weekly Executive Summary</h1><p class="page-subtitle">Seven-day trend, department revenue, guest experience, labor cost, risks, and actions.</p></div><div class="page-actions vpms-no-print"><button class="btn vpms-btn-primary" onclick="window.print()">Print</button><span class="btn vpms-btn-secondary disabled">CSV export under review</span></div></div>
 <form method="get" class="vpms-card report-filter vpms-no-print mb-3"><div class="row g-3 align-items-end"><div class="col-md-4"><label class="form-label">From</label><input type="date" name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" class="form-control" /></div><div class="col-md-4"><label class="form-label">To</label><input type="date" name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" class="form-control" /></div><div class="col-md-4"><button class="btn vpms-btn-primary w-100">Run</button></div></div></form>
 <section class="vpms-print-document">
     <div class="row g-3 mb-3">

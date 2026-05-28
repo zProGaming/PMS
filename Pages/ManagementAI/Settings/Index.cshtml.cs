@@ -45,7 +45,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         }
 
         await _context.SaveChangesAsync();
-        StatusMessage = "AI integration settings saved. External AI remains disabled for the MVP.";
+        StatusMessage = "AI integration settings saved. External AI remains disabled; recommendations stay rule-based and reviewable.";
         return RedirectToPage();
     }
 
@@ -56,10 +56,10 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             .FirstOrDefaultAsync()
             ?? new AIIntegrationSetting
             {
-                ProviderName = "Rule-Based MVP",
+                ProviderName = "Rule-Based Recommendations",
                 IsEnabled = false,
                 ApiKeyConfigured = false,
-                Notes = "External AI integration is disabled in MVP. Rule-based recommendations are currently used."
+                Notes = "External AI integration is disabled. Rule-based recommendations are currently used for management review."
             };
     }
 }

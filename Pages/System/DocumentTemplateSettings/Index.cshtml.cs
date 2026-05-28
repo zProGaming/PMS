@@ -106,7 +106,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
                 ShowApprovedBy = true,
                 ShowPrintedDate = true,
                 IsActive = true,
-                Notes = "Default MVP template setting."
+                Notes = "Default document template setting."
             });
         }
 

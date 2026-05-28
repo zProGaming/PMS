@@ -177,7 +177,7 @@ else
                     </tbody>
                 </table>
                 <div class="vpms-print-totals"><div><span>Grand Total</span><strong>@PrintModel.Money(invoices.Sum(item => item.Balance))</strong></div></div>
-                <p class="vpms-print-note">Payment instructions placeholder. Please coordinate settlement with the Finance Office.</p>
+                <p class="vpms-print-note">Payment instructions are property-configurable. Please coordinate settlement with the Finance Office.</p>
             </section>
         }
         else if (Model.Template is "payment-receipt" && Model.Payment is not null)
@@ -340,7 +340,7 @@ else
                 <p>@m.SummaryText</p>
                 <h2>Management Insights and Recommended Actions</h2>
                 <table class="vpms-print-table"><thead><tr><th>Severity</th><th>Module</th><th>Insight</th><th>Recommendation</th></tr></thead><tbody>@foreach (var insight in Model.ManagementInsights){<tr><td>@insight.Severity</td><td>@insight.RelatedModule</td><td>@insight.Title</td><td>@insight.Recommendation</td></tr>}</tbody></table>
-                <p class="vpms-print-note">MVP uses rule-based recommendations. External AI integration is disabled.</p>
+                <p class="vpms-print-note">This management summary uses reviewable rule-based recommendations. External AI integration is disabled.</p>
             </section>
         }
 

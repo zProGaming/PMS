@@ -127,7 +127,7 @@ else
                             : null;
                         <article class="vpms-report-card @(report.IsAvailable ? "is-available" : "is-planned")">
                             <div class="vpms-report-card-body">
-                                <div class="vpms-report-card-kicker">@(report.IsAvailable ? "Ready for review" : "Controlled placeholder")</div>
+                                <div class="vpms-report-card-kicker">@(report.IsAvailable ? "Ready for review" : "Controlled status")</div>
                                 <h3>@report.ReportName</h3>
                                 <p>@report.Description</p>
                             </div>
@@ -145,7 +145,7 @@ else
                                 }
                                 else
                                 {
-                                    <span class="btn vpms-btn-secondary btn-sm disabled">CSV planned</span>
+                                    <span class="btn vpms-btn-secondary btn-sm disabled">CSV unavailable</span>
                                 }
                             </div>
                             @if (!report.IsAvailable)

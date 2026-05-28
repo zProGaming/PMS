@@ -54,7 +54,7 @@ public class LaborCostingService(ApplicationDbContext context, AccountingPosting
 
         if (period.Entries.Any(HasNegativePayrollAmount))
         {
-            errors.Add("Payroll entries cannot contain negative amounts for MVP payroll costing.");
+            errors.Add("Payroll entries cannot contain negative amounts for controlled payroll costing.");
         }
 
         if (errors.Count > 0)
@@ -106,7 +106,7 @@ public class LaborCostingService(ApplicationDbContext context, AccountingPosting
 
         if (period.Entries.Any(HasNegativePayrollAmount))
         {
-            errors.Add("Payroll entries cannot contain negative amounts for MVP payroll costing.");
+            errors.Add("Payroll entries cannot contain negative amounts for controlled payroll costing.");
         }
 
         if (errors.Count > 0)

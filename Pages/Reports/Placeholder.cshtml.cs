@@ -8,7 +8,7 @@ public class PlaceholderModel : PageModel
 
     public string Category { get; private set; } = "Reports";
 
-    public string Message { get; private set; } = "This report is planned or not yet configured.";
+    public string Message { get; private set; } = "This report is controlled by configuration and is not currently enabled for this workspace.";
 
     public void OnGet(string? reportName, string? category, string? message)
     {

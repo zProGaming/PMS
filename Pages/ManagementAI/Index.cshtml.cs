@@ -51,13 +51,13 @@ public class IndexModel(
             ActionDate = DateTime.Now,
             ActionType = AIActionType.Exported,
             Module = "Management AI",
-            Description = "Export summary placeholder was requested.",
+            Description = "Management summary export review was requested.",
             PerformedBy = performedBy,
-            Notes = "External export templates are not implemented in the MVP."
+            Notes = "Structured export templates are controlled through the report center; this action records management demand for a dedicated export."
         });
         await _context.SaveChangesAsync();
 
-        StatusMessage = "Export placeholder logged. External export templates are disabled in the MVP.";
+        StatusMessage = "Export request logged. Use browser print or the Report Center while dedicated export templates are reviewed.";
         return RedirectToPage();
     }
 
