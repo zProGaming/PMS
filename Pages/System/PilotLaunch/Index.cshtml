@@ -1,0 +1,131 @@
+@page
+@model Vantage.PMS.Pages.System.PilotLaunch.IndexModel
+@{
+    ViewData["Title"] = "Pilot Launch Command Center";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">Pilot Readiness</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Pilot Launch</li>
+    </ol>
+</nav>
+
+<section class="vpms-page-header">
+    <div>
+        <div class="page-kicker">Phase 10 Audit</div>
+        <h1 class="vpms-page-title">Pilot Launch Command Center</h1>
+        <p class="vpms-page-subtitle">A final management cockpit for deciding whether the current environment is ready for trial demos, hotel pilot walkthroughs, and stakeholder review.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">Business date @(Model.Snapshot.BusinessDate?.ToString("MMM dd, yyyy") ?? "not set")</span>
+            <span class="vpms-mini-chip">@Model.Snapshot.PassedGates passed</span>
+            <span class="vpms-mini-chip">@Model.Snapshot.OpenGates open</span>
+            <span class="vpms-mini-chip">@Model.Snapshot.AvailableReports reports</span>
+        </div>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-primary" asp-page="/System/HealthCheck/Index">Run Health Review</a>
+        <a class="btn vpms-btn-secondary" asp-page="/System/DemoPresentation/Index">Demo Presentation</a>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Pilot Launch Score</span>
+            <strong>@Model.Snapshot.Score%</strong>
+            <small>Passed readiness gates divided by total launch gates.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Open Gates</span>
+            <strong>@Model.Snapshot.OpenGates</strong>
+            <small>Items to resolve or consciously accept before pilot.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Critical Issues</span>
+            <strong>@Model.Snapshot.CriticalIssues</strong>
+            <small>Critical validation issues should be zero for trial sign-off.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">High Issues</span>
+            <strong>@Model.Snapshot.HighIssues</strong>
+            <small>High-risk findings need owner review.</small>
+        </article>
+    </div>
+</section>
+
+<section class="vpms-product-proof-strip mb-4">
+    <article><span>Use</span><strong>Final readiness huddle</strong><p>Open this page before a live hotel review and walk through each gate with the pilot owner.</p></article>
+    <article><span>Evidence</span><strong>Links to source consoles</strong><p>Each gate links to the operational surface or readiness console that supports the signal.</p></article>
+    <article><span>Boundary</span><strong>Not certification</strong><p>This is an internal product readiness layer, not BIR, tax, audit, or accounting certification.</p></article>
+</section>
+
+<section class="vpms-card mb-4">
+    <div class="card-body">
+        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
+            <div>
+                <div class="page-kicker">Launch Gates</div>
+                <h2 class="h5 mb-1">Pilot Go/No-Go Checklist</h2>
+                <p class="text-muted mb-0">Resolve failed gates or document acceptance before using the environment for trial demonstrations.</p>
+            </div>
+        </div>
+
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Gate</th>
+                        <th>Evidence</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var gate in Model.Gates)
+                {
+                    <tr>
+                        <td class="fw-semibold">@gate.Name</td>
+                        <td>@gate.Evidence</td>
+                        <td><span class="@IndexModel.GateClass(gate)">@(gate.IsPassed ? "Passed" : "Open")</span></td>
+                        <td class="text-end"><a class="btn btn-sm vpms-btn-secondary" href="@gate.RoutePath">Review</a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4">
+    <div class="col-md-6 col-xl-3">
+        <a class="vpms-section-card h-100 text-decoration-none d-block" asp-page="/System/RouteReadiness/Index">
+            <h3 class="h6">Route Smoke</h3>
+            <p class="text-muted mb-0">Confirm launch-critical pages exist before the walkthrough.</p>
+        </a>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <a class="vpms-section-card h-100 text-decoration-none d-block" asp-page="/System/WorkflowReadiness/Index">
+            <h3 class="h6">Workflow SOP</h3>
+            <p class="text-muted mb-0">Review operational evidence across stay, POS, finance, and inventory flows.</p>
+        </a>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <a class="vpms-section-card h-100 text-decoration-none d-block" asp-page="/System/RoleAccessReadiness/Index">
+            <h3 class="h6">Role Access</h3>
+            <p class="text-muted mb-0">Check role setup and user assignment coverage.</p>
+        </a>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <a class="vpms-section-card h-100 text-decoration-none d-block" asp-page="/System/ReportReadiness/Index">
+            <h3 class="h6">Reports &amp; Print</h3>
+            <p class="text-muted mb-0">Review report catalog availability and print/export readiness.</p>
+        </a>
+    </div>
+</section>
