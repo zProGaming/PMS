@@ -2235,7 +2235,15 @@ public class DemoDataSeederService(
 
     private async Task EnsureLaborCostingAsync(DemoSeedResult result)
     {
-        var departmentIds = await context.Departments.ToDictionaryAsync(item => item.Code, item => item.Id);
+        var departmentIds = (await context.Departments
+                .AsNoTracking()
+                .Where(item => item.Code != null)
+                .OrderByDescending(item => item.IsActive)
+                .ThenBy(item => item.Id)
+                .Select(item => new { item.Code, item.Id })
+                .ToListAsync())
+            .GroupBy(item => item.Code!, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(group => group.Key, group => group.First().Id, StringComparer.OrdinalIgnoreCase);
         var usaliIds = await context.USALIDepartments.ToDictionaryAsync(item => item.Code, item => item.Id);
         var accountIds = await context.GLAccounts.ToDictionaryAsync(item => item.AccountCode, item => item.Id);
         int? Dept(string code) => departmentIds.TryGetValue(code, out var id) ? id : null;
