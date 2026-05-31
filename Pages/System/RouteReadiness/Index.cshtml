@@ -1,0 +1,133 @@
+@page
+@model Vantage.PMS.Pages.System.RouteReadiness.IndexModel
+@{
+    ViewData["Title"] = "Route Smoke Console";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">Pilot Readiness</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Route Smoke Console</li>
+    </ol>
+</nav>
+
+<section class="vpms-page-header">
+    <div>
+        <div class="page-kicker">Phase 6 Audit</div>
+        <h1 class="vpms-page-title">Route Smoke Console</h1>
+        <p class="vpms-page-subtitle">A launch-critical route matrix for validating that pilot, demo, and workflow surfaces have live Razor Pages before client walkthroughs.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">@Model.Summary.Total route candidates</span>
+            <span class="vpms-mini-chip">@Model.Summary.Ready ready</span>
+            <span class="vpms-mini-chip">@Model.Summary.NeedsReview review</span>
+            <span class="vpms-mini-chip">@Model.Summary.Missing missing</span>
+        </div>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-primary" asp-page="/System/HealthCheck/Index">Pilot Readiness</a>
+        <a class="btn vpms-btn-secondary" asp-page="/System/ModuleQA/Index">Module QA</a>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Route Readiness</span>
+            <strong>@Model.Summary.Score%</strong>
+            <small>Based on live Razor Page presence across launch-critical routes.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Ready</span>
+            <strong>@Model.Summary.Ready</strong>
+            <small>Page exists without placeholder signals.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Needs Review</span>
+            <strong>@Model.Summary.NeedsReview</strong>
+            <small>Page exists but has planned/placeholder wording.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Missing</span>
+            <strong>@Model.Summary.Missing</strong>
+            <small>Route candidate has no Razor page file.</small>
+        </article>
+    </div>
+</section>
+
+<section class="vpms-product-proof-strip mb-4">
+    <article>
+        <span>Purpose</span>
+        <strong>Prevent broken walkthroughs</strong>
+        <p>Use this before demos and pilot QA to catch launch-critical missing pages early.</p>
+    </article>
+    <article>
+        <span>Scope</span>
+        <strong>Route presence, not business validation</strong>
+        <p>This complements System Health and Module QA. It does not replace end-to-end workflow testing.</p>
+    </article>
+    <article>
+        <span>Next action</span>
+        <strong>Fix Missing first</strong>
+        <p>Review routes marked Missing, then inspect pages marked Needs Review for demo-safe language.</p>
+    </article>
+</section>
+
+@foreach (var group in Model.Groups)
+{
+    var missing = group.Items.Count(item => item.Status == RouteSmokeStatus.Missing);
+    var review = group.Items.Count(item => item.Status == RouteSmokeStatus.NeedsReview);
+    <section class="vpms-card mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
+                <div>
+                    <div class="page-kicker">@group.Module</div>
+                    <h2 class="h5 mb-1">Launch-Critical Routes</h2>
+                    <p class="text-muted mb-0">@group.Items.Count route(s) checked. @missing missing, @review needing review.</p>
+                </div>
+            </div>
+
+            <div class="vpms-table-wrapper">
+                <table class="table vpms-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Surface</th>
+                            <th>Route</th>
+                            <th>Purpose</th>
+                            <th>Evidence</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var item in group.Items)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@item.Candidate.Name</td>
+                            <td><code>@item.Candidate.RoutePath</code></td>
+                            <td>@item.Candidate.Purpose</td>
+                            <td>
+                                <div>@item.Evidence</div>
+                                <div class="small text-muted">@item.PageFile</div>
+                            </td>
+                            <td><span class="@IndexModel.StatusBadge(item.Status)">@item.Status</span></td>
+                            <td class="text-end">
+                                @if (item.Status != RouteSmokeStatus.Missing)
+                                {
+                                    <a class="btn btn-sm vpms-btn-secondary" href="@item.Candidate.RoutePath">Open</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+}
