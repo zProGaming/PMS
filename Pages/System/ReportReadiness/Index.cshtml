@@ -1,0 +1,121 @@
+@page
+@model Vantage.PMS.Pages.System.ReportReadiness.IndexModel
+@{
+    ViewData["Title"] = "Report & Print Readiness";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">Pilot Readiness</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Report &amp; Print Readiness</li>
+    </ol>
+</nav>
+
+<section class="vpms-page-header">
+    <div>
+        <div class="page-kicker">Phase 9 Audit</div>
+        <h1 class="vpms-page-title">Report &amp; Print Readiness</h1>
+        <p class="vpms-page-subtitle">A catalog-level readiness review for report route safety, print/browser-PDF support, CSV capability, and finance-sensitive disclaimer coverage.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">@Model.Summary.Available available</span>
+            <span class="vpms-mini-chip">@Model.Summary.NeedsReview review</span>
+            <span class="vpms-mini-chip">@Model.Summary.Planned planned/hidden</span>
+            <span class="vpms-mini-chip">@Model.Summary.CsvEnabled CSV-enabled</span>
+        </div>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-primary" asp-page="/Reports/Center">Open Report Center</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Documents/Index">Printable Documents</a>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Report Readiness</span>
+            <strong>@Model.Summary.Score%</strong>
+            <small>Available report routes versus full visible catalog.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Available</span>
+            <strong>@Model.Summary.Available</strong>
+            <small>Catalog items with live routes and no review signal.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Needs Review</span>
+            <strong>@Model.Summary.NeedsReview</strong>
+            <small>Live routes with route or disclaimer risks.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">CSV Coverage</span>
+            <strong>@Model.Summary.CsvEnabled</strong>
+            <small>Simple export-ready report rows.</small>
+        </article>
+    </div>
+</section>
+
+<section class="vpms-product-proof-strip mb-4">
+    <article><span>Print standard</span><strong>Browser print / Save as PDF</strong><p>PDF output remains browser-print based; no paid or heavy PDF engine is required.</p></article>
+    <article><span>Finance caution</span><strong>Configurable reports</strong><p>USALI-style and Philippine finance reports should be reviewed by hotel finance/accounting personnel.</p></article>
+    <article><span>Demo safety</span><strong>Planned reports are separated</strong><p>Catalog items without routes should stay clearly planned or hidden from live client demos.</p></article>
+</section>
+
+@foreach (var group in Model.Groups)
+{
+    <section class="vpms-card mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
+                <div>
+                    <div class="page-kicker">@group.CategoryName</div>
+                    <h2 class="h5 mb-1">Report Catalog Items</h2>
+                    <p class="text-muted mb-0">@group.Rows.Count report(s) reviewed.</p>
+                </div>
+            </div>
+            <div class="vpms-table-wrapper">
+                <table class="table vpms-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Report</th>
+                            <th>Route</th>
+                            <th>Capabilities</th>
+                            <th>Evidence</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var row in group.Rows)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@row.Entry.ReportName</strong>
+                                <div class="small text-muted">@row.Entry.Description</div>
+                            </td>
+                            <td><code>@(row.Entry.RoutePath ?? "Planned")</code></td>
+                            <td>
+                                <span class="vpms-mini-chip">Print @(row.Entry.SupportsPrint ? "Yes" : "No")</span>
+                                <span class="vpms-mini-chip">CSV @(row.Entry.SupportsCsvExport ? "Yes" : "No")</span>
+                            </td>
+                            <td>@row.Evidence</td>
+                            <td><span class="@IndexModel.StatusClass(row.Status)">@row.Status</span></td>
+                            <td class="text-end">
+                                @if (row.Entry.RoutePath is not null)
+                                {
+                                    <a class="btn btn-sm vpms-btn-secondary" href="@row.Entry.RoutePath">Open</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+}
