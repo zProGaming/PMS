@@ -1,0 +1,105 @@
+@page
+@model Vantage.PMS.Pages.System.WorkflowReadiness.IndexModel
+@{
+    ViewData["Title"] = "Workflow SOP Readiness";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">Pilot Readiness</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Workflow SOP Readiness</li>
+    </ol>
+</nav>
+
+<section class="vpms-page-header">
+    <div>
+        <div class="page-kicker">Phase 7 Audit</div>
+        <h1 class="vpms-page-title">Workflow SOP Readiness</h1>
+        <p class="vpms-page-subtitle">Evidence-based readiness across the core Philippine hotel operating cycle: stay handling, room readiness, F&amp;B charge-to-room, banquet, inventory, AR/AP, GL, and finance close.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">@Model.Summary.Ready of @Model.Summary.Total signals ready</span>
+            <span class="vpms-mini-chip">@Model.Summary.NeedsData need data</span>
+            <span class="vpms-mini-chip">@Model.Summary.Attention attention</span>
+        </div>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-primary" asp-page="/System/HealthCheck/Index">Pilot Readiness</a>
+        <a class="btn vpms-btn-secondary" asp-page="/System/RouteReadiness/Index">Route Smoke Console</a>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Workflow Readiness</span>
+            <strong>@Model.Summary.Score%</strong>
+            <small>Signals with enough evidence for trial walkthroughs.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Ready</span>
+            <strong>@Model.Summary.Ready</strong>
+            <small>Workflow evidence exists.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Needs Data</span>
+            <strong>@Model.Summary.NeedsData</strong>
+            <small>Seed or transact more records.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Attention</span>
+            <strong>@Model.Summary.Attention</strong>
+            <small>Control issue needs review.</small>
+        </article>
+    </div>
+</section>
+
+<section class="vpms-product-proof-strip mb-4">
+    <article><span>Scope</span><strong>SOP evidence layer</strong><p>This checks whether workflows have enough records to demonstrate, not whether every transaction is final-accounting certified.</p></article>
+    <article><span>Best use</span><strong>Before trial demos</strong><p>Run demo setup, route smoke, and system health, then review this page for workflow gaps.</p></article>
+    <article><span>Finance note</span><strong>Review with accountant</strong><p>Accounting and Philippine reports remain configurable management outputs and must be validated by finance users.</p></article>
+</section>
+
+@foreach (var group in Model.Groups)
+{
+    <section class="vpms-card mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
+                <div>
+                    <div class="page-kicker">@group.Name</div>
+                    <h2 class="h5 mb-1">Operational Signals</h2>
+                    <p class="text-muted mb-0">@group.Signals.Count signal(s) checked for this workflow.</p>
+                </div>
+            </div>
+            <div class="vpms-table-wrapper">
+                <table class="table vpms-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Signal</th>
+                            <th class="text-end">Count</th>
+                            <th>Evidence</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var signal in group.Signals)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@signal.Name</td>
+                            <td class="text-end">@signal.Count</td>
+                            <td>@signal.Evidence</td>
+                            <td><span class="@IndexModel.StatusClass(signal.Status)">@signal.Status</span></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+}

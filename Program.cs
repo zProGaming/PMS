@@ -122,6 +122,7 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/System/Settings", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/HealthCheck", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/RouteReadiness", PmsPolicies.SystemManagement);
+    options.Conventions.AuthorizeFolder("/System/WorkflowReadiness", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/DataValidationIssues", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/QAChecklist", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/ModuleQA", PmsPolicies.SystemManagement);
