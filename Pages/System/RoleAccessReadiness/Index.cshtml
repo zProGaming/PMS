@@ -1,0 +1,140 @@
+@page
+@model Vantage.PMS.Pages.System.RoleAccessReadiness.IndexModel
+@{
+    ViewData["Title"] = "Role Access Readiness";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">Pilot Readiness</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Role Access Readiness</li>
+    </ol>
+</nav>
+
+<section class="vpms-page-header">
+    <div>
+        <div class="page-kicker">Phase 8 Audit</div>
+        <h1 class="vpms-page-title">Role Access Readiness</h1>
+        <p class="vpms-page-subtitle">A role-to-module matrix for reviewing staff onboarding, security boundaries, and pilot account setup before trial users are invited.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">@Model.Summary.TotalRoles roles</span>
+            <span class="vpms-mini-chip">@Model.Summary.MissingRoles missing role records</span>
+            <span class="vpms-mini-chip">@Model.Summary.RolesWithoutUsers role(s) without users</span>
+        </div>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-primary" asp-page="/System/HealthCheck/Index">Pilot Readiness</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Admin/UsersAndRoles/Index">Users and Roles</a>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Access Readiness</span>
+            <strong>@Model.Summary.Score%</strong>
+            <small>Based on seeded roles and user-role assignment coverage.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Missing Roles</span>
+            <strong>@Model.Summary.MissingRoles</strong>
+            <small>Identity role rows expected by the authorization layer.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Unassigned Roles</span>
+            <strong>@Model.Summary.RolesWithoutUsers</strong>
+            <small>Configured roles with no current user assignment.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Surface Assignments</span>
+            <strong>@Model.Summary.TotalSurfaceAssignments</strong>
+            <small>Role-to-module access mappings reviewed.</small>
+        </article>
+    </div>
+</section>
+
+<section class="vpms-product-proof-strip mb-4">
+    <article><span>Security</span><strong>UI is not the control</strong><p>Navigation is role-aware, but server-side policies remain the enforcement point.</p></article>
+    <article><span>Trial setup</span><strong>Assign only needed roles</strong><p>FrontDesk should not receive accounting setup; finance users should be explicitly assigned finance/accounting roles.</p></article>
+    <article><span>Public areas</span><strong>Booking and guest portal stay anonymous</strong><p>Public routes should remain outside internal sidebar and system administration.</p></article>
+</section>
+
+<div class="row g-4">
+    <div class="col-xl-5">
+        <section class="vpms-card h-100">
+            <div class="card-body">
+                <div class="page-kicker">Protected Surfaces</div>
+                <h2 class="h5 mb-3">Module Access Map</h2>
+                <div class="vpms-table-wrapper">
+                    <table class="table vpms-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Surface</th>
+                                <th>Route Scope</th>
+                                <th class="text-end">Roles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var surface in Model.Surfaces)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@surface.Name</td>
+                                <td><code>@surface.RouteScope</code></td>
+                                <td class="text-end">@surface.Roles.Count</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-xl-7">
+        <section class="vpms-card h-100">
+            <div class="card-body">
+                <div class="page-kicker">Roles</div>
+                <h2 class="h5 mb-3">Onboarding Coverage</h2>
+                <div class="vpms-table-wrapper">
+                    <table class="table vpms-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th class="text-end">Users</th>
+                                <th>Access Surfaces</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var role in Model.Roles)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@role.RoleName</td>
+                                <td class="text-end">@role.UserCount</td>
+                                <td>
+                                    @if (role.SurfaceNames.Any())
+                                    {
+                                        <span>@string.Join(", ", role.SurfaceNames)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No internal surface mapped.</span>
+                                    }
+                                </td>
+                                <td><span class="@IndexModel.RoleStatusClass(role)">@(role.Exists ? role.UserCount > 0 ? "Assigned" : "No Users" : "Missing")</span></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
