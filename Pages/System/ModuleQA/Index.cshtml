@@ -3,9 +3,10 @@
 @model Vantage.PMS.Pages.System.ModuleQA.IndexModel
 @{
     ViewData["Title"] = "Module QA Stabilization";
+    ViewData["BodyClass"] = "vpms-enterprise-control-page";
 }
 
-<div class="page-header">
+<div class="page-header vpms-enterprise-hero vpms-qa-hero">
     <div>
         <div class="page-kicker">System</div>
         <h1 class="page-title">Module QA Stabilization</h1>
@@ -32,36 +33,34 @@
 }
 else
 {
-    <div class="row g-3 mb-4">
+    <div class="vpms-qa-summary-grid mb-4">
         @foreach (var summary in Model.ModuleSummaries)
         {
-            <div class="col-md-6 col-xl-4">
-                <div class="vpms-card h-100">
-                    <div class="d-flex justify-content-between gap-3">
-                        <div>
-                            <div class="text-muted small">Module</div>
-                            <h2 class="h6 mb-1">@summary.Module</h2>
-                        </div>
-                        <span class="status-badge">@summary.ProgressPercent% Passed</span>
+            <article class="vpms-card vpms-qa-summary-card">
+                <div class="vpms-qa-summary-head">
+                    <div>
+                        <span>Module</span>
+                        <h2>@summary.Module</h2>
                     </div>
-                    <div class="progress my-3" style="height: 8px;">
-                        <div class="progress-bar bg-success" style="width: @summary.ProgressPercent%"></div>
-                    </div>
-                    <div class="d-flex flex-wrap gap-2 small text-muted">
-                        <span>@summary.Passed passed</span>
-                        <span>@summary.NeedsFix needs fix</span>
-                        <span>@summary.Failed failed</span>
-                        <span>@summary.NotTested not tested</span>
-                    </div>
+                    <strong>@summary.ProgressPercent%</strong>
                 </div>
-            </div>
+                <div class="vpms-qa-progress" aria-label="@summary.ProgressPercent percent passed">
+                    <span style="width: @summary.ProgressPercent%"></span>
+                </div>
+                <div class="vpms-qa-metrics">
+                    <span><strong>@summary.Passed</strong> passed</span>
+                    <span><strong>@summary.NeedsFix</strong> needs fix</span>
+                    <span><strong>@summary.Failed</strong> failed</span>
+                    <span><strong>@summary.NotTested</strong> not tested</span>
+                </div>
+            </article>
         }
     </div>
 
     @foreach (var group in Model.Items.GroupBy(item => item.Module))
     {
-        <section class="vpms-card mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-3">
+        <section class="vpms-card vpms-qa-workflow-section mb-3">
+            <div class="vpms-qa-section-header">
                 <div>
                     <div class="page-kicker">@group.Key</div>
                     <h2 class="h5 mb-0">Workflow Checks</h2>
