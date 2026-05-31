@@ -132,6 +132,22 @@ public class DemoDataSeederService(
         return result;
     }
 
+    public async Task<DemoSeedResult> SeedDemoFinanceClosePackAsync(string userName)
+    {
+        var result = new DemoSeedResult("Demo Finance Close Pack");
+        await EnsureDemoModeSettingAsync(result, userName);
+        await AccountingSeedData.SeedAsync(context);
+        await CashFlowSeedData.SeedAsync(context);
+
+        var propertyId = await EnsureHotelPropertyDepartmentsAsync(result);
+        await EnsureRoomTypesAndRoomsAsync(propertyId, result);
+        await EnsureAdvancedFinanceAsync(result);
+        await EnsureDemoFinanceClosePackAsync(propertyId, userName, result);
+        await LogAsync(result, userName);
+        await context.SaveChangesAsync();
+        return result;
+    }
+
     public async Task<DemoDataStatus> GetStatusAsync()
     {
         return new DemoDataStatus
@@ -146,6 +162,7 @@ public class DemoDataSeederService(
             BanquetEvents = await context.BanquetEvents.AsNoTracking().CountAsync(item => item.Notes != null && item.Notes.Contains(DemoMarker)),
             InventoryItems = await context.InventoryItems.AsNoTracking().CountAsync(item => item.CreatedBy == "DemoDataSeeder"),
             ARInvoices = await context.ARInvoices.AsNoTracking().CountAsync(invoice => invoice.CreatedBy == "DemoDataSeeder"),
+            FinanceClosePackRecords = await context.JournalEntries.AsNoTracking().CountAsync(entry => entry.JournalNumber.StartsWith("DEMO-CLOSE-")),
             LaborProfiles = await context.EmployeeCostProfiles.AsNoTracking().CountAsync(employee => employee.CreatedBy == "DemoDataSeeder"),
             ManagementInsights = await context.ManagementInsights.AsNoTracking().CountAsync(insight => insight.Summary.Contains(DemoMarker))
         };
@@ -169,6 +186,7 @@ public class DemoDataSeederService(
             await ReadyAsync("Inventory", () => context.InventoryItems.AnyAsync(), () => context.StockMovements.AnyAsync()),
             await ReadyAsync("Purchasing", () => context.PurchaseOrders.AnyAsync(), () => context.ReceivingRecords.AnyAsync()),
             await ReadyAsync("Accounts Receivable", () => context.ARAccounts.AnyAsync(), () => context.ARInvoices.AnyAsync()),
+            await ReadyAsync("Finance Close Pack", () => context.JournalEntries.AnyAsync(entry => entry.JournalNumber.StartsWith("DEMO-CLOSE-")), () => context.BankReconciliations.AnyAsync(item => item.Notes != null && item.Notes.Contains("DEMO-CLOSE"))),
             await ReadyAsync("Labor Costing", () => context.EmployeeCostProfiles.AnyAsync(), () => context.PayrollPeriods.AnyAsync()),
             await ReadyAsync("Management AI", () => context.ManagementDailySummaries.AnyAsync(), () => context.ManagementInsights.AnyAsync()),
             await ReadyAsync("Audit Trail", () => context.AuditLogs.AnyAsync(), () => Task.FromResult(true)),
@@ -1174,6 +1192,923 @@ public class DemoDataSeederService(
         }
     }
 
+    private async Task EnsureDemoFinanceClosePackAsync(int propertyId, string userName, DemoSeedResult result)
+    {
+        var closeDate = await GetCleanFinanceCloseDateAsync();
+        await EnsureBusinessDateAsync(closeDate, result);
+        var periodId = await EnsureAccountingPeriodForDateAsync(closeDate, result);
+        var accounts = await context.GLAccounts.ToDictionaryAsync(account => account.AccountCode, account => account.Id);
+
+        int Account(string preferredCode, params string[] fallbackCodes)
+        {
+            if (accounts.TryGetValue(preferredCode, out var id))
+            {
+                return id;
+            }
+
+            foreach (var fallbackCode in fallbackCodes)
+            {
+                if (accounts.TryGetValue(fallbackCode, out id))
+                {
+                    return id;
+                }
+            }
+
+            throw new InvalidOperationException($"Demo finance close pack requires GL account {preferredCode}.");
+        }
+
+        var roomRevenueAccountId = Account("4000");
+        var fbRevenueAccountId = Account("4100", "4000");
+        var guestLedgerAccountId = Account("1100", "1110");
+        var cityLedgerAccountId = Account("1110", "1100");
+        var cashAccountId = Account("1000", "1010");
+        var bankAccountId = Account("1010", "1000");
+        var apAccountId = Account("2000");
+        var expenseAccountId = Account("6200", "6400", "6500");
+
+        var chargeCodes = await context.ChargeCodes.ToDictionaryAsync(chargeCode => chargeCode.Code, chargeCode => chargeCode.Id);
+        int? ChargeCode(string code) => chargeCodes.TryGetValue(code, out var id) ? id : null;
+
+        var roomTypeId = await context.RoomTypes
+            .Where(roomType => roomType.PropertyId == propertyId && roomType.IsActive)
+            .OrderBy(roomType => roomType.Id)
+            .Select(roomType => roomType.Id)
+            .FirstAsync();
+
+        var inHouseRoom = await EnsureCleanCloseRoomAsync(propertyId, roomTypeId, "901", RoomStatus.Occupied, result);
+        var departureRoom = await EnsureCleanCloseRoomAsync(propertyId, roomTypeId, "902", RoomStatus.Dirty, result);
+
+        var inHouseGuest = await EnsureCleanCloseGuestAsync("finance.close.inhouse@demo.example", "Leandro", "Villanueva", result);
+        var settledGuest = await EnsureCleanCloseGuestAsync("finance.close.settled@demo.example", "Camille", "Ramos", result);
+
+        var inHouseReservation = await EnsureCleanCloseReservationAsync(
+            propertyId,
+            inHouseGuest.Id,
+            inHouseRoom.RoomTypeId,
+            inHouseRoom.Id,
+            "DEMO-CLOSE-INH-001",
+            closeDate.AddDays(-1),
+            closeDate.AddDays(1),
+            ReservationStatus.CheckedIn,
+            5200m,
+            result);
+
+        var settledReservation = await EnsureCleanCloseReservationAsync(
+            propertyId,
+            settledGuest.Id,
+            departureRoom.RoomTypeId,
+            departureRoom.Id,
+            "DEMO-CLOSE-DEP-001",
+            closeDate.AddDays(-2),
+            closeDate,
+            ReservationStatus.CheckedOut,
+            3800m,
+            result);
+
+        inHouseReservation.ActualCheckInDate ??= closeDate.AddDays(-1).AddHours(15);
+        settledReservation.ActualCheckInDate ??= closeDate.AddDays(-2).AddHours(15);
+        settledReservation.ActualCheckOutDate ??= closeDate.AddHours(10);
+
+        var inHouseFolio = await EnsureCleanCloseFolioAsync(propertyId, inHouseReservation.Id, inHouseGuest.Id, "DEMO-CLOSE-FOL-INH-001", FolioStatus.Open, result);
+        var settledFolio = await EnsureCleanCloseFolioAsync(propertyId, settledReservation.Id, settledGuest.Id, "DEMO-CLOSE-FOL-DEP-001", FolioStatus.Closed, result);
+
+        var inHouseRoomCharge = await EnsureCleanCloseFolioItemAsync(inHouseFolio.Id, ChargeCode("ROOM"), "ROOM", "Demo finance close room night", 5200m, closeDate, result);
+        await EnsurePostedJournalAsync("DEMO-CLOSE-JE-ROOM-INH", closeDate, periodId, SourceModule.FrontOffice, SourceTransactionType.RoomCharge, inHouseRoomCharge.Id, inHouseFolio.FolioNumber, "Posted demo in-house room night", new[]
+        {
+            JournalLine(guestLedgerAccountId, 5200m, 0m, "Guest ledger room charge"),
+            JournalLine(roomRevenueAccountId, 0m, 5200m, "Rooms revenue")
+        }, result);
+
+        var settledRoomCharge = await EnsureCleanCloseFolioItemAsync(settledFolio.Id, ChargeCode("ROOM"), "ROOM", "Demo checked-out room night", 3800m, closeDate.AddDays(-1), result);
+        await EnsurePostedJournalAsync("DEMO-CLOSE-JE-ROOM-DEP", closeDate.AddDays(-1), periodId, SourceModule.FrontOffice, SourceTransactionType.RoomCharge, settledRoomCharge.Id, settledFolio.FolioNumber, "Posted demo checked-out room night", new[]
+        {
+            JournalLine(guestLedgerAccountId, 3800m, 0m, "Guest ledger room charge"),
+            JournalLine(roomRevenueAccountId, 0m, 3800m, "Rooms revenue")
+        }, result);
+
+        var settledPayment = await EnsureCleanClosePaymentAsync(settledFolio.Id, 3800m, "Cash", closeDate, "DEMO-CLOSE-PAY-FOL-001", result);
+        await EnsurePostedJournalAsync("DEMO-CLOSE-JE-PAY-FOL", closeDate, periodId, SourceModule.Finance, SourceTransactionType.FolioPayment, settledPayment.Id, settledPayment.ReferenceNumber, "Posted demo folio settlement", new[]
+        {
+            JournalLine(cashAccountId, 3800m, 0m, "Cash received from checked-out guest"),
+            JournalLine(guestLedgerAccountId, 0m, 3800m, "Guest ledger collection")
+        }, result);
+
+        var (paidOrder, roomChargeOrder, _) = await EnsureCleanClosePosAsync(propertyId, inHouseReservation, inHouseFolio, ChargeCode("FB"), closeDate, result);
+        await EnsurePostedJournalAsync("DEMO-CLOSE-JE-POS-CASH", closeDate, periodId, SourceModule.FoodBeverage, SourceTransactionType.POSPayment, paidOrder.Id, paidOrder.OrderNumber, "Posted demo POS cash settlement", new[]
+        {
+            JournalLine(cashAccountId, paidOrder.TotalAmount, 0m, "Cash received from outlet"),
+            JournalLine(fbRevenueAccountId, 0m, paidOrder.TotalAmount, "F&B revenue")
+        }, result);
+        await EnsurePostedJournalAsync("DEMO-CLOSE-JE-POS-ROOM", closeDate, periodId, SourceModule.FoodBeverage, SourceTransactionType.POSChargeToRoom, roomChargeOrder.Id, roomChargeOrder.OrderNumber, "Posted demo POS charge to room", new[]
+        {
+            JournalLine(guestLedgerAccountId, roomChargeOrder.TotalAmount, 0m, "Guest ledger POS charge"),
+            JournalLine(fbRevenueAccountId, 0m, roomChargeOrder.TotalAmount, "F&B revenue")
+        }, result);
+        await EnsureCleanCloseArAsync(closeDate, periodId, roomRevenueAccountId, cityLedgerAccountId, bankAccountId, result);
+        await EnsureCleanCloseApTreasuryAsync(closeDate, periodId, expenseAccountId, apAccountId, bankAccountId, result);
+
+        result.Messages.Add($"Installed clean finance close pack for business date {closeDate:MMM dd, yyyy}. Seeded records use DEMO-CLOSE-* references and are already posted/reconciled for trial walkthroughs.");
+    }
+
+    private async Task<DateTime> GetCleanFinanceCloseDateAsync()
+    {
+        var earliestArrival = await context.Reservations
+            .AsNoTracking()
+            .Where(reservation => reservation.ConfirmationNumber.StartsWith("DEMO-") && !reservation.ConfirmationNumber.StartsWith("DEMO-CLOSE-"))
+            .Select(reservation => (DateTime?)reservation.ArrivalDate)
+            .OrderBy(date => date)
+            .FirstOrDefaultAsync();
+
+        return (earliestArrival?.Date.AddDays(-2) ?? DateTime.Today.Date).Date;
+    }
+
+    private async Task EnsureBusinessDateAsync(DateTime businessDate, DemoSeedResult result)
+    {
+        var setting = await context.BusinessDateSettings.FirstOrDefaultAsync();
+        if (setting is null)
+        {
+            context.BusinessDateSettings.Add(new BusinessDateSetting { CurrentBusinessDate = businessDate, UpdatedAtUtc = DateTime.UtcNow });
+            result.Inserted++;
+            return;
+        }
+
+        if (setting.CurrentBusinessDate.Date != businessDate.Date)
+        {
+            setting.CurrentBusinessDate = businessDate.Date;
+            setting.UpdatedAtUtc = DateTime.UtcNow;
+            result.Messages.Add($"Demo business date set to {businessDate:MMM dd, yyyy} for clean finance close rehearsal.");
+        }
+    }
+
+    private async Task<int?> EnsureAccountingPeriodForDateAsync(DateTime date, DemoSeedResult result)
+    {
+        var periodId = await context.AccountingPeriods
+            .Where(period => period.StartDate <= date && period.EndDate >= date)
+            .OrderBy(period => period.Id)
+            .Select(period => (int?)period.Id)
+            .FirstOrDefaultAsync();
+
+        if (periodId is not null)
+        {
+            return periodId;
+        }
+
+        var period = new AccountingPeriod
+        {
+            PeriodName = $"Demo Close {date:yyyy-MM}",
+            StartDate = new DateTime(date.Year, date.Month, 1),
+            EndDate = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month)),
+            Status = AccountingPeriodStatus.Open,
+            Notes = $"{DemoMarker} clean finance close period."
+        };
+        context.AccountingPeriods.Add(period);
+        await context.SaveChangesAsync();
+        result.Inserted++;
+        return period.Id;
+    }
+
+    private async Task<Room> EnsureCleanCloseRoomAsync(int propertyId, int roomTypeId, string roomNumber, RoomStatus status, DemoSeedResult result)
+    {
+        var room = await context.Rooms.FirstOrDefaultAsync(item => item.PropertyId == propertyId && item.RoomNumber == roomNumber);
+        if (room is null)
+        {
+            room = new Room
+            {
+                PropertyId = propertyId,
+                RoomTypeId = roomTypeId,
+                RoomNumber = roomNumber,
+                Floor = "9",
+                Status = status,
+                StatusNotes = $"{DemoMarker} clean finance close room.",
+                IsActive = true
+            };
+            context.Rooms.Add(room);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+            return room;
+        }
+
+        room.RoomTypeId = roomTypeId;
+        room.Status = status;
+        room.StatusNotes = $"{DemoMarker} clean finance close room.";
+        room.IsActive = true;
+        await context.SaveChangesAsync();
+        return room;
+    }
+
+    private async Task<Guest> EnsureCleanCloseGuestAsync(string email, string firstName, string lastName, DemoSeedResult result)
+    {
+        var guest = await context.Guests.FirstOrDefaultAsync(item => item.Email == email);
+        if (guest is not null)
+        {
+            return guest;
+        }
+
+        guest = new Guest
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            Email = email,
+            PhoneNumber = "+63 917 555 9000",
+            AddressLine1 = "Demo close account",
+            City = "Quezon City",
+            Country = "Philippines"
+        };
+        context.Guests.Add(guest);
+        await context.SaveChangesAsync();
+        result.Inserted++;
+        return guest;
+    }
+
+    private async Task<Reservation> EnsureCleanCloseReservationAsync(
+        int propertyId,
+        int guestId,
+        int roomTypeId,
+        int roomId,
+        string confirmationNumber,
+        DateTime arrivalDate,
+        DateTime departureDate,
+        ReservationStatus status,
+        decimal rateAmount,
+        DemoSeedResult result)
+    {
+        var reservation = await context.Reservations.FirstOrDefaultAsync(item => item.ConfirmationNumber == confirmationNumber);
+        if (reservation is null)
+        {
+            reservation = new Reservation
+            {
+                PropertyId = propertyId,
+                GuestId = guestId,
+                RoomTypeId = roomTypeId,
+                RoomId = roomId,
+                ConfirmationNumber = confirmationNumber,
+                ArrivalDate = arrivalDate,
+                DepartureDate = departureDate,
+                Status = status,
+                RateAmount = rateAmount,
+                Adults = 2,
+                Children = 0,
+                CreatedAtUtc = DateTime.UtcNow
+            };
+            context.Reservations.Add(reservation);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+            return reservation;
+        }
+
+        reservation.PropertyId = propertyId;
+        reservation.GuestId = guestId;
+        reservation.RoomTypeId = roomTypeId;
+        reservation.RoomId = roomId;
+        reservation.ArrivalDate = arrivalDate;
+        reservation.DepartureDate = departureDate;
+        reservation.Status = status;
+        reservation.RateAmount = rateAmount;
+        await context.SaveChangesAsync();
+        return reservation;
+    }
+
+    private async Task<Folio> EnsureCleanCloseFolioAsync(int propertyId, int reservationId, int guestId, string folioNumber, FolioStatus status, DemoSeedResult result)
+    {
+        var folio = await context.Folios.FirstOrDefaultAsync(item => item.FolioNumber == folioNumber);
+        if (folio is null)
+        {
+            folio = new Folio
+            {
+                PropertyId = propertyId,
+                ReservationId = reservationId,
+                GuestId = guestId,
+                FolioNumber = folioNumber,
+                Status = status,
+                OpenedAtUtc = DateTime.UtcNow.AddDays(-2),
+                ClosedAtUtc = status == FolioStatus.Closed ? DateTime.UtcNow : null
+            };
+            context.Folios.Add(folio);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+            return folio;
+        }
+
+        folio.PropertyId = propertyId;
+        folio.ReservationId = reservationId;
+        folio.GuestId = guestId;
+        folio.Status = status;
+        folio.ClosedAtUtc = status == FolioStatus.Closed ? folio.ClosedAtUtc ?? DateTime.UtcNow : null;
+        await context.SaveChangesAsync();
+        return folio;
+    }
+
+    private async Task<FolioItem> EnsureCleanCloseFolioItemAsync(int folioId, int? chargeCodeId, string chargeCode, string description, decimal amount, DateTime postingDate, DemoSeedResult result)
+    {
+        var item = await context.FolioItems.FirstOrDefaultAsync(existing => existing.FolioId == folioId && existing.ChargeCode == chargeCode && existing.Description == description && existing.PostingDate.Date == postingDate.Date);
+        if (item is not null)
+        {
+            item.ChargeCodeId = chargeCodeId;
+            item.Amount = amount;
+            item.UnitPrice = amount;
+            item.IsVoided = false;
+            return item;
+        }
+
+        item = new FolioItem
+        {
+            FolioId = folioId,
+            ChargeCodeId = chargeCodeId,
+            ChargeCode = chargeCode,
+            Description = description,
+            Quantity = 1,
+            UnitPrice = amount,
+            Amount = amount,
+            PostingDate = postingDate,
+            PostedBy = "DemoDataSeeder",
+            IsLocked = true
+        };
+        context.FolioItems.Add(item);
+        await context.SaveChangesAsync();
+        result.Inserted++;
+        return item;
+    }
+
+    private async Task<Payment> EnsureCleanClosePaymentAsync(int folioId, decimal amount, string paymentMethod, DateTime paymentDate, string referenceNumber, DemoSeedResult result)
+    {
+        var payment = await context.Payments.FirstOrDefaultAsync(item => item.ReferenceNumber == referenceNumber);
+        if (payment is not null)
+        {
+            payment.Amount = amount;
+            payment.PaymentMethod = paymentMethod;
+            payment.PaymentDate = paymentDate;
+            payment.Status = PaymentStatus.Completed;
+            payment.IsLocked = true;
+            return payment;
+        }
+
+        payment = new Payment
+        {
+            FolioId = folioId,
+            Amount = amount,
+            PaymentMethod = paymentMethod,
+            PaymentDate = paymentDate,
+            ReferenceNumber = referenceNumber,
+            Notes = $"{DemoMarker} clean finance close payment.",
+            Status = PaymentStatus.Completed,
+            IsLocked = true
+        };
+        context.Payments.Add(payment);
+        await context.SaveChangesAsync();
+        result.Inserted++;
+        return payment;
+    }
+
+    private async Task<(POSOrder PaidOrder, POSOrder RoomChargeOrder, FolioItem RoomChargeFolioItem)> EnsureCleanClosePosAsync(
+        int propertyId,
+        Reservation inHouseReservation,
+        Folio inHouseFolio,
+        int? fbChargeCodeId,
+        DateTime closeDate,
+        DemoSeedResult result)
+    {
+        var outlet = await context.Outlets.FirstOrDefaultAsync(item => item.Name == "Demo Close Lobby Cafe");
+        if (outlet is null)
+        {
+            outlet = new Outlet { Name = "Demo Close Lobby Cafe", OutletType = OutletType.Cafe, IsActive = true };
+            context.Outlets.Add(outlet);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        var table = await context.DiningTables.FirstOrDefaultAsync(item => item.OutletId == outlet.Id && item.TableName == "DC-01");
+        if (table is null)
+        {
+            table = new DiningTable { OutletId = outlet.Id, TableName = "DC-01", SeatingCapacity = 4, Status = DiningTableStatus.Available };
+            context.DiningTables.Add(table);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        var category = await context.MenuCategories.FirstOrDefaultAsync(item => item.Name == "Demo Close Cafe");
+        if (category is null)
+        {
+            category = new MenuCategory { Name = "Demo Close Cafe", SortOrder = 90, IsActive = true };
+            context.MenuCategories.Add(category);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        var menuItem = await context.MenuItems.FirstOrDefaultAsync(item => item.Name == "Demo Close Breakfast Set");
+        if (menuItem is null)
+        {
+            menuItem = new MenuItem
+            {
+                MenuCategoryId = category.Id,
+                Name = "Demo Close Breakfast Set",
+                Description = $"{DemoMarker} finance close POS item.",
+                Price = 1250m,
+                IsAvailable = true,
+                IsTaxable = true,
+                IsServiceChargeable = true
+            };
+            context.MenuItems.Add(menuItem);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        var paidOrder = await EnsureCleanClosePosOrderAsync(outlet.Id, table.Id, null, null, "DEMO-CLOSE-POS-CASH-001", POSOrderType.DineIn, POSPaymentStatus.Paid, 1250m, closeDate, result);
+        await EnsureCleanClosePosOrderItemAsync(paidOrder.Id, menuItem.Id, 1, 1250m, result);
+
+        var roomChargeOrder = await EnsureCleanClosePosOrderAsync(outlet.Id, table.Id, inHouseReservation.Id, inHouseReservation.GuestId, "DEMO-CLOSE-POS-ROOM-001", POSOrderType.RoomService, POSPaymentStatus.ChargedToRoom, 1850m, closeDate, result);
+        await EnsureCleanClosePosOrderItemAsync(roomChargeOrder.Id, menuItem.Id, 1, 1850m, result);
+        var folioItem = await EnsureCleanCloseFolioItemAsync(inHouseFolio.Id, fbChargeCodeId, "FB", $"F&B charge to room - Order #{roomChargeOrder.OrderNumber}", roomChargeOrder.TotalAmount, closeDate, result);
+        return (paidOrder, roomChargeOrder, folioItem);
+    }
+
+    private async Task<POSOrder> EnsureCleanClosePosOrderAsync(
+        int outletId,
+        int? diningTableId,
+        int? reservationId,
+        int? guestId,
+        string orderNumber,
+        POSOrderType orderType,
+        POSPaymentStatus paymentStatus,
+        decimal totalAmount,
+        DateTime orderDate,
+        DemoSeedResult result)
+    {
+        var order = await context.POSOrders.FirstOrDefaultAsync(item => item.OrderNumber == orderNumber);
+        if (order is null)
+        {
+            order = new POSOrder
+            {
+                OutletId = outletId,
+                DiningTableId = diningTableId,
+                ReservationId = reservationId,
+                GuestId = guestId,
+                OrderNumber = orderNumber,
+                OrderType = orderType,
+                OrderStatus = POSOrderStatus.Closed,
+                OrderDate = orderDate,
+                SubTotal = totalAmount,
+                TotalAmount = totalAmount,
+                PaymentStatus = paymentStatus,
+                Notes = $"{DemoMarker} clean finance close POS order.",
+                CreatedBy = "DemoDataSeeder",
+                ClosedAt = orderDate.AddHours(12)
+            };
+            context.POSOrders.Add(order);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+            return order;
+        }
+
+        order.OutletId = outletId;
+        order.DiningTableId = diningTableId;
+        order.ReservationId = reservationId;
+        order.GuestId = guestId;
+        order.OrderStatus = POSOrderStatus.Closed;
+        order.PaymentStatus = paymentStatus;
+        order.SubTotal = totalAmount;
+        order.TotalAmount = totalAmount;
+        order.ClosedAt = order.ClosedAt ?? orderDate.AddHours(12);
+        await context.SaveChangesAsync();
+        return order;
+    }
+
+    private async Task EnsureCleanClosePosOrderItemAsync(int orderId, int menuItemId, decimal quantity, decimal unitPrice, DemoSeedResult result)
+    {
+        if (await context.POSOrderItems.AnyAsync(item => item.POSOrderId == orderId && item.MenuItemId == menuItemId))
+        {
+            return;
+        }
+
+        context.POSOrderItems.Add(new POSOrderItem
+        {
+            POSOrderId = orderId,
+            MenuItemId = menuItemId,
+            Quantity = quantity,
+            UnitPrice = unitPrice,
+            LineTotal = quantity * unitPrice,
+            ItemStatus = POSOrderItemStatus.Served,
+            SentToKitchenAt = DateTime.Now.AddHours(-2),
+            PreparingAt = DateTime.Now.AddHours(-2).AddMinutes(5),
+            ReadyAt = DateTime.Now.AddHours(-2).AddMinutes(18),
+            ServedAt = DateTime.Now.AddHours(-2).AddMinutes(25),
+            Notes = $"{DemoMarker} clean finance close POS item."
+        });
+        await context.SaveChangesAsync();
+        result.Inserted++;
+    }
+
+    private async Task EnsureCleanCloseArAsync(DateTime closeDate, int? periodId, int revenueAccountId, int cityLedgerAccountId, int bankAccountId, DemoSeedResult result)
+    {
+        var account = await context.ARAccounts.FirstOrDefaultAsync(item => item.AccountName == "Demo Close City Ledger");
+        if (account is null)
+        {
+            account = new ARAccount
+            {
+                AccountName = "Demo Close City Ledger",
+                AccountType = ARAccountType.Corporate,
+                ContactPerson = "Finance Trial Controller",
+                Phone = "+63 2 8888 9000",
+                Email = "demo.close.cityledger@demo.example",
+                BillingAddress = "Quezon City",
+                CreditLimit = 250000,
+                CurrentBalance = 0,
+                IsActive = true,
+                Notes = $"{DemoMarker} clean finance close AR account."
+            };
+            context.ARAccounts.Add(account);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        var invoice = await context.ARInvoices.FirstOrDefaultAsync(item => item.InvoiceNumber == "DEMO-CLOSE-AR-001");
+        if (invoice is null)
+        {
+            invoice = new ARInvoice
+            {
+                ARAccountId = account.Id,
+                InvoiceNumber = "DEMO-CLOSE-AR-001",
+                InvoiceDate = closeDate,
+                DueDate = closeDate.AddDays(15),
+                OriginalAmount = 25000m,
+                AmountPaid = 25000m,
+                Balance = 0m,
+                Status = ARInvoiceStatus.Paid,
+                Notes = $"{DemoMarker} clean finance close AR invoice.",
+                CreatedBy = "DemoDataSeeder"
+            };
+            context.ARInvoices.Add(invoice);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+        else
+        {
+            invoice.AmountPaid = invoice.OriginalAmount;
+            invoice.Balance = 0m;
+            invoice.Status = ARInvoiceStatus.Paid;
+        }
+
+        var payment = await context.ARPayments.FirstOrDefaultAsync(item => item.ReferenceNumber == "DEMO-CLOSE-AR-PAY-001");
+        if (payment is null)
+        {
+            payment = new ARPayment
+            {
+                ARAccountId = account.Id,
+                PaymentDate = closeDate,
+                Amount = invoice.OriginalAmount,
+                PaymentMethod = FinancePaymentMethod.BankTransfer,
+                ReferenceNumber = "DEMO-CLOSE-AR-PAY-001",
+                ReceivedBy = "finance@vantagepms.demo",
+                Notes = $"{DemoMarker} clean finance close AR payment."
+            };
+            context.ARPayments.Add(payment);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        if (!await context.ARPaymentAllocations.AnyAsync(item => item.ARPaymentId == payment.Id && item.ARInvoiceId == invoice.Id))
+        {
+            context.ARPaymentAllocations.Add(new ARPaymentAllocation
+            {
+                ARPaymentId = payment.Id,
+                ARInvoiceId = invoice.Id,
+                AllocatedAmount = invoice.OriginalAmount,
+                AllocationDate = closeDate,
+                AllocatedBy = "DemoDataSeeder"
+            });
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        account.CurrentBalance = 0m;
+        await EnsurePostedJournalAsync("DEMO-CLOSE-JE-AR-INV", closeDate, periodId, SourceModule.AccountsReceivable, SourceTransactionType.ARInvoice, invoice.Id, invoice.InvoiceNumber, "Posted demo AR invoice", new[]
+        {
+            JournalLine(cityLedgerAccountId, invoice.OriginalAmount, 0m, "City ledger invoice"),
+            JournalLine(revenueAccountId, 0m, invoice.OriginalAmount, "Rooms revenue billed to city ledger")
+        }, result);
+        await EnsurePostedJournalAsync("DEMO-CLOSE-JE-AR-PAY", closeDate, periodId, SourceModule.AccountsReceivable, SourceTransactionType.ARPayment, payment.Id, payment.ReferenceNumber, "Posted demo AR collection", new[]
+        {
+            JournalLine(bankAccountId, payment.Amount, 0m, "Bank collection from city ledger"),
+            JournalLine(cityLedgerAccountId, 0m, payment.Amount, "City ledger collection")
+        }, result);
+    }
+
+    private async Task EnsureCleanCloseApTreasuryAsync(DateTime closeDate, int? periodId, int expenseAccountId, int apAccountId, int bankAccountId, DemoSeedResult result)
+    {
+        var supplier = await context.Suppliers.FirstOrDefaultAsync(item => item.SupplierName == "Demo Close Supplier");
+        if (supplier is null)
+        {
+            supplier = new InventorySupplier
+            {
+                SupplierName = "Demo Close Supplier",
+                ContactPerson = "Finance Trial Supplier",
+                Phone = "+63 2 8888 9010",
+                Email = "demo.close.supplier@demo.example",
+                Address = "Metro Manila",
+                Terms = "Due on receipt",
+                IsActive = true,
+                Notes = $"{DemoMarker} clean finance close supplier."
+            };
+            context.Suppliers.Add(supplier);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        var invoice = await context.APInvoices.FirstOrDefaultAsync(item => item.InvoiceNumber == "DEMO-CLOSE-AP-001");
+        if (invoice is null)
+        {
+            invoice = new APInvoice
+            {
+                SupplierId = supplier.Id,
+                InvoiceNumber = "DEMO-CLOSE-AP-001",
+                SupplierInvoiceNumber = "SUP-DEMO-CLOSE-001",
+                InvoiceDate = closeDate,
+                DueDate = closeDate,
+                SubTotal = 15000m,
+                TotalAmount = 15000m,
+                AmountPaid = 15000m,
+                Balance = 0m,
+                Status = APInvoiceStatus.Paid,
+                Notes = $"{DemoMarker} clean finance close AP invoice.",
+                CreatedBy = "DemoDataSeeder",
+                ApprovedBy = "finance@vantagepms.demo",
+                ApprovedAt = closeDate
+            };
+            context.APInvoices.Add(invoice);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+        else
+        {
+            invoice.AmountPaid = invoice.TotalAmount;
+            invoice.Balance = 0m;
+            invoice.Status = APInvoiceStatus.Paid;
+            invoice.ApprovedBy ??= "finance@vantagepms.demo";
+            invoice.ApprovedAt ??= closeDate;
+        }
+
+        if (!await context.APInvoiceLines.AnyAsync(item => item.APInvoiceId == invoice.Id))
+        {
+            context.APInvoiceLines.Add(new APInvoiceLine
+            {
+                APInvoiceId = invoice.Id,
+                GLAccountId = expenseAccountId,
+                Description = "Demo close operating expense",
+                Quantity = 1,
+                UnitCost = 15000m,
+                LineTotal = 15000m
+            });
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        var voucher = await context.PaymentVouchers.FirstOrDefaultAsync(item => item.VoucherNumber == "DEMO-CLOSE-PV-001");
+        if (voucher is null)
+        {
+            voucher = new PaymentVoucher
+            {
+                VoucherNumber = "DEMO-CLOSE-PV-001",
+                SupplierId = supplier.Id,
+                APInvoiceId = invoice.Id,
+                VoucherDate = closeDate,
+                PaymentMethod = FinancePaymentMethod.BankTransfer,
+                BankAccountName = "Demo Close Operating Account",
+                BankReferenceNumber = "BANK-DEMO-CLOSE-001",
+                Amount = 15000m,
+                NetPaymentAmount = 15000m,
+                Status = PaymentVoucherStatus.Released,
+                PreparedBy = "DemoDataSeeder",
+                ApprovedBy = "finance@vantagepms.demo",
+                ApprovedAt = closeDate,
+                ReleasedBy = "finance@vantagepms.demo",
+                ReleasedAt = closeDate,
+                Notes = $"{DemoMarker} clean finance close voucher."
+            };
+            context.PaymentVouchers.Add(voucher);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+        else
+        {
+            voucher.Status = PaymentVoucherStatus.Released;
+            voucher.Amount = 15000m;
+            voucher.NetPaymentAmount = 15000m;
+            voucher.ApprovedBy ??= "finance@vantagepms.demo";
+            voucher.ApprovedAt ??= closeDate;
+            voucher.ReleasedBy ??= "finance@vantagepms.demo";
+            voucher.ReleasedAt ??= closeDate;
+        }
+
+        var disbursement = await context.Disbursements.FirstOrDefaultAsync(item => item.DisbursementNumber == "DEMO-CLOSE-DISB-001");
+        if (disbursement is null)
+        {
+            disbursement = new Disbursement
+            {
+                DisbursementNumber = "DEMO-CLOSE-DISB-001",
+                PaymentVoucherId = voucher.Id,
+                SupplierId = supplier.Id,
+                DisbursementDate = closeDate,
+                PaymentMethod = FinancePaymentMethod.BankTransfer,
+                Amount = voucher.NetPaymentAmount,
+                ReferenceNumber = voucher.BankReferenceNumber,
+                PaidBy = "finance@vantagepms.demo",
+                Status = DisbursementStatus.Cleared,
+                Notes = $"{DemoMarker} clean finance close disbursement."
+            };
+            context.Disbursements.Add(disbursement);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        var apJournal = await EnsurePostedJournalAsync("DEMO-CLOSE-JE-AP-INV", closeDate, periodId, SourceModule.Purchasing, SourceTransactionType.APInvoice, invoice.Id, invoice.InvoiceNumber, "Posted demo AP invoice", new[]
+        {
+            JournalLine(expenseAccountId, invoice.TotalAmount, 0m, "Operating expense"),
+            JournalLine(apAccountId, 0m, invoice.TotalAmount, "Accounts payable")
+        }, result);
+        invoice.JournalEntryId ??= apJournal.Id;
+
+        var voucherJournal = await EnsurePostedJournalAsync("DEMO-CLOSE-JE-PV-REL", closeDate, periodId, SourceModule.Finance, SourceTransactionType.PaymentVoucher, voucher.Id, voucher.VoucherNumber, "Posted demo payment voucher release", new[]
+        {
+            JournalLine(apAccountId, voucher.Amount, 0m, "Accounts payable cleared"),
+            JournalLine(bankAccountId, 0m, voucher.NetPaymentAmount, "Bank disbursement")
+        }, result);
+        voucher.JournalEntryId ??= voucherJournal.Id;
+        disbursement.JournalEntryId ??= voucherJournal.Id;
+
+        var bankAccount = await EnsureCleanCloseBankAccountAsync(bankAccountId, result);
+        var bankTransaction = await context.BankTransactions.FirstOrDefaultAsync(item => item.ReferenceNumber == "BANK-DEMO-CLOSE-001");
+        if (bankTransaction is null)
+        {
+            bankTransaction = new BankTransaction
+            {
+                BankAccountId = bankAccount.Id,
+                TransactionDate = closeDate,
+                Description = "Demo close supplier disbursement",
+                ReferenceNumber = "BANK-DEMO-CLOSE-001",
+                CreditAmount = voucher.NetPaymentAmount,
+                SourceModule = SourceModule.Finance,
+                SourceReferenceId = voucher.Id,
+                JournalEntryId = voucherJournal.Id,
+                IsReconciled = true,
+                ReconciledAt = closeDate,
+                ReconciledBy = "finance@vantagepms.demo",
+                Notes = $"{DemoMarker} clean finance close bank transaction."
+            };
+            context.BankTransactions.Add(bankTransaction);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+        else
+        {
+            bankTransaction.BankAccountId = bankAccount.Id;
+            bankTransaction.CreditAmount = voucher.NetPaymentAmount;
+            bankTransaction.JournalEntryId = voucherJournal.Id;
+            bankTransaction.IsReconciled = true;
+            bankTransaction.ReconciledAt ??= closeDate;
+            bankTransaction.ReconciledBy ??= "finance@vantagepms.demo";
+        }
+
+        var bookBalance = await context.JournalEntryLines
+            .Where(line => line.GLAccountId == bankAccountId && line.JournalEntry != null && line.JournalEntry.Status == JournalEntryStatus.Posted && line.JournalEntry.JournalDate <= closeDate)
+            .SumAsync(line => line.DebitAmount - line.CreditAmount);
+
+        var reconciliation = await context.BankReconciliations.FirstOrDefaultAsync(item => item.BankAccountId == bankAccount.Id && item.Notes != null && item.Notes.Contains("DEMO-CLOSE-BANKREC-001"));
+        if (reconciliation is null)
+        {
+            reconciliation = new BankReconciliation
+            {
+                BankAccountId = bankAccount.Id,
+                ReconciliationDate = closeDate,
+                StatementEndingBalance = bookBalance,
+                BookEndingBalance = bookBalance,
+                Difference = 0m,
+                Status = BankReconciliationStatus.Approved,
+                PreparedBy = "DemoDataSeeder",
+                ApprovedBy = "finance@vantagepms.demo",
+                ApprovedAt = closeDate,
+                Notes = $"DEMO-CLOSE-BANKREC-001 {DemoMarker} clean finance close reconciliation."
+            };
+            context.BankReconciliations.Add(reconciliation);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+        else
+        {
+            reconciliation.ReconciliationDate = closeDate;
+            reconciliation.StatementEndingBalance = bookBalance;
+            reconciliation.BookEndingBalance = bookBalance;
+            reconciliation.Difference = 0m;
+            reconciliation.Status = BankReconciliationStatus.Approved;
+        }
+
+        if (!await context.BankReconciliationItems.AnyAsync(item => item.BankReconciliationId == reconciliation.Id && item.BankTransactionId == bankTransaction.Id))
+        {
+            context.BankReconciliationItems.Add(new BankReconciliationItem
+            {
+                BankReconciliationId = reconciliation.Id,
+                BankTransactionId = bankTransaction.Id,
+                Description = "Cleared demo close supplier payment",
+                Amount = -bankTransaction.CreditAmount,
+                ItemType = BankReconciliationItemType.Withdrawal,
+                IsCleared = true,
+                Notes = $"{DemoMarker} clean finance close cleared item."
+            });
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+    }
+
+    private async Task<BankAccount> EnsureCleanCloseBankAccountAsync(int glAccountId, DemoSeedResult result)
+    {
+        var bankAccount = await context.BankAccounts.FirstOrDefaultAsync(item => item.AccountName == "Demo Close Operating Account");
+        if (bankAccount is not null)
+        {
+            bankAccount.GLAccountId = glAccountId;
+            bankAccount.IsActive = true;
+            return bankAccount;
+        }
+
+        bankAccount = new BankAccount
+        {
+            AccountName = "Demo Close Operating Account",
+            BankName = "Demo Bank PH",
+            AccountNumber = "DEMO-CLOSE-001",
+            GLAccountId = glAccountId,
+            Currency = "PHP",
+            OpeningBalance = 0m,
+            IsActive = true,
+            Notes = $"{DemoMarker} clean finance close bank account."
+        };
+        context.BankAccounts.Add(bankAccount);
+        await context.SaveChangesAsync();
+        result.Inserted++;
+        return bankAccount;
+    }
+
+    private async Task<JournalEntry> EnsurePostedJournalAsync(
+        string journalNumber,
+        DateTime journalDate,
+        int? periodId,
+        SourceModule sourceModule,
+        SourceTransactionType sourceTransactionType,
+        int? sourceReferenceId,
+        string? sourceReferenceNumber,
+        string description,
+        IReadOnlyCollection<JournalEntryLine> lines,
+        DemoSeedResult result)
+    {
+        var entry = await context.JournalEntries.Include(item => item.Lines).FirstOrDefaultAsync(item => item.JournalNumber == journalNumber);
+        if (entry is not null)
+        {
+            entry.JournalDate = journalDate;
+            entry.AccountingPeriodId = periodId;
+            entry.SourceModule = sourceModule;
+            entry.SourceTransactionType = sourceTransactionType;
+            entry.SourceReferenceId = sourceReferenceId;
+            entry.SourceReferenceNumber = sourceReferenceNumber;
+            entry.Description = $"{description}. {DemoMarker}";
+            entry.Status = JournalEntryStatus.Posted;
+            entry.PostedBy ??= "DemoDataSeeder";
+            entry.PostedAt ??= DateTime.Now;
+            return entry;
+        }
+
+        entry = new JournalEntry
+        {
+            JournalNumber = journalNumber,
+            JournalDate = journalDate,
+            AccountingPeriodId = periodId,
+            SourceModule = sourceModule,
+            SourceTransactionType = sourceTransactionType,
+            SourceReferenceId = sourceReferenceId,
+            SourceReferenceNumber = sourceReferenceNumber,
+            Description = $"{description}. {DemoMarker}",
+            Status = JournalEntryStatus.Posted,
+            PostedBy = "DemoDataSeeder",
+            PostedAt = DateTime.Now,
+            CreatedAt = DateTime.Now,
+            CreatedBy = "DemoDataSeeder"
+        };
+
+        foreach (var line in lines)
+        {
+            entry.Lines.Add(line);
+        }
+
+        context.JournalEntries.Add(entry);
+        await context.SaveChangesAsync();
+        result.Inserted++;
+        return entry;
+    }
+
+    private static JournalEntryLine JournalLine(int glAccountId, decimal debitAmount, decimal creditAmount, string description)
+        => new()
+        {
+            GLAccountId = glAccountId,
+            DebitAmount = debitAmount,
+            CreditAmount = creditAmount,
+            Description = description
+        };
+
     private async Task EnsureDemoJournalEntriesAsync(DateTime monthStart, DemoSeedResult result)
     {
         if (await context.JournalEntries.AnyAsync(entry => entry.JournalNumber.StartsWith("DEMO-GL-")))
@@ -1982,6 +2917,7 @@ public class DemoDataStatus
     public int BanquetEvents { get; set; }
     public int InventoryItems { get; set; }
     public int ARInvoices { get; set; }
+    public int FinanceClosePackRecords { get; set; }
     public int LaborProfiles { get; set; }
     public int ManagementInsights { get; set; }
 }

@@ -90,9 +90,9 @@
     </div>
     <div class="col-6 col-lg-3">
         <div class="vpms-stat-card">
-            <span class="vpms-stat-label">Finance Samples</span>
-            <strong>@Model.Status.ARInvoices</strong>
-            <small>AR aging and finance records</small>
+            <span class="vpms-stat-label">Finance Close Pack</span>
+            <strong>@Model.Status.FinanceClosePackRecords</strong>
+            <small>Posted, reconciled DEMO-CLOSE entries</small>
         </div>
     </div>
 </div>
@@ -108,6 +108,22 @@
                 <button class="btn vpms-btn-primary" type="submit" asp-page-handler="Full" data-vpms-confirm="Seed missing records for the full demo dataset? Existing matching records will be kept.">Seed Full Demo Dataset</button>
             </form>
         </div>
+
+        <form method="post" class="vpms-section-card vpms-product-proof-strip mb-4">
+            <article>
+                <span>Finance QA</span>
+                <strong>Clean Finance Close Pack</strong>
+                <p>Installs a controlled business date with checked-in and checked-out stays, posted folio/POS/AR/AP journals, and a balanced bank reconciliation.</p>
+            </article>
+            <article>
+                <span>Trial ready</span>
+                <strong>No duplicate references</strong>
+                <p>Uses stable <code>DEMO-CLOSE-*</code> numbers so it can be re-run safely during pilot rehearsal.</p>
+            </article>
+            <article class="d-flex align-items-center justify-content-lg-end">
+                <button class="btn vpms-btn-primary" type="submit" asp-page-handler="FinanceClosePack" data-vpms-confirm="Install the clean finance close demo pack and move the demo business date to the controlled close scenario?">Install Finance Close Pack</button>
+            </article>
+        </form>
 
         <div class="row g-3">
             <div class="col-md-6 col-xl-4">

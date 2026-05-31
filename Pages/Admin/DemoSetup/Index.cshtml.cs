@@ -26,6 +26,8 @@ public class IndexModel(DemoDataSeederService demoDataSeeder) : PageModel
 
     public Task<IActionResult> OnPostInventoryAsync() => RunSeedAsync(demoDataSeeder.SeedDemoInventoryAsync);
 
+    public Task<IActionResult> OnPostFinanceClosePackAsync() => RunSeedAsync(demoDataSeeder.SeedDemoFinanceClosePackAsync);
+
     public Task<IActionResult> OnPostFullAsync() => RunSeedAsync(demoDataSeeder.SeedFullDemoDatasetAsync);
 
     private async Task<IActionResult> RunSeedAsync(Func<string, Task<DemoSeedResult>> seedAction)
