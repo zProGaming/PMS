@@ -2,70 +2,219 @@
 @using Vantage.PMS.Models.SystemAdministration
 @model Vantage.PMS.Pages.System.HealthCheck.IndexModel
 @{
-    ViewData["Title"] = "System Health Check";
+    ViewData["Title"] = "Pilot Readiness & System Health";
+    var openIssues = Model.Readiness.CriticalIssues + Model.Readiness.HighIssues + Model.Readiness.MediumIssues + Model.Readiness.LowIssues + Model.Readiness.InfoIssues;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/System/ModuleQA/Index">System</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Pilot Readiness</li>
+    </ol>
+</nav>
+
+<section class="vpms-page-header">
     <div>
-        <h1 class="h3 mb-1">System Health Check</h1>
-        <p class="text-muted mb-0">Runs data validation checks across reservations, rooms, folios, POS, banquet, inventory, finance, AR, revenue, and booking.</p>
+        <div class="page-kicker">Phase 5 Audit</div>
+        <h1 class="vpms-page-title">Pilot Readiness &amp; System Health</h1>
+        <p class="vpms-page-subtitle">A management-grade control surface for validating data integrity, finance close readiness, demo evidence, and operational blockers before trial hotel review.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">Business date @(Model.Readiness.BusinessDate?.ToString("MMM dd, yyyy") ?? "not set")</span>
+            <span class="vpms-mini-chip">@openIssues open issue(s)</span>
+            <span class="vpms-mini-chip">@Model.Readiness.PostedOperationalJournals posted operational journals</span>
+        </div>
     </div>
-    <form method="post" asp-page-handler="RunScan">
-        <button type="submit" class="btn btn-primary">Run Validation Scan</button>
-    </form>
-</div>
+    <div class="vpms-actions">
+        <form method="post" asp-page-handler="RunScan">
+            <button type="submit" class="btn vpms-btn-primary" data-vpms-confirm="Run a fresh validation scan across operational and finance modules?">Run Validation Scan</button>
+        </form>
+        <a class="btn vpms-btn-secondary" asp-page="/Admin/DemoSetup/Index">Demo Setup</a>
+    </div>
+</section>
 
 @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
 {
-    <div class="alert alert-info">@Model.StatusMessage</div>
+    <div class="alert alert-info vpms-alert">@Model.StatusMessage</div>
 }
 
-<form method="get" class="mb-3">
-    <div class="form-check">
-        <input class="form-check-input" asp-for="IncludeResolved" onchange="this.form.submit()" />
-        <label class="form-check-label" asp-for="IncludeResolved">Include resolved issues</label>
+<section class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Pilot Readiness Score</span>
+            <strong>@Model.Readiness.Score%</strong>
+            <small>Penalized by unresolved critical, high, medium, and low findings.</small>
+        </article>
     </div>
-</form>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Critical / High</span>
+            <strong>@Model.Readiness.CriticalIssues / @Model.Readiness.HighIssues</strong>
+            <small>Must be reviewed before pilot sign-off.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Finance Close Evidence</span>
+            <strong>@Model.Readiness.DemoCloseJournals</strong>
+            <small>Posted DEMO-CLOSE journal entries available.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Bank Reconciliation</span>
+            <strong>@Model.Readiness.CleanBankReconciliations</strong>
+            <small>Approved zero-difference clean-close reconciliation(s).</small>
+        </article>
+    </div>
+</section>
 
-<div class="table-responsive">
-    <table class="table table-striped align-middle">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Severity</th>
-                <th>Module</th>
-                <th>Entity</th>
-                <th>Type</th>
-                <th>Description</th>
-                <th>Recommended Fix</th>
-                <th>Status</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var issue in Model.Issues)
-            {
-                <tr>
-                    <td>@issue.IssueDate.ToString("g")</td>
-                    <td><span class="badge bg-@SeverityClass(issue.Severity)">@issue.Severity</span></td>
-                    <td>@issue.Module</td>
-                    <td>@issue.EntityName #@issue.EntityId</td>
-                    <td>@issue.IssueType</td>
-                    <td>@issue.Description</td>
-                    <td>@issue.RecommendedFix</td>
-                    <td>@(issue.IsResolved ? "Resolved" : "Open")</td>
-                    <td class="text-end">
-                        @if (!issue.IsResolved)
-                        {
-                            <form method="post" asp-page-handler="Resolve" asp-route-id="@issue.Id">
-                                <button type="submit" class="btn btn-sm btn-outline-success">Resolve</button>
-                            </form>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+<section class="vpms-product-proof-strip mb-4">
+    <article>
+        <span>Finance control</span>
+        <strong>@(Model.Readiness.OpenCashierShifts == 0 ? "No open cashier shifts" : $"{Model.Readiness.OpenCashierShifts} open cashier shift(s)")</strong>
+        <p>Open shifts should be closed or audited before presenting finance close readiness.</p>
+    </article>
+    <article>
+        <span>Latest issue</span>
+        <strong>@(Model.Readiness.LatestIssueDate?.ToString("MMM dd, yyyy h:mm tt") ?? "No open findings")</strong>
+        <p>Recent findings indicate where the pilot team should focus validation.</p>
+    </article>
+    <article>
+        <span>Resolved</span>
+        <strong>@Model.Readiness.ResolvedIssues issue(s)</strong>
+        <p>Resolved items remain traceable when the resolved filter is enabled.</p>
+    </article>
+</section>
+
+<div class="row g-4">
+    <div class="col-xl-5">
+        <section class="vpms-card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                    <div>
+                        <div class="page-kicker">Module Heatmap</div>
+                        <h2 class="h5 mb-1">Where Attention Is Needed</h2>
+                        <p class="text-muted mb-0">Open validation issues grouped by module and severity.</p>
+                    </div>
+                </div>
+
+                @if (!Model.ModuleSummaries.Any())
+                {
+                    <div class="vpms-empty-state">
+                        <h3>No open validation issues.</h3>
+                        <p>Run a fresh validation scan before final pilot presentation.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="vpms-table-wrapper">
+                        <table class="table vpms-table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Module</th>
+                                    <th class="text-end">Total</th>
+                                    <th class="text-end">Critical</th>
+                                    <th class="text-end">High</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var module in Model.ModuleSummaries)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@module.Module</strong>
+                                            <div class="small text-muted">Medium @module.Medium · Low @module.Low</div>
+                                        </td>
+                                        <td class="text-end">@module.Total</td>
+                                        <td class="text-end"><span class="badge bg-@SeverityClass(SystemSeverity.Critical)">@module.Critical</span></td>
+                                        <td class="text-end"><span class="badge bg-@SeverityClass(SystemSeverity.High)">@module.High</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+
+    <div class="col-xl-7">
+        <section class="vpms-card h-100">
+            <div class="card-body">
+                <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
+                    <div>
+                        <div class="page-kicker">Validation Findings</div>
+                        <h2 class="h5 mb-1">Current Audit Queue</h2>
+                        <p class="text-muted mb-0">Showing the latest 250 @(Model.IncludeResolved ? "open and resolved" : "open") issues.</p>
+                    </div>
+                    <form method="get" class="d-flex align-items-center">
+                        <div class="form-check">
+                            <input class="form-check-input" asp-for="IncludeResolved" onchange="this.form.submit()" />
+                            <label class="form-check-label" asp-for="IncludeResolved">Include resolved</label>
+                        </div>
+                    </form>
+                </div>
+
+                @if (!Model.Issues.Any())
+                {
+                    <div class="vpms-empty-state">
+                        <h3>No records found for the selected view.</h3>
+                        <p>Run validation scan to refresh the health queue.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="vpms-table-wrapper">
+                        <table class="table vpms-table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Severity</th>
+                                    <th>Module</th>
+                                    <th>Entity</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var issue in Model.Issues)
+                                {
+                                    <tr>
+                                        <td>@issue.IssueDate.ToString("MMM dd, h:mm tt")</td>
+                                        <td><span class="badge bg-@SeverityClass(issue.Severity)">@issue.Severity</span></td>
+                                        <td>@issue.Module</td>
+                                        <td>
+                                            <strong>@issue.EntityName</strong>
+                                            @if (issue.EntityId is not null)
+                                            {
+                                                <span class="text-muted">#@issue.EntityId</span>
+                                            }
+                                            <div class="small text-muted">@issue.IssueType</div>
+                                        </td>
+                                        <td>
+                                            <div>@issue.Description</div>
+                                            <div class="small text-muted">@issue.RecommendedFix</div>
+                                        </td>
+                                        <td>@(issue.IsResolved ? "Resolved" : "Open")</td>
+                                        <td class="text-end">
+                                            @if (!issue.IsResolved)
+                                            {
+                                                <form method="post" asp-page-handler="Resolve" asp-route-id="@issue.Id">
+                                                    <button type="submit" class="btn btn-sm vpms-btn-secondary">Resolve</button>
+                                                </form>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
 </div>
 
 @functions {
