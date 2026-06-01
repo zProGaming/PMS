@@ -1,0 +1,40 @@
+@model Vantage.PMS.Pages.FrontOffice.Reservations.CheckInModel
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <div class="page-kicker">Front Desk Arrival</div>
+        <h1>Check In</h1>
+        <p>@Model.Reservation.Guest?.FirstName @Model.Reservation.Guest?.LastName | Room @(Model.Reservation.Room?.RoomNumber ?? "Unassigned")</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Status</span>
+        <strong>@Model.Reservation.Status</strong>
+    </div>
+</section>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<dl class="row mt-3 vpms-native-definition-strip">
+    <dt class="col-sm-3">Confirmation</dt>
+    <dd class="col-sm-9">@Model.Reservation.ConfirmationNumber</dd>
+
+    <dt class="col-sm-3">Guest</dt>
+    <dd class="col-sm-9">@Model.Reservation.Guest?.FirstName @Model.Reservation.Guest?.LastName</dd>
+
+    <dt class="col-sm-3">Room</dt>
+    <dd class="col-sm-9">@Model.Reservation.Room?.RoomNumber</dd>
+
+    <dt class="col-sm-3">Arrival</dt>
+    <dd class="col-sm-9">@Model.Reservation.ArrivalDate.ToString("d")</dd>
+
+    <dt class="col-sm-3">Status</dt>
+    <dd class="col-sm-9">@Model.Reservation.Status</dd>
+</dl>
+
+<form method="post" asp-page="./CheckIn" asp-route-id="@Model.Reservation.Id" class="vpms-native-workflow-form">
+    <input type="hidden" asp-for="Reservation.Id" />
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@Model.Reservation.Id" data-vpms-dialog-close>Cancel</a>
+        <button type="submit" class="btn btn-success" disabled="@(!Model.CanCheckIn)">Confirm Check In</button>
+    </div>
+</form>

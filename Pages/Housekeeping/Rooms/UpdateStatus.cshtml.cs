@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -24,22 +25,24 @@ public class UpdateStatusModel(ApplicationDbContext context) : PageModel
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
-        if (id is null)
+        var loadResult = await LoadStatusFormAsync(id);
+        if (loadResult is not null)
         {
-            return NotFound();
+            return loadResult;
         }
-
-        var room = await LoadRoomAsync(id.Value, asTracking: false);
-        if (room is null)
-        {
-            return NotFound();
-        }
-
-        Room = room;
-        Notes = room.StatusNotes;
-        LoadStatusOptions(room.Status);
 
         return Page();
+    }
+
+    public async Task<IActionResult> OnGetNativeAsync(int? id)
+    {
+        var loadResult = await LoadStatusFormAsync(id);
+        if (loadResult is not null)
+        {
+            return loadResult;
+        }
+
+        return NativePartial();
     }
 
     public async Task<IActionResult> OnPostAsync(int? id)
@@ -61,7 +64,7 @@ public class UpdateStatusModel(ApplicationDbContext context) : PageModel
         if (!ModelState.IsValid)
         {
             LoadStatusOptions(room.Status);
-            return Page();
+            return NativePartialOrPage();
         }
 
         room.Status = TargetStatus;
@@ -72,6 +75,26 @@ public class UpdateStatusModel(ApplicationDbContext context) : PageModel
         await _context.SaveChangesAsync();
 
         return RedirectToPage("/Housekeeping/Index");
+    }
+
+    private async Task<IActionResult?> LoadStatusFormAsync(int? id)
+    {
+        if (id is null)
+        {
+            return NotFound();
+        }
+
+        var room = await LoadRoomAsync(id.Value, asTracking: false);
+        if (room is null)
+        {
+            return NotFound();
+        }
+
+        Room = room;
+        Notes = room.StatusNotes;
+        LoadStatusOptions(room.Status);
+
+        return null;
     }
 
     private async Task<Room?> LoadRoomAsync(int id, bool asTracking)
@@ -128,5 +151,25 @@ public class UpdateStatusModel(ApplicationDbContext context) : PageModel
         return currentStatus == RoomStatus.OutOfOrder
             ? statuses
             : statuses.Append(RoomStatus.OutOfOrder);
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_UpdateStatusNative",
+            ViewData = new ViewDataDictionary<UpdateStatusModel>(ViewData, this)
+        };
     }
 }

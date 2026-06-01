@@ -1,0 +1,69 @@
+@model Vantage.PMS.Pages.FrontOffice.Folios.PostChargeModel
+
+<section class="vpms-native-modal-intro vpms-native-ledger-intro">
+    <div>
+        <div class="page-kicker">Folio Control</div>
+        <h1>Post Charge</h1>
+        <p>@(string.IsNullOrWhiteSpace(Model.GuestName) ? "Guest folio" : Model.GuestName) | @Model.FolioNumber</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Current Balance</span>
+        <strong>@Model.FolioBalance.ToString("C")</strong>
+    </div>
+</section>
+
+<form method="post"
+      asp-page="./PostCharge"
+      asp-route-folioId="@Model.FolioId"
+      class="vpms-native-workflow-form vpms-native-ledger-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="vpms-native-step-grid compact" aria-label="Charge posting controls">
+        <span><strong>Code</strong><small>Revenue category</small></span>
+        <span><strong>Amount</strong><small>Qty x price</small></span>
+        <span><strong>Trace</strong><small>Posted by user</small></span>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6 col-lg-3">
+            <label asp-for="Charge.PostingDate" class="form-label">Posting Date</label>
+            <input asp-for="Charge.PostingDate" class="form-control" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" />
+            <span asp-validation-for="Charge.PostingDate" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <label asp-for="Charge.ChargeCodeId" class="form-label">Charge Code</label>
+            <select asp-for="Charge.ChargeCodeId" asp-items="Model.ChargeCodeOptions" class="form-select">
+                <option value="">Manual code</option>
+            </select>
+            <input asp-for="Charge.ChargeCode" class="form-control mt-2" placeholder="Manual charge code" autocomplete="off" />
+            <span asp-validation-for="Charge.ChargeCode" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <label asp-for="Charge.Quantity" class="form-label"></label>
+            <input asp-for="Charge.Quantity" class="form-control" type="number" min="0.01" step="0.01" />
+            <span asp-validation-for="Charge.Quantity" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <label asp-for="Charge.UnitPrice" class="form-label">Unit Price</label>
+            <input asp-for="Charge.UnitPrice" class="form-control" type="number" min="0" step="0.01" />
+            <span asp-validation-for="Charge.UnitPrice" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Charge.Description" class="form-label"></label>
+        <input asp-for="Charge.Description" class="form-control" autocomplete="off" />
+        <span asp-validation-for="Charge.Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Charge.PostedBy" class="form-label">Posted By</label>
+        <input asp-for="Charge.PostedBy" class="form-control" autocomplete="off" />
+        <span asp-validation-for="Charge.PostedBy" class="text-danger"></span>
+    </div>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@Model.FolioId" data-vpms-dialog-close>Cancel</a>
+        <button type="submit" class="btn btn-primary">Post Charge</button>
+    </div>
+</form>

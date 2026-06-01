@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Finance;
@@ -18,21 +19,24 @@ public class CheckInModel(ApplicationDbContext context) : PageModel
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
-        if (id is null)
+        var loadResult = await LoadCheckInFormAsync(id);
+        if (loadResult is not null)
         {
-            return NotFound();
+            return loadResult;
         }
-
-        var reservation = await LoadReservationAsync(id.Value, asTracking: false);
-        if (reservation is null)
-        {
-            return NotFound();
-        }
-
-        Reservation = reservation;
-        ValidateCanCheckIn();
 
         return Page();
+    }
+
+    public async Task<IActionResult> OnGetNativeAsync(int? id)
+    {
+        var loadResult = await LoadCheckInFormAsync(id);
+        if (loadResult is not null)
+        {
+            return loadResult;
+        }
+
+        return NativePartial();
     }
 
     public async Task<IActionResult> OnPostAsync(int? id)
@@ -54,7 +58,7 @@ public class CheckInModel(ApplicationDbContext context) : PageModel
 
         if (!ModelState.IsValid)
         {
-            return Page();
+            return NativePartialOrPage();
         }
 
         Reservation.Status = ReservationStatus.CheckedIn;
@@ -77,6 +81,25 @@ public class CheckInModel(ApplicationDbContext context) : PageModel
         await _context.SaveChangesAsync();
 
         return RedirectToPage("./Details", new { id = Reservation.Id });
+    }
+
+    private async Task<IActionResult?> LoadCheckInFormAsync(int? id)
+    {
+        if (id is null)
+        {
+            return NotFound();
+        }
+
+        var reservation = await LoadReservationAsync(id.Value, asTracking: false);
+        if (reservation is null)
+        {
+            return NotFound();
+        }
+
+        Reservation = reservation;
+        ValidateCanCheckIn();
+
+        return null;
     }
 
     private async Task<Reservation?> LoadReservationAsync(int id, bool asTracking)
@@ -134,5 +157,25 @@ public class CheckInModel(ApplicationDbContext context) : PageModel
     private static string CreateFolioNumber(Reservation reservation)
     {
         return $"FOL-{reservation.Id:000000}";
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CheckInNative",
+            ViewData = new ViewDataDictionary<CheckInModel>(ViewData, this)
+        };
     }
 }

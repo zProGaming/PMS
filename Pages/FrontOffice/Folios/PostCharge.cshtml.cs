@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -30,38 +31,24 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
 
     public async Task<IActionResult> OnGetAsync(int? folioId)
     {
-        if (folioId is null)
+        var loadResult = await LoadChargeFormAsync(folioId);
+        if (loadResult is not null)
         {
-            return NotFound();
+            return loadResult;
         }
 
-        var folio = await _context.Folios
-            .AsNoTracking()
-            .Include(folio => folio.Guest)
-            .Include(folio => folio.Items)
-            .Include(folio => folio.Payments)
-            .FirstOrDefaultAsync(folio => folio.Id == folioId);
-
-        if (folio is null)
-        {
-            return NotFound();
-        }
-
-        FolioId = folio.Id;
-        FolioNumber = folio.FolioNumber;
-        FolioBalance = folio.Balance;
-        GuestName = $"{folio.Guest?.FirstName} {folio.Guest?.LastName}".Trim();
-        var businessDate = await GetBusinessDateAsync();
-        Charge = new FolioItem
-        {
-            FolioId = folio.Id,
-            Quantity = 1,
-            PostingDate = businessDate.Date.Add(DateTime.Now.TimeOfDay),
-            PostedBy = User.Identity?.Name ?? "Front Desk"
-        };
-
-        await LoadChargeCodesAsync();
         return Page();
+    }
+
+    public async Task<IActionResult> OnGetNativeAsync(int? folioId)
+    {
+        var loadResult = await LoadChargeFormAsync(folioId);
+        if (loadResult is not null)
+        {
+            return loadResult;
+        }
+
+        return NativePartial();
     }
 
     public async Task<IActionResult> OnPostAsync(int? folioId)
@@ -93,7 +80,7 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
         if (!ModelState.IsValid)
         {
             await LoadChargeCodesAsync();
-            return Page();
+            return NativePartialOrPage();
         }
 
         Charge.FolioId = folio.Id;
@@ -133,6 +120,42 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
         }
 
         return RedirectToPage("./Details", new { id = folio.Id });
+    }
+
+    private async Task<IActionResult?> LoadChargeFormAsync(int? folioId)
+    {
+        if (folioId is null)
+        {
+            return NotFound();
+        }
+
+        var folio = await _context.Folios
+            .AsNoTracking()
+            .Include(folio => folio.Guest)
+            .Include(folio => folio.Items)
+            .Include(folio => folio.Payments)
+            .FirstOrDefaultAsync(folio => folio.Id == folioId);
+
+        if (folio is null)
+        {
+            return NotFound();
+        }
+
+        FolioId = folio.Id;
+        FolioNumber = folio.FolioNumber;
+        FolioBalance = folio.Balance;
+        GuestName = $"{folio.Guest?.FirstName} {folio.Guest?.LastName}".Trim();
+        var businessDate = await GetBusinessDateAsync();
+        Charge = new FolioItem
+        {
+            FolioId = folio.Id,
+            Quantity = 1,
+            PostingDate = businessDate.Date.Add(DateTime.Now.TimeOfDay),
+            PostedBy = User.Identity?.Name ?? "Front Desk"
+        };
+
+        await LoadChargeCodesAsync();
+        return null;
     }
 
     private void ValidateCharge()
@@ -190,5 +213,25 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
             .ToListAsync();
 
         ChargeCodeOptions = new SelectList(chargeCodes, "Id", "Name", Charge.ChargeCodeId);
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_PostChargeNative",
+            ViewData = new ViewDataDictionary<PostChargeModel>(ViewData, this)
+        };
     }
 }

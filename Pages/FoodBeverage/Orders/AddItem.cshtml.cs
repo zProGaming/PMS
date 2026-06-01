@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -23,30 +24,24 @@ public class AddItemModel(ApplicationDbContext context) : PageModel
 
     public async Task<IActionResult> OnGetAsync(int? orderId)
     {
-        if (orderId is null)
+        var loadResult = await LoadAddItemFormAsync(orderId);
+        if (loadResult is not null)
         {
-            return NotFound();
+            return loadResult;
         }
 
-        var order = await _context.POSOrders
-            .AsNoTracking()
-            .FirstOrDefaultAsync(order => order.Id == orderId);
-
-        if (order is null)
-        {
-            return NotFound();
-        }
-
-        if (order.OrderStatus is POSOrderStatus.Closed or POSOrderStatus.Cancelled)
-        {
-            return RedirectToPage("./Details", new { id = order.Id });
-        }
-
-        OrderId = order.Id;
-        OrderNumber = order.OrderNumber;
-        OrderItem.POSOrderId = order.Id;
-        await LoadMenuItemsAsync();
         return Page();
+    }
+
+    public async Task<IActionResult> OnGetNativeAsync(int? orderId)
+    {
+        var loadResult = await LoadAddItemFormAsync(orderId);
+        if (loadResult is not null)
+        {
+            return loadResult;
+        }
+
+        return NativePartial();
     }
 
     public async Task<IActionResult> OnPostAsync(int? orderId)
@@ -80,7 +75,7 @@ public class AddItemModel(ApplicationDbContext context) : PageModel
         if (!ModelState.IsValid)
         {
             await LoadMenuItemsAsync(OrderItem.MenuItemId);
-            return Page();
+            return NativePartialOrPage();
         }
 
         OrderItem.POSOrderId = order.Id;
@@ -103,6 +98,34 @@ public class AddItemModel(ApplicationDbContext context) : PageModel
         await _context.SaveChangesAsync();
 
         return RedirectToPage("./Details", new { id = order.Id });
+    }
+
+    private async Task<IActionResult?> LoadAddItemFormAsync(int? orderId)
+    {
+        if (orderId is null)
+        {
+            return NotFound();
+        }
+
+        var order = await _context.POSOrders
+            .AsNoTracking()
+            .FirstOrDefaultAsync(order => order.Id == orderId);
+
+        if (order is null)
+        {
+            return NotFound();
+        }
+
+        if (order.OrderStatus is POSOrderStatus.Closed or POSOrderStatus.Cancelled)
+        {
+            return RedirectToPage("./Details", new { id = order.Id });
+        }
+
+        OrderId = order.Id;
+        OrderNumber = order.OrderNumber;
+        OrderItem.POSOrderId = order.Id;
+        await LoadMenuItemsAsync();
+        return null;
     }
 
     private void ValidateOrderCanChange(POSOrder order)
@@ -141,5 +164,25 @@ public class AddItemModel(ApplicationDbContext context) : PageModel
             "Id",
             "Name",
             selectedMenuItem);
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_AddItemNative",
+            ViewData = new ViewDataDictionary<AddItemModel>(ViewData, this)
+        };
     }
 }

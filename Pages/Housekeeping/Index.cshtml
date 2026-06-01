@@ -119,7 +119,7 @@
                         <div class="vpms-room-note">@room.StatusNotes</div>
                     }
                     <div class="vpms-room-actions">
-                        <a class="btn btn-sm vpms-btn-secondary" asp-page="/Housekeeping/Rooms/UpdateStatus" asp-route-id="@room.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Update Room Status">Update</a>
+                        <a class="btn btn-sm vpms-btn-secondary" asp-page="/Housekeeping/Rooms/UpdateStatus" asp-route-id="@room.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Update Room Status">Update</a>
                         <a class="btn btn-sm btn-outline-secondary" asp-page="/Housekeeping/Tasks/Create" asp-route-roomId="@room.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Create Room Task">Task</a>
                     </div>
                 </article>

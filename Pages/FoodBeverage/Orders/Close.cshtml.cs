@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -36,21 +37,24 @@ public class CloseModel(ApplicationDbContext context) : PageModel
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
-        if (id is null)
+        var loadResult = await LoadCloseFormAsync(id);
+        if (loadResult is not null)
         {
-            return NotFound();
+            return loadResult;
         }
 
-        var order = await LoadOrderAsync(id.Value, asTracking: false);
-        if (order is null)
-        {
-            return NotFound();
-        }
-
-        Order = order;
-        SelectedReservationId = order.ReservationId;
-        await LoadOptionsAsync(SelectedReservationId);
         return Page();
+    }
+
+    public async Task<IActionResult> OnGetNativeAsync(int? id)
+    {
+        var loadResult = await LoadCloseFormAsync(id);
+        if (loadResult is not null)
+        {
+            return loadResult;
+        }
+
+        return NativePartial();
     }
 
     public async Task<IActionResult> OnPostAsync(int? id)
@@ -78,7 +82,7 @@ public class CloseModel(ApplicationDbContext context) : PageModel
         if (!ModelState.IsValid)
         {
             await LoadOptionsAsync(SelectedReservationId);
-            return Page();
+            return NativePartialOrPage();
         }
 
         Order.OrderStatus = POSOrderStatus.Closed;
@@ -96,6 +100,25 @@ public class CloseModel(ApplicationDbContext context) : PageModel
         await _context.SaveChangesAsync();
 
         return RedirectToPage("./Details", new { id = Order.Id });
+    }
+
+    private async Task<IActionResult?> LoadCloseFormAsync(int? id)
+    {
+        if (id is null)
+        {
+            return NotFound();
+        }
+
+        var order = await LoadOrderAsync(id.Value, asTracking: false);
+        if (order is null)
+        {
+            return NotFound();
+        }
+
+        Order = order;
+        SelectedReservationId = order.ReservationId;
+        await LoadOptionsAsync(SelectedReservationId);
+        return null;
     }
 
     private void ValidateCanClose()
@@ -263,5 +286,25 @@ public class CloseModel(ApplicationDbContext context) : PageModel
         return string.IsNullOrWhiteSpace(notes)
             ? settlementNote
             : $"{notes}{Environment.NewLine}{settlementNote}";
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CloseNative",
+            ViewData = new ViewDataDictionary<CloseModel>(ViewData, this)
+        };
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Authorization;
 using Vantage.PMS.Data;
@@ -42,23 +43,24 @@ public class CheckOutModel(ApplicationDbContext context) : PageModel
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
-        if (id is null)
+        var loadResult = await LoadCheckOutFormAsync(id);
+        if (loadResult is not null)
         {
-            return NotFound();
+            return loadResult;
         }
-
-        var reservation = await LoadReservationAsync(id.Value, asTracking: false);
-        if (reservation is null)
-        {
-            return NotFound();
-        }
-
-        Reservation = reservation;
-        LoadFolioState();
-        ManagerOverrideRequested = Reservation.ManagerOverrideRequested;
-        ValidateCanCheckOut();
 
         return Page();
+    }
+
+    public async Task<IActionResult> OnGetNativeAsync(int? id)
+    {
+        var loadResult = await LoadCheckOutFormAsync(id);
+        if (loadResult is not null)
+        {
+            return loadResult;
+        }
+
+        return NativePartial();
     }
 
     public async Task<IActionResult> OnPostAsync(int? id)
@@ -81,7 +83,7 @@ public class CheckOutModel(ApplicationDbContext context) : PageModel
 
         if (!ModelState.IsValid)
         {
-            return Page();
+            return NativePartialOrPage();
         }
 
         Reservation.Status = ReservationStatus.CheckedOut;
@@ -96,6 +98,27 @@ public class CheckOutModel(ApplicationDbContext context) : PageModel
         await _context.SaveChangesAsync();
 
         return RedirectToPage("./Details", new { id = Reservation.Id });
+    }
+
+    private async Task<IActionResult?> LoadCheckOutFormAsync(int? id)
+    {
+        if (id is null)
+        {
+            return NotFound();
+        }
+
+        var reservation = await LoadReservationAsync(id.Value, asTracking: false);
+        if (reservation is null)
+        {
+            return NotFound();
+        }
+
+        Reservation = reservation;
+        LoadFolioState();
+        ManagerOverrideRequested = Reservation.ManagerOverrideRequested;
+        ValidateCanCheckOut();
+
+        return null;
     }
 
     private async Task<Reservation?> LoadReservationAsync(int id, bool asTracking)
@@ -145,5 +168,25 @@ public class CheckOutModel(ApplicationDbContext context) : PageModel
         {
             ModelState.AddModelError(string.Empty, "Only SystemAdmin, GeneralManager, FrontOfficeManager, or FinanceManager can override checkout with an outstanding balance.");
         }
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CheckOutNative",
+            ViewData = new ViewDataDictionary<CheckOutModel>(ViewData, this)
+        };
     }
 }
