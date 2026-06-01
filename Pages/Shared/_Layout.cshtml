@@ -412,7 +412,7 @@
                 }
                 @if (canAccessFrontOffice)
                 {
-                    <a class="vpms-command-item" asp-page="/FrontOffice/Reservations/Create"><span class="vpms-command-icon"></span>Reservation</a>
+                    <a class="vpms-command-item" asp-page="/FrontOffice/Reservations/Create" data-vpms-native-dialog data-vpms-native-dialog-title="Create Reservation"><span class="vpms-command-icon"></span>Reservation</a>
                     <a class="vpms-command-item" asp-page="/FrontOffice/Index"><span class="vpms-command-icon"></span>In-House</a>
                     <a class="vpms-command-item" asp-page="/FrontOffice/Reservations/Index"><span class="vpms-command-icon"></span>Quick Desk</a>
                 }
@@ -471,6 +471,29 @@
                         <strong>Preparing workflow</strong>
                     </div>
                     <iframe id="vpmsWorkflowDialogFrame" title="Vantage PMS workflow dialog"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade vpms-command-modal vpms-native-workflow-dialog" id="vpmsNativeWorkflowDialog" tabindex="-1" aria-labelledby="vpmsNativeWorkflowDialogTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <span class="page-kicker">Native Workflow</span>
+                        <h2 class="modal-title" id="vpmsNativeWorkflowDialogTitle">Quick Workflow</h2>
+                    </div>
+                    <div class="vpms-workflow-dialog-actions">
+                        <a class="btn btn-sm vpms-btn-secondary" id="vpmsNativeWorkflowDialogOpenFull" href="#">Open Full Page</a>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="vpms-workflow-dialog-loading" id="vpmsNativeWorkflowDialogLoading">
+                        <span></span>
+                        <strong>Preparing workflow</strong>
+                    </div>
+                    <div class="vpms-native-workflow-content" id="vpmsNativeWorkflowDialogContent" aria-live="polite"></div>
                 </div>
             </div>
         </div>

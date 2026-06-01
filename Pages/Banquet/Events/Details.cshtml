@@ -18,8 +18,8 @@
     </div>
     <div class="vpms-actions d-flex flex-wrap gap-2">
         <span class="vpms-status-badge status-@statusClass">@Model.BanquetEvent.EventStatus</span>
-        <a class="btn btn-primary" asp-page="/Banquet/BEOs/Details" asp-route-eventId="@Model.BanquetEvent.Id" data-vpms-dialog data-vpms-dialog-title="Banquet Event Order">@(Model.BanquetEvent.BanquetEventOrder is null ? "Create BEO" : "View BEO")</a>
-        <a class="btn btn-outline-primary" asp-page="/Banquet/Charges/Index" asp-route-eventId="@Model.BanquetEvent.Id" data-vpms-dialog data-vpms-dialog-title="Banquet Charges">Add Charge</a>
+        <a class="btn btn-primary" asp-page="/Banquet/BEOs/Details" asp-route-eventId="@Model.BanquetEvent.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Banquet Event Order">@(Model.BanquetEvent.BanquetEventOrder is null ? "Create BEO" : "View BEO")</a>
+        <a class="btn btn-outline-primary" asp-page="/Banquet/Charges/Index" asp-route-eventId="@Model.BanquetEvent.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Banquet Charges">Add Charge</a>
         <a class="btn btn-outline-secondary" asp-page="/Banquet/Charges/Index" asp-route-eventId="@Model.BanquetEvent.Id">View Charges</a>
         <a class="btn btn-outline-secondary" asp-page="./Edit" asp-route-id="@Model.BanquetEvent.Id">Edit Event</a>
     </div>

@@ -666,8 +666,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const workflowDialogInstance = workflowDialog && window.bootstrap
     ? bootstrap.Modal.getOrCreateInstance(workflowDialog)
     : null;
+  const nativeWorkflowDialog = document.getElementById("vpmsNativeWorkflowDialog");
+  const nativeWorkflowDialogTitle = document.getElementById("vpmsNativeWorkflowDialogTitle");
+  const nativeWorkflowDialogOpenFull = document.getElementById("vpmsNativeWorkflowDialogOpenFull");
+  const nativeWorkflowDialogLoading = document.getElementById("vpmsNativeWorkflowDialogLoading");
+  const nativeWorkflowDialogContent = document.getElementById("vpmsNativeWorkflowDialogContent");
+  const nativeWorkflowDialogInstance = nativeWorkflowDialog && window.bootstrap
+    ? bootstrap.Modal.getOrCreateInstance(nativeWorkflowDialog)
+    : null;
   let workflowDialogInitialPath = "";
   let workflowDialogHasLoaded = false;
+  let nativeWorkflowDialogUrl = "";
   const isInWorkflowDialogFrame = document.body.classList.contains("vpms-dialog-frame");
 
   const isInternalWorkflowUrl = (url) =>
@@ -728,6 +737,166 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  const setNativeWorkflowLoading = (isLoading) => {
+    nativeWorkflowDialog?.classList.toggle("is-submitting", isLoading);
+    nativeWorkflowDialog?.classList.toggle("is-loaded", !isLoading);
+    nativeWorkflowDialogLoading?.classList.toggle("d-none", !isLoading);
+  };
+
+  const buildDialogUrl = (href) => {
+    const url = new URL(href, window.location.origin);
+    url.searchParams.set("vpmsDialog", "1");
+    url.searchParams.set("vpmsNative", "1");
+    return url;
+  };
+
+  const extractNativeWorkflowContent = async (response, fallbackUrl) => {
+    const html = await response.text();
+    const documentFragment = new DOMParser().parseFromString(html, "text/html");
+    const content = documentFragment.querySelector(".vpms-dialog-frame-content") ||
+      documentFragment.querySelector(".vpms-content") ||
+      documentFragment.body;
+
+    if (!content) {
+      return `<div class="vpms-native-workflow-error"><strong>Workflow unavailable.</strong><span>The response did not contain a usable form.</span></div>`;
+    }
+
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = content.innerHTML;
+
+    wrapper.querySelectorAll("form").forEach((form) => {
+      const action = form.getAttribute("action");
+      const normalizedAction = action
+        ? new URL(action, fallbackUrl).toString()
+        : fallbackUrl.toString();
+      form.action = normalizedAction;
+      form.dataset.vpmsNativeWorkflowForm = "";
+    });
+
+    wrapper.querySelectorAll("a[href]").forEach((link) => {
+      const href = link.getAttribute("href");
+      if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) {
+        return;
+      }
+
+      try {
+        link.href = new URL(href, fallbackUrl).toString();
+      } catch {
+        // Leave malformed links untouched.
+      }
+    });
+
+    return wrapper.innerHTML;
+  };
+
+  const loadNativeWorkflowDialog = async (href, title) => {
+    if (!nativeWorkflowDialogInstance || !nativeWorkflowDialogContent) {
+      return false;
+    }
+
+    const url = buildDialogUrl(href);
+    nativeWorkflowDialogUrl = url.toString();
+
+    if (nativeWorkflowDialogTitle) {
+      nativeWorkflowDialogTitle.textContent = title || "Quick Workflow";
+    }
+
+    if (nativeWorkflowDialogOpenFull) {
+      nativeWorkflowDialogOpenFull.href = href;
+    }
+
+    nativeWorkflowDialogContent.innerHTML = "";
+    setNativeWorkflowLoading(true);
+    nativeWorkflowDialogInstance.show();
+
+    try {
+      const response = await fetch(url.toString(), {
+        credentials: "same-origin",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "X-VPMS-Native-Dialog": "1"
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Workflow returned ${response.status}.`);
+      }
+
+      nativeWorkflowDialogContent.innerHTML = await extractNativeWorkflowContent(response, url);
+    } catch (error) {
+      nativeWorkflowDialogContent.innerHTML = `<div class="vpms-native-workflow-error"><strong>Workflow could not be opened.</strong><span>${error.message}</span></div>`;
+    } finally {
+      setNativeWorkflowLoading(false);
+    }
+
+    return true;
+  };
+
+  const submitNativeWorkflowForm = async (form) => {
+    if (!nativeWorkflowDialogContent) {
+      return;
+    }
+
+    let actionUrl;
+    try {
+      actionUrl = buildDialogUrl(form.action || nativeWorkflowDialogUrl || window.location.href);
+    } catch {
+      nativeWorkflowDialogContent.insertAdjacentHTML("afterbegin", `<div class="vpms-native-workflow-error"><strong>Could not submit workflow.</strong><span>The form action could not be resolved.</span></div>`);
+      return;
+    }
+
+    setNativeWorkflowLoading(true);
+
+    try {
+      const response = await fetch(actionUrl.toString(), {
+        method: (form.method || "GET").toUpperCase(),
+        body: (form.method || "GET").toUpperCase() === "GET" ? null : new FormData(form),
+        credentials: "same-origin",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "X-VPMS-Native-Dialog": "1"
+        }
+      });
+
+      if (response.redirected) {
+        nativeWorkflowDialogInstance?.hide();
+        window.location.reload();
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`Workflow returned ${response.status}.`);
+      }
+
+      nativeWorkflowDialogContent.innerHTML = await extractNativeWorkflowContent(response, actionUrl);
+    } catch (error) {
+      nativeWorkflowDialogContent.insertAdjacentHTML("afterbegin", `<div class="vpms-native-workflow-error"><strong>Workflow could not be submitted.</strong><span>${error.message}</span></div>`);
+    } finally {
+      setNativeWorkflowLoading(false);
+    }
+  };
+
+  const isNativeWorkflowDialogCandidate = (link) => {
+    if (!nativeWorkflowDialogInstance || !nativeWorkflowDialogContent || !link?.href) {
+      return false;
+    }
+
+    if (link.dataset.vpmsNativeDialog === undefined ||
+      link.dataset.vpmsNoDialog !== undefined ||
+      link.target ||
+      link.hasAttribute("download") ||
+      link.closest(".modal") ||
+      link.closest(".vpms-room-calendar-shell")) {
+      return false;
+    }
+
+    try {
+      return isInternalWorkflowUrl(new URL(link.href, window.location.origin));
+    } catch {
+      return false;
+    }
+  };
 
   const isWorkflowDialogCandidate = (link) => {
     if (!workflowDialogInstance || !workflowDialogFrame || !link?.href) {
@@ -790,6 +959,72 @@ document.addEventListener("DOMContentLoaded", () => {
     workflowDialogFrame.src = url.toString();
     workflowDialogInstance.show();
   };
+
+  document.addEventListener("click", (event) => {
+    const link = event.target?.closest?.("a[href]");
+    if (!link || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
+      return;
+    }
+
+    if (!isNativeWorkflowDialogCandidate(link)) {
+      return;
+    }
+
+    event.preventDefault();
+    loadNativeWorkflowDialog(link.href, link.dataset.vpmsNativeDialogTitle || (link.textContent || "Quick Workflow").trim());
+  });
+
+  nativeWorkflowDialogContent?.addEventListener("submit", (event) => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement)) {
+      return;
+    }
+
+    event.preventDefault();
+    submitNativeWorkflowForm(form);
+  });
+
+  nativeWorkflowDialogContent?.addEventListener("click", (event) => {
+    const link = event.target?.closest?.("a[href]");
+    if (!link || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
+      return;
+    }
+
+    const label = normalizeLabel(link.textContent);
+    if (/^(back|cancel|return|close)$/.test(label) || link.dataset.vpmsDialogClose !== undefined) {
+      event.preventDefault();
+      nativeWorkflowDialogInstance?.hide();
+      return;
+    }
+
+    if (link.target || link.hasAttribute("download") || link.dataset.vpmsNoDialog !== undefined) {
+      return;
+    }
+
+    let url;
+    try {
+      url = new URL(link.href, window.location.origin);
+    } catch {
+      return;
+    }
+
+    if (!isInternalWorkflowUrl(url)) {
+      return;
+    }
+
+    event.preventDefault();
+    loadNativeWorkflowDialog(url.toString(), link.dataset.vpmsNativeDialogTitle || (link.textContent || "Quick Workflow").trim());
+  });
+
+  nativeWorkflowDialog?.addEventListener("hidden.bs.modal", () => {
+    if (nativeWorkflowDialogContent) {
+      nativeWorkflowDialogContent.innerHTML = "";
+    }
+
+    nativeWorkflowDialogUrl = "";
+    nativeWorkflowDialog?.classList.remove("is-loaded", "is-submitting");
+    nativeWorkflowDialogLoading?.classList.remove("d-none");
+  });
 
   document.addEventListener("click", (event) => {
     const link = event.target?.closest?.("a[href]");
