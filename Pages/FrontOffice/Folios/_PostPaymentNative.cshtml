@@ -1,0 +1,65 @@
+@model Vantage.PMS.Pages.FrontOffice.Folios.PostPaymentModel
+
+@{
+    var remainingAfterPayment = Model.FolioBalance - Model.Payment.Amount;
+}
+
+<section class="vpms-native-modal-intro vpms-native-ledger-intro">
+    <div>
+        <div class="page-kicker">Cashier Settlement</div>
+        <h1>Post Payment</h1>
+        <p>@(string.IsNullOrWhiteSpace(Model.GuestName) ? "Guest folio" : Model.GuestName) | @Model.FolioNumber</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Open Balance</span>
+        <strong>@Model.FolioBalance.ToString("C")</strong>
+    </div>
+</section>
+
+<form method="post"
+      asp-page="./PostPayment"
+      asp-route-folioId="@Model.FolioId"
+      class="vpms-native-workflow-form vpms-native-ledger-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="vpms-native-payment-preview">
+        <span>Balance after this payment</span>
+        <strong>@remainingAfterPayment.ToString("C")</strong>
+        <small>Calculated from the amount currently entered. Validate before posting.</small>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="Payment.PaymentDate" class="form-label">Payment Date</label>
+            <input asp-for="Payment.PaymentDate" class="form-control" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" />
+            <span asp-validation-for="Payment.PaymentDate" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Payment.PaymentMethod" class="form-label">Payment Method</label>
+            <input asp-for="Payment.PaymentMethod" class="form-control" autocomplete="off" />
+            <span asp-validation-for="Payment.PaymentMethod" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Payment.Amount" class="form-label"></label>
+            <input asp-for="Payment.Amount" class="form-control" type="number" min="0.01" step="0.01" />
+            <span asp-validation-for="Payment.Amount" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Payment.ReferenceNumber" class="form-label">Reference Number</label>
+        <input asp-for="Payment.ReferenceNumber" class="form-control" autocomplete="off" />
+        <span asp-validation-for="Payment.ReferenceNumber" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Payment.Notes" class="form-label"></label>
+        <textarea asp-for="Payment.Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Payment.Notes" class="text-danger"></span>
+    </div>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@Model.FolioId" data-vpms-dialog-close>Cancel</a>
+        <button type="submit" class="btn btn-primary">Post Payment</button>
+    </div>
+</form>

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Authorization;
 using Vantage.PMS.Data;
@@ -25,6 +26,73 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
     public string GuestName { get; set; } = string.Empty;
 
     public async Task<IActionResult> OnGetAsync(int? folioId)
+    {
+        var loadResult = await LoadPaymentFormAsync(folioId);
+        if (loadResult is not null)
+        {
+            return loadResult;
+        }
+
+        return Page();
+    }
+
+    public async Task<IActionResult> OnGetNativeAsync(int? folioId)
+    {
+        var loadResult = await LoadPaymentFormAsync(folioId);
+        if (loadResult is not null)
+        {
+            return loadResult;
+        }
+
+        return NativePartial();
+    }
+
+    public async Task<IActionResult> OnPostAsync(int? folioId)
+    {
+        if (folioId is null)
+        {
+            return NotFound();
+        }
+
+        var folio = await _context.Folios.FindAsync(folioId);
+        if (folio is null)
+        {
+            return NotFound();
+        }
+
+        FolioId = folio.Id;
+        FolioNumber = folio.FolioNumber;
+        await LoadFolioContextAsync(folio.Id);
+        var businessDate = await GetBusinessDateAsync();
+        Payment.FolioId = folio.Id;
+        ValidatePayment();
+        ValidatePaymentDate(businessDate);
+
+        if (!ModelState.IsValid)
+        {
+            return NativePartialOrPage();
+        }
+
+        var userName = User.Identity?.Name ?? "Cashier";
+        var allowWithoutOpenShift = User.IsInRole(PmsRoles.FinanceManager) ||
+            User.IsInRole(PmsRoles.GeneralManager) ||
+            User.IsInRole(PmsRoles.SystemAdmin);
+
+        var errors = await _financeService.PostFolioPaymentAsync(Payment, userName, allowWithoutOpenShift);
+        if (errors.Count > 0)
+        {
+            foreach (var error in errors)
+            {
+                ModelState.AddModelError(string.Empty, error);
+            }
+
+            return NativePartialOrPage();
+        }
+
+        return RedirectToPage("./Details", new { id = folio.Id });
+    }
+
+    private async Task<IActionResult?> LoadPaymentFormAsync(int? folioId)
     {
         if (folioId is null)
         {
@@ -55,52 +123,7 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
             Status = PaymentStatus.Completed
         };
 
-        return Page();
-    }
-
-    public async Task<IActionResult> OnPostAsync(int? folioId)
-    {
-        if (folioId is null)
-        {
-            return NotFound();
-        }
-
-        var folio = await _context.Folios.FindAsync(folioId);
-        if (folio is null)
-        {
-            return NotFound();
-        }
-
-        FolioId = folio.Id;
-        FolioNumber = folio.FolioNumber;
-        await LoadFolioContextAsync(folio.Id);
-        var businessDate = await GetBusinessDateAsync();
-        ValidatePayment();
-        ValidatePaymentDate(businessDate);
-
-        if (!ModelState.IsValid)
-        {
-            return Page();
-        }
-
-        Payment.FolioId = folio.Id;
-        var userName = User.Identity?.Name ?? "Cashier";
-        var allowWithoutOpenShift = User.IsInRole(PmsRoles.FinanceManager) ||
-            User.IsInRole(PmsRoles.GeneralManager) ||
-            User.IsInRole(PmsRoles.SystemAdmin);
-
-        var errors = await _financeService.PostFolioPaymentAsync(Payment, userName, allowWithoutOpenShift);
-        if (errors.Count > 0)
-        {
-            foreach (var error in errors)
-            {
-                ModelState.AddModelError(string.Empty, error);
-            }
-
-            return Page();
-        }
-
-        return RedirectToPage("./Details", new { id = folio.Id });
+        return null;
     }
 
     private void ValidatePayment()
@@ -144,5 +167,25 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
 
         FolioBalance = folio?.Balance ?? 0;
         GuestName = $"{folio?.Guest?.FirstName} {folio?.Guest?.LastName}".Trim();
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_PostPaymentNative",
+            ViewData = new ViewDataDictionary<PostPaymentModel>(ViewData, this)
+        };
     }
 }

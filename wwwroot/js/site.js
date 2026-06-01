@@ -744,10 +744,13 @@ document.addEventListener("DOMContentLoaded", () => {
     nativeWorkflowDialogLoading?.classList.toggle("d-none", !isLoading);
   };
 
-  const buildDialogUrl = (href) => {
+  const buildDialogUrl = (href, options = {}) => {
     const url = new URL(href, window.location.origin);
     url.searchParams.set("vpmsDialog", "1");
     url.searchParams.set("vpmsNative", "1");
+    if (options.handler) {
+      url.searchParams.set("handler", options.handler);
+    }
     return url;
   };
 
@@ -790,12 +793,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return wrapper.innerHTML;
   };
 
-  const loadNativeWorkflowDialog = async (href, title) => {
+  const loadNativeWorkflowDialog = async (href, title, trigger) => {
     if (!nativeWorkflowDialogInstance || !nativeWorkflowDialogContent) {
       return false;
     }
 
-    const url = buildDialogUrl(href);
+    const url = buildDialogUrl(href, { handler: trigger?.dataset?.vpmsNativeHandler });
     nativeWorkflowDialogUrl = url.toString();
 
     if (nativeWorkflowDialogTitle) {
@@ -971,7 +974,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     event.preventDefault();
-    loadNativeWorkflowDialog(link.href, link.dataset.vpmsNativeDialogTitle || (link.textContent || "Quick Workflow").trim());
+    loadNativeWorkflowDialog(link.href, link.dataset.vpmsNativeDialogTitle || (link.textContent || "Quick Workflow").trim(), link);
   });
 
   nativeWorkflowDialogContent?.addEventListener("submit", (event) => {
@@ -1013,7 +1016,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     event.preventDefault();
-    loadNativeWorkflowDialog(url.toString(), link.dataset.vpmsNativeDialogTitle || (link.textContent || "Quick Workflow").trim());
+    loadNativeWorkflowDialog(url.toString(), link.dataset.vpmsNativeDialogTitle || (link.textContent || "Quick Workflow").trim(), link);
   });
 
   nativeWorkflowDialog?.addEventListener("hidden.bs.modal", () => {
