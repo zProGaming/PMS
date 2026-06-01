@@ -671,6 +671,11 @@ public class IndexModel(ApplicationDbContext context, RevenueManagementService r
     {
         var signals = new List<string> { FormatEnum(room.Status.ToString()) };
 
+        if (cell.ReservationId.HasValue)
+        {
+            signals.Add("active stay");
+        }
+
         if (cell.HasArrival)
         {
             signals.Add("arrival");

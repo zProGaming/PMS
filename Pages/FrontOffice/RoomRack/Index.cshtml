@@ -236,9 +236,21 @@ else
                                 var arrival = cell.Date.ToString("yyyy-MM-dd");
                                 var departure = cell.Date.AddDays(1).ToString("yyyy-MM-dd");
                                 var cellTitleDate = cell.Date.ToString("MMM d, yyyy");
+                                var hasReservation = cell.ReservationId.HasValue;
+                                var isAssignableRoom = room.Status is RoomStatus.Available or RoomStatus.Clean or RoomStatus.Inspected;
+                                var canQuickCreate = !hasReservation && isAssignableRoom && !cell.IsStopSell;
+                                var cellActionLabel = hasReservation
+                                    ? "Open Reservation"
+                                    : !isAssignableRoom
+                                        ? "Review Room Status"
+                                        : cell.IsStopSell
+                                            ? "Review Inventory Control"
+                                            : "Create Reservation";
                                 var cellClass = string.Join(" ", new[]
                                 {
                                     cell.IsToday ? "is-today" : string.Empty,
+                                    hasReservation ? "has-reservation" : string.Empty,
+                                    canQuickCreate ? "is-open-cell" : "is-controlled-cell",
                                     cell.IsCurrentOccupied ? "is-current-occupied" : string.Empty,
                                     cell.IsCurrentDirty ? "is-current-dirty" : string.Empty,
                                     cell.IsCurrentReady ? "is-current-ready" : string.Empty,
@@ -254,12 +266,16 @@ else
                                     arrivalDate = arrival,
                                     departureDate = departure
                                 }) ?? "#";
+                                var cellNavigationUrl = hasReservation
+                                    ? Url.Page("/FrontOffice/Reservations/Details", new { id = cell.ReservationId!.Value }) ?? "#"
+                                    : !isAssignableRoom
+                                        ? Url.Page("/Housekeeping/Index") ?? "#"
+                                        : cell.IsStopSell
+                                            ? Url.Page("/Revenue/RoomInventoryControls/Index") ?? "#"
+                                            : cellActionUrl;
                                 <a class="vpms-calendar-cell @cellClass"
-                                   asp-page="/FrontOffice/Reservations/Create"
-                                   asp-route-roomId="@room.RoomId"
-                                   asp-route-arrivalDate="@arrival"
-                                   asp-route-departureDate="@departure"
-                                   data-quick-reservation
+                                   href="@cellNavigationUrl"
+                                   data-quick-reservation="@canQuickCreate.ToString().ToLowerInvariant()"
                                    data-room-id="@room.RoomId"
                                    data-room-number="@room.RoomNumber"
                                    data-room-type="@room.RoomTypeName"
@@ -270,9 +286,10 @@ else
                                    data-calendar-inspector
                                    data-inspector-title="Room @room.RoomNumber - @cellTitleDate"
                                    data-inspector-detail="@cellFocusText"
-                                   data-inspector-action="Create Reservation"
-                                   data-inspector-url="@cellActionUrl"
-                                   title="Create reservation for Room @room.RoomNumber on @cellTitleDate">
+                                   data-inspector-action="@cellActionLabel"
+                                   data-inspector-url="@cellNavigationUrl"
+                                   aria-label="@cellActionLabel for Room @room.RoomNumber on @cellTitleDate"
+                                   title="@cellActionLabel for Room @room.RoomNumber on @cellTitleDate">
                                     @if (cell.IsCurrentOccupied)
                                     {
                                         <span class="vpms-cell-marker occupied">OCC</span>
@@ -300,6 +317,10 @@ else
                                     @if (cell.IsStopSell)
                                     {
                                         <span class="vpms-cell-marker stop">Stop</span>
+                                    }
+                                    @if (hasReservation)
+                                    {
+                                        <span class="vpms-cell-marker stay">Stay</span>
                                     }
                                 </a>
                             }
@@ -549,11 +570,13 @@ else
 
                 if (quickReservationFullPageLink) {
                     quickReservationFullPageLink.href = trigger.dataset.inspectorUrl || trigger.getAttribute('href') || quickReservationFullPageLink.href;
+                    quickReservationFullPageLink.textContent = 'Full Workflow';
                 }
 
                 if (quickReservationSubmit) {
                     quickReservationSubmit.disabled = false;
                     quickReservationSubmit.textContent = 'Create Stay';
+                    delete quickReservationSubmit.dataset.created;
                 }
 
                 if (quickReservationRefresh) {
@@ -569,7 +592,7 @@ else
                 element.addEventListener('focus', () => setFocus(element));
             });
 
-            document.querySelectorAll('[data-quick-reservation]').forEach(element => {
+            document.querySelectorAll('[data-quick-reservation="true"]').forEach(element => {
                 element.addEventListener('click', event => {
                     if (!openQuickReservation(element)) {
                         return;
@@ -621,6 +644,7 @@ else
                         if (quickReservationSubmit) {
                             quickReservationSubmit.textContent = 'Created';
                             quickReservationSubmit.disabled = true;
+                            quickReservationSubmit.dataset.created = 'true';
                         }
 
                         if (quickReservationRefresh) {
@@ -629,7 +653,7 @@ else
                     } catch {
                         setAlert(quickReservationError, 'The reservation could not be created. Check the form and try again.', true);
                     } finally {
-                        if (quickReservationSubmit && quickReservationSubmit.textContent !== 'Refresh Calendar') {
+                        if (quickReservationSubmit && quickReservationSubmit.dataset.created !== 'true') {
                             quickReservationSubmit.disabled = false;
                             quickReservationSubmit.textContent = 'Create Stay';
                         }
