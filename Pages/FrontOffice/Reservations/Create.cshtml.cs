@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -34,6 +35,18 @@ public class CreateModel(ApplicationDbContext context, RevenueManagementService 
 
     public async Task<IActionResult> OnGetAsync(int? roomId, DateTime? arrivalDate, DateTime? departureDate)
     {
+        await LoadCreateFormAsync(roomId, arrivalDate, departureDate);
+        return Page();
+    }
+
+    public async Task<IActionResult> OnGetNativeAsync(int? roomId, DateTime? arrivalDate, DateTime? departureDate)
+    {
+        await LoadCreateFormAsync(roomId, arrivalDate, departureDate);
+        return NativePartial();
+    }
+
+    private async Task LoadCreateFormAsync(int? roomId, DateTime? arrivalDate, DateTime? departureDate)
+    {
         if (arrivalDate.HasValue)
         {
             Reservation.ArrivalDate = arrivalDate.Value.Date;
@@ -63,7 +76,6 @@ public class CreateModel(ApplicationDbContext context, RevenueManagementService 
         }
 
         await LoadSelectListsAsync(selectedRoom: Reservation.RoomId);
-        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync()
@@ -76,7 +88,7 @@ public class CreateModel(ApplicationDbContext context, RevenueManagementService 
         if (!ModelState.IsValid)
         {
             await LoadSelectListsAsync(Reservation.GuestId, Reservation.RoomId, Reservation.RatePlanId, Reservation.Status);
-            return Page();
+            return NativePartialOrPage();
         }
 
         Reservation.ConfirmationNumber = CreateConfirmationNumber();
@@ -238,5 +250,25 @@ public class CreateModel(ApplicationDbContext context, RevenueManagementService 
     private static bool IsAssignableRoomStatus(RoomStatus status)
     {
         return status is RoomStatus.Available or RoomStatus.Clean or RoomStatus.Inspected;
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CreateNative",
+            ViewData = new ViewDataDictionary<CreateModel>(ViewData, this)
+        };
     }
 }

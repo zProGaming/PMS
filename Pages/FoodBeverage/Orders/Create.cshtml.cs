@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -34,6 +35,12 @@ public class CreateModel(ApplicationDbContext context) : PageModel
         return Page();
     }
 
+    public async Task<IActionResult> OnGetNativeAsync()
+    {
+        await LoadOptionsAsync();
+        return NativePartial();
+    }
+
     public async Task<IActionResult> OnPostAsync()
     {
         await ApplyReservationGuestAsync();
@@ -42,7 +49,7 @@ public class CreateModel(ApplicationDbContext context) : PageModel
         if (!ModelState.IsValid)
         {
             await LoadOptionsAsync(Order.OutletId, Order.DiningTableId, Order.ReservationId, Order.OrderType);
-            return Page();
+            return NativePartialOrPage();
         }
 
         Order.OrderNumber = CreateOrderNumber();
@@ -166,5 +173,25 @@ public class CreateModel(ApplicationDbContext context) : PageModel
     private static string CreateOrderNumber()
     {
         return $"POS-{DateTime.Now:yyyyMMddHHmmssfff}";
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CreateNative",
+            ViewData = new ViewDataDictionary<CreateModel>(ViewData, this)
+        };
     }
 }

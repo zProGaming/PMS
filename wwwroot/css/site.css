@@ -10919,6 +10919,25 @@ html {
   color: #991b1b !important;
 }
 
+.vpms-native-workflow-content .validation-summary-valid,
+.vpms-native-workflow-content .field-validation-valid {
+  display: none !important;
+}
+
+.vpms-native-workflow-content .validation-summary-errors,
+.vpms-native-workflow-content .vpms-native-validation-focus,
+.vpms-native-workflow-content .alert-danger:not(.validation-summary-valid) {
+  border-color: rgba(220, 38, 38, 0.22) !important;
+  background: linear-gradient(135deg, rgba(254, 242, 242, 0.98), rgba(255, 247, 237, 0.86)) !important;
+  box-shadow: 0 16px 34px rgba(127, 29, 29, 0.08);
+}
+
+.vpms-native-workflow-content .input-validation-error,
+.vpms-native-workflow-content [aria-invalid="true"] {
+  border-color: rgba(220, 38, 38, 0.58) !important;
+  box-shadow: 0 0 0 0.18rem rgba(220, 38, 38, 0.12) !important;
+}
+
 .vpms-native-workflow-error {
   display: grid;
   gap: 0.45rem;

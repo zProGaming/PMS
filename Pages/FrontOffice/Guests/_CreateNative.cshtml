@@ -1,0 +1,92 @@
+@model Vantage.PMS.Pages.FrontOffice.Guests.CreateModel
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <div class="page-kicker">Guest Profile</div>
+        <h1>Create Guest</h1>
+        <p>Capture essential profile and contact details without leaving the current workflow.</p>
+    </div>
+</section>
+
+<form method="post" asp-page="./Create" class="vpms-native-workflow-form vpms-native-guest-form">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger vpms-alert"></div>
+
+    <section class="vpms-form-section vpms-native-form-section">
+        <div class="vpms-form-section-heading">
+            <span>01</span>
+            <div>
+                <h2>Identity</h2>
+                <p>Name and contact details used by reservations, folios, and guest portal records.</p>
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Guest.FirstName" class="form-label">First Name</label>
+                <input asp-for="Guest.FirstName" class="form-control" autocomplete="given-name" />
+                <span asp-validation-for="Guest.FirstName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Guest.LastName" class="form-label">Last Name</label>
+                <input asp-for="Guest.LastName" class="form-control" autocomplete="family-name" />
+                <span asp-validation-for="Guest.LastName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Guest.Email" class="form-label"></label>
+                <input asp-for="Guest.Email" class="form-control" autocomplete="email" />
+                <span asp-validation-for="Guest.Email" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Guest.PhoneNumber" class="form-label">Phone Number</label>
+                <input asp-for="Guest.PhoneNumber" class="form-control" autocomplete="tel" />
+                <span asp-validation-for="Guest.PhoneNumber" class="text-danger"></span>
+            </div>
+        </div>
+    </section>
+
+    <section class="vpms-form-section vpms-native-form-section">
+        <div class="vpms-form-section-heading">
+            <span>02</span>
+            <div>
+                <h2>Address</h2>
+                <p>Optional billing and registration context for guest documents.</p>
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-12">
+                <label asp-for="Guest.AddressLine1" class="form-label">Address Line 1</label>
+                <input asp-for="Guest.AddressLine1" class="form-control" autocomplete="address-line1" />
+                <span asp-validation-for="Guest.AddressLine1" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Guest.AddressLine2" class="form-label">Address Line 2</label>
+                <input asp-for="Guest.AddressLine2" class="form-control" autocomplete="address-line2" />
+                <span asp-validation-for="Guest.AddressLine2" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Guest.City" class="form-label"></label>
+                <input asp-for="Guest.City" class="form-control" autocomplete="address-level2" />
+                <span asp-validation-for="Guest.City" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Guest.StateProvince" class="form-label">State/Province</label>
+                <input asp-for="Guest.StateProvince" class="form-control" autocomplete="address-level1" />
+                <span asp-validation-for="Guest.StateProvince" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Guest.PostalCode" class="form-label">Postal Code</label>
+                <input asp-for="Guest.PostalCode" class="form-control" autocomplete="postal-code" />
+                <span asp-validation-for="Guest.PostalCode" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Guest.Country" class="form-label"></label>
+                <input asp-for="Guest.Country" class="form-control" autocomplete="country-name" />
+                <span asp-validation-for="Guest.Country" class="text-danger"></span>
+            </div>
+        </div>
+    </section>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" asp-page="./Index" data-vpms-dialog-close>Cancel</a>
+        <button type="submit" class="btn btn-primary">Create Guest</button>
+    </div>
+</form>

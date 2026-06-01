@@ -1,0 +1,60 @@
+@model Vantage.PMS.Pages.FoodBeverage.Orders.CreateModel
+
+<section class="vpms-native-modal-intro vpms-native-pos-intro">
+    <div>
+        <div class="page-kicker">F&amp;B Service</div>
+        <h1>Create POS Order</h1>
+        <p>Open a dining, takeaway, or room service order without leaving the outlet queue.</p>
+    </div>
+</section>
+
+<form method="post" asp-page="./Create" class="vpms-native-workflow-form vpms-native-pos-form">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger vpms-alert"></div>
+
+    <div class="vpms-native-step-grid compact" aria-label="POS order workflow">
+        <span><strong>Outlet</strong><small>Revenue center</small></span>
+        <span><strong>Service</strong><small>Order type</small></span>
+        <span><strong>Guest</strong><small>Optional folio link</small></span>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Order.OutletId" class="form-label">Outlet</label>
+            <select asp-for="Order.OutletId" class="form-select" asp-items="Model.OutletOptions"></select>
+            <span asp-validation-for="Order.OutletId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Order.OrderType" class="form-label">Order Type</label>
+            <select asp-for="Order.OrderType" class="form-select" asp-items="Model.OrderTypeOptions"></select>
+            <span asp-validation-for="Order.OrderType" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Order.DiningTableId" class="form-label">Dining Table</label>
+            <select asp-for="Order.DiningTableId" class="form-select" asp-items="Model.TableOptions">
+                <option value="">Not assigned</option>
+            </select>
+            <span asp-validation-for="Order.DiningTableId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Order.ReservationId" class="form-label">Checked-in Guest / Reservation</label>
+            <select asp-for="Order.ReservationId" class="form-select" asp-items="Model.ReservationOptions">
+                <option value="">Not assigned</option>
+            </select>
+            <span asp-validation-for="Order.ReservationId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Order.Notes" class="form-label"></label>
+        <textarea asp-for="Order.Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Order.Notes" class="text-danger"></span>
+    </div>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" asp-page="./Index" data-vpms-dialog-close>Cancel</a>
+        <button type="submit" class="btn btn-primary">Create Order</button>
+    </div>
+</form>

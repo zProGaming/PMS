@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -24,14 +25,24 @@ public class CreateModel(ApplicationDbContext context) : PageModel
 
     public async Task<IActionResult> OnGetAsync(int? roomId)
     {
+        await LoadCreateFormAsync(roomId);
+        return Page();
+    }
+
+    public async Task<IActionResult> OnGetNativeAsync(int? roomId)
+    {
+        await LoadCreateFormAsync(roomId);
+        return NativePartial();
+    }
+
+    private async Task LoadCreateFormAsync(int? roomId)
+    {
         await LoadSelectListsAsync(roomId);
 
         if (roomId is not null)
         {
             HousekeepingTask.RoomId = roomId.Value;
         }
-
-        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync()
@@ -41,7 +52,7 @@ public class CreateModel(ApplicationDbContext context) : PageModel
         if (!ModelState.IsValid)
         {
             await LoadSelectListsAsync(HousekeepingTask.RoomId);
-            return Page();
+            return NativePartialOrPage();
         }
 
         HousekeepingTask.TaskStatus = HousekeepingTaskStatus.Open;
@@ -95,5 +106,25 @@ public class CreateModel(ApplicationDbContext context) : PageModel
         {
             ModelState.AddModelError("HousekeepingTask.AssignedTo", "Assigned to is required.");
         }
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CreateNative",
+            ViewData = new ViewDataDictionary<CreateModel>(ViewData, this)
+        };
     }
 }

@@ -1,0 +1,49 @@
+@model Vantage.PMS.Pages.Housekeeping.Tasks.CreateModel
+
+<section class="vpms-native-modal-intro vpms-native-hk-intro">
+    <div>
+        <div class="page-kicker">Housekeeping Control</div>
+        <h1>Create Task</h1>
+        <p>Assign room work, urgency, and notes without leaving the operating board.</p>
+    </div>
+</section>
+
+<form method="post" asp-page="./Create" class="vpms-native-workflow-form vpms-native-housekeeping-form">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger vpms-alert"></div>
+
+    <div class="vpms-native-step-grid compact" aria-label="Task control path">
+        <span><strong>Room</strong><small>Assign location</small></span>
+        <span><strong>Owner</strong><small>Clear accountability</small></span>
+        <span><strong>Priority</strong><small>Queue urgency</small></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="HousekeepingTask.RoomId" class="form-label">Room</label>
+        <select asp-for="HousekeepingTask.RoomId" class="form-select" asp-items="Model.RoomOptions"></select>
+        <span asp-validation-for="HousekeepingTask.RoomId" class="text-danger"></span>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="HousekeepingTask.AssignedTo" class="form-label">Assigned To</label>
+            <input asp-for="HousekeepingTask.AssignedTo" class="form-control" autocomplete="off" />
+            <span asp-validation-for="HousekeepingTask.AssignedTo" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="HousekeepingTask.Priority" class="form-label"></label>
+            <select asp-for="HousekeepingTask.Priority" class="form-select" asp-items="Model.PriorityOptions"></select>
+            <span asp-validation-for="HousekeepingTask.Priority" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="HousekeepingTask.Notes" class="form-label"></label>
+        <textarea asp-for="HousekeepingTask.Notes" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="HousekeepingTask.Notes" class="text-danger"></span>
+    </div>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" asp-page="./Index" data-vpms-dialog-close>Cancel</a>
+        <button type="submit" class="btn btn-primary">Create Task</button>
+    </div>
+</form>

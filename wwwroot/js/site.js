@@ -793,6 +793,35 @@ document.addEventListener("DOMContentLoaded", () => {
     return wrapper.innerHTML;
   };
 
+  const prepareNativeWorkflowContent = () => {
+    if (!nativeWorkflowDialogContent) {
+      return;
+    }
+
+    const firstError = nativeWorkflowDialogContent.querySelector(
+      ".validation-summary-errors, .field-validation-error:not(:empty), .text-danger:not(:empty), .alert-danger:not(.validation-summary-valid):not(:empty)"
+    );
+    const firstInvalidField = nativeWorkflowDialogContent.querySelector(
+      ".input-validation-error, [aria-invalid='true'], .is-invalid"
+    );
+
+    if (firstError) {
+      firstError.classList.add("vpms-native-validation-focus");
+      firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (firstInvalidField instanceof HTMLElement) {
+        window.setTimeout(() => firstInvalidField.focus({ preventScroll: true }), 150);
+      }
+      return;
+    }
+
+    const firstField = nativeWorkflowDialogContent.querySelector(
+      "select:not([disabled]), input:not([type='hidden']):not([disabled]), textarea:not([disabled])"
+    );
+    if (firstField instanceof HTMLElement) {
+      window.setTimeout(() => firstField.focus({ preventScroll: true }), 150);
+    }
+  };
+
   const loadNativeWorkflowDialog = async (href, title, trigger) => {
     if (!nativeWorkflowDialogInstance || !nativeWorkflowDialogContent) {
       return false;
@@ -827,6 +856,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       nativeWorkflowDialogContent.innerHTML = await extractNativeWorkflowContent(response, url);
+      prepareNativeWorkflowContent();
     } catch (error) {
       nativeWorkflowDialogContent.innerHTML = `<div class="vpms-native-workflow-error"><strong>Workflow could not be opened.</strong><span>${error.message}</span></div>`;
     } finally {
@@ -873,6 +903,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       nativeWorkflowDialogContent.innerHTML = await extractNativeWorkflowContent(response, actionUrl);
+      prepareNativeWorkflowContent();
     } catch (error) {
       nativeWorkflowDialogContent.insertAdjacentHTML("afterbegin", `<div class="vpms-native-workflow-error"><strong>Workflow could not be submitted.</strong><span>${error.message}</span></div>`);
     } finally {
