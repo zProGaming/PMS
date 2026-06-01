@@ -3,13 +3,31 @@
 
 @{
     ViewData["Title"] = "Check Out Reservation";
+    var isNativeWorkflow = string.Equals(HttpContext.Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase);
 }
 
-<h1>Check Out Reservation</h1>
+@if (isNativeWorkflow)
+{
+    <section class="vpms-native-modal-intro">
+        <div>
+            <div class="page-kicker">Departure Control</div>
+            <h1>Check Out</h1>
+            <p>@Model.Reservation.Guest?.FirstName @Model.Reservation.Guest?.LastName | Room @(Model.Reservation.Room?.RoomNumber ?? "Unassigned")</p>
+        </div>
+        <div class="vpms-native-balance-pill @(Model.HasOutstandingBalance ? "warning" : "positive")">
+            <span>Folio Balance</span>
+            <strong>@Model.FolioBalance.ToString("C")</strong>
+        </div>
+    </section>
+}
+else
+{
+    <h1>Check Out Reservation</h1>
+}
 
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<dl class="row mt-3">
+<dl class="row mt-3 @(isNativeWorkflow ? "vpms-native-definition-strip" : "")">
     <dt class="col-sm-3">Confirmation</dt>
     <dd class="col-sm-9">@Model.Reservation.ConfirmationNumber</dd>
 
@@ -26,7 +44,7 @@
     <dd class="col-sm-9">@Model.Reservation.Status</dd>
 
     <dt class="col-sm-3">Folio Balance</dt>
-    <dd class="col-sm-9">@Model.FolioBalance.ToString("N2")</dd>
+    <dd class="col-sm-9">@Model.FolioBalance.ToString("C")</dd>
 </dl>
 
 @if (Model.HasOutstandingBalance)
@@ -36,7 +54,7 @@
     </div>
 }
 
-<form method="post">
+<form method="post" class="@(isNativeWorkflow ? "vpms-native-workflow-form" : "")">
     <input type="hidden" asp-for="Reservation.Id" />
     @if (Model.HasOutstandingBalance)
     {
@@ -53,11 +71,12 @@
             }
         </div>
     }
-    <button type="submit" class="btn btn-warning" disabled="@(!Model.CanSubmitCheckOut)">Confirm Check Out</button>
-    @if (Model.FolioId is not null)
-    {
-        <a class="btn btn-outline-primary" asp-page="/FrontOffice/Folios/Details" asp-route-id="@Model.FolioId">View Folio</a>
-        <a class="btn btn-outline-primary" asp-page="/FrontOffice/Folios/PostPayment" asp-route-folioId="@Model.FolioId">Post Payment</a>
-    }
-    <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@Model.Reservation.Id">Cancel</a>
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@Model.Reservation.Id">Cancel</a>
+        @if (Model.FolioId is not null)
+        {
+            <a class="btn btn-outline-primary" asp-page="/FrontOffice/Folios/PostPayment" asp-route-folioId="@Model.FolioId">Post Payment</a>
+        }
+        <button type="submit" class="btn btn-warning" disabled="@(!Model.CanSubmitCheckOut)">Confirm Check Out</button>
+    </div>
 </form>

@@ -22,6 +22,10 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
 
     public string FolioNumber { get; set; } = string.Empty;
 
+    public decimal FolioBalance { get; set; }
+
+    public string GuestName { get; set; } = string.Empty;
+
     public SelectList ChargeCodeOptions { get; set; } = null!;
 
     public async Task<IActionResult> OnGetAsync(int? folioId)
@@ -33,6 +37,9 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
 
         var folio = await _context.Folios
             .AsNoTracking()
+            .Include(folio => folio.Guest)
+            .Include(folio => folio.Items)
+            .Include(folio => folio.Payments)
             .FirstOrDefaultAsync(folio => folio.Id == folioId);
 
         if (folio is null)
@@ -42,6 +49,8 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
 
         FolioId = folio.Id;
         FolioNumber = folio.FolioNumber;
+        FolioBalance = folio.Balance;
+        GuestName = $"{folio.Guest?.FirstName} {folio.Guest?.LastName}".Trim();
         var businessDate = await GetBusinessDateAsync();
         Charge = new FolioItem
         {
@@ -64,6 +73,9 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
 
         var folio = await _context.Folios
             .AsNoTracking()
+            .Include(item => item.Guest)
+            .Include(item => item.Items)
+            .Include(item => item.Payments)
             .FirstOrDefaultAsync(item => item.Id == folioId);
         if (folio is null)
         {
@@ -72,6 +84,8 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
 
         FolioId = folio.Id;
         FolioNumber = folio.FolioNumber;
+        FolioBalance = folio.Balance;
+        GuestName = $"{folio.Guest?.FirstName} {folio.Guest?.LastName}".Trim();
         var businessDate = await GetBusinessDateAsync();
         ValidateCharge();
         ValidatePostingDate(businessDate);

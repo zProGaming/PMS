@@ -3,8 +3,22 @@
 
 @{
     ViewData["Title"] = "Create Reservation";
+    var isNativeWorkflow = string.Equals(HttpContext.Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase);
 }
 
+@if (isNativeWorkflow)
+{
+    <section class="vpms-native-modal-intro">
+        <div>
+            <div class="page-kicker">Reservation Desk</div>
+            <h1>Create Reservation</h1>
+            <p>Capture the guest, stay dates, room, and rate without leaving the current desk view.</p>
+        </div>
+        <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/Guests/Create">New Guest</a>
+    </section>
+}
+else
+{
 <section class="vpms-ops-hero vpms-ops-hero-compact">
     <div>
         <div class="page-kicker">Reservation Desk Workflow</div>
@@ -34,11 +48,21 @@
         <small>Revenue controls and suggested rates are evaluated before save.</small>
     </article>
 </section>
+}
 
-<form method="post" class="vpms-desk-form">
+<form method="post" class="@(isNativeWorkflow ? "vpms-native-workflow-form vpms-native-reservation-form" : "vpms-desk-form")">
     <div asp-validation-summary="ModelOnly" class="alert alert-danger vpms-alert"></div>
 
-    <section class="vpms-form-section">
+    @if (isNativeWorkflow)
+    {
+        <div class="vpms-native-step-grid" aria-label="Reservation workflow checks">
+            <span><strong>Guest</strong><small>Profile selected</small></span>
+            <span><strong>Room</strong><small>Available inventory only</small></span>
+            <span><strong>Rate</strong><small>Controls checked</small></span>
+        </div>
+    }
+
+    <section class="vpms-form-section @(isNativeWorkflow ? "vpms-native-form-section" : "")">
         <div class="vpms-form-section-heading">
             <span>01</span>
             <div>
@@ -65,7 +89,7 @@
         </div>
     </section>
 
-    <section class="vpms-form-section">
+    <section class="vpms-form-section @(isNativeWorkflow ? "vpms-native-form-section" : "")">
         <div class="vpms-form-section-heading">
             <span>02</span>
             <div>
@@ -99,7 +123,7 @@
         </div>
     </section>
 
-    <section class="vpms-form-section">
+    <section class="vpms-form-section @(isNativeWorkflow ? "vpms-native-form-section" : "")">
         <div class="vpms-form-section-heading">
             <span>03</span>
             <div>
@@ -133,7 +157,7 @@
         </div>
     </section>
 
-    <div class="vpms-sticky-actions">
+    <div class="@(isNativeWorkflow ? "vpms-native-action-row" : "vpms-sticky-actions")">
         <a class="btn vpms-btn-secondary" asp-page="./Index">Cancel</a>
         <button type="submit" class="btn vpms-btn-primary">Create Reservation</button>
     </div>

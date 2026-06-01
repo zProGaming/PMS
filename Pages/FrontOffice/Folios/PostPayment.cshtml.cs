@@ -20,6 +20,10 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
 
     public string FolioNumber { get; set; } = string.Empty;
 
+    public decimal FolioBalance { get; set; }
+
+    public string GuestName { get; set; } = string.Empty;
+
     public async Task<IActionResult> OnGetAsync(int? folioId)
     {
         if (folioId is null)
@@ -29,6 +33,9 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
 
         var folio = await _context.Folios
             .AsNoTracking()
+            .Include(folio => folio.Guest)
+            .Include(folio => folio.Items)
+            .Include(folio => folio.Payments)
             .FirstOrDefaultAsync(folio => folio.Id == folioId);
 
         if (folio is null)
@@ -38,6 +45,8 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
 
         FolioId = folio.Id;
         FolioNumber = folio.FolioNumber;
+        FolioBalance = folio.Balance;
+        GuestName = $"{folio.Guest?.FirstName} {folio.Guest?.LastName}".Trim();
         var businessDate = await GetBusinessDateAsync();
         Payment = new Payment
         {
@@ -64,6 +73,7 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
 
         FolioId = folio.Id;
         FolioNumber = folio.FolioNumber;
+        await LoadFolioContextAsync(folio.Id);
         var businessDate = await GetBusinessDateAsync();
         ValidatePayment();
         ValidatePaymentDate(businessDate);
@@ -121,5 +131,18 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
         {
             ModelState.AddModelError("Payment.PaymentDate", "Transactions for this business date are locked.");
         }
+    }
+
+    private async Task LoadFolioContextAsync(int folioId)
+    {
+        var folio = await _context.Folios
+            .AsNoTracking()
+            .Include(item => item.Guest)
+            .Include(item => item.Items)
+            .Include(item => item.Payments)
+            .FirstOrDefaultAsync(item => item.Id == folioId);
+
+        FolioBalance = folio?.Balance ?? 0;
+        GuestName = $"{folio?.Guest?.FirstName} {folio?.Guest?.LastName}".Trim();
     }
 }

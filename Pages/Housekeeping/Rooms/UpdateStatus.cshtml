@@ -3,11 +3,29 @@
 
 @{
     ViewData["Title"] = "Update Room Status";
+    var isNativeWorkflow = string.Equals(HttpContext.Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase);
 }
 
-<h1>Update Room Status</h1>
+@if (isNativeWorkflow)
+{
+    <section class="vpms-native-modal-intro vpms-native-hk-intro">
+        <div>
+            <div class="page-kicker">Room Readiness</div>
+            <h1>Room @Model.Room.RoomNumber</h1>
+            <p>@Model.Room.Property?.Name | Current status: @Model.Room.Status</p>
+        </div>
+        <div class="vpms-native-balance-pill">
+            <span>Next Action</span>
+            <strong>Update</strong>
+        </div>
+    </section>
+}
+else
+{
+    <h1>Update Room Status</h1>
+}
 
-<dl class="row mt-3">
+<dl class="row mt-3 @(isNativeWorkflow ? "vpms-native-definition-strip" : "")">
     <dt class="col-sm-3">Property</dt>
     <dd class="col-sm-9">@Model.Room.Property?.Name</dd>
 
@@ -18,9 +36,18 @@
     <dd class="col-sm-9">@Model.Room.Status</dd>
 </dl>
 
-<form method="post" class="mt-3">
+<form method="post" class="@(isNativeWorkflow ? "vpms-native-workflow-form vpms-native-housekeeping-form" : "mt-3")">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="Room.Id" />
+
+    @if (isNativeWorkflow)
+    {
+        <div class="vpms-native-step-grid compact" aria-label="Room status path">
+            <span><strong>Dirty</strong><small>Clean next</small></span>
+            <span><strong>Clean</strong><small>Inspect next</small></span>
+            <span><strong>Inspected</strong><small>Release next</small></span>
+        </div>
+    }
 
     <div class="mb-3">
         <label asp-for="TargetStatus" class="form-label">New Status</label>
@@ -34,8 +61,10 @@
         <span asp-validation-for="Notes" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Update Status</button>
-    <a class="btn btn-outline-secondary" asp-page="/Housekeeping/Index">Cancel</a>
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" asp-page="/Housekeeping/Index">Cancel</a>
+        <button type="submit" class="btn btn-primary">Update Status</button>
+    </div>
 </form>
 
 @section Scripts {

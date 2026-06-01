@@ -3,26 +3,54 @@
 
 @{
     ViewData["Title"] = "Post Payment";
+    var isNativeWorkflow = string.Equals(HttpContext.Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase);
+    var remainingAfterPayment = Model.FolioBalance - Model.Payment.Amount;
 }
 
-<h1>Post Payment</h1>
-<p class="text-muted">Folio @Model.FolioNumber</p>
+@if (isNativeWorkflow)
+{
+    <section class="vpms-native-modal-intro vpms-native-ledger-intro">
+        <div>
+            <div class="page-kicker">Cashier Settlement</div>
+            <h1>Post Payment</h1>
+            <p>@(string.IsNullOrWhiteSpace(Model.GuestName) ? "Guest folio" : Model.GuestName) | @Model.FolioNumber</p>
+        </div>
+        <div class="vpms-native-balance-pill">
+            <span>Open Balance</span>
+            <strong>@Model.FolioBalance.ToString("C")</strong>
+        </div>
+    </section>
+}
+else
+{
+    <h1>Post Payment</h1>
+    <p class="text-muted">Folio @Model.FolioNumber</p>
+}
 
-<form method="post" class="mt-3">
+<form method="post" class="@(isNativeWorkflow ? "vpms-native-workflow-form vpms-native-ledger-form" : "mt-3")">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="row">
-        <div class="col-md-4 mb-3">
+    @if (isNativeWorkflow)
+    {
+        <div class="vpms-native-payment-preview">
+            <span>Balance after this payment</span>
+            <strong>@remainingAfterPayment.ToString("C")</strong>
+            <small>Calculated from the amount currently entered. Validate before posting.</small>
+        </div>
+    }
+
+    <div class="row g-3">
+        <div class="col-md-4">
             <label asp-for="Payment.PaymentDate" class="form-label">Payment Date</label>
             <input asp-for="Payment.PaymentDate" class="form-control" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" />
             <span asp-validation-for="Payment.PaymentDate" class="text-danger"></span>
         </div>
-        <div class="col-md-4 mb-3">
+        <div class="col-md-4">
             <label asp-for="Payment.PaymentMethod" class="form-label">Payment Method</label>
             <input asp-for="Payment.PaymentMethod" class="form-control" />
             <span asp-validation-for="Payment.PaymentMethod" class="text-danger"></span>
         </div>
-        <div class="col-md-4 mb-3">
+        <div class="col-md-4">
             <label asp-for="Payment.Amount" class="form-label"></label>
             <input asp-for="Payment.Amount" class="form-control" type="number" min="0.01" step="0.01" />
             <span asp-validation-for="Payment.Amount" class="text-danger"></span>
@@ -41,8 +69,10 @@
         <span asp-validation-for="Payment.Notes" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Post Payment</button>
-    <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@Model.FolioId">Cancel</a>
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@Model.FolioId">Cancel</a>
+        <button type="submit" class="btn btn-primary">Post Payment</button>
+    </div>
 </form>
 
 @section Scripts {
