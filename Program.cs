@@ -162,6 +162,22 @@ await using (var scope = app.Services.CreateAsyncScope())
     }
 }
 
+if (args.Contains("--seed-full-demo", StringComparer.OrdinalIgnoreCase))
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var logger = scope.ServiceProvider
+        .GetRequiredService<ILoggerFactory>()
+        .CreateLogger("MaintenanceSeed");
+    var demoSeeder = scope.ServiceProvider.GetRequiredService<DemoDataSeederService>();
+    var result = await demoSeeder.SeedFullDemoDatasetAsync("MaintenanceSeed");
+
+    logger.LogInformation(
+        "Full demo dataset seed completed. Inserted/updated {Inserted} record(s). Messages: {Messages}",
+        result.Inserted,
+        string.Join(" | ", result.Messages));
+    return;
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
