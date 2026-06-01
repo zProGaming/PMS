@@ -10352,3 +10352,268 @@ html {
     padding: 0.75rem;
   }
 }
+
+/* Room Calendar enterprise pass: denser grid, month bands, focus panel, and current-day operational status. */
+.vpms-calendar-command-strip {
+  grid-template-columns: repeat(auto-fit, minmax(138px, 1fr));
+}
+
+.vpms-calendar-focus-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.72rem;
+  padding: 0.66rem 0.78rem;
+  color: #334155;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(240, 253, 250, 0.62)),
+    #fff;
+  border: 1px solid rgba(20, 184, 166, 0.18);
+  border-radius: 16px;
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.055);
+}
+
+.vpms-calendar-focus-panel div {
+  min-width: 0;
+}
+
+.vpms-calendar-focus-panel span,
+.vpms-calendar-focus-panel small {
+  display: block;
+  color: #64748b;
+  font-size: 0.72rem;
+}
+
+.vpms-calendar-focus-panel strong {
+  display: block;
+  overflow: hidden;
+  margin: 0.04rem 0;
+  color: #0f172a;
+  font-size: 0.94rem;
+  font-weight: 820;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vpms-calendar-month-row {
+  position: sticky;
+  top: 0;
+  z-index: 18;
+  display: grid;
+  grid-template-columns: 292px repeat(var(--vpms-calendar-days), minmax(106px, 1fr));
+  min-height: 34px;
+  background: rgba(15, 23, 42, 0.96);
+  color: #fff;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.36);
+}
+
+.vpms-calendar-month-head,
+.vpms-calendar-month-band {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 34px;
+}
+
+.vpms-calendar-month-head {
+  position: sticky;
+  left: 0;
+  z-index: 20;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.42rem 1rem;
+  background: #0f172a;
+  border-right: 1px solid rgba(148, 163, 184, 0.38);
+}
+
+.vpms-calendar-month-head span,
+.vpms-calendar-month-band {
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.02em;
+}
+
+.vpms-calendar-month-head small {
+  color: #99f6e4;
+  font-size: 0.68rem;
+  font-weight: 720;
+  white-space: nowrap;
+}
+
+.vpms-calendar-month-band {
+  justify-content: center;
+  padding: 0.36rem 0.6rem;
+  text-align: center;
+  background:
+    linear-gradient(90deg, rgba(20, 184, 166, 0.16), rgba(6, 182, 212, 0.08)),
+    #111827;
+  border-left: 1px solid rgba(148, 163, 184, 0.24);
+}
+
+.vpms-calendar-header-row {
+  top: 34px;
+}
+
+.vpms-calendar-room-row {
+  transition: background-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.vpms-calendar-room-row[hidden],
+.vpms-calendar-type-group[hidden] {
+  display: none !important;
+}
+
+.vpms-calendar-room-row.status-occupied .vpms-calendar-room-label {
+  background:
+    linear-gradient(90deg, rgba(20, 184, 166, 0.12), rgba(255, 255, 255, 0.98)),
+    #fff;
+}
+
+.vpms-calendar-room-row.status-dirty .vpms-calendar-room-label {
+  background:
+    linear-gradient(90deg, rgba(245, 158, 11, 0.11), rgba(255, 255, 255, 0.98)),
+    #fff;
+}
+
+.vpms-calendar-cell.is-current-occupied {
+  background:
+    linear-gradient(180deg, rgba(20, 184, 166, 0.2), rgba(204, 251, 241, 0.46)),
+    rgba(240, 253, 250, 0.9);
+}
+
+.vpms-calendar-cell.is-current-dirty {
+  background:
+    linear-gradient(180deg, rgba(245, 158, 11, 0.18), rgba(254, 243, 199, 0.54)),
+    rgba(255, 251, 235, 0.92);
+}
+
+.vpms-calendar-cell.is-current-ready {
+  background:
+    linear-gradient(180deg, rgba(14, 165, 233, 0.1), rgba(240, 249, 255, 0.56)),
+    rgba(248, 250, 252, 0.92);
+}
+
+.vpms-cell-marker.occupied {
+  color: #115e59;
+  background: rgba(20, 184, 166, 0.18);
+}
+
+.vpms-cell-marker.dirty {
+  color: #92400e;
+  background: rgba(245, 158, 11, 0.18);
+}
+
+.vpms-cell-marker.ready {
+  color: #075985;
+  background: rgba(14, 165, 233, 0.15);
+}
+
+.vpms-stay-bar:hover,
+.vpms-stay-bar:focus-visible {
+  color: #fff;
+  filter: saturate(1.08);
+  transform: translateY(-1px);
+}
+
+.vpms-quick-reservation-modal .modal-dialog {
+  max-width: min(920px, calc(100vw - 1.5rem));
+}
+
+.vpms-quick-reservation-modal .modal-body {
+  display: grid;
+  gap: 1rem;
+}
+
+.vpms-quick-reservation-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.vpms-quick-reservation-summary article {
+  min-width: 0;
+  padding: 0.95rem 1rem;
+  background:
+    linear-gradient(135deg, rgba(20, 184, 166, 0.08), rgba(6, 182, 212, 0.035)),
+    #f8fafc;
+  border: 1px solid rgba(221, 229, 238, 0.92);
+  border-radius: 18px;
+}
+
+.vpms-quick-reservation-summary span,
+.vpms-modal-field .form-text {
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 720;
+}
+
+.vpms-quick-reservation-summary strong {
+  display: block;
+  margin-top: 0.2rem;
+  color: #0f172a;
+  font-size: 1.05rem;
+  font-weight: 860;
+}
+
+.vpms-quick-reservation-summary small {
+  display: block;
+  margin-top: 0.16rem;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+.vpms-modal-form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.vpms-modal-field {
+  min-width: 0;
+}
+
+.vpms-modal-field.wide {
+  grid-column: span 2;
+}
+
+.vpms-modal-field .form-control,
+.vpms-modal-field .form-select {
+  min-height: 44px;
+  border-radius: 14px;
+}
+
+.vpms-modal-reservation-form .modal-footer {
+  gap: 0.55rem;
+  padding: 1rem 1.25rem 1.2rem;
+  background: rgba(248, 250, 252, 0.82);
+  border-top: 1px solid rgba(221, 229, 238, 0.88);
+}
+
+@media (max-width: 575.98px) {
+  .vpms-calendar-focus-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .vpms-calendar-focus-panel .btn {
+    width: 100%;
+  }
+
+  .vpms-calendar-month-row {
+    grid-template-columns: 236px repeat(var(--vpms-calendar-days), minmax(96px, 1fr));
+  }
+
+  .vpms-quick-reservation-summary,
+  .vpms-modal-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vpms-modal-field.wide {
+    grid-column: auto;
+  }
+
+  .vpms-modal-reservation-form .modal-footer > * {
+    width: 100%;
+  }
+}

@@ -2,14 +2,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.FrontOffice;
 using Vantage.PMS.Models.Housekeeping;
 using Vantage.PMS.Models.Revenue;
+using Vantage.PMS.Services;
 
 namespace Vantage.PMS.Pages.FrontOffice.RoomRack;
 
-public class IndexModel(ApplicationDbContext context) : PageModel
+public class IndexModel(ApplicationDbContext context, RevenueManagementService revenueManagement) : PageModel
 {
     private static readonly ReservationStatus[] CalendarReservationStatuses =
     [
@@ -42,9 +44,14 @@ public class IndexModel(ApplicationDbContext context) : PageModel
     [BindProperty(SupportsGet = true)]
     public string? Search { get; set; }
 
+    [BindProperty]
+    public QuickReservationInput QuickReservation { get; set; } = new();
+
     public DateTime EffectiveStartDate { get; private set; }
 
     public DateTime EffectiveEndDateExclusive { get; private set; }
+
+    public DateTime BusinessDate { get; private set; }
 
     public IList<RoomRackDateColumn> DateColumns { get; private set; } = [];
 
@@ -53,6 +60,12 @@ public class IndexModel(ApplicationDbContext context) : PageModel
     public SelectList RoomTypeOptions { get; private set; } = default!;
 
     public SelectList StatusOptions { get; private set; } = default!;
+
+    public SelectList ReservationGuestOptions { get; private set; } = default!;
+
+    public SelectList ReservationRatePlanOptions { get; private set; } = default!;
+
+    public IEnumerable<SelectListItem> ReservationStatusOptions { get; private set; } = Enumerable.Empty<SelectListItem>();
 
     public int TotalRooms { get; private set; }
 
@@ -70,6 +83,8 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
     public int DeparturesInRange { get; private set; }
 
+    public int UnassignedReservationsInRange { get; private set; }
+
     public decimal AverageOccupancyInRange { get; private set; }
 
     public string PreviousStartDate => EffectiveStartDate.AddDays(-Days).ToString("yyyy-MM-dd");
@@ -78,6 +93,12 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
     public async Task OnGetAsync()
     {
+        BusinessDate = await context.BusinessDateSettings
+            .AsNoTracking()
+            .OrderBy(setting => setting.Id)
+            .Select(setting => (DateTime?)setting.CurrentBusinessDate)
+            .FirstOrDefaultAsync() ?? DateTime.Today;
+
         NormalizeDateRange();
 
         var allActiveRooms = await context.Rooms
@@ -100,11 +121,12 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
         TotalRooms = allActiveRooms.Count;
         AvailableRooms = allActiveRooms.Count(room => room.Status is RoomStatus.Available or RoomStatus.Clean or RoomStatus.Inspected);
-        OccupiedRooms = checkedInRoomSet.Count;
+        OccupiedRooms = allActiveRooms.Count(room => room.Status == RoomStatus.Occupied || checkedInRoomSet.Contains(room.Id));
         DirtyRooms = allActiveRooms.Count(room => room.Status == RoomStatus.Dirty);
         OutOfOrderRooms = allActiveRooms.Count(room => room.Status is RoomStatus.OutOfOrder or RoomStatus.Maintenance);
 
         await LoadSelectListsAsync();
+        await LoadQuickReservationOptionsAsync();
 
         var visibleRooms = allActiveRooms
             .Where(room => RoomTypeId is null || room.RoomTypeId == RoomTypeId)
@@ -113,6 +135,14 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
         var visibleRoomIds = visibleRooms.Select(room => room.Id).ToList();
         var visibleRoomIdSet = visibleRoomIds.ToHashSet();
+
+        UnassignedReservationsInRange = await context.Reservations
+            .AsNoTracking()
+            .CountAsync(reservation =>
+                reservation.RoomId == null &&
+                CalendarReservationStatuses.Contains(reservation.Status) &&
+                reservation.ArrivalDate < EffectiveEndDateExclusive &&
+                reservation.DepartureDate > EffectiveStartDate);
 
         var reservations = await context.Reservations
             .Include(reservation => reservation.Guest)
@@ -188,15 +218,16 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
         if (!string.IsNullOrWhiteSpace(Search))
         {
-            var searchTerm = Search.Trim();
+            var searchTerms = Search
+                .Trim()
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
             roomRows = roomRows
                 .Where(room =>
-                    room.RoomNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    room.RoomTypeName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    room.PropertyName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                    room.ReservationBars.Any(bar =>
-                        bar.GuestName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                        bar.ConfirmationNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)))
+                {
+                    var haystack = $"{room.RoomNumber} room {room.RoomTypeName} {room.PropertyName} {string.Join(' ', room.ReservationBars.Select(bar => $"{bar.GuestName} {bar.ConfirmationNumber}"))}";
+                    return searchTerms.All(term => haystack.Contains(term, StringComparison.OrdinalIgnoreCase));
+                })
                 .ToList();
         }
 
@@ -213,6 +244,154 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             })
             .OrderBy(group => group.RoomTypeName)
             .ToList();
+    }
+
+    public async Task<IActionResult> OnPostQuickReservationAsync()
+    {
+        var errors = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+        void AddError(string field, string message)
+        {
+            if (!errors.TryGetValue(field, out var messages))
+            {
+                messages = [];
+                errors[field] = messages;
+            }
+
+            messages.Add(message);
+        }
+
+        if (QuickReservation.GuestId <= 0)
+        {
+            AddError(nameof(QuickReservation.GuestId), "Select a guest profile.");
+        }
+
+        if (QuickReservation.RoomId <= 0)
+        {
+            AddError(nameof(QuickReservation.RoomId), "Select a room from the calendar.");
+        }
+
+        if (QuickReservation.DepartureDate.Date <= QuickReservation.ArrivalDate.Date)
+        {
+            AddError(nameof(QuickReservation.DepartureDate), "Check-out date must be after check-in date.");
+        }
+
+        if (QuickReservation.Adults < 0 || QuickReservation.Children < 0)
+        {
+            AddError(nameof(QuickReservation.Adults), "Guest counts cannot be negative.");
+        }
+
+        if (QuickReservation.RateAmount < 0)
+        {
+            AddError(nameof(QuickReservation.RateAmount), "Rate amount cannot be negative.");
+        }
+
+        var guestExists = QuickReservation.GuestId > 0 &&
+            await context.Guests.AsNoTracking().AnyAsync(guest => guest.Id == QuickReservation.GuestId);
+
+        if (QuickReservation.GuestId > 0 && !guestExists)
+        {
+            AddError(nameof(QuickReservation.GuestId), "The selected guest was not found.");
+        }
+
+        var room = QuickReservation.RoomId > 0
+            ? await context.Rooms
+                .Include(room => room.RoomType)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(room => room.Id == QuickReservation.RoomId)
+            : null;
+
+        if (QuickReservation.RoomId > 0 && room is null)
+        {
+            AddError(nameof(QuickReservation.RoomId), "The selected room was not found.");
+        }
+        else if (room is not null && (!room.IsActive || !IsAssignableRoomStatus(room.Status)))
+        {
+            AddError(nameof(QuickReservation.RoomId), $"Room {room.RoomNumber} is {FormatEnum(room.Status.ToString())} and cannot be assigned.");
+        }
+
+        if (room is not null && QuickReservation.DepartureDate.Date > QuickReservation.ArrivalDate.Date)
+        {
+            var hasConflict = await context.Reservations
+                .AsNoTracking()
+                .AnyAsync(reservation =>
+                    reservation.RoomId == room.Id &&
+                    reservation.Status != ReservationStatus.Cancelled &&
+                    reservation.Status != ReservationStatus.CheckedOut &&
+                    reservation.Status != ReservationStatus.NoShow &&
+                    reservation.ArrivalDate.Date < QuickReservation.DepartureDate.Date &&
+                    reservation.DepartureDate.Date > QuickReservation.ArrivalDate.Date);
+
+            if (hasConflict)
+            {
+                AddError(nameof(QuickReservation.RoomId), "The selected room already has an active reservation during these stay dates.");
+            }
+        }
+
+        if (room is not null)
+        {
+            var suggestedRate = await revenueManagement.GetSuggestedRateAsync(
+                QuickReservation.RatePlanId,
+                room.RoomTypeId,
+                QuickReservation.ArrivalDate.Date,
+                QuickReservation.DepartureDate.Date);
+
+            if (QuickReservation.RateAmount <= 0 && suggestedRate > 0)
+            {
+                QuickReservation.RateAmount = suggestedRate;
+            }
+
+            var controlErrors = await revenueManagement.ValidateReservationControlsAsync(
+                null,
+                QuickReservation.RatePlanId,
+                room.RoomTypeId,
+                QuickReservation.ArrivalDate.Date,
+                QuickReservation.DepartureDate.Date);
+
+            foreach (var error in controlErrors)
+            {
+                AddError(string.Empty, error);
+            }
+        }
+
+        if (errors.Count > 0)
+        {
+            return new JsonResult(new
+            {
+                success = false,
+                message = "Reservation could not be created. Review the highlighted items.",
+                errors
+            });
+        }
+
+        var reservation = new Reservation
+        {
+            PropertyId = room!.PropertyId,
+            GuestId = QuickReservation.GuestId,
+            RoomTypeId = room.RoomTypeId,
+            RoomId = room.Id,
+            RatePlanId = QuickReservation.RatePlanId,
+            ConfirmationNumber = CreateConfirmationNumber(),
+            ArrivalDate = QuickReservation.ArrivalDate.Date,
+            DepartureDate = QuickReservation.DepartureDate.Date,
+            RateAmount = QuickReservation.RateAmount,
+            Adults = QuickReservation.Adults,
+            Children = QuickReservation.Children,
+            Status = QuickReservation.Status,
+            CreatedAtUtc = DateTime.UtcNow
+        };
+
+        context.Reservations.Add(reservation);
+        await context.SaveChangesAsync();
+
+        return new JsonResult(new
+        {
+            success = true,
+            reservationId = reservation.Id,
+            confirmationNumber = reservation.ConfirmationNumber,
+            reservationUrl = Url.Page("/FrontOffice/Reservations/Details", new { id = reservation.Id }),
+            message = $"Reservation {reservation.ConfirmationNumber} created for Room {room.RoomNumber}."
+        });
     }
 
     public string BuildRouteFor(DateTime startDate, int? days = null)
@@ -235,7 +414,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
     private void NormalizeDateRange()
     {
-        EffectiveStartDate = (StartDate ?? DateTime.Today).Date;
+        EffectiveStartDate = (StartDate ?? BusinessDate).Date;
         StartDate = EffectiveStartDate;
         Days = Days switch
         {
@@ -267,6 +446,35 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             Status?.ToString());
     }
 
+    private async Task LoadQuickReservationOptionsAsync()
+    {
+        var guests = await context.Guests
+            .AsNoTracking()
+            .OrderBy(guest => guest.LastName)
+            .ThenBy(guest => guest.FirstName)
+            .Select(guest => new { guest.Id, Name = guest.LastName + ", " + guest.FirstName })
+            .ToListAsync();
+
+        var ratePlans = await context.RatePlans
+            .AsNoTracking()
+            .Where(ratePlan => ratePlan.IsActive)
+            .OrderBy(ratePlan => ratePlan.Code)
+            .Select(ratePlan => new { ratePlan.Id, Name = ratePlan.Code + " - " + ratePlan.Name })
+            .ToListAsync();
+
+        ReservationGuestOptions = new SelectList(guests, "Id", "Name");
+        ReservationRatePlanOptions = new SelectList(ratePlans, "Id", "Name");
+        ReservationStatusOptions = Enum.GetValues<ReservationStatus>()
+            .Where(status => status is ReservationStatus.Pending or ReservationStatus.Reserved)
+            .Select(status => new SelectListItem
+            {
+                Value = status.ToString(),
+                Text = FormatEnum(status.ToString()),
+                Selected = status == ReservationStatus.Reserved
+            })
+            .ToList();
+    }
+
     private RoomRackDateColumn BuildDateColumn(
         DateTime date,
         IList<Room> visibleRooms,
@@ -279,6 +487,14 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             .Distinct()
             .ToHashSet();
 
+        if (date.Date == BusinessDate.Date)
+        {
+            foreach (var roomId in visibleRooms.Where(room => room.Status == RoomStatus.Occupied).Select(room => room.Id))
+            {
+                activeReservationRoomIds.Add(roomId);
+            }
+        }
+
         var unavailableRooms = visibleRooms.Count(room => room.Status is RoomStatus.OutOfOrder or RoomStatus.Maintenance);
         var availableRooms = Math.Max(0, visibleRooms.Count - activeReservationRoomIds.Count - unavailableRooms);
         var stopSellCount = inventoryControls.Count(control => control.InventoryDate.Date == date.Date && control.StopSell);
@@ -290,7 +506,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             OccupiedRooms = activeReservationRoomIds.Count,
             OccupancyPercentage = visibleRooms.Count == 0 ? 0 : Math.Round(activeReservationRoomIds.Count * 100m / visibleRooms.Count, 1),
             StopSellRoomTypes = stopSellCount,
-            IsToday = date.Date == DateTime.Today,
+            IsToday = date.Date == BusinessDate.Date,
             IsWeekend = date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday
         };
     }
@@ -348,7 +564,10 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             HasOpenTask = roomTasks.Count > 0,
             HasUrgentTask = roomTasks.Any(task => task.Priority == HousekeepingTaskPriority.Urgent),
             IsStopSell = stopSell,
-            IsToday = date.Date == DateTime.Today,
+            IsToday = date.Date == BusinessDate.Date,
+            IsCurrentOccupied = date.Date == BusinessDate.Date && room.Status == RoomStatus.Occupied,
+            IsCurrentDirty = date.Date == BusinessDate.Date && room.Status == RoomStatus.Dirty,
+            IsCurrentReady = date.Date == BusinessDate.Date && room.Status is RoomStatus.Available or RoomStatus.Clean or RoomStatus.Inspected,
             IsUnavailable = room.Status is RoomStatus.OutOfOrder or RoomStatus.Maintenance
         };
     }
@@ -392,9 +611,16 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             .Where(reservation => reservation.RoomId != null && roomIds.Contains(reservation.RoomId.Value) && IsOccupyingDate(reservation, date))
             .Select(reservation => reservation.RoomId!.Value)
             .Distinct()
-            .Count();
+            .ToHashSet();
+        if (date.Date == BusinessDate.Date)
+        {
+            foreach (var roomId in rooms.Where(room => room.Status == RoomStatus.Occupied).Select(room => room.RoomId))
+            {
+                occupiedRooms.Add(roomId);
+            }
+        }
         var unavailableRooms = rooms.Count(room => room.Status is RoomStatus.OutOfOrder or RoomStatus.Maintenance);
-        var availableRooms = Math.Max(0, rooms.Count - occupiedRooms - unavailableRooms);
+        var availableRooms = Math.Max(0, rooms.Count - occupiedRooms.Count - unavailableRooms);
         var stopSell = inventoryControls.Any(control => control.RoomTypeId == roomTypeId && control.InventoryDate.Date == date.Date && control.StopSell);
         var rate = roomTypeRates
             .Where(rate => rate.RoomTypeId == roomTypeId && rate.EffectiveFrom.Date <= date.Date && rate.EffectiveTo.Date >= date.Date)
@@ -406,11 +632,11 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         {
             Date = date,
             AvailableRooms = availableRooms,
-            OccupiedRooms = occupiedRooms,
-            OccupancyPercentage = rooms.Count == 0 ? 0 : Math.Round(occupiedRooms * 100m / rooms.Count, 1),
+            OccupiedRooms = occupiedRooms.Count,
+            OccupancyPercentage = rooms.Count == 0 ? 0 : Math.Round(occupiedRooms.Count * 100m / rooms.Count, 1),
             DisplayRate = rate,
             IsStopSell = stopSell,
-            IsToday = date.Date == DateTime.Today
+            IsToday = date.Date == BusinessDate.Date
         };
     }
 
@@ -440,6 +666,80 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
         return new string(chars.ToArray());
     }
+
+    public static string BuildCellFocusText(RoomRackCalendarRoom room, RoomRackCalendarCell cell)
+    {
+        var signals = new List<string> { FormatEnum(room.Status.ToString()) };
+
+        if (cell.HasArrival)
+        {
+            signals.Add("arrival");
+        }
+
+        if (cell.HasDeparture)
+        {
+            signals.Add("departure");
+        }
+
+        if (cell.HasUrgentTask)
+        {
+            signals.Add("urgent housekeeping");
+        }
+        else if (cell.HasOpenTask)
+        {
+            signals.Add("housekeeping task");
+        }
+
+        if (cell.IsStopSell)
+        {
+            signals.Add("stop sell");
+        }
+
+        if (cell.IsUnavailable)
+        {
+            signals.Add("not sellable");
+        }
+
+        return $"Room {room.RoomNumber} on {cell.Date:MMM d}: {string.Join(", ", signals)}.";
+    }
+
+    private static string CreateConfirmationNumber()
+    {
+        return $"RES-{DateTime.UtcNow:yyyyMMddHHmmss}";
+    }
+
+    private static bool IsAssignableRoomStatus(RoomStatus status)
+    {
+        return status is RoomStatus.Available or RoomStatus.Clean or RoomStatus.Inspected;
+    }
+}
+
+public class QuickReservationInput
+{
+    [Required]
+    public int GuestId { get; set; }
+
+    [Required]
+    public int RoomId { get; set; }
+
+    [Required]
+    public DateTime ArrivalDate { get; set; }
+
+    [Required]
+    public DateTime DepartureDate { get; set; }
+
+    public int? RatePlanId { get; set; }
+
+    [Range(0, 999999999)]
+    public decimal RateAmount { get; set; }
+
+    [Range(0, 20)]
+    public int Adults { get; set; } = 1;
+
+    [Range(0, 20)]
+    public int Children { get; set; }
+
+    public ReservationStatus Status { get; set; } = ReservationStatus.Reserved;
 }
 
 public class RoomRackDateColumn
@@ -537,6 +837,12 @@ public class RoomRackCalendarCell
     public bool IsStopSell { get; set; }
 
     public bool IsToday { get; set; }
+
+    public bool IsCurrentOccupied { get; set; }
+
+    public bool IsCurrentDirty { get; set; }
+
+    public bool IsCurrentReady { get; set; }
 
     public bool IsUnavailable { get; set; }
 }

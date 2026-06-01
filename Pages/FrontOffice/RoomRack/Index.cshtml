@@ -8,6 +8,16 @@
     var calendarStyle = $"--vpms-calendar-days:{Model.DateColumns.Count};";
     var dateRangeLabel = $"{Model.EffectiveStartDate:MMM d} - {rangeEnd:MMM d, yyyy}";
     var startDateValue = Model.EffectiveStartDate.ToString("yyyy-MM-dd");
+    var monthBands = Model.DateColumns
+        .Select((day, index) => new { day.Date, Index = index })
+        .GroupBy(item => new { item.Date.Year, item.Date.Month })
+        .Select(group => new
+        {
+            Label = new DateTime(group.Key.Year, group.Key.Month, 1).ToString("MMM yyyy"),
+            Start = group.Min(item => item.Index) + 2,
+            Span = group.Count()
+        })
+        .ToList();
 }
 
 <section class="vpms-ops-hero vpms-room-calendar-hero">
@@ -17,13 +27,14 @@
         <p class="page-subtitle">A date-range command view for physical room occupancy, arrivals, departures, housekeeping attention, and room inventory controls.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">@dateRangeLabel</span>
+            <span class="vpms-mini-chip">Business date @Model.BusinessDate.ToString("MMM d, yyyy")</span>
             <span class="vpms-mini-chip">@Model.TotalRooms physical rooms</span>
             <span class="vpms-mini-chip">@Model.AverageOccupancyInRange.ToString("N1")% average occupancy</span>
         </div>
     </div>
     <div class="vpms-hero-actions">
         <a class="btn vpms-btn-secondary" asp-page="/Housekeeping/Index">Housekeeping</a>
-        <a class="btn vpms-btn-secondary" href="@Model.BuildRouteFor(DateTime.Today)">Today</a>
+        <a class="btn vpms-btn-secondary" href="@Model.BuildRouteFor(Model.BusinessDate)">Today</a>
         <a class="btn vpms-btn-primary" asp-page="/FrontOffice/Reservations/Create">New Reservation</a>
     </div>
 </section>
@@ -38,6 +49,11 @@
         <span>Occupied now</span>
         <strong>@Model.OccupiedRooms</strong>
         <small>Checked-in rooms</small>
+    </article>
+    <article class="@(Model.UnassignedReservationsInRange > 0 ? "attention" : "")">
+        <span>Unassigned stays</span>
+        <strong>@Model.UnassignedReservationsInRange</strong>
+        <small>Need room assignment</small>
     </article>
     <article class="@(Model.ArrivalsInRange > 0 ? "attention" : "")">
         <span>Arrivals</span>
@@ -65,7 +81,7 @@
     <form method="get" class="vpms-calendar-filters">
         <div>
             <label class="form-label" asp-for="Search">Search</label>
-            <input class="form-control" asp-for="Search" placeholder="Room, room type, guest, confirmation" />
+            <input class="form-control" asp-for="Search" placeholder="Room, room type, guest, confirmation" data-vpms-calendar-search />
         </div>
         <div>
             <label class="form-label" asp-for="StartDate">Start date</label>
@@ -99,6 +115,15 @@
     </form>
 </section>
 
+<section class="vpms-calendar-focus-panel" aria-live="polite">
+    <div>
+        <span>Calendar Focus</span>
+        <strong id="vpmsCalendarFocusTitle">Hover a room, date, or stay</strong>
+        <small id="vpmsCalendarFocusDetail">Open cells create a one-night reservation from that room and date. Stay bars open the reservation control page.</small>
+    </div>
+    <a id="vpmsCalendarFocusAction" class="btn btn-sm vpms-btn-secondary" asp-page="/FrontOffice/Reservations/Index">Open Reservations</a>
+</section>
+
 <section class="vpms-calendar-legend-panel" aria-label="Room calendar legend">
     <div class="vpms-calendar-period-nav">
         <a class="btn btn-sm vpms-btn-secondary" href="@Model.BuildRouteFor(Model.EffectiveStartDate.AddDays(-Model.Days))">Previous</a>
@@ -129,6 +154,18 @@ else
 {
     <section class="vpms-room-calendar-shell" aria-label="Interactive room calendar">
         <div class="vpms-room-calendar-grid" style="@calendarStyle">
+            <div class="vpms-calendar-month-row">
+                <div class="vpms-calendar-month-head">
+                    <span>Stay Timeline</span>
+                    <small>@Model.BusinessDate.ToString("dddd, MMM d")</small>
+                </div>
+                @foreach (var month in monthBands)
+                {
+                    <div class="vpms-calendar-month-band" style="grid-column: @month.Start / span @month.Span;">
+                        @month.Label
+                    </div>
+                }
+            </div>
             <div class="vpms-calendar-header-row">
                 <div class="vpms-calendar-room-head">
                     <span>Physical Rooms</span>
@@ -174,7 +211,7 @@ else
                     @foreach (var room in group.Rooms)
                     {
                         var roomStatusClass = room.Status.ToString().ToLowerInvariant();
-                        var searchText = $"{room.RoomNumber} {room.RoomTypeName} {room.PropertyName} {string.Join(' ', room.ReservationBars.Select(bar => bar.GuestName))}";
+                        var searchText = $"{room.RoomNumber} room {room.RoomTypeName} {room.PropertyName} {string.Join(' ', room.ReservationBars.Select(bar => $"{bar.GuestName} {bar.ConfirmationNumber}"))}";
                         <div class="vpms-calendar-room-row status-@roomStatusClass" data-room-search="@searchText">
                             <div class="vpms-calendar-room-label">
                                 <div>
@@ -202,17 +239,52 @@ else
                                 var cellClass = string.Join(" ", new[]
                                 {
                                     cell.IsToday ? "is-today" : string.Empty,
+                                    cell.IsCurrentOccupied ? "is-current-occupied" : string.Empty,
+                                    cell.IsCurrentDirty ? "is-current-dirty" : string.Empty,
+                                    cell.IsCurrentReady ? "is-current-ready" : string.Empty,
                                     cell.IsUnavailable ? "is-unavailable" : string.Empty,
                                     cell.IsStopSell ? "is-stop-sell" : string.Empty,
                                     cell.HasOpenTask ? "has-task" : string.Empty,
                                     cell.HasUrgentTask ? "has-urgent-task" : string.Empty
                                 }.Where(value => !string.IsNullOrWhiteSpace(value)));
+                                var cellFocusText = IndexModel.BuildCellFocusText(room, cell);
+                                var cellActionUrl = Url.Page("/FrontOffice/Reservations/Create", new
+                                {
+                                    roomId = room.RoomId,
+                                    arrivalDate = arrival,
+                                    departureDate = departure
+                                }) ?? "#";
                                 <a class="vpms-calendar-cell @cellClass"
                                    asp-page="/FrontOffice/Reservations/Create"
                                    asp-route-roomId="@room.RoomId"
                                    asp-route-arrivalDate="@arrival"
                                    asp-route-departureDate="@departure"
+                                   data-quick-reservation
+                                   data-room-id="@room.RoomId"
+                                   data-room-number="@room.RoomNumber"
+                                   data-room-type="@room.RoomTypeName"
+                                   data-room-status="@IndexModel.FormatEnum(room.Status.ToString())"
+                                   data-arrival="@arrival"
+                                   data-departure="@departure"
+                                   data-rate="@room.BaseRate.ToString("0.##", global::System.Globalization.CultureInfo.InvariantCulture)"
+                                   data-calendar-inspector
+                                   data-inspector-title="Room @room.RoomNumber - @cellTitleDate"
+                                   data-inspector-detail="@cellFocusText"
+                                   data-inspector-action="Create Reservation"
+                                   data-inspector-url="@cellActionUrl"
                                    title="Create reservation for Room @room.RoomNumber on @cellTitleDate">
+                                    @if (cell.IsCurrentOccupied)
+                                    {
+                                        <span class="vpms-cell-marker occupied">OCC</span>
+                                    }
+                                    else if (cell.IsCurrentDirty)
+                                    {
+                                        <span class="vpms-cell-marker dirty">Dirty</span>
+                                    }
+                                    else if (cell.IsCurrentReady)
+                                    {
+                                        <span class="vpms-cell-marker ready">Ready</span>
+                                    }
                                     @if (cell.HasArrival)
                                     {
                                         <span class="vpms-cell-marker arrival">CI</span>
@@ -240,10 +312,16 @@ else
                                         var barStatusClass = bar.Status.ToString().ToLowerInvariant();
                                         var barClass = $"{barStatusClass} {(bar.IsContinuedBefore ? "continues-before" : "")} {(bar.IsContinuedAfter ? "continues-after" : "")}";
                                         var stayTitle = $"{bar.GuestName} - {bar.ConfirmationNumber} - {bar.ArrivalDate:MMM d} to {bar.DepartureDate:MMM d}";
+                                        var stayUrl = Url.Page("/FrontOffice/Reservations/Details", new { id = bar.ReservationId }) ?? "#";
                                         <a class="vpms-stay-bar @barClass"
                                            asp-page="/FrontOffice/Reservations/Details"
                                            asp-route-id="@bar.ReservationId"
                                            style="grid-column: @bar.StartOffset / span @bar.Span;"
+                                           data-calendar-inspector
+                                           data-inspector-title="@bar.GuestName"
+                                           data-inspector-detail="@bar.ConfirmationNumber - @IndexModel.FormatEnum(bar.Status.ToString()) - @bar.ArrivalDate.ToString("MMM d") to @bar.DepartureDate.ToString("MMM d")"
+                                           data-inspector-action="Open Reservation"
+                                           data-inspector-url="@stayUrl"
                                            title="@stayTitle">
                                             <span>@bar.GuestName</span>
                                             <small>@IndexModel.FormatEnum(bar.Status.ToString())</small>
@@ -269,3 +347,297 @@ else
         <a class="btn vpms-btn-secondary" asp-page="/Housekeeping/Tasks/Index">Housekeeping Tasks</a>
     </div>
 </section>
+
+<div class="modal fade vpms-command-modal vpms-quick-reservation-modal" id="quickReservationModal" tabindex="-1" aria-labelledby="quickReservationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <span class="page-kicker">Room Calendar Workflow</span>
+                    <h2 class="modal-title" id="quickReservationModalLabel">Create Stay Without Leaving Calendar</h2>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="QuickReservation" id="quickReservationForm" class="vpms-modal-reservation-form">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="vpms-quick-reservation-summary">
+                        <article>
+                            <span>Selected Room</span>
+                            <strong id="quickReservationRoomLabel">Room not selected</strong>
+                            <small id="quickReservationRoomMeta">Choose an open calendar cell.</small>
+                        </article>
+                        <article>
+                            <span>Stay Date</span>
+                            <strong id="quickReservationStayLabel">Pending</strong>
+                            <small>Adjust dates before confirming if this is a multi-night stay.</small>
+                        </article>
+                    </div>
+
+                    <div class="alert alert-danger vpms-alert d-none" id="quickReservationError" role="alert"></div>
+                    <div class="alert alert-success vpms-alert d-none" id="quickReservationSuccess" role="status"></div>
+
+                    <input type="hidden" asp-for="QuickReservation.RoomId" id="QuickReservation_RoomId" />
+
+                    <div class="vpms-modal-form-grid">
+                        <div class="vpms-modal-field wide">
+                            <label asp-for="QuickReservation.GuestId" class="form-label">Guest</label>
+                            <select asp-for="QuickReservation.GuestId" class="form-select" asp-items="Model.ReservationGuestOptions">
+                                <option value="">Select guest profile</option>
+                            </select>
+                            <small class="form-text">For a new guest profile, use the full reservation workflow.</small>
+                        </div>
+                        <div class="vpms-modal-field">
+                            <label asp-for="QuickReservation.ArrivalDate" class="form-label">Check-in</label>
+                            <input asp-for="QuickReservation.ArrivalDate" class="form-control" type="date" id="QuickReservation_ArrivalDate" />
+                        </div>
+                        <div class="vpms-modal-field">
+                            <label asp-for="QuickReservation.DepartureDate" class="form-label">Check-out</label>
+                            <input asp-for="QuickReservation.DepartureDate" class="form-control" type="date" id="QuickReservation_DepartureDate" />
+                        </div>
+                        <div class="vpms-modal-field">
+                            <label asp-for="QuickReservation.RatePlanId" class="form-label">Rate Plan</label>
+                            <select asp-for="QuickReservation.RatePlanId" class="form-select" asp-items="Model.ReservationRatePlanOptions">
+                                <option value="">Use room base rate</option>
+                            </select>
+                        </div>
+                        <div class="vpms-modal-field">
+                            <label asp-for="QuickReservation.RateAmount" class="form-label">Rate Amount</label>
+                            <input asp-for="QuickReservation.RateAmount" class="form-control" type="number" min="0" step="0.01" id="QuickReservation_RateAmount" />
+                        </div>
+                        <div class="vpms-modal-field">
+                            <label asp-for="QuickReservation.Adults" class="form-label">Adults</label>
+                            <input asp-for="QuickReservation.Adults" class="form-control" type="number" min="0" value="1" />
+                        </div>
+                        <div class="vpms-modal-field">
+                            <label asp-for="QuickReservation.Children" class="form-label">Children</label>
+                            <input asp-for="QuickReservation.Children" class="form-control" type="number" min="0" value="0" />
+                        </div>
+                        <div class="vpms-modal-field">
+                            <label asp-for="QuickReservation.Status" class="form-label">Status</label>
+                            <select asp-for="QuickReservation.Status" class="form-select" asp-items="Model.ReservationStatusOptions"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn vpms-btn-secondary" id="quickReservationFullPageLink" asp-page="/FrontOffice/Reservations/Create">Full Workflow</a>
+                    <button type="button" class="btn vpms-btn-secondary d-none" id="quickReservationRefresh">Refresh Calendar</button>
+                    <button type="button" class="btn vpms-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn vpms-btn-primary" id="quickReservationSubmit">Create Stay</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const searchInput = document.querySelector('[data-vpms-calendar-search]');
+            const roomRows = Array.from(document.querySelectorAll('.vpms-calendar-room-row[data-room-search]'));
+            const focusTitle = document.getElementById('vpmsCalendarFocusTitle');
+            const focusDetail = document.getElementById('vpmsCalendarFocusDetail');
+            const focusAction = document.getElementById('vpmsCalendarFocusAction');
+            const quickReservationModal = document.getElementById('quickReservationModal');
+            const quickReservationForm = document.getElementById('quickReservationForm');
+            const quickReservationSubmit = document.getElementById('quickReservationSubmit');
+            const quickReservationError = document.getElementById('quickReservationError');
+            const quickReservationSuccess = document.getElementById('quickReservationSuccess');
+            const quickReservationRoomLabel = document.getElementById('quickReservationRoomLabel');
+            const quickReservationRoomMeta = document.getElementById('quickReservationRoomMeta');
+            const quickReservationStayLabel = document.getElementById('quickReservationStayLabel');
+            const quickReservationFullPageLink = document.getElementById('quickReservationFullPageLink');
+            const quickReservationRefresh = document.getElementById('quickReservationRefresh');
+            const modalInstance = quickReservationModal && window.bootstrap
+                ? new bootstrap.Modal(quickReservationModal)
+                : null;
+
+            const updateGroupVisibility = () => {
+                document.querySelectorAll('.vpms-calendar-type-group').forEach(group => {
+                    const visibleRows = group.querySelectorAll('.vpms-calendar-room-row:not([hidden])').length;
+                    group.hidden = visibleRows === 0;
+                });
+            };
+
+            if (searchInput && roomRows.length) {
+                searchInput.addEventListener('input', () => {
+                    const terms = searchInput.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+                    roomRows.forEach(row => {
+                        const haystack = (row.dataset.roomSearch || '').toLowerCase();
+                        row.hidden = terms.length > 0 && !terms.every(term => haystack.includes(term));
+                    });
+                    updateGroupVisibility();
+                });
+            }
+
+            const setFocus = (element) => {
+                if (!focusTitle || !focusDetail || !focusAction) {
+                    return;
+                }
+
+                focusTitle.textContent = element.dataset.inspectorTitle || 'Room Calendar';
+                focusDetail.textContent = element.dataset.inspectorDetail || 'Select a room, stay, or date to continue.';
+                focusAction.textContent = element.dataset.inspectorAction || 'Open';
+                focusAction.href = element.dataset.inspectorUrl || element.getAttribute('href') || '#';
+            };
+
+            const formatDate = (value) => {
+                if (!value) {
+                    return 'Pending';
+                }
+
+                const [year, month, day] = value.split('-').map(Number);
+                if (!year || !month || !day) {
+                    return value;
+                }
+
+                return new Date(year, month - 1, day).toLocaleDateString(undefined, {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            };
+
+            const setAlert = (element, message, visible) => {
+                if (!element) {
+                    return;
+                }
+
+                element.textContent = message || '';
+                element.classList.toggle('d-none', !visible);
+            };
+
+            const clearModalFeedback = () => {
+                setAlert(quickReservationError, '', false);
+                setAlert(quickReservationSuccess, '', false);
+            };
+
+            const openQuickReservation = (trigger) => {
+                if (!quickReservationForm || !modalInstance) {
+                    return false;
+                }
+
+                clearModalFeedback();
+                quickReservationForm.reset();
+
+                const roomId = trigger.dataset.roomId || '';
+                const arrival = trigger.dataset.arrival || '';
+                const departure = trigger.dataset.departure || '';
+                const rate = trigger.dataset.rate || '0';
+                const roomNumber = trigger.dataset.roomNumber || 'Selected room';
+                const roomType = trigger.dataset.roomType || 'Room type pending';
+                const roomStatus = trigger.dataset.roomStatus || 'Status pending';
+
+                quickReservationForm.querySelector('[name="QuickReservation.RoomId"]').value = roomId;
+                quickReservationForm.querySelector('[name="QuickReservation.ArrivalDate"]').value = arrival;
+                quickReservationForm.querySelector('[name="QuickReservation.DepartureDate"]').value = departure;
+                quickReservationForm.querySelector('[name="QuickReservation.RateAmount"]').value = rate;
+                quickReservationForm.querySelector('[name="QuickReservation.Adults"]').value = '1';
+                quickReservationForm.querySelector('[name="QuickReservation.Children"]').value = '0';
+
+                if (quickReservationRoomLabel) {
+                    quickReservationRoomLabel.textContent = `Room ${roomNumber}`;
+                }
+
+                if (quickReservationRoomMeta) {
+                    quickReservationRoomMeta.textContent = `${roomType} - ${roomStatus}`;
+                }
+
+                if (quickReservationStayLabel) {
+                    quickReservationStayLabel.textContent = `${formatDate(arrival)} to ${formatDate(departure)}`;
+                }
+
+                if (quickReservationFullPageLink) {
+                    quickReservationFullPageLink.href = trigger.dataset.inspectorUrl || trigger.getAttribute('href') || quickReservationFullPageLink.href;
+                }
+
+                if (quickReservationSubmit) {
+                    quickReservationSubmit.disabled = false;
+                    quickReservationSubmit.textContent = 'Create Stay';
+                }
+
+                if (quickReservationRefresh) {
+                    quickReservationRefresh.classList.add('d-none');
+                }
+
+                modalInstance.show();
+                return true;
+            };
+
+            document.querySelectorAll('[data-calendar-inspector]').forEach(element => {
+                element.addEventListener('mouseenter', () => setFocus(element));
+                element.addEventListener('focus', () => setFocus(element));
+            });
+
+            document.querySelectorAll('[data-quick-reservation]').forEach(element => {
+                element.addEventListener('click', event => {
+                    if (!openQuickReservation(element)) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                });
+            });
+
+            if (quickReservationForm) {
+                quickReservationForm.addEventListener('submit', async event => {
+                    event.preventDefault();
+                    clearModalFeedback();
+
+                    if (quickReservationSubmit) {
+                        quickReservationSubmit.disabled = true;
+                        quickReservationSubmit.textContent = 'Creating...';
+                    }
+
+                    try {
+                        const response = await fetch(quickReservationForm.action, {
+                            method: 'POST',
+                            body: new FormData(quickReservationForm),
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        const payload = await response.json();
+
+                        if (!response.ok || !payload.success) {
+                            const fieldMessages = payload.errors
+                                ? Object.values(payload.errors).flat()
+                                : [];
+                            setAlert(
+                                quickReservationError,
+                                [payload.message, ...fieldMessages].filter(Boolean).join(' '),
+                                true);
+                            return;
+                        }
+
+                        setAlert(quickReservationSuccess, `${payload.message} Keep working here, refresh the calendar, or open the reservation.`, true);
+
+                        if (quickReservationFullPageLink && payload.reservationUrl) {
+                            quickReservationFullPageLink.href = payload.reservationUrl;
+                            quickReservationFullPageLink.textContent = 'Open Reservation';
+                        }
+
+                        if (quickReservationSubmit) {
+                            quickReservationSubmit.textContent = 'Created';
+                            quickReservationSubmit.disabled = true;
+                        }
+
+                        if (quickReservationRefresh) {
+                            quickReservationRefresh.classList.remove('d-none');
+                        }
+                    } catch {
+                        setAlert(quickReservationError, 'The reservation could not be created. Check the form and try again.', true);
+                    } finally {
+                        if (quickReservationSubmit && quickReservationSubmit.textContent !== 'Refresh Calendar') {
+                            quickReservationSubmit.disabled = false;
+                            quickReservationSubmit.textContent = 'Create Stay';
+                        }
+                    }
+                });
+            }
+
+            quickReservationRefresh?.addEventListener('click', () => window.location.reload());
+        })();
+    </script>
+}
