@@ -25,11 +25,11 @@
         </div>
     </div>
     <div class="vpms-hero-actions">
-        <a class="btn vpms-btn-primary" asp-page="./PostCharge" asp-route-folioId="@Model.Folio.Id">Post Charge</a>
-        <a class="btn vpms-btn-secondary" asp-page="./PostPayment" asp-route-folioId="@Model.Folio.Id">Post Payment</a>
+        <a class="btn vpms-btn-primary" asp-page="./PostCharge" asp-route-folioId="@Model.Folio.Id" data-vpms-dialog-title="Post Folio Charge">Post Charge</a>
+        <a class="btn vpms-btn-secondary" asp-page="./PostPayment" asp-route-folioId="@Model.Folio.Id" data-vpms-dialog-title="Post Folio Payment">Post Payment</a>
         @if (Model.Folio.Reservation?.Status == Vantage.PMS.Models.FrontOffice.ReservationStatus.CheckedIn)
         {
-            <a class="btn btn-warning" asp-page="/FrontOffice/Reservations/CheckOut" asp-route-id="@Model.Folio.ReservationId">Check Out</a>
+            <a class="btn btn-warning" asp-page="/FrontOffice/Reservations/CheckOut" asp-route-id="@Model.Folio.ReservationId" data-vpms-dialog-title="Guest Check Out">Check Out</a>
         }
     </div>
 </section>
@@ -120,7 +120,7 @@
             <h2>Charges</h2>
             <p>Posted folio items, void flags, and posting responsibility.</p>
         </div>
-        <a class="btn vpms-btn-secondary" asp-page="./PostCharge" asp-route-folioId="@Model.Folio.Id">Post Charge</a>
+        <a class="btn vpms-btn-secondary" asp-page="./PostCharge" asp-route-folioId="@Model.Folio.Id" data-vpms-dialog-title="Post Folio Charge">Post Charge</a>
     </div>
 
     @if (chargeCount == 0)
@@ -172,7 +172,7 @@
             <h2>Payments</h2>
             <p>Collected payments, cashier traceability, and settlement references.</p>
         </div>
-        <a class="btn vpms-btn-secondary" asp-page="./PostPayment" asp-route-folioId="@Model.Folio.Id">Post Payment</a>
+        <a class="btn vpms-btn-secondary" asp-page="./PostPayment" asp-route-folioId="@Model.Folio.Id" data-vpms-dialog-title="Post Folio Payment">Post Payment</a>
     </div>
 
     @if (paymentCount == 0)

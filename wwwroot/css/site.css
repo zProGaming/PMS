@@ -10590,6 +10590,134 @@ html {
   border-top: 1px solid rgba(221, 229, 238, 0.88);
 }
 
+.vpms-dialog-frame {
+  min-height: auto;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(20, 184, 166, 0.08), transparent 32%),
+    #ffffff !important;
+}
+
+.vpms-dialog-frame-content {
+  display: block;
+  width: 100%;
+  max-width: 1180px;
+  min-height: 100vh;
+  padding: 1.05rem;
+  margin: 0 auto;
+  background: #ffffff;
+}
+
+.vpms-dialog-frame .vpms-ops-hero,
+.vpms-dialog-frame .vpms-enterprise-hero,
+.vpms-dialog-frame .page-header,
+.vpms-dialog-frame .d-flex.justify-content-between.align-items-center.mb-3 {
+  padding: 1rem 1.1rem;
+  margin-bottom: 0.9rem;
+  border-radius: 18px;
+}
+
+.vpms-dialog-frame .page-title,
+.vpms-dialog-frame h1 {
+  font-size: clamp(1.25rem, 2vw, 1.7rem);
+}
+
+.vpms-dialog-frame .vpms-workflow-meter {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+}
+
+.vpms-dialog-frame .vpms-workflow-meter article,
+.vpms-dialog-frame .vpms-form-section,
+.vpms-dialog-frame .vpms-form-card {
+  border-radius: 18px;
+}
+
+.vpms-dialog-frame .vpms-sticky-actions {
+  position: sticky;
+  bottom: 0.75rem;
+  z-index: 5;
+  margin-top: 0.85rem;
+  border-radius: 18px;
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.12);
+}
+
+.vpms-workflow-dialog .modal-dialog {
+  max-width: min(1180px, calc(100vw - 1.5rem));
+}
+
+.vpms-workflow-dialog .modal-content {
+  overflow: hidden;
+}
+
+.vpms-workflow-dialog .modal-header {
+  gap: 1rem;
+}
+
+.vpms-workflow-dialog-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-left: auto;
+}
+
+.vpms-workflow-dialog .modal-body {
+  position: relative;
+  min-height: min(760px, calc(100vh - 12rem));
+  padding: 0;
+  background: #ffffff !important;
+}
+
+.vpms-workflow-dialog iframe {
+  display: block;
+  width: 100%;
+  height: min(760px, calc(100vh - 12rem));
+  min-height: 560px;
+  border: 0;
+  background: #ffffff;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.vpms-workflow-dialog.is-loaded iframe {
+  opacity: 1;
+}
+
+.vpms-workflow-dialog-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  gap: 0.75rem;
+  align-content: center;
+  color: #0f172a;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(20, 184, 166, 0.16), transparent 28%),
+    rgba(248, 250, 252, 0.96);
+}
+
+.vpms-workflow-dialog-loading span {
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(20, 184, 166, 0.18);
+  border-top-color: #14b8a6;
+  border-radius: 999px;
+  animation: vpmsSpin 0.76s linear infinite;
+}
+
+.vpms-workflow-dialog-loading strong {
+  font-size: 0.9rem;
+  font-weight: 820;
+}
+
+@keyframes vpmsSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 575.98px) {
   .vpms-calendar-focus-panel {
     align-items: stretch;
@@ -10615,5 +10743,66 @@ html {
 
   .vpms-modal-reservation-form .modal-footer > * {
     width: 100%;
+  }
+
+  .vpms-workflow-dialog.modal {
+    padding: 0 !important;
+  }
+
+  .vpms-dialog-frame-content {
+    min-height: 100dvh;
+    padding: 0.85rem;
+  }
+
+  .vpms-dialog-frame .vpms-workflow-meter {
+    grid-template-columns: 1fr;
+  }
+
+  .vpms-workflow-dialog .modal-dialog {
+    align-items: stretch;
+    max-width: 100%;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100%;
+    margin: 0;
+  }
+
+  .vpms-workflow-dialog .modal-content {
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .vpms-workflow-dialog .modal-header {
+    align-items: flex-start;
+    min-height: 76px;
+    padding: 0.8rem 0.9rem;
+  }
+
+  .vpms-workflow-dialog-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .vpms-workflow-dialog .modal-title {
+    max-width: 12.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .vpms-workflow-dialog .page-kicker {
+    font-size: 0.62rem;
+  }
+
+  .vpms-workflow-dialog #vpmsWorkflowDialogOpenFull {
+    display: none;
+  }
+
+  .vpms-workflow-dialog .modal-body,
+  .vpms-workflow-dialog iframe {
+    height: calc(100dvh - 76px);
+    min-height: calc(100dvh - 76px);
   }
 }

@@ -29,6 +29,7 @@
     var isGlobalAdminCompany = string.Equals(User.FindFirst("Vantage.IsGlobalAdmin")?.Value, "True", StringComparison.OrdinalIgnoreCase);
     var bodyClass = (string?)ViewData["BodyClass"] ?? string.Empty;
     var isLoginScreen = bodyClass.Contains("vpms-login-screen", StringComparison.Ordinal);
+    var isWorkflowDialogFrame = string.Equals(Context.Request.Query["vpmsDialog"], "1", StringComparison.OrdinalIgnoreCase);
 }
 <html lang="en">
 <head>
@@ -41,7 +42,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Vantage.PMS.styles.css" asp-append-version="true" />
 </head>
-<body class="vpms-body app-body @bodyClass">
+<body class="vpms-body app-body @bodyClass @(isWorkflowDialogFrame ? "vpms-dialog-frame" : "")">
     @if (!isAuthenticated)
     {
         <div class="vpms-public-shell public-shell auth-shell">
@@ -66,6 +67,14 @@
                 </div>
             </main>
         </div>
+    }
+    else
+    {
+    @if (isWorkflowDialogFrame)
+    {
+        <main role="main" class="vpms-dialog-frame-content">
+            @RenderBody()
+        </main>
     }
     else
     {
@@ -443,6 +452,30 @@
             </footer>
         </div>
     </div>
+    <div class="modal fade vpms-command-modal vpms-workflow-dialog" id="vpmsWorkflowDialog" tabindex="-1" aria-labelledby="vpmsWorkflowDialogTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <span class="page-kicker">Workflow Dialog</span>
+                        <h2 class="modal-title" id="vpmsWorkflowDialogTitle">Quick Workflow</h2>
+                    </div>
+                    <div class="vpms-workflow-dialog-actions">
+                        <a class="btn btn-sm vpms-btn-secondary" id="vpmsWorkflowDialogOpenFull" href="#">Open Full Page</a>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="vpms-workflow-dialog-loading" id="vpmsWorkflowDialogLoading">
+                        <span></span>
+                        <strong>Preparing workflow</strong>
+                    </div>
+                    <iframe id="vpmsWorkflowDialogFrame" title="Vantage PMS workflow dialog"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
     }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

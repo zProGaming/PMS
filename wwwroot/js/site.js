@@ -658,6 +658,202 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  const workflowDialog = document.getElementById("vpmsWorkflowDialog");
+  const workflowDialogFrame = document.getElementById("vpmsWorkflowDialogFrame");
+  const workflowDialogTitle = document.getElementById("vpmsWorkflowDialogTitle");
+  const workflowDialogOpenFull = document.getElementById("vpmsWorkflowDialogOpenFull");
+  const workflowDialogLoading = document.getElementById("vpmsWorkflowDialogLoading");
+  const workflowDialogInstance = workflowDialog && window.bootstrap
+    ? bootstrap.Modal.getOrCreateInstance(workflowDialog)
+    : null;
+  let workflowDialogInitialPath = "";
+  let workflowDialogHasLoaded = false;
+  const isInWorkflowDialogFrame = document.body.classList.contains("vpms-dialog-frame");
+
+  const isInternalWorkflowUrl = (url) =>
+    url.origin === window.location.origin &&
+    !url.pathname.startsWith("/Identity/") &&
+    !url.pathname.startsWith("/Booking/") &&
+    !url.pathname.startsWith("/GuestPortal/") &&
+    !url.pathname.includes("/Print");
+
+  if (isInWorkflowDialogFrame) {
+    document.addEventListener("submit", (event) => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement)) {
+        return;
+      }
+
+      try {
+        const actionUrl = new URL(form.action || window.location.href, window.location.origin);
+        if (!isInternalWorkflowUrl(actionUrl)) {
+          return;
+        }
+
+        actionUrl.searchParams.set("vpmsDialog", "1");
+        form.action = actionUrl.toString();
+      } catch {
+        // Preserve the standard submit if the browser cannot parse the action.
+      }
+    }, true);
+
+    document.addEventListener("click", (event) => {
+      const link = event.target?.closest?.("a[href]");
+      if (!link || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
+        return;
+      }
+
+      const label = normalizeLabel(link.textContent);
+      if (/^(back|cancel|return|close)$/.test(label) || link.dataset.vpmsDialogClose !== undefined) {
+        event.preventDefault();
+        window.parent?.postMessage({ type: "vpms:workflow-dialog-close", reload: false }, window.location.origin);
+        return;
+      }
+
+      if (link.target || link.hasAttribute("download") || link.dataset.vpmsNoDialog !== undefined) {
+        return;
+      }
+
+      try {
+        const url = new URL(link.href, window.location.origin);
+        if (!isInternalWorkflowUrl(url)) {
+          return;
+        }
+
+        url.searchParams.set("vpmsDialog", "1");
+        event.preventDefault();
+        window.location.href = url.toString();
+      } catch {
+        // Keep default navigation when a URL cannot be normalized.
+      }
+    });
+  }
+
+  const isWorkflowDialogCandidate = (link) => {
+    if (!workflowDialogInstance || !workflowDialogFrame || !link?.href) {
+      return false;
+    }
+
+    if (link.dataset.vpmsNoDialog !== undefined ||
+      link.dataset.quickReservation !== undefined ||
+      link.target ||
+      link.hasAttribute("download") ||
+      link.closest(".modal") ||
+      link.closest(".vpms-room-calendar-shell")) {
+      return false;
+    }
+
+    let url;
+    try {
+      url = new URL(link.href, window.location.origin);
+    } catch {
+      return false;
+    }
+
+    if (url.origin !== window.location.origin ||
+      url.pathname.startsWith("/Identity/") ||
+      url.pathname.startsWith("/Booking/") ||
+      url.pathname.startsWith("/GuestPortal/") ||
+      url.pathname.includes("/Print")) {
+      return false;
+    }
+
+    if (link.dataset.vpmsDialog !== undefined) {
+      return true;
+    }
+
+    const isInOperationalSurface = link.closest(".vpms-content, .app-commandbar") !== null;
+    const label = normalizeLabel(link.textContent);
+    const path = url.pathname.toLowerCase();
+    const createLikePath = /\/(create|postcharge|postpayment|checkin|checkout|close)$/.test(path);
+    const createLikeLabel = /^(new|create|add|post|check in|check out|allocate)/.test(label);
+
+    return isInOperationalSurface && createLikePath && createLikeLabel;
+  };
+
+  const openWorkflowDialog = (link) => {
+    const url = new URL(link.href, window.location.origin);
+    workflowDialogInitialPath = url.pathname.toLowerCase();
+    workflowDialogHasLoaded = false;
+    url.searchParams.set("vpmsDialog", "1");
+
+    if (workflowDialogTitle) {
+      workflowDialogTitle.textContent = link.dataset.vpmsDialogTitle || (link.textContent || "Quick Workflow").trim() || "Quick Workflow";
+    }
+
+    if (workflowDialogOpenFull) {
+      workflowDialogOpenFull.href = link.href;
+    }
+
+    workflowDialog?.classList.remove("is-loaded");
+    workflowDialogLoading?.classList.remove("d-none");
+    workflowDialogFrame.src = url.toString();
+    workflowDialogInstance.show();
+  };
+
+  document.addEventListener("click", (event) => {
+    const link = event.target?.closest?.("a[href]");
+    if (!link || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
+      return;
+    }
+
+    if (!isWorkflowDialogCandidate(link)) {
+      return;
+    }
+
+    event.preventDefault();
+    openWorkflowDialog(link);
+  });
+
+  workflowDialogFrame?.addEventListener("load", () => {
+    workflowDialog?.classList.add("is-loaded");
+    workflowDialogLoading?.classList.add("d-none");
+
+    let frameUrl;
+    try {
+      frameUrl = new URL(workflowDialogFrame.contentWindow.location.href);
+    } catch {
+      return;
+    }
+
+    const isBlank = frameUrl.href === "about:blank";
+    if (isBlank) {
+      return;
+    }
+
+    const isDialogFrame = frameUrl.searchParams.get("vpmsDialog") === "1";
+    const framePath = frameUrl.pathname.toLowerCase();
+    if (workflowDialogHasLoaded && !isDialogFrame && framePath !== workflowDialogInitialPath) {
+      workflowDialogInstance?.hide();
+      window.location.reload();
+      return;
+    }
+
+    workflowDialogHasLoaded = true;
+  });
+
+  window.addEventListener("message", (event) => {
+    if (event.origin !== window.location.origin || event.data?.type !== "vpms:workflow-dialog-close") {
+      return;
+    }
+
+    workflowDialogInstance?.hide();
+    if (event.data.reload) {
+      window.location.reload();
+    }
+  });
+
+  workflowDialog?.addEventListener("hidden.bs.modal", () => {
+    if (workflowDialogFrame) {
+      workflowDialogFrame.src = "about:blank";
+    }
+
+    workflowDialog?.classList.remove("is-loaded");
+    workflowDialogLoading?.classList.remove("d-none");
+    workflowDialogInitialPath = "";
+    workflowDialogHasLoaded = false;
+  });
+
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const interactiveSurfaceSelector = [
     ".vpms-card",

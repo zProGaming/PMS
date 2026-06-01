@@ -21,7 +21,7 @@
     </div>
     <div class="vpms-hero-actions">
         <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/RoomRack/Index">Room Calendar</a>
-        <a class="btn vpms-btn-primary" asp-page="/Housekeeping/Tasks/Create">Create Task</a>
+        <a class="btn vpms-btn-primary" asp-page="/Housekeeping/Tasks/Create" data-vpms-dialog data-vpms-dialog-title="Create Housekeeping Task">Create Task</a>
     </div>
 </section>
 
@@ -119,8 +119,8 @@
                         <div class="vpms-room-note">@room.StatusNotes</div>
                     }
                     <div class="vpms-room-actions">
-                        <a class="btn btn-sm vpms-btn-secondary" asp-page="/Housekeeping/Rooms/UpdateStatus" asp-route-id="@room.Id">Update</a>
-                        <a class="btn btn-sm btn-outline-secondary" asp-page="/Housekeeping/Tasks/Create" asp-route-roomId="@room.Id">Task</a>
+                        <a class="btn btn-sm vpms-btn-secondary" asp-page="/Housekeeping/Rooms/UpdateStatus" asp-route-id="@room.Id" data-vpms-dialog data-vpms-dialog-title="Update Room Status">Update</a>
+                        <a class="btn btn-sm btn-outline-secondary" asp-page="/Housekeeping/Tasks/Create" asp-route-roomId="@room.Id" data-vpms-dialog data-vpms-dialog-title="Create Room Task">Task</a>
                     </div>
                 </article>
             }
