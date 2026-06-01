@@ -89,7 +89,9 @@
                             </div>
                         </td>
                         <td><span class="status-badge @(setting.IsActive ? "status-paid" : "status-cancelled")">@(setting.IsActive ? "Active" : "Inactive")</span></td>
-                        <td><input class="form-control form-control-sm" name="notes" value="@setting.Notes" form="cash-setting-@setting.Id" /></td>
+                        <td>
+                            <textarea class="form-control form-control-sm vpms-inline-note" name="notes" rows="2" form="cash-setting-@setting.Id">@setting.Notes</textarea>
+                        </td>
                         <td class="text-end">
                             <form id="cash-setting-@setting.Id" method="post" asp-page-handler="Update" asp-route-id="@setting.Id" class="d-inline">
                                 <input type="hidden" name="isCashOnHand" value="false" />

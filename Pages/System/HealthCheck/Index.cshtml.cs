@@ -100,21 +100,27 @@ public class IndexModel(ApplicationDbContext context, DataValidationService vali
             cleanBankReconciliations,
             openCashierShifts);
 
-        ModuleSummaries = await openIssues
+        var moduleSummaryRows = await openIssues
             .GroupBy(issue => issue.Module)
-            .Select(group => new ModuleHealthSummary(
-                group.Key,
-                group.Count(),
-                group.Count(issue => issue.Severity == SystemSeverity.Critical),
-                group.Count(issue => issue.Severity == SystemSeverity.High),
-                group.Count(issue => issue.Severity == SystemSeverity.Medium),
-                group.Count(issue => issue.Severity == SystemSeverity.Low)))
+            .Select(group => new
+            {
+                Module = group.Key,
+                Total = group.Count(),
+                Critical = group.Count(issue => issue.Severity == SystemSeverity.Critical),
+                High = group.Count(issue => issue.Severity == SystemSeverity.High),
+                Medium = group.Count(issue => issue.Severity == SystemSeverity.Medium),
+                Low = group.Count(issue => issue.Severity == SystemSeverity.Low)
+            })
+            .ToListAsync();
+
+        ModuleSummaries = moduleSummaryRows
+            .Select(row => new ModuleHealthSummary(row.Module, row.Total, row.Critical, row.High, row.Medium, row.Low))
             .OrderByDescending(summary => summary.Critical)
             .ThenByDescending(summary => summary.High)
             .ThenByDescending(summary => summary.Medium)
             .ThenBy(summary => summary.Module)
             .Take(20)
-            .ToListAsync();
+            .ToList();
 
         var query = allIssues;
         if (!IncludeResolved)

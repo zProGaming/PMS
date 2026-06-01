@@ -4,46 +4,74 @@
     ViewData["Title"] = "Guest Feedback";
 }
 
-<h1 class="h3 mb-3">Guest Feedback</h1>
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Guest Experience</div>
+        <h1 class="page-title">Guest Feedback</h1>
+        <p class="page-subtitle">Review ratings, recovery notes, and unresolved guest experience signals from the portal.</p>
+    </div>
+</div>
 
 @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
 {
     <div class="alert alert-info">@Model.StatusMessage</div>
 }
 
-<div class="table-responsive">
-    <table class="table table-striped table-hover align-middle">
-        <thead>
-            <tr>
-                <th>Submitted</th>
-                <th>Guest</th>
-                <th>Reservation</th>
-                <th>Rating</th>
-                <th>Comments</th>
-                <th>Resolved</th>
-                <th>Resolution Notes</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var feedback in Model.Feedbacks)
-            {
-                <tr>
-                    <td>@feedback.SubmittedAt.ToString("g")</td>
-                    <td>@feedback.Guest?.FirstName @feedback.Guest?.LastName</td>
-                    <td>@feedback.Reservation?.ConfirmationNumber</td>
-                    <td>@feedback.Rating</td>
-                    <td>@feedback.Comments</td>
-                    <td>@(feedback.IsResolved ? "Yes" : "No")</td>
-                    <td>@feedback.ResolutionNotes</td>
-                    <td class="text-end">
-                        <form method="post" class="d-flex gap-2 justify-content-end" asp-page-handler="Resolve" asp-route-id="@feedback.Id">
-                            <input name="resolutionNotes" class="form-control form-control-sm" placeholder="Resolution notes" />
-                            <button class="btn btn-sm btn-outline-success">Resolve</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+<section class="vpms-card">
+    @if (!Model.Feedbacks.Any())
+    {
+        <div class="vpms-empty-state">
+            <h2>No guest feedback yet</h2>
+            <p>Feedback from the guest portal will appear here for follow-up and service recovery tracking.</p>
+        </div>
+    }
+    else
+    {
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Submitted</th>
+                        <th>Guest</th>
+                        <th>Reservation</th>
+                        <th>Rating</th>
+                        <th>Comments</th>
+                        <th>Status</th>
+                        <th>Resolution Notes</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var feedback in Model.Feedbacks)
+                    {
+                        <tr>
+                            <td>@feedback.SubmittedAt.ToString("MMM d, yyyy h:mm tt")</td>
+                            <td>
+                                <div class="fw-semibold">@feedback.Guest?.FirstName @feedback.Guest?.LastName</div>
+                                <div class="text-muted small">Guest portal feedback</div>
+                            </td>
+                            <td>@(feedback.Reservation?.ConfirmationNumber ?? "Unlinked")</td>
+                            <td><span class="status-badge">@feedback.Rating / 5</span></td>
+                            <td>@(string.IsNullOrWhiteSpace(feedback.Comments) ? "No written comment" : feedback.Comments)</td>
+                            <td><span class="status-badge @(feedback.IsResolved ? "status-paid" : "status-warning")">@(feedback.IsResolved ? "Resolved" : "Open")</span></td>
+                            <td>@(string.IsNullOrWhiteSpace(feedback.ResolutionNotes) ? "Awaiting recovery note" : feedback.ResolutionNotes)</td>
+                            <td class="text-end">
+                                @if (!feedback.IsResolved)
+                                {
+                                    <form method="post" class="vpms-inline-action-form" asp-page-handler="Resolve" asp-route-id="@feedback.Id">
+                                        <input name="resolutionNotes" class="form-control form-control-sm" placeholder="Resolution notes" />
+                                        <button class="btn btn-sm vpms-btn-secondary" type="submit">Resolve</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Complete</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

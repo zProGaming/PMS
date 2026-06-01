@@ -10109,6 +10109,40 @@ html {
   overflow-wrap: anywhere;
 }
 
+.vpms-table .btn,
+.vpms-content .table .btn,
+.vpms-content .table td:last-child .btn,
+.vpms-content .table td.text-end .btn {
+  width: auto;
+  min-width: max-content;
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.vpms-table .form-control,
+.vpms-table .form-select,
+.vpms-content .table .form-control,
+.vpms-content .table .form-select {
+  min-width: 10rem;
+}
+
+.vpms-table .vpms-inline-note,
+.vpms-content .table .vpms-inline-note {
+  min-width: 18rem;
+  min-height: 2.7rem;
+  resize: vertical;
+}
+
+.vpms-inline-action-form {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  min-width: 20rem;
+}
+
 .vpms-card > :first-child:not(.vpms-table-wrapper):not(.table-responsive):not(.card-header):not(.vpms-card-header),
 .vpms-card > form:first-child,
 .vpms-card > dl:first-child,
@@ -10133,7 +10167,14 @@ html {
 .page-actions .btn {
   min-height: 38px;
   border-radius: 12px;
+  overflow: visible;
+  text-overflow: clip;
   white-space: nowrap;
+}
+
+.vpms-content .btn {
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .vpms-enterprise-hero {
