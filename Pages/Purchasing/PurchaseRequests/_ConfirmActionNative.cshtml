@@ -1,0 +1,32 @@
+@model Vantage.PMS.Pages.Purchasing.PurchaseRequests.DetailsModel
+
+@{
+    var total = Model.PurchaseRequest.Items.Sum(item => item.EstimatedAmount);
+}
+
+<div class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Purchasing control</div>
+    <h2>@Model.NativeActionTitle</h2>
+    <p>@Model.NativeActionMessage</p>
+
+    <div class="vpms-native-workflow-summary">
+        <span>Purchase Request</span>
+        <strong>@Model.PurchaseRequest.RequestNumber</strong>
+        <span>Status</span>
+        <strong>@Model.PurchaseRequest.Status</strong>
+        <span>Department</span>
+        <strong>@(Model.PurchaseRequest.Department?.Name ?? "General")</strong>
+        <span>Estimated Total</span>
+        <strong>@total.ToString("C")</strong>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.NativeActionSupport))
+    {
+        <div class="vpms-native-workflow-note">@Model.NativeActionSupport</div>
+    }
+
+    <form method="post" asp-page="./Details" asp-page-handler="@Model.NativeActionHandler" asp-route-id="@Model.PurchaseRequest.Id" class="vpms-native-workflow-actions">
+        <button type="submit" class="btn @Model.NativeActionButtonClass">@Model.NativeActionButtonText</button>
+        <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Reviewing</a>
+    </form>
+</div>

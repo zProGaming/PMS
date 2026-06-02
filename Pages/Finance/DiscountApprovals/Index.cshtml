@@ -41,12 +41,12 @@
                 <td class="text-end">
                     @if (discount.Status == ApprovalStatus.Pending)
                     {
-                        <form method="post" asp-page-handler="Approve" asp-route-id="@discount.Id" class="d-inline"><button class="btn btn-sm btn-success">Approve</button></form>
-                        <form method="post" asp-page-handler="Reject" asp-route-id="@discount.Id" class="d-inline"><button class="btn btn-sm btn-outline-danger">Reject</button></form>
+                        <a asp-page="./Index" asp-page-handler="ApproveNative" asp-route-id="@discount.Id" class="btn btn-sm btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Approve Discount">Approve</a>
+                        <a asp-page="./Index" asp-page-handler="RejectNative" asp-route-id="@discount.Id" class="btn btn-sm btn-outline-danger" data-vpms-native-dialog data-vpms-native-dialog-title="Reject Discount">Reject</a>
                     }
                     @if (discount.Status == ApprovalStatus.Approved)
                     {
-                        <form method="post" asp-page-handler="Apply" asp-route-id="@discount.Id" class="d-inline"><button class="btn btn-sm btn-primary">Apply</button></form>
+                        <a asp-page="./Index" asp-page-handler="ApplyNative" asp-route-id="@discount.Id" class="btn btn-sm btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Apply Discount">Apply</a>
                     }
                 </td>
             </tr>

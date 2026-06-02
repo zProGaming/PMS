@@ -25,12 +25,12 @@
 <div class="mb-3 d-flex flex-wrap gap-2">
     @if (Model.PurchaseRequest.Status == Vantage.PMS.Models.Inventory.PurchaseRequestStatus.Draft)
     {
-        <form method="post" asp-page-handler="Submit"><button class="btn btn-primary">Submit</button></form>
+        <a asp-page="./Details" asp-page-handler="SubmitNative" asp-route-id="@Model.PurchaseRequest.Id" class="btn btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Submit Purchase Request">Submit</a>
     }
     @if (Model.PurchaseRequest.Status == Vantage.PMS.Models.Inventory.PurchaseRequestStatus.Submitted)
     {
-        <form method="post" asp-page-handler="Approve"><button class="btn btn-success">Approve</button></form>
-        <form method="post" asp-page-handler="Reject"><button class="btn btn-outline-danger">Reject</button></form>
+        <a asp-page="./Details" asp-page-handler="ApproveNative" asp-route-id="@Model.PurchaseRequest.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Approve Purchase Request">Approve</a>
+        <a asp-page="./Details" asp-page-handler="RejectNative" asp-route-id="@Model.PurchaseRequest.Id" class="btn btn-outline-danger" data-vpms-native-dialog data-vpms-native-dialog-title="Reject Purchase Request">Reject</a>
     }
     @if (Model.PurchaseRequest.Status == Vantage.PMS.Models.Inventory.PurchaseRequestStatus.Approved)
     {
@@ -41,7 +41,7 @@
     }
     @if (Model.PurchaseRequest.Status is not Vantage.PMS.Models.Inventory.PurchaseRequestStatus.ConvertedToPO and not Vantage.PMS.Models.Inventory.PurchaseRequestStatus.Cancelled)
     {
-        <form method="post" asp-page-handler="Cancel"><button class="btn btn-outline-secondary">Cancel Request</button></form>
+        <a asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.PurchaseRequest.Id" class="btn btn-outline-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Purchase Request">Cancel Request</a>
     }
 </div>
 

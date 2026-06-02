@@ -10,12 +10,12 @@
     <div class="page-actions">
         @if (Model.Voucher.Status == PaymentVoucherStatus.Draft)
         {
-            <form method="post" asp-page-handler="MarkForApproval" asp-route-id="@Model.Voucher.Id" class="d-inline"><button class="btn vpms-btn-secondary">Mark For Approval</button></form>
+            <a class="btn vpms-btn-secondary" asp-page="./Details" asp-page-handler="MarkForApprovalNative" asp-route-id="@Model.Voucher.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Mark Voucher For Approval">Mark For Approval</a>
         }
         @if (Model.Voucher.Status is PaymentVoucherStatus.Draft or PaymentVoucherStatus.ForApproval)
         {
-            <form method="post" asp-page-handler="Approve" asp-route-id="@Model.Voucher.Id" class="d-inline"><button class="btn vpms-btn-primary">Approve</button></form>
-            <form method="post" asp-page-handler="Cancel" asp-route-id="@Model.Voucher.Id" class="d-inline"><button class="btn vpms-btn-danger">Cancel</button></form>
+            <a class="btn vpms-btn-primary" asp-page="./Details" asp-page-handler="ApproveNative" asp-route-id="@Model.Voucher.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Approve Payment Voucher">Approve</a>
+            <a class="btn vpms-btn-danger" asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.Voucher.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Payment Voucher">Cancel</a>
         }
     </div>
 </div>

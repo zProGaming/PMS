@@ -32,11 +32,11 @@
 <div class="vpms-actions mb-3 d-flex flex-wrap gap-2">
     @if (Model.PurchaseOrder.Status == Vantage.PMS.Models.Inventory.PurchaseOrderStatus.Draft)
     {
-        <form method="post" asp-page-handler="ForApproval"><button class="btn btn-primary">Submit for Approval</button></form>
+        <a asp-page="./Details" asp-page-handler="ForApprovalNative" asp-route-id="@Model.PurchaseOrder.Id" class="btn btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Submit Purchase Order">Submit for Approval</a>
     }
     @if (Model.PurchaseOrder.Status == Vantage.PMS.Models.Inventory.PurchaseOrderStatus.ForApproval)
     {
-        <form method="post" asp-page-handler="Approve"><button class="btn btn-success">Approve</button></form>
+        <a asp-page="./Details" asp-page-handler="ApproveNative" asp-route-id="@Model.PurchaseOrder.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Approve Purchase Order">Approve</a>
     }
     @if (Model.PurchaseOrder.Status is Vantage.PMS.Models.Inventory.PurchaseOrderStatus.Approved or Vantage.PMS.Models.Inventory.PurchaseOrderStatus.PartiallyReceived)
     {
@@ -46,15 +46,15 @@
            data-vpms-native-dialog
            data-vpms-native-handler="Native"
            data-vpms-native-dialog-title="New Receiving Record">Create Receiving</a>
-        <form method="post" asp-page-handler="MarkFullyReceived"><button class="btn btn-outline-success">Mark Fully Received</button></form>
+        <a asp-page="./Details" asp-page-handler="MarkFullyReceivedNative" asp-route-id="@Model.PurchaseOrder.Id" class="btn btn-outline-success" data-vpms-native-dialog data-vpms-native-dialog-title="Mark Purchase Order Fully Received">Mark Fully Received</a>
     }
     @if (Model.PurchaseOrder.Status == Vantage.PMS.Models.Inventory.PurchaseOrderStatus.FullyReceived)
     {
-        <form method="post" asp-page-handler="Close"><button class="btn btn-success">Close PO</button></form>
+        <a asp-page="./Details" asp-page-handler="CloseNative" asp-route-id="@Model.PurchaseOrder.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Close Purchase Order">Close PO</a>
     }
     @if (Model.PurchaseOrder.Status is not Vantage.PMS.Models.Inventory.PurchaseOrderStatus.Closed and not Vantage.PMS.Models.Inventory.PurchaseOrderStatus.Cancelled)
     {
-        <form method="post" asp-page-handler="Cancel"><button class="btn btn-outline-secondary">Cancel PO</button></form>
+        <a asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.PurchaseOrder.Id" class="btn btn-outline-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Purchase Order">Cancel PO</a>
     }
 </div>
 

@@ -1,0 +1,31 @@
+@model Vantage.PMS.Pages.Finance.VoidRequests.IndexModel
+
+@if (Model.NativeVoidRequest is not null)
+{
+    <div class="vpms-native-workflow-card">
+        <div class="vpms-native-workflow-kicker">Void control</div>
+        <h2>@Model.NativeActionTitle</h2>
+        <p>@Model.NativeActionMessage</p>
+
+        <div class="vpms-native-workflow-summary">
+            <span>Reference</span>
+            <strong>@Model.NativeVoidRequest.ReferenceType #@Model.NativeVoidRequest.ReferenceId</strong>
+            <span>Status</span>
+            <strong>@Model.NativeVoidRequest.Status</strong>
+            <span>Requested By</span>
+            <strong>@Model.NativeVoidRequest.RequestedBy</strong>
+            <span>Requested</span>
+            <strong>@Model.NativeVoidRequest.RequestedAt.ToString("g")</strong>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.NativeActionSupport))
+        {
+            <div class="vpms-native-workflow-note">@Model.NativeActionSupport</div>
+        }
+
+        <form method="post" asp-page="./Index" asp-page-handler="@Model.NativeActionHandler" asp-route-id="@Model.NativeVoidRequest.Id" class="vpms-native-workflow-actions">
+            <button type="submit" class="btn @Model.NativeActionButtonClass">@Model.NativeActionButtonText</button>
+            <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Reviewing</a>
+        </form>
+    </div>
+}

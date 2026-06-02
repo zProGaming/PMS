@@ -1,0 +1,28 @@
+@model Vantage.PMS.Pages.Purchasing.PurchaseOrders.DetailsModel
+
+<div class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Purchasing control</div>
+    <h2>@Model.NativeActionTitle</h2>
+    <p>@Model.NativeActionMessage</p>
+
+    <div class="vpms-native-workflow-summary">
+        <span>Purchase Order</span>
+        <strong>@Model.PurchaseOrder.PONumber</strong>
+        <span>Status</span>
+        <strong>@Model.PurchaseOrder.Status</strong>
+        <span>Supplier</span>
+        <strong>@(Model.PurchaseOrder.Supplier?.SupplierName ?? "Not assigned")</strong>
+        <span>Total</span>
+        <strong>@Model.PurchaseOrder.TotalAmount.ToString("C")</strong>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.NativeActionSupport))
+    {
+        <div class="vpms-native-workflow-note">@Model.NativeActionSupport</div>
+    }
+
+    <form method="post" asp-page="./Details" asp-page-handler="@Model.NativeActionHandler" asp-route-id="@Model.PurchaseOrder.Id" class="vpms-native-workflow-actions">
+        <button type="submit" class="btn @Model.NativeActionButtonClass">@Model.NativeActionButtonText</button>
+        <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Reviewing</a>
+    </form>
+</div>

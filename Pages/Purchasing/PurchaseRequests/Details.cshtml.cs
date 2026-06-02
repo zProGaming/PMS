@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Inventory;
@@ -26,11 +27,58 @@ public class DetailsModel(ApplicationDbContext context, InventoryService invento
 
     public bool CanEditItems => PurchaseRequest.Status == PurchaseRequestStatus.Draft;
 
+    public string NativeActionHandler { get; private set; } = string.Empty;
+    public string NativeActionTitle { get; private set; } = string.Empty;
+    public string NativeActionMessage { get; private set; } = string.Empty;
+    public string NativeActionButtonText { get; private set; } = string.Empty;
+    public string NativeActionButtonClass { get; private set; } = "vpms-btn-primary";
+    public string NativeActionSupport { get; private set; } = string.Empty;
+
     public async Task<IActionResult> OnGetAsync(int id)
     {
         var found = await LoadAsync(id);
         return found ? Page() : NotFound();
     }
+
+    public Task<IActionResult> OnGetSubmitNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Submit",
+            "Submit purchase request",
+            "Submit this purchase request for approval? The request will stay open in this workspace after the workflow completes.",
+            "Submit Request",
+            "vpms-btn-primary",
+            "Items and quantities are validated by the existing purchasing rules.");
+
+    public Task<IActionResult> OnGetApproveNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Approve",
+            "Approve purchase request",
+            "Approve this purchase request so it can be converted into a purchase order.",
+            "Approve Request",
+            "vpms-btn-primary",
+            "Approved requests can be converted to a PO after supplier selection.");
+
+    public Task<IActionResult> OnGetRejectNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Reject",
+            "Reject purchase request",
+            "Reject this submitted purchase request? The request remains available for review history.",
+            "Reject Request",
+            "vpms-btn-danger",
+            "Use rejection when the request should not proceed to purchasing.");
+
+    public Task<IActionResult> OnGetCancelNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Cancel",
+            "Cancel purchase request",
+            "Cancel this purchase request and stop the request workflow.",
+            "Cancel Request",
+            "vpms-btn-danger",
+            "Cancelled requests remain visible for purchasing review.");
 
     public async Task<IActionResult> OnPostAddItemAsync(int id)
     {
@@ -228,5 +276,34 @@ public class DetailsModel(ApplicationDbContext context, InventoryService invento
 
         InventoryItemOptions = new SelectList(items, "Id", "Name");
         SupplierOptions = new SelectList(suppliers, "Id", "SupplierName");
+    }
+
+    private async Task<IActionResult> NativeConfirmAsync(
+        int id,
+        string handler,
+        string title,
+        string message,
+        string buttonText,
+        string buttonClass,
+        string support)
+    {
+        var found = await LoadAsync(id);
+        if (!found)
+        {
+            return NotFound();
+        }
+
+        NativeActionHandler = handler;
+        NativeActionTitle = title;
+        NativeActionMessage = message;
+        NativeActionButtonText = buttonText;
+        NativeActionButtonClass = buttonClass;
+        NativeActionSupport = support;
+
+        return new PartialViewResult
+        {
+            ViewName = "_ConfirmActionNative",
+            ViewData = new ViewDataDictionary<DetailsModel>(ViewData, this)
+        };
     }
 }

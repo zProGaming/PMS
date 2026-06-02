@@ -20,6 +20,13 @@ public class DetailsModel(ApplicationDbContext context, AccountsPayableService a
     [TempData]
     public string? StatusMessage { get; set; }
 
+    public string NativeActionHandler { get; private set; } = string.Empty;
+    public string NativeActionTitle { get; private set; } = string.Empty;
+    public string NativeActionMessage { get; private set; } = string.Empty;
+    public string NativeActionButtonText { get; private set; } = string.Empty;
+    public string NativeActionButtonClass { get; private set; } = "vpms-btn-primary";
+    public string NativeActionSupport { get; private set; } = string.Empty;
+
     public async Task<IActionResult> OnGetAsync(int id)
     {
         var voucher = await LoadVoucherAsync(id);
@@ -37,6 +44,36 @@ public class DetailsModel(ApplicationDbContext context, AccountsPayableService a
         await LoadBankAccountsAsync();
         return NativeReleasePartial();
     }
+
+    public Task<IActionResult> OnGetMarkForApprovalNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "MarkForApproval",
+            "Mark voucher for approval",
+            "Move this payment voucher into the AP approval queue.",
+            "Mark For Approval",
+            "vpms-btn-primary",
+            "The voucher cannot be released until approval succeeds.");
+
+    public Task<IActionResult> OnGetApproveNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Approve",
+            "Approve payment voucher",
+            "Approve this voucher for treasury release.",
+            "Approve Voucher",
+            "vpms-btn-primary",
+            "Release and GL posting remain controlled by the separate payment release step.");
+
+    public Task<IActionResult> OnGetCancelNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Cancel",
+            "Cancel payment voucher",
+            "Cancel this payment voucher? Draft and for-approval vouchers can be cancelled before release.",
+            "Cancel Voucher",
+            "vpms-btn-danger",
+            "Cancelled vouchers remain visible for AP review.");
 
     public async Task<IActionResult> OnPostMarkForApprovalAsync(int id)
     {
@@ -116,6 +153,37 @@ public class DetailsModel(ApplicationDbContext context, AccountsPayableService a
         return new PartialViewResult
         {
             ViewName = "_ReleaseNative",
+            ViewData = new ViewDataDictionary<DetailsModel>(ViewData, this)
+        };
+    }
+
+    private async Task<IActionResult> NativeConfirmAsync(
+        int id,
+        string handler,
+        string title,
+        string message,
+        string buttonText,
+        string buttonClass,
+        string support)
+    {
+        var voucher = await LoadVoucherAsync(id);
+        if (voucher is null)
+        {
+            return NotFound();
+        }
+
+        Voucher = voucher;
+        await LoadBankAccountsAsync();
+        NativeActionHandler = handler;
+        NativeActionTitle = title;
+        NativeActionMessage = message;
+        NativeActionButtonText = buttonText;
+        NativeActionButtonClass = buttonClass;
+        NativeActionSupport = support;
+
+        return new PartialViewResult
+        {
+            ViewName = "_ConfirmActionNative",
             ViewData = new ViewDataDictionary<DetailsModel>(ViewData, this)
         };
     }

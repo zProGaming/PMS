@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Inventory;
@@ -28,11 +29,68 @@ public class DetailsModel(ApplicationDbContext context, InventoryService invento
 
     public bool CanEditItems => PurchaseOrder.Status == PurchaseOrderStatus.Draft;
 
+    public string NativeActionHandler { get; private set; } = string.Empty;
+    public string NativeActionTitle { get; private set; } = string.Empty;
+    public string NativeActionMessage { get; private set; } = string.Empty;
+    public string NativeActionButtonText { get; private set; } = string.Empty;
+    public string NativeActionButtonClass { get; private set; } = "vpms-btn-primary";
+    public string NativeActionSupport { get; private set; } = string.Empty;
+
     public async Task<IActionResult> OnGetAsync(int id)
     {
         var found = await LoadAsync(id);
         return found ? Page() : NotFound();
     }
+
+    public Task<IActionResult> OnGetForApprovalNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "ForApproval",
+            "Submit purchase order for approval",
+            "Submit this purchase order for purchasing approval? The order remains visible here after the workflow completes.",
+            "Submit for Approval",
+            "vpms-btn-primary",
+            "Inventory items and totals will be validated by the existing approval rules.");
+
+    public Task<IActionResult> OnGetApproveNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Approve",
+            "Approve purchase order",
+            "Approve this purchase order and make it available for receiving.",
+            "Approve PO",
+            "vpms-btn-primary",
+            "Receiving records can be created after approval.");
+
+    public Task<IActionResult> OnGetMarkFullyReceivedNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "MarkFullyReceived",
+            "Mark purchase order fully received",
+            "Mark this purchase order as fully received? Use this only after receiving has been reviewed.",
+            "Mark Fully Received",
+            "vpms-btn-primary",
+            "This keeps the purchasing control page in place and advances the PO status.");
+
+    public Task<IActionResult> OnGetCloseNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Close",
+            "Close purchase order",
+            "Close this fully received purchase order. Closed POs are no longer editable.",
+            "Close PO",
+            "vpms-btn-primary",
+            "Use this after receiving and supplier documentation are complete.");
+
+    public Task<IActionResult> OnGetCancelNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Cancel",
+            "Cancel purchase order",
+            "Cancel this purchase order? This action will stop the purchasing workflow for this PO.",
+            "Cancel PO",
+            "vpms-btn-danger",
+            "Cancelled purchase orders remain in history for review.");
 
     public async Task<IActionResult> OnPostAddItemAsync(int id)
     {
@@ -250,5 +308,34 @@ public class DetailsModel(ApplicationDbContext context, InventoryService invento
             .ToListAsync();
 
         InventoryItemOptions = new SelectList(items, "Id", "Name");
+    }
+
+    private async Task<IActionResult> NativeConfirmAsync(
+        int id,
+        string handler,
+        string title,
+        string message,
+        string buttonText,
+        string buttonClass,
+        string support)
+    {
+        var found = await LoadAsync(id);
+        if (!found)
+        {
+            return NotFound();
+        }
+
+        NativeActionHandler = handler;
+        NativeActionTitle = title;
+        NativeActionMessage = message;
+        NativeActionButtonText = buttonText;
+        NativeActionButtonClass = buttonClass;
+        NativeActionSupport = support;
+
+        return new PartialViewResult
+        {
+            ViewName = "_ConfirmActionNative",
+            ViewData = new ViewDataDictionary<DetailsModel>(ViewData, this)
+        };
     }
 }

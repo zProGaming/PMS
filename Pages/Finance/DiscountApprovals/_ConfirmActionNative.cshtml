@@ -1,0 +1,31 @@
+@model Vantage.PMS.Pages.Finance.DiscountApprovals.IndexModel
+
+@if (Model.NativeDiscount is not null)
+{
+    <div class="vpms-native-workflow-card">
+        <div class="vpms-native-workflow-kicker">Discount control</div>
+        <h2>@Model.NativeActionTitle</h2>
+        <p>@Model.NativeActionMessage</p>
+
+        <div class="vpms-native-workflow-summary">
+            <span>Target</span>
+            <strong>@Model.NativeTarget</strong>
+            <span>Status</span>
+            <strong>@Model.NativeDiscount.Status</strong>
+            <span>Type</span>
+            <strong>@Model.NativeDiscount.DiscountType</strong>
+            <span>Amount</span>
+            <strong>@Model.NativeDiscount.DiscountAmount.ToString("C")</strong>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.NativeActionSupport))
+        {
+            <div class="vpms-native-workflow-note">@Model.NativeActionSupport</div>
+        }
+
+        <form method="post" asp-page="./Index" asp-page-handler="@Model.NativeActionHandler" asp-route-id="@Model.NativeDiscount.Id" class="vpms-native-workflow-actions">
+            <button type="submit" class="btn @Model.NativeActionButtonClass">@Model.NativeActionButtonText</button>
+            <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Reviewing</a>
+        </form>
+    </div>
+}

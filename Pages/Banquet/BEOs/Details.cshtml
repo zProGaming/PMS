@@ -19,18 +19,10 @@
     </div>
     <div class="vpms-actions d-flex flex-wrap gap-2">
         <span class="vpms-status-badge status-@beoStatusClass">@Model.BanquetEventOrder.Status</span>
-        <form method="post" asp-page-handler="SetStatus" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.ForApproval" class="d-inline">
-            <button type="submit" class="btn btn-outline-primary">Mark BEO For Approval</button>
-        </form>
-        <form method="post" asp-page-handler="SetStatus" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.Approved" class="d-inline">
-            <button type="submit" class="btn btn-outline-success">Approve BEO</button>
-        </form>
-        <form method="post" asp-page-handler="SetStatus" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.Distributed" class="d-inline">
-            <button type="submit" class="btn btn-outline-secondary">Mark BEO Distributed</button>
-        </form>
-        <form method="post" asp-page-handler="SetStatus" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.Revised" class="d-inline">
-            <button type="submit" class="btn btn-outline-warning">Revise BEO</button>
-        </form>
+        <a asp-page="./Details" asp-page-handler="SetStatusNative" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.ForApproval" class="btn btn-outline-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Mark BEO For Approval">Mark BEO For Approval</a>
+        <a asp-page="./Details" asp-page-handler="SetStatusNative" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.Approved" class="btn btn-outline-success" data-vpms-native-dialog data-vpms-native-dialog-title="Approve BEO">Approve BEO</a>
+        <a asp-page="./Details" asp-page-handler="SetStatusNative" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.Distributed" class="btn btn-outline-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Mark BEO Distributed">Mark BEO Distributed</a>
+        <a asp-page="./Details" asp-page-handler="SetStatusNative" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.Revised" class="btn btn-outline-warning" data-vpms-native-dialog data-vpms-native-dialog-title="Revise BEO">Revise BEO</a>
         <a class="btn btn-outline-secondary" asp-page="/Banquet/Charges/Index" asp-route-eventId="@Model.BanquetEvent.Id">Charges</a>
         <a class="btn btn-outline-secondary" asp-page="./Index">BEOs</a>
     </div>

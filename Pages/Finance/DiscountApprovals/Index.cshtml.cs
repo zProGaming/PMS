@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Authorization;
 using Vantage.PMS.Data;
@@ -17,6 +18,15 @@ public class IndexModel(ApplicationDbContext context) : PageModel
     [BindProperty]
     public DiscountApproval Discount { get; set; } = new() { RequestedAt = DateTime.Now };
 
+    public DiscountApproval? NativeDiscount { get; private set; }
+    public string NativeTarget { get; private set; } = string.Empty;
+    public string NativeActionHandler { get; private set; } = string.Empty;
+    public string NativeActionTitle { get; private set; } = string.Empty;
+    public string NativeActionMessage { get; private set; } = string.Empty;
+    public string NativeActionButtonText { get; private set; } = string.Empty;
+    public string NativeActionButtonClass { get; private set; } = "vpms-btn-primary";
+    public string NativeActionSupport { get; private set; } = string.Empty;
+
     public async Task OnGetAsync()
     {
         Discount.RequestedBy = User.Identity?.Name ?? string.Empty;
@@ -30,6 +40,36 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             .Take(200)
             .ToListAsync();
     }
+
+    public Task<IActionResult> OnGetApproveNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Approve",
+            "Approve discount",
+            "Approve this discount request for application.",
+            "Approve Discount",
+            "vpms-btn-primary",
+            "Application remains separate so finance can confirm the target before reducing balances.");
+
+    public Task<IActionResult> OnGetRejectNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Reject",
+            "Reject discount",
+            "Reject this discount request and preserve the decision trail.",
+            "Reject Discount",
+            "vpms-btn-danger",
+            "Use rejection when the requested discount should not affect the target transaction.");
+
+    public Task<IActionResult> OnGetApplyNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Apply",
+            "Apply approved discount",
+            "Apply this approved discount to the selected folio, POS order, or banquet event.",
+            "Apply Discount",
+            "vpms-btn-primary",
+            "The existing validation prevents a folio discount from creating a negative balance.");
 
     public async Task<IActionResult> OnPostCreateAsync()
     {
@@ -159,4 +199,47 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         User.IsInRole(PmsRoles.SystemAdmin) ||
         User.IsInRole(PmsRoles.GeneralManager) ||
         User.IsInRole(PmsRoles.FinanceManager);
+
+    private async Task<IActionResult> NativeConfirmAsync(
+        int id,
+        string handler,
+        string title,
+        string message,
+        string buttonText,
+        string buttonClass,
+        string support)
+    {
+        var discount = await _context.DiscountApprovals.AsNoTracking()
+            .Include(item => item.Folio)
+            .Include(item => item.FolioItem)
+            .Include(item => item.POSOrder)
+            .Include(item => item.BanquetEvent)
+            .FirstOrDefaultAsync(item => item.Id == id);
+        if (discount is null)
+        {
+            return NotFound();
+        }
+
+        NativeDiscount = discount;
+        NativeTarget = BuildTargetLabel(discount);
+        NativeActionHandler = handler;
+        NativeActionTitle = title;
+        NativeActionMessage = message;
+        NativeActionButtonText = buttonText;
+        NativeActionButtonClass = buttonClass;
+        NativeActionSupport = support;
+
+        return new PartialViewResult
+        {
+            ViewName = "_ConfirmActionNative",
+            ViewData = new ViewDataDictionary<IndexModel>(ViewData, this)
+        };
+    }
+
+    private static string BuildTargetLabel(DiscountApproval discount) =>
+        discount.FolioId is not null ? $"Folio #{discount.FolioId}" :
+        discount.FolioItemId is not null ? $"Folio item #{discount.FolioItemId}" :
+        discount.POSOrderId is not null ? $"POS order #{discount.POSOrderId}" :
+        discount.BanquetEventId is not null ? $"Banquet event #{discount.BanquetEventId}" :
+        "Unassigned";
 }

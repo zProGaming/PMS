@@ -11076,6 +11076,79 @@ html {
   letter-spacing: 0;
 }
 
+.vpms-native-workflow-card {
+  display: grid;
+  gap: 1rem;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(1rem, 2vw, 1.35rem);
+}
+
+.vpms-native-workflow-kicker {
+  color: #0f766e;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.vpms-native-workflow-card h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.vpms-native-workflow-card p {
+  max-width: 62ch;
+  margin: 0;
+  color: #475569;
+  font-size: 0.95rem;
+  line-height: 1.58;
+}
+
+.vpms-native-workflow-summary {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.72fr) minmax(0, 1.28fr);
+  gap: 0.65rem 0.95rem;
+  padding: 0.95rem;
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.92), rgba(240, 253, 250, 0.58));
+  border: 1px solid rgba(221, 229, 238, 0.92);
+  border-radius: 18px;
+}
+
+.vpms-native-workflow-summary span {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.vpms-native-workflow-summary strong {
+  min-width: 0;
+  color: #0f172a;
+  font-size: 0.92rem;
+  font-weight: 830;
+  overflow-wrap: anywhere;
+}
+
+.vpms-native-workflow-note {
+  padding: 0.78rem 0.9rem;
+  color: #155e75;
+  background: rgba(236, 254, 255, 0.72);
+  border: 1px solid rgba(103, 232, 249, 0.46);
+  border-radius: 16px;
+  font-size: 0.84rem;
+  line-height: 1.48;
+}
+
+.vpms-native-workflow-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
 .vpms-native-workflow-content form {
   margin-top: 0.9rem !important;
   padding: 1rem;

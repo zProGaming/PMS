@@ -14,12 +14,12 @@
     <div class="page-actions">
         @if (Model.Invoice.Status == APInvoiceStatus.Draft)
         {
-            <form method="post" asp-page-handler="MarkForApproval" asp-route-id="@Model.Invoice.Id" class="d-inline"><button class="btn vpms-btn-secondary">Mark For Approval</button></form>
+            <a class="btn vpms-btn-secondary" asp-page="./Details" asp-page-handler="MarkForApprovalNative" asp-route-id="@Model.Invoice.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Mark AP Invoice For Approval">Mark For Approval</a>
         }
         @if (Model.Invoice.Status is APInvoiceStatus.Draft or APInvoiceStatus.ForApproval)
         {
-            <form method="post" asp-page-handler="Approve" asp-route-id="@Model.Invoice.Id" class="d-inline"><button class="btn vpms-btn-primary">Approve & Post</button></form>
-            <form method="post" asp-page-handler="Cancel" asp-route-id="@Model.Invoice.Id" class="d-inline"><button class="btn vpms-btn-danger">Cancel</button></form>
+            <a class="btn vpms-btn-primary" asp-page="./Details" asp-page-handler="ApproveNative" asp-route-id="@Model.Invoice.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Approve AP Invoice">Approve &amp; Post</a>
+            <a class="btn vpms-btn-danger" asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.Invoice.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel AP Invoice">Cancel</a>
         }
         @if (Model.Invoice.Status is APInvoiceStatus.Approved or APInvoiceStatus.PartiallyPaid)
         {

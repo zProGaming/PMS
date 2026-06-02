@@ -1,0 +1,31 @@
+@model Vantage.PMS.Pages.Finance.Refunds.IndexModel
+
+@if (Model.NativeRefund is not null)
+{
+    <div class="vpms-native-workflow-card">
+        <div class="vpms-native-workflow-kicker">Refund control</div>
+        <h2>@Model.NativeActionTitle</h2>
+        <p>@Model.NativeActionMessage</p>
+
+        <div class="vpms-native-workflow-summary">
+            <span>Refund</span>
+            <strong>@Model.NativeRefund.RefundNumber</strong>
+            <span>Status</span>
+            <strong>@Model.NativeRefund.Status</strong>
+            <span>Method</span>
+            <strong>@Model.NativeRefund.RefundMethod</strong>
+            <span>Amount</span>
+            <strong>@Model.NativeRefund.Amount.ToString("C")</strong>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.NativeActionSupport))
+        {
+            <div class="vpms-native-workflow-note">@Model.NativeActionSupport</div>
+        }
+
+        <form method="post" asp-page="./Index" asp-page-handler="@Model.NativeActionHandler" asp-route-id="@Model.NativeRefund.Id" class="vpms-native-workflow-actions">
+            <button type="submit" class="btn @Model.NativeActionButtonClass">@Model.NativeActionButtonText</button>
+            <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Reviewing</a>
+        </form>
+    </div>
+}
