@@ -5,10 +5,18 @@
     ViewData["Title"] = "Finance Documents";
 }
 
-<h1 class="h3 mb-3">Finance Documents</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-1">Finance Documents</h1>
+        <p class="text-muted mb-0">Configurable hotel finance documents, billing references, and AR conversion.</p>
+    </div>
+    <a asp-page="./Index" class="btn btn-primary" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Create Finance Document">Create Document</a>
+</div>
 <div class="alert alert-info">Document templates are configurable and must be validated for local compliance before official use.</div>
 
-<form method="post" asp-page-handler="Create" class="row g-3 border rounded p-3 mb-4">
+<details class="vpms-refined-card vpms-inline-create-panel mb-4">
+    <summary>Manual document entry</summary>
+<form method="post" asp-page-handler="Create" class="row g-3 mt-3">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="col-md-3"><label asp-for="FinanceDocument.DocumentNumber" class="form-label"></label><input asp-for="FinanceDocument.DocumentNumber" class="form-control" placeholder="Auto-generated" readonly /></div>
     <div class="col-md-3"><label asp-for="FinanceDocument.DocumentType" class="form-label"></label><select asp-for="FinanceDocument.DocumentType" asp-items="Html.GetEnumSelectList<FinanceDocumentType>()" class="form-select"></select></div>
@@ -24,6 +32,7 @@
     <div class="col-12"><label asp-for="FinanceDocument.BillingAddress" class="form-label"></label><textarea asp-for="FinanceDocument.BillingAddress" class="form-control"></textarea></div>
     <div class="col-12"><button class="btn btn-primary">Create Document</button></div>
 </form>
+</details>
 
 <table class="table table-striped table-hover align-middle">
     <thead><tr><th>Number</th><th>Type</th><th>Date</th><th>Billing Name</th><th>Status</th><th class="text-end">Total</th><th class="text-end">Balance</th><th></th></tr></thead>

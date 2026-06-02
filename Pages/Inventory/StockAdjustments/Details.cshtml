@@ -25,19 +25,19 @@
 <div class="mb-3 d-flex flex-wrap gap-2">
     @if (Model.StockAdjustment.Status == Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Draft)
     {
-        <form method="post" asp-page-handler="ForApproval"><button class="btn btn-primary">Submit for Approval</button></form>
+        <a asp-page="./Details" asp-page-handler="ForApprovalNative" asp-route-id="@Model.StockAdjustment.Id" class="btn btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Submit Stock Adjustment">Submit for Approval</a>
     }
     @if (Model.StockAdjustment.Status == Vantage.PMS.Models.Inventory.StockAdjustmentStatus.ForApproval)
     {
-        <form method="post" asp-page-handler="Approve"><button class="btn btn-success">Approve</button></form>
+        <a asp-page="./Details" asp-page-handler="ApproveNative" asp-route-id="@Model.StockAdjustment.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Approve Stock Adjustment">Approve</a>
     }
     @if (Model.StockAdjustment.Status == Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Approved)
     {
-        <form method="post" asp-page-handler="PostAdjustment"><button class="btn btn-success">Post Adjustment</button></form>
+        <a asp-page="./Details" asp-page-handler="PostAdjustmentNative" asp-route-id="@Model.StockAdjustment.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Post Stock Adjustment">Post Adjustment</a>
     }
     @if (Model.StockAdjustment.Status is not Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Posted and not Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Cancelled)
     {
-        <form method="post" asp-page-handler="Cancel"><button class="btn btn-outline-secondary">Cancel</button></form>
+        <a asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.StockAdjustment.Id" class="btn btn-outline-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Stock Adjustment">Cancel</a>
     }
 </div>
 

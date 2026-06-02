@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Finance;
@@ -29,12 +30,23 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
             .ToListAsync();
     }
 
+    public IActionResult OnGetOpenNative()
+    {
+        return NativeOpenPartial();
+    }
+
     public async Task<IActionResult> OnPostOpenAsync()
     {
         var userName = User.Identity?.Name ?? "Cashier";
         var existing = await _financeService.GetOpenShiftForUserAsync(userName);
         if (existing is not null)
         {
+            if (IsNativeWorkflowRequest())
+            {
+                ModelState.AddModelError(string.Empty, "You already have an open cashier shift.");
+                return NativeOpenPartial();
+            }
+
             TempData["ErrorMessage"] = "You already have an open cashier shift.";
             return RedirectToPage();
         }
@@ -54,5 +66,20 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
         _context.CashierShifts.Add(shift);
         await _context.SaveChangesAsync();
         return RedirectToPage("Details", new { id = shift.Id });
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativeOpenPartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_OpenNative",
+            ViewData = new ViewDataDictionary<IndexModel>(ViewData, this)
+        };
     }
 }

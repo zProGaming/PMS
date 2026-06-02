@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Inventory;
@@ -22,11 +23,35 @@ public class DetailsModel(ApplicationDbContext context, InventoryService invento
 
     public bool CanEditItems => ReceivingRecord.Status == ReceivingStatus.Draft;
 
+    public string NativeActionHandler { get; private set; } = string.Empty;
+    public string NativeActionTitle { get; private set; } = string.Empty;
+    public string NativeActionMessage { get; private set; } = string.Empty;
+    public string NativeActionButtonText { get; private set; } = string.Empty;
+    public string NativeActionButtonClass { get; private set; } = "vpms-btn-primary";
+
     public async Task<IActionResult> OnGetAsync(int id)
     {
         var found = await LoadAsync(id);
         return found ? Page() : NotFound();
     }
+
+    public Task<IActionResult> OnGetPostReceivingNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "PostReceiving",
+            "Post receiving record",
+            "Post this receiving record and update inventory stock movements.",
+            "Post Receiving",
+            "vpms-btn-primary");
+
+    public Task<IActionResult> OnGetCancelNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Cancel",
+            "Cancel receiving record",
+            "Cancel this draft receiving record and stop the receiving workflow.",
+            "Cancel Receiving",
+            "vpms-btn-danger");
 
     public async Task<IActionResult> OnPostAddItemAsync(int id)
     {
@@ -154,5 +179,32 @@ public class DetailsModel(ApplicationDbContext context, InventoryService invento
             .ToListAsync();
 
         InventoryItemOptions = new SelectList(items, "Id", "Name");
+    }
+
+    private async Task<IActionResult> NativeConfirmAsync(
+        int id,
+        string handler,
+        string title,
+        string message,
+        string buttonText,
+        string buttonClass)
+    {
+        var found = await LoadAsync(id);
+        if (!found)
+        {
+            return NotFound();
+        }
+
+        NativeActionHandler = handler;
+        NativeActionTitle = title;
+        NativeActionMessage = message;
+        NativeActionButtonText = buttonText;
+        NativeActionButtonClass = buttonClass;
+
+        return new PartialViewResult
+        {
+            ViewName = "_ConfirmActionNative",
+            ViewData = new ViewDataDictionary<DetailsModel>(ViewData, this)
+        };
     }
 }

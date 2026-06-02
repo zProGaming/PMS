@@ -1,0 +1,29 @@
+@model Vantage.PMS.Pages.Purchasing.Receiving.DetailsModel
+
+@{
+    var total = Model.ReceivingRecord.Items.Sum(item => item.Amount);
+}
+
+<div class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Receiving control</div>
+    <h2>@Model.NativeActionTitle</h2>
+    <p>@Model.NativeActionMessage</p>
+
+    <div class="vpms-native-workflow-summary">
+        <span>Receiving</span>
+        <strong>@Model.ReceivingRecord.ReceivingNumber</strong>
+        <span>Supplier</span>
+        <strong>@(Model.ReceivingRecord.Supplier?.SupplierName ?? "Not assigned")</strong>
+        <span>Status</span>
+        <strong>@Model.ReceivingRecord.Status</strong>
+        <span>Received Total</span>
+        <strong>@total.ToString("C")</strong>
+    </div>
+
+    <div class="vpms-native-workflow-note">Posting receiving creates stock movement entries using the existing inventory posting service.</div>
+
+    <form method="post" asp-page="./Details" asp-page-handler="@Model.NativeActionHandler" asp-route-id="@Model.ReceivingRecord.Id" class="vpms-native-workflow-actions">
+        <button type="submit" class="btn @Model.NativeActionButtonClass">@Model.NativeActionButtonText</button>
+        <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Reviewing</a>
+    </form>
+</div>

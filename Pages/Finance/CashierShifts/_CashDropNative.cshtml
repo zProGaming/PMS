@@ -1,0 +1,43 @@
+@model Vantage.PMS.Pages.Finance.CashierShifts.DetailsModel
+
+<div class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Cashier control</div>
+    <h2>Record cash drop</h2>
+    <p>Record a cash drop for shift @Model.CashierShift.ShiftNumber without leaving the shift review.</p>
+
+    <div class="vpms-native-workflow-summary">
+        <span>Shift</span>
+        <strong>@Model.CashierShift.ShiftNumber</strong>
+        <span>Expected Cash</span>
+        <strong>@Model.ExpectedCash.ToString("C")</strong>
+        <span>Cash Drops</span>
+        <strong>@Model.CashierShift.CashDrops.Sum(item => item.Amount).ToString("C")</strong>
+        <span>Status</span>
+        <strong>@Model.CashierShift.Status</strong>
+    </div>
+
+    <form method="post" asp-page="./Details" asp-page-handler="CashDrop" asp-route-id="@Model.CashierShift.Id" class="vpms-native-workflow-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <section class="vpms-form-section">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="CashDropAmount" class="form-label"></label>
+                    <input asp-for="CashDropAmount" class="form-control" />
+                    <span asp-validation-for="CashDropAmount" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="CashDropReceivedBy" class="form-label"></label>
+                    <input asp-for="CashDropReceivedBy" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="CashDropNotes" class="form-label"></label>
+                    <input asp-for="CashDropNotes" class="form-control" />
+                </div>
+            </div>
+        </section>
+        <div class="vpms-native-workflow-actions">
+            <button class="btn vpms-btn-primary">Record Cash Drop</button>
+            <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Cancel</a>
+        </div>
+    </form>
+</div>

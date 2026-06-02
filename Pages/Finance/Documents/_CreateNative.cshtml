@@ -1,0 +1,74 @@
+@model Vantage.PMS.Pages.Finance.Documents.IndexModel
+@using Vantage.PMS.Models.Finance
+
+<div class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Finance document</div>
+    <h2>Create finance document</h2>
+    <p>Create the document header first, then add lines and issue it from the document control page.</p>
+
+    <form method="post" asp-page="./Index" asp-page-handler="Create" class="vpms-native-workflow-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <section class="vpms-form-section">
+            <div class="vpms-form-section-heading">
+                <div>
+                    <h2>Document and Billing</h2>
+                    <p>Configurable document templates must be reviewed before official use.</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label asp-for="FinanceDocument.DocumentNumber" class="form-label"></label>
+                    <input asp-for="FinanceDocument.DocumentNumber" class="form-control" placeholder="Auto-generated" readonly />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="FinanceDocument.DocumentType" class="form-label"></label>
+                    <select asp-for="FinanceDocument.DocumentType" asp-items="Html.GetEnumSelectList<FinanceDocumentType>()" class="form-select"></select>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="FinanceDocument.DocumentDate" class="form-label"></label>
+                    <input asp-for="FinanceDocument.DocumentDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="FinanceDocument.DueDate" class="form-label"></label>
+                    <input asp-for="FinanceDocument.DueDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="FinanceDocument.BillingName" class="form-label"></label>
+                    <input asp-for="FinanceDocument.BillingName" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="FinanceDocument.BillingTIN" class="form-label"></label>
+                    <input asp-for="FinanceDocument.BillingTIN" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="FinanceDocument.FolioId" class="form-label">Folio</label>
+                    <select asp-for="FinanceDocument.FolioId" asp-items="Model.FolioOptions" class="form-select"><option value="">None</option></select>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="FinanceDocument.ReservationId" class="form-label">Reservation</label>
+                    <select asp-for="FinanceDocument.ReservationId" asp-items="Model.ReservationOptions" class="form-select"><option value="">None</option></select>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="FinanceDocument.GuestId" class="form-label">Guest</label>
+                    <select asp-for="FinanceDocument.GuestId" asp-items="Model.GuestOptions" class="form-select"><option value="">None</option></select>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="FinanceDocument.SalesAccountId" class="form-label">Sales Account</label>
+                    <select asp-for="FinanceDocument.SalesAccountId" asp-items="Model.SalesAccountOptions" class="form-select"><option value="">None</option></select>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="FinanceDocument.BanquetEventId" class="form-label">Banquet Event</label>
+                    <select asp-for="FinanceDocument.BanquetEventId" asp-items="Model.BanquetEventOptions" class="form-select"><option value="">None</option></select>
+                </div>
+                <div class="col-12">
+                    <label asp-for="FinanceDocument.BillingAddress" class="form-label"></label>
+                    <textarea asp-for="FinanceDocument.BillingAddress" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+        </section>
+        <div class="vpms-native-workflow-actions">
+            <button class="btn vpms-btn-primary">Create Document</button>
+            <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Cancel</a>
+        </div>
+    </form>
+</div>

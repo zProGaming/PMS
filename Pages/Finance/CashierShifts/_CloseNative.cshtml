@@ -1,0 +1,36 @@
+@model Vantage.PMS.Pages.Finance.CashierShifts.DetailsModel
+
+<div class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Cashier close</div>
+    <h2>Close cashier shift</h2>
+    <p>Confirm the counted cash before closing. Over/short is calculated against expected cash.</p>
+
+    <div class="vpms-native-workflow-summary">
+        <span>Shift</span>
+        <strong>@Model.CashierShift.ShiftNumber</strong>
+        <span>Opened By</span>
+        <strong>@Model.CashierShift.OpenedBy</strong>
+        <span>Expected Cash</span>
+        <strong>@Model.ExpectedCash.ToString("C")</strong>
+        <span>Cash Drops</span>
+        <strong>@Model.CashierShift.CashDrops.Sum(item => item.Amount).ToString("C")</strong>
+    </div>
+
+    <form method="post" asp-page="./Details" asp-page-handler="Close" asp-route-id="@Model.CashierShift.Id" class="vpms-native-workflow-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <section class="vpms-form-section">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label asp-for="ClosingCashCount" class="form-label"></label>
+                    <input asp-for="ClosingCashCount" class="form-control" />
+                    <span asp-validation-for="ClosingCashCount" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+        <div class="vpms-native-workflow-note">Closing the shift locks the cashier accountability summary for review.</div>
+        <div class="vpms-native-workflow-actions">
+            <button class="btn vpms-btn-primary">Close Shift</button>
+            <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Shift Open</a>
+        </div>
+    </form>
+</div>

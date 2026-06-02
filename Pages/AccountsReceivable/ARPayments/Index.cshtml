@@ -20,7 +20,9 @@
     </div>
 </div>
 
-<form method="post" asp-page-handler="Create" class="row g-3 border rounded p-3 mb-4">
+<details class="vpms-refined-card vpms-inline-create-panel mb-4">
+    <summary>Manual AR payment entry</summary>
+<form method="post" asp-page-handler="Create" class="row g-3 mt-3">
     <div class="col-md-3"><label asp-for="Payment.ARAccountId" class="form-label">AR Account</label><select asp-for="Payment.ARAccountId" asp-items="Model.ARAccountOptions" class="form-select"></select></div>
     <div class="col-md-2"><label asp-for="Payment.PaymentDate" class="form-label"></label><input asp-for="Payment.PaymentDate" type="date" class="form-control" /></div>
     <div class="col-md-2"><label asp-for="Payment.Amount" class="form-label"></label><input asp-for="Payment.Amount" class="form-control" /></div>
@@ -30,6 +32,7 @@
     <div class="col-md-9"><label asp-for="Payment.Notes" class="form-label"></label><input asp-for="Payment.Notes" class="form-control" /></div>
     <div class="col-12"><button class="btn btn-primary">Post AR Payment</button></div>
 </form>
+</details>
 
 <table class="table table-striped table-hover align-middle">
     <thead><tr><th>Date</th><th>Account</th><th>Method</th><th>Reference</th><th class="text-end">Amount</th><th class="text-end">Allocated</th><th class="text-end">Remaining</th><th></th></tr></thead>

@@ -1,0 +1,29 @@
+@model Vantage.PMS.Pages.Inventory.StockAdjustments.DetailsModel
+
+@{
+    var totalVariance = Model.StockAdjustment.Items.Sum(item => item.VarianceAmount);
+}
+
+<div class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Inventory control</div>
+    <h2>@Model.NativeActionTitle</h2>
+    <p>@Model.NativeActionMessage</p>
+
+    <div class="vpms-native-workflow-summary">
+        <span>Adjustment</span>
+        <strong>@Model.StockAdjustment.AdjustmentNumber</strong>
+        <span>Status</span>
+        <strong>@Model.StockAdjustment.Status</strong>
+        <span>Prepared By</span>
+        <strong>@Model.StockAdjustment.PreparedBy</strong>
+        <span>Variance Amount</span>
+        <strong>@totalVariance.ToString("C")</strong>
+    </div>
+
+    <div class="vpms-native-workflow-note">Posting an adjustment updates inventory quantities through the existing inventory posting service.</div>
+
+    <form method="post" asp-page="./Details" asp-page-handler="@Model.NativeActionHandler" asp-route-id="@Model.StockAdjustment.Id" class="vpms-native-workflow-actions">
+        <button type="submit" class="btn @Model.NativeActionButtonClass">@Model.NativeActionButtonText</button>
+        <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Reviewing</a>
+    </form>
+</div>

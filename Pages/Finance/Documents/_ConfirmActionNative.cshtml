@@ -1,0 +1,23 @@
+@model Vantage.PMS.Pages.Finance.Documents.DetailsModel
+
+<div class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Finance document control</div>
+    <h2>@Model.NativeActionTitle</h2>
+    <p>@Model.NativeActionMessage</p>
+
+    <div class="vpms-native-workflow-summary">
+        <span>Document</span>
+        <strong>@Model.FinanceDocument.DocumentNumber</strong>
+        <span>Type</span>
+        <strong>@Model.FinanceDocument.DocumentType</strong>
+        <span>Status</span>
+        <strong>@Model.FinanceDocument.Status</strong>
+        <span>Total</span>
+        <strong>@Model.FinanceDocument.TotalAmount.ToString("C")</strong>
+    </div>
+
+    <form method="post" asp-page="./Details" asp-page-handler="@Model.NativeActionHandler" asp-route-id="@Model.FinanceDocument.Id" class="vpms-native-workflow-actions">
+        <button type="submit" class="btn @Model.NativeActionButtonClass">@Model.NativeActionButtonText</button>
+        <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Reviewing</a>
+    </form>
+</div>

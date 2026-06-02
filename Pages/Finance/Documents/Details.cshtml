@@ -34,25 +34,16 @@
 <div class="vpms-actions d-flex flex-wrap gap-2 mb-3">
     @if (Model.FinanceDocument.Status == Vantage.PMS.Models.Finance.FinanceDocumentStatus.Draft)
     {
-        <form method="post" asp-page-handler="Issue"><button class="btn btn-primary">Issue Document</button></form>
+        <a asp-page="./Details" asp-page-handler="IssueNative" asp-route-id="@Model.FinanceDocument.Id" class="btn btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Issue Finance Document">Issue Document</a>
     }
     @if (Model.FinanceDocument.Status is Vantage.PMS.Models.Finance.FinanceDocumentStatus.Issued or Vantage.PMS.Models.Finance.FinanceDocumentStatus.PartiallyPaid)
     {
-        <form method="post" asp-page-handler="RecordPayment" class="d-flex gap-2">
-            <input asp-for="DocumentPaymentAmount" class="form-control" placeholder="Payment amount" />
-            <button class="btn btn-outline-primary">Record Payment</button>
-        </form>
-        <form method="post" asp-page-handler="ConvertToAR" class="d-flex gap-2">
-            <select asp-for="ARAccountId" asp-items="Model.ARAccountOptions" class="form-select"><option value="">Select AR account</option></select>
-            <button class="btn btn-success">Convert to AR Invoice</button>
-        </form>
+        <a asp-page="./Details" asp-page-handler="RecordPaymentNative" asp-route-id="@Model.FinanceDocument.Id" class="btn btn-outline-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Record Document Payment">Record Payment</a>
+        <a asp-page="./Details" asp-page-handler="ConvertToARNative" asp-route-id="@Model.FinanceDocument.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Convert to AR Invoice">Convert to AR Invoice</a>
     }
     @if (Model.FinanceDocument.Status is Vantage.PMS.Models.Finance.FinanceDocumentStatus.Draft or Vantage.PMS.Models.Finance.FinanceDocumentStatus.Issued)
     {
-        <form method="post" asp-page-handler="Void" class="d-flex gap-2">
-            <input asp-for="VoidReason" class="form-control" placeholder="Void reason" />
-            <button class="btn btn-outline-danger">Void</button>
-        </form>
+        <a asp-page="./Details" asp-page-handler="VoidNative" asp-route-id="@Model.FinanceDocument.Id" class="btn btn-outline-danger" data-vpms-native-dialog data-vpms-native-dialog-title="Void Finance Document">Void</a>
     }
 </div>
 

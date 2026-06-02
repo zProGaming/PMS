@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Finance;
@@ -29,6 +30,13 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
         await LoadAsync();
     }
 
+    public async Task<IActionResult> OnGetNativeAsync()
+    {
+        FinanceDocument.DocumentDate = DateTime.Today;
+        await LoadAsync();
+        return NativePartial();
+    }
+
     public async Task<IActionResult> OnPostCreateAsync()
     {
         if (string.IsNullOrWhiteSpace(FinanceDocument.DocumentNumber))
@@ -39,7 +47,7 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
         if (!ModelState.IsValid)
         {
             await LoadAsync();
-            return Page();
+            return NativePartialOrPage();
         }
 
         FinanceDocument.Status = FinanceDocumentStatus.Draft;
@@ -73,5 +81,25 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
         GuestOptions = new SelectList(guests, "Id", "Name", FinanceDocument.GuestId);
         SalesAccountOptions = new SelectList(accounts, "Id", "AccountName", FinanceDocument.SalesAccountId);
         BanquetEventOptions = new SelectList(events, "Id", "EventName", FinanceDocument.BanquetEventId);
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CreateNative",
+            ViewData = new ViewDataDictionary<IndexModel>(ViewData, this)
+        };
     }
 }

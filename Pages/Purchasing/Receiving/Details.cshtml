@@ -25,8 +25,8 @@
 <div class="mb-3 d-flex flex-wrap gap-2">
     @if (Model.ReceivingRecord.Status == Vantage.PMS.Models.Inventory.ReceivingStatus.Draft)
     {
-        <form method="post" asp-page-handler="PostReceiving"><button class="btn btn-success">Post Receiving</button></form>
-        <form method="post" asp-page-handler="Cancel"><button class="btn btn-outline-secondary">Cancel</button></form>
+        <a asp-page="./Details" asp-page-handler="PostReceivingNative" asp-route-id="@Model.ReceivingRecord.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Post Receiving">Post Receiving</a>
+        <a asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.ReceivingRecord.Id" class="btn btn-outline-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Receiving">Cancel</a>
     }
 </div>
 

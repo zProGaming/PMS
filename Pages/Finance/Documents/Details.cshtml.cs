@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Finance;
@@ -32,10 +33,49 @@ public class DetailsModel(ApplicationDbContext context, FinanceService financeSe
 
     public bool CanEditLines => FinanceDocument.Status == FinanceDocumentStatus.Draft;
 
+    public string NativeActionHandler { get; private set; } = string.Empty;
+    public string NativeActionTitle { get; private set; } = string.Empty;
+    public string NativeActionMessage { get; private set; } = string.Empty;
+    public string NativeActionButtonText { get; private set; } = string.Empty;
+    public string NativeActionButtonClass { get; private set; } = "vpms-btn-primary";
+
     public async Task<IActionResult> OnGetAsync(int id)
     {
         var found = await LoadAsync(id);
         return found ? Page() : NotFound();
+    }
+
+    public Task<IActionResult> OnGetIssueNativeAsync(int id) =>
+        NativeConfirmAsync(
+            id,
+            "Issue",
+            "Issue finance document",
+            "Issue this draft document. Lines and totals will be recalculated before status changes.",
+            "Issue Document",
+            "vpms-btn-primary");
+
+    public async Task<IActionResult> OnGetRecordPaymentNativeAsync(int id)
+    {
+        var found = await LoadAsync(id);
+        if (!found)
+        {
+            return NotFound();
+        }
+
+        DocumentPaymentAmount = FinanceDocument.Balance;
+        return NativePartial("_RecordPaymentNative");
+    }
+
+    public async Task<IActionResult> OnGetConvertToARNativeAsync(int id)
+    {
+        var found = await LoadAsync(id);
+        return found ? NativePartial("_ConvertToARNative") : NotFound();
+    }
+
+    public async Task<IActionResult> OnGetVoidNativeAsync(int id)
+    {
+        var found = await LoadAsync(id);
+        return found ? NativePartial("_VoidNative") : NotFound();
     }
 
     public async Task<IActionResult> OnPostAddLineAsync(int id)
@@ -263,5 +303,37 @@ public class DetailsModel(ApplicationDbContext context, FinanceService financeSe
 
         ChargeCodeOptions = new SelectList(chargeCodes, "Id", "Name");
         ARAccountOptions = new SelectList(arAccounts, "Id", "AccountName");
+    }
+
+    private async Task<IActionResult> NativeConfirmAsync(
+        int id,
+        string handler,
+        string title,
+        string message,
+        string buttonText,
+        string buttonClass)
+    {
+        var found = await LoadAsync(id);
+        if (!found)
+        {
+            return NotFound();
+        }
+
+        NativeActionHandler = handler;
+        NativeActionTitle = title;
+        NativeActionMessage = message;
+        NativeActionButtonText = buttonText;
+        NativeActionButtonClass = buttonClass;
+
+        return NativePartial("_ConfirmActionNative");
+    }
+
+    private PartialViewResult NativePartial(string viewName)
+    {
+        return new PartialViewResult
+        {
+            ViewName = viewName,
+            ViewData = new ViewDataDictionary<DetailsModel>(ViewData, this)
+        };
     }
 }

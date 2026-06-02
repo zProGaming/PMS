@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Inventory;
@@ -22,11 +23,29 @@ public class DetailsModel(ApplicationDbContext context, InventoryService invento
 
     public bool CanEditItems => StockAdjustment.Status == StockAdjustmentStatus.Draft;
 
+    public string NativeActionHandler { get; private set; } = string.Empty;
+    public string NativeActionTitle { get; private set; } = string.Empty;
+    public string NativeActionMessage { get; private set; } = string.Empty;
+    public string NativeActionButtonText { get; private set; } = string.Empty;
+    public string NativeActionButtonClass { get; private set; } = "vpms-btn-primary";
+
     public async Task<IActionResult> OnGetAsync(int id)
     {
         var found = await LoadAsync(id);
         return found ? Page() : NotFound();
     }
+
+    public Task<IActionResult> OnGetForApprovalNativeAsync(int id) =>
+        NativeConfirmAsync(id, "ForApproval", "Submit stock adjustment", "Submit this stock adjustment for approval.", "Submit for Approval", "vpms-btn-primary");
+
+    public Task<IActionResult> OnGetApproveNativeAsync(int id) =>
+        NativeConfirmAsync(id, "Approve", "Approve stock adjustment", "Approve this stock adjustment for posting.", "Approve Adjustment", "vpms-btn-primary");
+
+    public Task<IActionResult> OnGetPostAdjustmentNativeAsync(int id) =>
+        NativeConfirmAsync(id, "PostAdjustment", "Post stock adjustment", "Post this approved adjustment and update stock balances.", "Post Adjustment", "vpms-btn-primary");
+
+    public Task<IActionResult> OnGetCancelNativeAsync(int id) =>
+        NativeConfirmAsync(id, "Cancel", "Cancel stock adjustment", "Cancel this stock adjustment and stop the inventory variance workflow.", "Cancel Adjustment", "vpms-btn-danger");
 
     public async Task<IActionResult> OnPostAddItemAsync(int id)
     {
@@ -191,5 +210,32 @@ public class DetailsModel(ApplicationDbContext context, InventoryService invento
             .ToListAsync();
 
         InventoryItemOptions = new SelectList(items, "Id", "Name");
+    }
+
+    private async Task<IActionResult> NativeConfirmAsync(
+        int id,
+        string handler,
+        string title,
+        string message,
+        string buttonText,
+        string buttonClass)
+    {
+        var found = await LoadAsync(id);
+        if (!found)
+        {
+            return NotFound();
+        }
+
+        NativeActionHandler = handler;
+        NativeActionTitle = title;
+        NativeActionMessage = message;
+        NativeActionButtonText = buttonText;
+        NativeActionButtonClass = buttonClass;
+
+        return new PartialViewResult
+        {
+            ViewName = "_ConfirmActionNative",
+            ViewData = new ViewDataDictionary<DetailsModel>(ViewData, this)
+        };
     }
 }

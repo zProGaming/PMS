@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Finance;
@@ -34,6 +35,18 @@ public class DetailsModel(ApplicationDbContext context, FinanceService financeSe
         return found ? Page() : NotFound();
     }
 
+    public async Task<IActionResult> OnGetCashDropNativeAsync(int id)
+    {
+        var found = await LoadAsync(id);
+        return found ? NativePartial("_CashDropNative") : NotFound();
+    }
+
+    public async Task<IActionResult> OnGetCloseNativeAsync(int id)
+    {
+        var found = await LoadAsync(id);
+        return found ? NativePartial("_CloseNative") : NotFound();
+    }
+
     public async Task<IActionResult> OnPostCloseAsync(int id)
     {
         var shift = await _context.CashierShifts
@@ -48,6 +61,13 @@ public class DetailsModel(ApplicationDbContext context, FinanceService financeSe
 
         if (shift.Status != CashierShiftStatus.Open)
         {
+            if (IsNativeWorkflowRequest())
+            {
+                ModelState.AddModelError(string.Empty, "Only open cashier shifts can be closed.");
+                await LoadAsync(id);
+                return NativePartial("_CloseNative");
+            }
+
             TempData["ErrorMessage"] = "Only open cashier shifts can be closed.";
             return RedirectToPage(new { id });
         }
@@ -73,12 +93,26 @@ public class DetailsModel(ApplicationDbContext context, FinanceService financeSe
 
         if (shift.Status != CashierShiftStatus.Open)
         {
+            if (IsNativeWorkflowRequest())
+            {
+                ModelState.AddModelError(string.Empty, "Cash drops can be recorded only for open shifts.");
+                await LoadAsync(id);
+                return NativePartial("_CashDropNative");
+            }
+
             TempData["ErrorMessage"] = "Cash drops can be recorded only for open shifts.";
             return RedirectToPage(new { id });
         }
 
         if (CashDropAmount <= 0)
         {
+            if (IsNativeWorkflowRequest())
+            {
+                ModelState.AddModelError(nameof(CashDropAmount), "Cash drop amount must be greater than zero.");
+                await LoadAsync(id);
+                return NativePartial("_CashDropNative");
+            }
+
             TempData["ErrorMessage"] = "Cash drop amount must be greater than zero.";
             return RedirectToPage(new { id });
         }
@@ -126,5 +160,20 @@ public class DetailsModel(ApplicationDbContext context, FinanceService financeSe
         ExpectedCash = _financeService.CalculateExpectedCash(shift);
         ClosingCashCount = shift.ClosingCashCount ?? ExpectedCash;
         return true;
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial(string viewName)
+    {
+        return new PartialViewResult
+        {
+            ViewName = viewName,
+            ViewData = new ViewDataDictionary<DetailsModel>(ViewData, this)
+        };
     }
 }

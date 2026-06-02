@@ -23,24 +23,29 @@
 
 @if (Model.CashierShift.Status == Vantage.PMS.Models.Finance.CashierShiftStatus.Open)
 {
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <form method="post" asp-page-handler="CashDrop" class="border rounded p-3">
-                <h2 class="h5">Cash Drop</h2>
-                <div class="mb-3"><label asp-for="CashDropAmount" class="form-label"></label><input asp-for="CashDropAmount" class="form-control" /></div>
-                <div class="mb-3"><label asp-for="CashDropReceivedBy" class="form-label"></label><input asp-for="CashDropReceivedBy" class="form-control" /></div>
-                <div class="mb-3"><label asp-for="CashDropNotes" class="form-label"></label><input asp-for="CashDropNotes" class="form-control" /></div>
-                <button class="btn btn-primary">Record Cash Drop</button>
-            </form>
-        </div>
-        <div class="col-md-6">
-            <form method="post" asp-page-handler="Close" class="border rounded p-3">
-                <h2 class="h5">Close Shift</h2>
-                <div class="mb-3"><label asp-for="ClosingCashCount" class="form-label"></label><input asp-for="ClosingCashCount" class="form-control" /></div>
-                <button class="btn btn-success">Close Shift</button>
-            </form>
-        </div>
+    <div class="vpms-actions mb-4">
+        <a asp-page="./Details" asp-page-handler="CashDropNative" asp-route-id="@Model.CashierShift.Id" class="btn btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Record Cash Drop">Record Cash Drop</a>
+        <a asp-page="./Details" asp-page-handler="CloseNative" asp-route-id="@Model.CashierShift.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Close Cashier Shift">Close Shift</a>
     </div>
+    <details class="vpms-refined-card vpms-inline-create-panel mb-4">
+        <summary>Manual cashier controls</summary>
+        <div class="row g-3 mt-3">
+            <div class="col-md-6">
+                <form method="post" asp-page-handler="CashDrop" class="row g-3">
+                    <div class="col-12"><label asp-for="CashDropAmount" class="form-label"></label><input asp-for="CashDropAmount" class="form-control" /></div>
+                    <div class="col-12"><label asp-for="CashDropReceivedBy" class="form-label"></label><input asp-for="CashDropReceivedBy" class="form-control" /></div>
+                    <div class="col-12"><label asp-for="CashDropNotes" class="form-label"></label><input asp-for="CashDropNotes" class="form-control" /></div>
+                    <div class="col-12"><button class="btn btn-primary">Record Cash Drop</button></div>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <form method="post" asp-page-handler="Close" class="row g-3">
+                    <div class="col-12"><label asp-for="ClosingCashCount" class="form-label"></label><input asp-for="ClosingCashCount" class="form-control" /></div>
+                    <div class="col-12"><button class="btn btn-success">Close Shift</button></div>
+                </form>
+            </div>
+        </div>
+    </details>
 }
 
 <h2 class="h5">Transactions</h2>
