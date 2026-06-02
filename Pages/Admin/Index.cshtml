@@ -14,6 +14,8 @@
     };
     var completedSteps = setupSteps.Count(step => step.Count > 0);
     var setupPercent = Math.Round(completedSteps * 100m / setupSteps.Length, 0);
+    var nextSetupStep = setupSteps.FirstOrDefault(step => step.Count == 0) ?? setupSteps.Last();
+    var setupComplete = completedSteps == setupSteps.Length;
 }
 
 <nav aria-label="breadcrumb">
@@ -43,6 +45,18 @@
         <small>@completedSteps of @setupSteps.Length setup controls have records.</small>
         <div class="progress" aria-hidden="true">
             <div class="progress-bar" style="width: @setupPercent%"></div>
+        </div>
+        <div class="vpms-admin-next-step">
+            <span>@(setupComplete ? "Ready for Trial" : "Next Recommended Step")</span>
+            <strong>@(setupComplete ? "Review Access" : nextSetupStep.Title)</strong>
+            <small>@(setupComplete ? "Core setup is populated. Review user access before live trial use." : nextSetupStep.Description)</small>
+            <div>
+                <a class="btn btn-sm vpms-btn-primary"
+                   asp-page="@nextSetupStep.CreatePage"
+                   data-vpms-dialog
+                   data-vpms-dialog-title="@nextSetupStep.Action">@(setupComplete ? "Manage Access" : nextSetupStep.Action)</a>
+                <a class="btn btn-sm vpms-btn-secondary" asp-page="@nextSetupStep.IndexPage">Open List</a>
+            </div>
         </div>
     </div>
     <div class="vpms-admin-setup-flow">
@@ -160,6 +174,17 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <div class="vpms-setup-guidance-callout">
+                    <div>
+                        <span>Guided sequence</span>
+                        <strong>@(setupComplete ? "Core property setup is populated" : $"Continue with {nextSetupStep.Title}")</strong>
+                        <p>Use this order for trials: company code first, then property context, departments, sellable room types, physical rooms, and staff access.</p>
+                    </div>
+                    <a class="btn vpms-btn-primary"
+                       asp-page="@nextSetupStep.CreatePage"
+                       data-vpms-dialog
+                       data-vpms-dialog-title="@nextSetupStep.Action">@nextSetupStep.Action</a>
+                </div>
                 <div class="vpms-setup-guide-grid">
                     @foreach (var step in setupSteps)
                     {

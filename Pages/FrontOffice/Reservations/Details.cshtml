@@ -41,7 +41,11 @@
         {
             <a class="btn btn-warning" asp-page="./CheckOut" asp-route-id="@Model.Reservation.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Guest Check Out">Check Out</a>
         }
-        <a class="btn vpms-btn-secondary" asp-page="./Edit" asp-route-id="@Model.Reservation.Id">Edit</a>
+        <a class="btn vpms-btn-secondary"
+           asp-page="./Edit"
+           asp-route-id="@Model.Reservation.Id"
+           data-vpms-dialog
+           data-vpms-dialog-title="Edit Reservation">Edit</a>
         <a class="btn btn-outline-secondary" asp-page="./Index">Back</a>
     </div>
 </section>
@@ -82,6 +86,75 @@
         <span>Billing Control</span>
         <strong>@(hasFolio ? "Folio active" : "Folio pending")</strong>
     </article>
+</section>
+
+<section class="vpms-reservation-action-drawer" aria-label="Reservation action drawer">
+    <div class="vpms-reservation-action-copy">
+        <span>Stay Action Drawer</span>
+        <strong>@Model.Reservation.ConfirmationNumber</strong>
+        <small>@nextAction</small>
+    </div>
+    <div class="vpms-reservation-action-grid">
+        @if (Model.Reservation.Status == ReservationStatus.Reserved)
+        {
+            <a asp-page="./CheckIn"
+               asp-route-id="@Model.Reservation.Id"
+               data-vpms-native-dialog
+               data-vpms-native-handler="Native"
+               data-vpms-native-dialog-title="Guest Check In">
+                <span>Arrival Control</span>
+                <strong>Check In</strong>
+            </a>
+        }
+        @if (Model.Reservation.Status == ReservationStatus.CheckedIn)
+        {
+            <a asp-page="./CheckOut"
+               asp-route-id="@Model.Reservation.Id"
+               data-vpms-native-dialog
+               data-vpms-native-handler="Native"
+               data-vpms-native-dialog-title="Guest Check Out">
+                <span>Departure Control</span>
+                <strong>Check Out</strong>
+            </a>
+        }
+        <a asp-page="./Edit"
+           asp-route-id="@Model.Reservation.Id"
+           data-vpms-dialog
+           data-vpms-dialog-title="Edit Reservation">
+            <span>Stay Profile</span>
+            <strong>Edit Details</strong>
+        </a>
+        @if (hasFolio)
+        {
+            <a asp-page="/FrontOffice/Folios/PostCharge"
+               asp-route-folioId="@Model.FolioId"
+               data-vpms-native-dialog
+               data-vpms-native-handler="Native"
+               data-vpms-native-dialog-title="Post Folio Charge">
+                <span>Ledger</span>
+                <strong>Post Charge</strong>
+            </a>
+            <a asp-page="/FrontOffice/Folios/PostPayment"
+               asp-route-folioId="@Model.FolioId"
+               data-vpms-native-dialog
+               data-vpms-native-handler="Native"
+               data-vpms-native-dialog-title="Post Folio Payment">
+                <span>Settlement</span>
+                <strong>Post Payment</strong>
+            </a>
+            <a asp-page="/FrontOffice/Folios/Details"
+               asp-route-id="@Model.FolioId"
+               data-vpms-dialog
+               data-vpms-dialog-title="Folio Control">
+                <span>Finance Control</span>
+                <strong>Open Folio</strong>
+            </a>
+        }
+        <a asp-page="/FrontOffice/RoomRack/Index">
+            <span>Room Timeline</span>
+            <strong>Room Calendar</strong>
+        </a>
+    </div>
 </section>
 
 <div class="vpms-two-column">

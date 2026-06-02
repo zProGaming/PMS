@@ -124,35 +124,37 @@
     <a id="vpmsCalendarFocusAction" class="btn btn-sm vpms-btn-secondary" asp-page="/FrontOffice/Reservations/Index">Open Reservations</a>
 </section>
 
-<section class="vpms-calendar-legend-panel" aria-label="Room calendar legend">
-    <div class="vpms-calendar-period-nav">
-        <a class="btn btn-sm vpms-btn-secondary" href="@Model.BuildRouteFor(Model.EffectiveStartDate.AddDays(-Model.Days))">Previous</a>
-        <strong>@dateRangeLabel</strong>
-        <a class="btn btn-sm vpms-btn-secondary" href="@Model.BuildRouteFor(Model.EffectiveStartDate.AddDays(Model.Days))">Next</a>
-    </div>
-    <div class="vpms-calendar-legend">
-        <span><i class="vpms-legend-dot reserved"></i> Reserved</span>
-        <span><i class="vpms-legend-dot pending"></i> Pending</span>
-        <span><i class="vpms-legend-dot checkedin"></i> In-house</span>
-        <span><i class="vpms-legend-dot checkedout"></i> Checked out</span>
-        <span><i class="vpms-legend-dot noshow"></i> No-show</span>
-        <span><i class="vpms-legend-dot today"></i> Today</span>
-        <span><i class="vpms-legend-dot task"></i> HK task</span>
-        <span><i class="vpms-legend-dot blocked"></i> OOO / Maintenance</span>
-    </div>
-</section>
+<section class="vpms-calendar-operations-layout">
+    <div class="vpms-calendar-operations-main">
+        <section class="vpms-calendar-legend-panel" aria-label="Room calendar legend">
+            <div class="vpms-calendar-period-nav">
+                <a class="btn btn-sm vpms-btn-secondary" href="@Model.BuildRouteFor(Model.EffectiveStartDate.AddDays(-Model.Days))">Previous</a>
+                <strong>@dateRangeLabel</strong>
+                <a class="btn btn-sm vpms-btn-secondary" href="@Model.BuildRouteFor(Model.EffectiveStartDate.AddDays(Model.Days))">Next</a>
+            </div>
+            <div class="vpms-calendar-legend">
+                <span><i class="vpms-legend-dot reserved"></i> Reserved</span>
+                <span><i class="vpms-legend-dot pending"></i> Pending</span>
+                <span><i class="vpms-legend-dot checkedin"></i> In-house</span>
+                <span><i class="vpms-legend-dot checkedout"></i> Checked out</span>
+                <span><i class="vpms-legend-dot noshow"></i> No-show</span>
+                <span><i class="vpms-legend-dot today"></i> Today</span>
+                <span><i class="vpms-legend-dot task"></i> HK task</span>
+                <span><i class="vpms-legend-dot blocked"></i> OOO / Maintenance</span>
+            </div>
+        </section>
 
-@if (Model.RoomTypeGroups.Count == 0)
-{
-    <section class="vpms-empty-state vpms-calendar-empty">
-        <strong>No rooms match this calendar view.</strong>
-        <span>Adjust the filters, create active physical rooms, or seed demo data to populate the room calendar. Pseudo rooms and paymaster accounts are intentionally excluded from occupancy inventory.</span>
-        <a class="btn vpms-btn-primary" asp-page="/Admin/Rooms/Create">Create Room</a>
-    </section>
-}
-else
-{
-    <section class="vpms-room-calendar-shell" aria-label="Interactive room calendar">
+        @if (Model.RoomTypeGroups.Count == 0)
+        {
+            <section class="vpms-empty-state vpms-calendar-empty">
+                <strong>No rooms match this calendar view.</strong>
+                <span>Adjust the filters, create active physical rooms, or seed demo data to populate the room calendar. Pseudo rooms and paymaster accounts are intentionally excluded from occupancy inventory.</span>
+                <a class="btn vpms-btn-primary" asp-page="/Admin/Rooms/Create">Create Room</a>
+            </section>
+        }
+        else
+        {
+            <section class="vpms-room-calendar-shell" aria-label="Interactive room calendar">
         <div class="vpms-room-calendar-grid" style="@calendarStyle">
             <div class="vpms-calendar-month-row">
                 <div class="vpms-calendar-month-head">
@@ -370,8 +372,31 @@ else
                 </details>
             }
         </div>
-    </section>
-}
+            </section>
+        }
+    </div>
+
+    <aside class="vpms-calendar-side-inspector" aria-live="polite">
+        <div class="vpms-calendar-side-inspector-header">
+            <span>Calendar Inspector</span>
+            <strong id="vpmsCalendarInspectorTitle">Select a stay, room, or date</strong>
+            <p id="vpmsCalendarInspectorDetail">Use the calendar to inspect a room/stay while keeping the date grid in view.</p>
+        </div>
+        <div class="vpms-calendar-side-inspector-meta">
+            <span id="vpmsCalendarInspectorStatus">Context pending</span>
+            <span id="vpmsCalendarInspectorDate">@Model.BusinessDate.ToString("MMM d, yyyy")</span>
+        </div>
+        <div class="vpms-calendar-side-inspector-actions">
+            <a id="vpmsCalendarInspectorPrimary" class="btn vpms-btn-primary" asp-page="/FrontOffice/Reservations/Index">Open Reservations</a>
+            <a class="btn vpms-btn-secondary" asp-page="/Housekeeping/Index">Room Readiness</a>
+            <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/Reservations/Create" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Create Reservation">New Reservation</a>
+        </div>
+        <div class="vpms-calendar-side-inspector-note">
+            <strong>Stay in context</strong>
+            <span>Reservation bars open a control dialog. Sellable open cells launch quick reservation. Room status pills open housekeeping status control.</span>
+        </div>
+    </aside>
+</section>
 
 <section class="vpms-card vpms-calendar-note">
     <div>
@@ -474,6 +499,11 @@ else
             const focusTitle = document.getElementById('vpmsCalendarFocusTitle');
             const focusDetail = document.getElementById('vpmsCalendarFocusDetail');
             const focusAction = document.getElementById('vpmsCalendarFocusAction');
+            const inspectorTitle = document.getElementById('vpmsCalendarInspectorTitle');
+            const inspectorDetail = document.getElementById('vpmsCalendarInspectorDetail');
+            const inspectorPrimary = document.getElementById('vpmsCalendarInspectorPrimary');
+            const inspectorStatus = document.getElementById('vpmsCalendarInspectorStatus');
+            const inspectorDate = document.getElementById('vpmsCalendarInspectorDate');
             const quickReservationModal = document.getElementById('quickReservationModal');
             const quickReservationForm = document.getElementById('quickReservationForm');
             const quickReservationSubmit = document.getElementById('quickReservationSubmit');
@@ -507,14 +537,42 @@ else
             }
 
             const setFocus = (element) => {
-                if (!focusTitle || !focusDetail || !focusAction) {
+                if (!element) {
                     return;
                 }
 
-                focusTitle.textContent = element.dataset.inspectorTitle || 'Room Calendar';
-                focusDetail.textContent = element.dataset.inspectorDetail || 'Select a room, stay, or date to continue.';
-                focusAction.textContent = element.dataset.inspectorAction || 'Open';
-                focusAction.href = element.dataset.inspectorUrl || element.getAttribute('href') || '#';
+                const title = element.dataset.inspectorTitle || 'Room Calendar';
+                const detail = element.dataset.inspectorDetail || 'Select a room, stay, or date to continue.';
+                const action = element.dataset.inspectorAction || 'Open';
+                const url = element.dataset.inspectorUrl || element.getAttribute('href') || '#';
+                const roomContext = element.dataset.roomNumber
+                    ? `Room ${element.dataset.roomNumber} - ${element.dataset.roomType || 'Room type pending'}`
+                    : action;
+                const dateContext = element.dataset.arrival
+                    ? `${formatDate(element.dataset.arrival)} to ${formatDate(element.dataset.departure)}`
+                    : 'Stay timeline';
+
+                if (focusTitle && focusDetail && focusAction) {
+                    focusTitle.textContent = title;
+                    focusDetail.textContent = detail;
+                    focusAction.textContent = action;
+                    focusAction.href = url;
+                }
+
+                if (inspectorTitle && inspectorDetail && inspectorPrimary) {
+                    inspectorTitle.textContent = title;
+                    inspectorDetail.textContent = detail;
+                    inspectorPrimary.textContent = action;
+                    inspectorPrimary.href = url;
+                }
+
+                if (inspectorStatus) {
+                    inspectorStatus.textContent = roomContext;
+                }
+
+                if (inspectorDate) {
+                    inspectorDate.textContent = dateContext;
+                }
             };
 
             const formatDate = (value) => {
@@ -605,6 +663,7 @@ else
             document.querySelectorAll('[data-calendar-inspector]').forEach(element => {
                 element.addEventListener('mouseenter', () => setFocus(element));
                 element.addEventListener('focus', () => setFocus(element));
+                element.addEventListener('click', () => setFocus(element));
             });
 
             document.querySelectorAll('[data-quick-reservation="true"]').forEach(element => {

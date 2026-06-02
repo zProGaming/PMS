@@ -189,54 +189,63 @@
             </section>
         </main>
 
-        <aside class="vpms-refined-side">
-            <section class="vpms-refined-card">
-                <div class="vpms-refined-card-header">
+        <aside class="vpms-refined-side vpms-dashboard-detail-stack">
+            <details class="vpms-refined-card vpms-dashboard-detail-panel" @(riskCount > 0 ? "open" : "")>
+                <summary class="vpms-dashboard-detail-summary">
                     <div>
                         <h2>Operational Attention</h2>
                         <p>Signals that should not be allowed to drift.</p>
                     </div>
-                    <a asp-page="/ManagementAI/Insights/Index">View</a>
+                    <span>@riskCount</span>
+                </summary>
+                <div class="vpms-dashboard-detail-body">
+                    <ul class="vpms-signal-list">
+                        <li><span>High-balance folios</span><strong>@Model.HighBalanceFolios</strong></li>
+                        <li><span>Pending approvals</span><strong>@Model.PendingApprovals</strong></li>
+                        <li><span>Service requests</span><strong>@Model.OpenServiceRequests</strong></li>
+                        <li><span>Low-stock items</span><strong>@Model.LowStockItems</strong></li>
+                        <li><span>High/Critical insights</span><strong>@insightCount</strong></li>
+                    </ul>
+                    <a class="vpms-dashboard-detail-link" asp-page="/ManagementAI/Insights/Index">View management insights</a>
                 </div>
-                <ul class="vpms-signal-list">
-                    <li><span>High-balance folios</span><strong>@Model.HighBalanceFolios</strong></li>
-                    <li><span>Pending approvals</span><strong>@Model.PendingApprovals</strong></li>
-                    <li><span>Service requests</span><strong>@Model.OpenServiceRequests</strong></li>
-                    <li><span>Low-stock items</span><strong>@Model.LowStockItems</strong></li>
-                    <li><span>High/Critical insights</span><strong>@insightCount</strong></li>
-                </ul>
-            </section>
+            </details>
 
-            <section class="vpms-refined-card">
-                <div class="vpms-refined-card-header">
+            <details class="vpms-refined-card vpms-dashboard-detail-panel">
+                <summary class="vpms-dashboard-detail-summary">
                     <div>
                         <h2>Operational Shortcuts</h2>
                         <p>Daily control points for the front office and duty manager.</p>
                     </div>
+                    <span>5</span>
+                </summary>
+                <div class="vpms-dashboard-detail-body">
+                    <div class="vpms-compact-actions">
+                        <a asp-page="/FrontOffice/Index">Front Office</a>
+                        <a asp-page="/FoodBeverage/Orders/Index">POS Orders</a>
+                        <a asp-page="/Finance/NightAudit/Index">Night Audit</a>
+                        <a asp-page="/Inventory/Index">Inventory</a>
+                        <a asp-page="/Reports/Center">Report Center</a>
+                    </div>
                 </div>
-                <div class="vpms-compact-actions">
-                    <a asp-page="/FrontOffice/Index">Front Office</a>
-                    <a asp-page="/FoodBeverage/Orders/Index">POS Orders</a>
-                    <a asp-page="/Finance/NightAudit/Index">Night Audit</a>
-                    <a asp-page="/Inventory/Index">Inventory</a>
-                    <a asp-page="/Reports/Center">Report Center</a>
-                </div>
-            </section>
+            </details>
 
-            <section class="vpms-refined-card">
-                <div class="vpms-refined-card-header">
+            <details class="vpms-refined-card vpms-dashboard-detail-panel">
+                <summary class="vpms-dashboard-detail-summary">
                     <div>
                         <h2>Cash and Exposure</h2>
                         <p>Payment activity, guest ledger exposure, and room revenue indicators.</p>
                     </div>
+                    <span>@Model.TotalPaymentsToday.ToString("C0")</span>
+                </summary>
+                <div class="vpms-dashboard-detail-body">
+                    <dl class="summary-list">
+                        <dt>Payments</dt><dd>@Model.TotalPaymentsToday.ToString("C")</dd>
+                        <dt>Guest Balance</dt><dd>@Model.OutstandingGuestBalance.ToString("C")</dd>
+                        <dt>ADR</dt><dd>@Model.AdrToday.ToString("C")</dd>
+                        <dt>RevPAR</dt><dd>@Model.RevParToday.ToString("C")</dd>
+                    </dl>
                 </div>
-                <dl class="summary-list">
-                    <dt>Payments</dt><dd>@Model.TotalPaymentsToday.ToString("C")</dd>
-                    <dt>Guest Balance</dt><dd>@Model.OutstandingGuestBalance.ToString("C")</dd>
-                    <dt>ADR</dt><dd>@Model.AdrToday.ToString("C")</dd>
-                    <dt>RevPAR</dt><dd>@Model.RevParToday.ToString("C")</dd>
-                </dl>
-            </section>
+            </details>
         </aside>
     </div>
 </div>
