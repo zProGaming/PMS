@@ -12,6 +12,14 @@
             <p class="vpms-page-subtitle">Invoice-level aging, collection risk, and open city ledger exposure as of a selected date.</p>
         </div>
         <div class="vpms-actions">
+            <a class="btn vpms-btn-secondary"
+               asp-page="/AccountsReceivable/ARPayments/Index"
+               data-vpms-dialog
+               data-vpms-dialog-title="Post or Allocate AR Payment">AR Payments</a>
+            <a class="btn vpms-btn-secondary"
+               asp-page="/AccountsReceivable/Statements/Index"
+               data-vpms-dialog
+               data-vpms-dialog-title="Statement of Account">SOA</a>
             <button type="button" class="btn vpms-btn-secondary" onclick="window.print()">Print</button>
             <button type="button" class="btn vpms-btn-secondary" onclick="window.print()">Save as PDF</button>
             <a class="btn vpms-btn-primary"

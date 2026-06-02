@@ -31,7 +31,13 @@
                 <td class="text-end">@payment.Amount.ToString("C")</td>
                 <td class="text-end">@payment.Allocations.Sum(allocation => allocation.AllocatedAmount).ToString("C")</td>
                 <td class="text-end">@((payment.Amount - payment.Allocations.Sum(allocation => allocation.AllocatedAmount)).ToString("C"))</td>
-                <td class="text-end"><a asp-page="Details" asp-route-id="@payment.Id" class="btn btn-sm btn-outline-primary">Allocate</a></td>
+                <td class="text-end">
+                    <a asp-page="Details"
+                       asp-route-id="@payment.Id"
+                       class="btn btn-sm btn-outline-primary"
+                       data-vpms-dialog
+                       data-vpms-dialog-title="AR Payment Allocation">Allocate</a>
+                </td>
             </tr>
         }
     </tbody>

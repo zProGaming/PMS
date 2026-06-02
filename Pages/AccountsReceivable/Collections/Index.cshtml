@@ -14,6 +14,14 @@
             <p class="vpms-page-subtitle">Opening AR, billings, collections, memos, ending AR, and collection risk for hotel finance review.</p>
         </div>
         <div class="vpms-actions">
+            <a class="btn vpms-btn-secondary"
+               asp-page="/AccountsReceivable/ARPayments/Index"
+               data-vpms-dialog
+               data-vpms-dialog-title="Post or Allocate AR Payment">AR Payments</a>
+            <a class="btn vpms-btn-secondary"
+               asp-page="/AccountsReceivable/Aging/Index"
+               data-vpms-dialog
+               data-vpms-dialog-title="AR Aging Report">AR Aging</a>
             <button type="button" class="btn vpms-btn-secondary" onclick="window.print()">Print</button>
             <button type="button" class="btn vpms-btn-secondary" onclick="window.print()">Save as PDF</button>
             <a class="btn vpms-btn-primary"

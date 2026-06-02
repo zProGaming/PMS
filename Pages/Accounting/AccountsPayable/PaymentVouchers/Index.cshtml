@@ -7,7 +7,12 @@
 
 <div class="page-header">
     <div><div class="page-kicker">Accounts Payable</div><h1 class="page-title">Payment Vouchers</h1><p class="page-subtitle">Supplier payment approval and release controls.</p></div>
-    <div class="page-actions"><a class="btn vpms-btn-primary" asp-page="Create">Create Payment Voucher</a></div>
+    <div class="page-actions">
+        <a class="btn vpms-btn-primary"
+           asp-page="Create"
+           data-vpms-dialog
+           data-vpms-dialog-title="Create Payment Voucher">Create Payment Voucher</a>
+    </div>
 </div>
 
 <form method="get" class="vpms-card mb-3">
@@ -32,7 +37,13 @@
                 <td><span class="status-badge">@voucher.Status</span></td>
                 <td class="text-end">@voucher.Amount.ToString("C")</td>
                 <td class="text-end">@voucher.NetPaymentAmount.ToString("C")</td>
-                <td class="text-end"><a class="btn btn-sm vpms-btn-secondary" asp-page="Details" asp-route-id="@voucher.Id">Details</a></td>
+                <td class="text-end">
+                    <a class="btn btn-sm vpms-btn-secondary"
+                       asp-page="Details"
+                       asp-route-id="@voucher.Id"
+                       data-vpms-dialog
+                       data-vpms-dialog-title="Payment Voucher Control">Details</a>
+                </td>
             </tr>
         }
         </tbody>

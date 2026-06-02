@@ -91,7 +91,11 @@
                         <td class="text-end">
                             @if (payment.FolioId > 0)
                             {
-                                <a class="btn btn-sm vpms-btn-secondary" asp-page="/FrontOffice/Folios/Details" asp-route-id="@payment.FolioId">Open Folio</a>
+                                <a class="btn btn-sm vpms-btn-secondary"
+                                   asp-page="/FrontOffice/Folios/Details"
+                                   asp-route-id="@payment.FolioId"
+                                   data-vpms-dialog
+                                   data-vpms-dialog-title="Folio Control">Open Folio</a>
                             }
                         </td>
                     </tr>
