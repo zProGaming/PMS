@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -18,6 +19,17 @@ public class CreateModel(ApplicationDbContext context, AccountsPayableService ac
     public SelectList APInvoiceOptions { get; private set; } = default!;
 
     public async Task OnGetAsync(int? apInvoiceId)
+    {
+        await PrepareInputAsync(apInvoiceId);
+    }
+
+    public async Task<IActionResult> OnGetNativeAsync(int? apInvoiceId)
+    {
+        await PrepareInputAsync(apInvoiceId);
+        return NativePartial();
+    }
+
+    private async Task PrepareInputAsync(int? apInvoiceId)
     {
         Input.VoucherNumber = await accountsPayableService.GenerateNumberAsync("PV");
         Input.VoucherDate = DateTime.Today;
@@ -87,7 +99,7 @@ public class CreateModel(ApplicationDbContext context, AccountsPayableService ac
         if (!ModelState.IsValid)
         {
             await LoadOptionsAsync();
-            return Page();
+            return NativePartialOrPage();
         }
 
         Input.PreparedBy = User.Identity?.Name ?? "System";
@@ -96,6 +108,26 @@ public class CreateModel(ApplicationDbContext context, AccountsPayableService ac
         context.PaymentVouchers.Add(Input);
         await context.SaveChangesAsync();
         return RedirectToPage("Details", new { id = Input.Id });
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CreateNative",
+            ViewData = new ViewDataDictionary<CreateModel>(ViewData, this)
+        };
     }
 
     private async Task LoadOptionsAsync()

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -31,15 +32,46 @@ public class DetailsModel(ApplicationDbContext context, FinanceService financeSe
         return found ? Page() : NotFound();
     }
 
+    public async Task<IActionResult> OnGetNativeAsync(int id)
+    {
+        var found = await LoadAsync(id);
+        return found ? NativePartial() : NotFound();
+    }
+
     public async Task<IActionResult> OnPostAllocateAsync(int id)
     {
         var errors = await _financeService.AllocateARPaymentAsync(id, ARInvoiceId, AllocatedAmount, User.Identity?.Name ?? "System");
         if (errors.Count > 0)
         {
             TempData["ErrorMessage"] = string.Join(" ", errors);
+            foreach (var error in errors)
+            {
+                ModelState.AddModelError(string.Empty, error);
+            }
+
+            if (IsNativeWorkflowRequest())
+            {
+                await LoadAsync(id);
+                return NativePartial();
+            }
         }
 
         return RedirectToPage(new { id });
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_AllocatePaymentNative",
+            ViewData = new ViewDataDictionary<DetailsModel>(ViewData, this)
+        };
     }
 
     private async Task<bool> LoadAsync(int id)

@@ -1,0 +1,98 @@
+@model Vantage.PMS.Pages.Accounting.AccountsPayable.APInvoices.CreateModel
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <div class="page-kicker">Accounts Payable</div>
+        <h1>Create AP Invoice</h1>
+        <p>Record a supplier invoice while keeping the AP register or source document in context.</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>AP Number</span>
+        <strong>@Model.Input.InvoiceNumber</strong>
+    </div>
+</section>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="alert alert-warning vpms-alert">@Model.StatusMessage</div>
+}
+
+<form method="post" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input asp-for="Input.PurchaseOrderId" type="hidden" />
+    <input asp-for="Input.ReceivingRecordId" type="hidden" />
+
+    <div class="vpms-modal-form-grid">
+        <div class="vpms-modal-field">
+            <label asp-for="Input.SupplierId" class="form-label">Supplier</label>
+            <select asp-for="Input.SupplierId" asp-items="Model.SupplierOptions" class="form-select">
+                <option value="">Select supplier</option>
+            </select>
+            <span asp-validation-for="Input.SupplierId" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.InvoiceNumber" class="form-label">AP Number</label>
+            <input asp-for="Input.InvoiceNumber" class="form-control" />
+            <span asp-validation-for="Input.InvoiceNumber" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.SupplierInvoiceNumber" class="form-label">Supplier Reference</label>
+            <input asp-for="Input.SupplierInvoiceNumber" class="form-control" />
+            <span asp-validation-for="Input.SupplierInvoiceNumber" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.InvoiceDate" class="form-label">Invoice Date</label>
+            <input asp-for="Input.InvoiceDate" type="date" class="form-control" />
+            <span asp-validation-for="Input.InvoiceDate" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.DueDate" class="form-label">Due Date</label>
+            <input asp-for="Input.DueDate" type="date" class="form-control" />
+            <span asp-validation-for="Input.DueDate" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.DiscountAmount" class="form-label">Discount</label>
+            <input asp-for="Input.DiscountAmount" class="form-control" />
+            <span asp-validation-for="Input.DiscountAmount" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field wide">
+            <label asp-for="Input.Notes" class="form-label">Notes</label>
+            <textarea asp-for="Input.Notes" rows="2" class="form-control"></textarea>
+            <span asp-validation-for="Input.Notes" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="table-responsive mt-3">
+        <table class="table vpms-table align-middle">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>GL Account</th>
+                    <th class="text-end">Qty</th>
+                    <th class="text-end">Unit Cost</th>
+                    <th class="text-end">Tax</th>
+                    <th class="text-end">WHT</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < Math.Max(Model.Lines.Count, 3); i++)
+                {
+                    if (i >= Model.Lines.Count) { Model.Lines.Add(new()); }
+                    <tr>
+                        <td><input asp-for="Lines[i].Description" class="form-control" /></td>
+                        <td><select asp-for="Lines[i].GLAccountId" asp-items="Model.GLAccountOptions" class="form-select"><option value="">Auto</option></select></td>
+                        <td><input asp-for="Lines[i].Quantity" class="form-control text-end" /></td>
+                        <td><input asp-for="Lines[i].UnitCost" class="form-control text-end" /></td>
+                        <td><input asp-for="Lines[i].TaxAmount" class="form-control text-end" /></td>
+                        <td><input asp-for="Lines[i].WithholdingTaxAmount" class="form-control text-end" /></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button type="submit" class="btn vpms-btn-primary">Save AP Invoice</button>
+    </div>
+</form>

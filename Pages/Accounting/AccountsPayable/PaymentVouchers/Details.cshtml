@@ -34,16 +34,19 @@
 
 @if (Model.Voucher.Status == PaymentVoucherStatus.Approved)
 {
-    <form method="post" asp-page-handler="Release" asp-route-id="@Model.Voucher.Id" class="vpms-card mb-4">
+    <section class="vpms-card mb-4">
         <h2 class="h6">Release Payment</h2>
-        <div class="row g-3 align-items-end">
-            <div class="col-md-5">
-                <label asp-for="BankAccountId" class="form-label">Bank Account for bank/check/e-wallet payments</label>
-                <select asp-for="BankAccountId" asp-items="Model.BankAccountOptions" class="form-select"><option value="">Cash payment / no bank account</option></select>
-            </div>
-            <div class="col-md-3"><button class="btn vpms-btn-primary" type="submit">Release & Post</button></div>
+        <p class="text-muted mb-3">Release the approved voucher through a controlled treasury dialog so the voucher summary remains visible.</p>
+        <div class="vpms-actions">
+            <a class="btn vpms-btn-primary"
+               asp-page="./Details"
+               asp-page-handler="ReleaseNative"
+               asp-route-id="@Model.Voucher.Id"
+               data-vpms-native-dialog
+               data-vpms-native-handler="ReleaseNative"
+               data-vpms-native-dialog-title="Release Payment Voucher">Release &amp; Post</a>
         </div>
-    </form>
+    </section>
 }
 
 <section class="vpms-card">

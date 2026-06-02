@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -28,6 +29,15 @@ public class DetailsModel(ApplicationDbContext context, AccountsPayableService a
         return Page();
     }
 
+    public async Task<IActionResult> OnGetReleaseNativeAsync(int id)
+    {
+        var voucher = await LoadVoucherAsync(id);
+        if (voucher is null) return NotFound();
+        Voucher = voucher;
+        await LoadBankAccountsAsync();
+        return NativeReleasePartial();
+    }
+
     public async Task<IActionResult> OnPostMarkForApprovalAsync(int id)
     {
         var voucher = await context.PaymentVouchers.FindAsync(id);
@@ -51,6 +61,20 @@ public class DetailsModel(ApplicationDbContext context, AccountsPayableService a
     {
         var errors = await accountsPayableService.ReleasePaymentVoucherAsync(id, BankAccountId, User.Identity?.Name ?? "System");
         StatusMessage = errors.Count == 0 ? "Payment voucher released and posted to GL." : string.Join(" ", errors);
+        if (errors.Count > 0 && IsNativeWorkflowRequest())
+        {
+            foreach (var error in errors)
+            {
+                ModelState.AddModelError(string.Empty, error);
+            }
+
+            var voucher = await LoadVoucherAsync(id);
+            if (voucher is null) return NotFound();
+            Voucher = voucher;
+            await LoadBankAccountsAsync();
+            return NativeReleasePartial();
+        }
+
         return RedirectToPage(new { id });
     }
 
@@ -79,5 +103,20 @@ public class DetailsModel(ApplicationDbContext context, AccountsPayableService a
     private async Task LoadBankAccountsAsync()
     {
         BankAccountOptions = new SelectList(await context.BankAccounts.AsNoTracking().Where(account => account.IsActive).OrderBy(account => account.AccountName).ToListAsync(), "Id", "AccountName");
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativeReleasePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_ReleaseNative",
+            ViewData = new ViewDataDictionary<DetailsModel>(ViewData, this)
+        };
     }
 }

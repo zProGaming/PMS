@@ -1,0 +1,62 @@
+@model Vantage.PMS.Pages.AccountsReceivable.ARInvoices.IndexModel
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <div class="page-kicker">Accounts Receivable</div>
+        <h1>Create AR Invoice</h1>
+        <p>Record a city ledger invoice without leaving the current finance report or account view.</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Document</span>
+        <strong>@Model.Invoice.InvoiceNumber</strong>
+    </div>
+</section>
+
+<form method="post" asp-page-handler="Create" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="vpms-modal-form-grid">
+        <div class="vpms-modal-field">
+            <label asp-for="Invoice.InvoiceNumber" class="form-label">Invoice Number</label>
+            <input asp-for="Invoice.InvoiceNumber" class="form-control" readonly />
+            <span asp-validation-for="Invoice.InvoiceNumber" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Invoice.ARAccountId" class="form-label">AR Account</label>
+            <select asp-for="Invoice.ARAccountId" asp-items="Model.ARAccountOptions" class="form-select"></select>
+            <span asp-validation-for="Invoice.ARAccountId" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Invoice.FinanceDocumentId" class="form-label">Finance Document</label>
+            <select asp-for="Invoice.FinanceDocumentId" asp-items="Model.FinanceDocumentOptions" class="form-select">
+                <option value="">None</option>
+            </select>
+            <span asp-validation-for="Invoice.FinanceDocumentId" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Invoice.OriginalAmount" class="form-label">Original Amount</label>
+            <input asp-for="Invoice.OriginalAmount" class="form-control" />
+            <span asp-validation-for="Invoice.OriginalAmount" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Invoice.InvoiceDate" class="form-label">Invoice Date</label>
+            <input asp-for="Invoice.InvoiceDate" type="date" class="form-control" />
+            <span asp-validation-for="Invoice.InvoiceDate" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Invoice.DueDate" class="form-label">Due Date</label>
+            <input asp-for="Invoice.DueDate" type="date" class="form-control" />
+            <span asp-validation-for="Invoice.DueDate" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field wide">
+            <label asp-for="Invoice.Notes" class="form-label">Notes</label>
+            <input asp-for="Invoice.Notes" class="form-control" />
+            <span asp-validation-for="Invoice.Notes" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Create Invoice</button>
+    </div>
+</form>

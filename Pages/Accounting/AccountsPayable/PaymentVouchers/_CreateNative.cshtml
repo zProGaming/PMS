@@ -1,0 +1,90 @@
+@model Vantage.PMS.Pages.Accounting.AccountsPayable.PaymentVouchers.CreateModel
+@using Vantage.PMS.Models.Finance
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <div class="page-kicker">Accounts Payable</div>
+        <h1>Create Payment Voucher</h1>
+        <p>Prepare a supplier payment for approval while preserving the AP invoice or voucher list context.</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Voucher</span>
+        <strong>@Model.Input.VoucherNumber</strong>
+    </div>
+</section>
+
+<form method="post" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="vpms-modal-form-grid">
+        <div class="vpms-modal-field">
+            <label asp-for="Input.VoucherNumber" class="form-label">Voucher Number</label>
+            <input asp-for="Input.VoucherNumber" class="form-control" />
+            <span asp-validation-for="Input.VoucherNumber" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.VoucherDate" class="form-label">Voucher Date</label>
+            <input asp-for="Input.VoucherDate" type="date" class="form-control" />
+            <span asp-validation-for="Input.VoucherDate" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field wide">
+            <label asp-for="Input.APInvoiceId" class="form-label">AP Invoice</label>
+            <select asp-for="Input.APInvoiceId" asp-items="Model.APInvoiceOptions" class="form-select">
+                <option value="">Manual supplier payment</option>
+            </select>
+            <span asp-validation-for="Input.APInvoiceId" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.SupplierId" class="form-label">Supplier</label>
+            <select asp-for="Input.SupplierId" asp-items="Model.SupplierOptions" class="form-select">
+                <option value="">Select supplier</option>
+            </select>
+            <span asp-validation-for="Input.SupplierId" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.PaymentMethod" class="form-label">Method</label>
+            <select asp-for="Input.PaymentMethod" asp-items="Html.GetEnumSelectList<FinancePaymentMethod>()" class="form-select"></select>
+            <span asp-validation-for="Input.PaymentMethod" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.Amount" class="form-label">Gross Amount</label>
+            <input asp-for="Input.Amount" class="form-control" />
+            <span asp-validation-for="Input.Amount" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.WithholdingTaxAmount" class="form-label">WHT</label>
+            <input asp-for="Input.WithholdingTaxAmount" class="form-control" />
+            <span asp-validation-for="Input.WithholdingTaxAmount" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.NetPaymentAmount" class="form-label">Net Payment</label>
+            <input asp-for="Input.NetPaymentAmount" class="form-control" />
+            <span asp-validation-for="Input.NetPaymentAmount" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.BankAccountName" class="form-label">Bank Account Name</label>
+            <input asp-for="Input.BankAccountName" class="form-control" />
+            <span asp-validation-for="Input.BankAccountName" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.BankReferenceNumber" class="form-label">Bank Reference</label>
+            <input asp-for="Input.BankReferenceNumber" class="form-control" />
+            <span asp-validation-for="Input.BankReferenceNumber" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Input.CheckNumber" class="form-label">Check Number</label>
+            <input asp-for="Input.CheckNumber" class="form-control" />
+            <span asp-validation-for="Input.CheckNumber" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field wide">
+            <label asp-for="Input.Notes" class="form-label">Notes</label>
+            <textarea asp-for="Input.Notes" rows="3" class="form-control"></textarea>
+            <span asp-validation-for="Input.Notes" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Save Voucher</button>
+    </div>
+</form>

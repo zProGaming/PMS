@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -27,6 +28,13 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
         await LoadAsync();
     }
 
+    public async Task<IActionResult> OnGetNativeAsync()
+    {
+        Invoice.InvoiceNumber = await _financeService.GenerateSimpleNumberAsync("ARINV");
+        await LoadAsync();
+        return NativePartial();
+    }
+
     public async Task<IActionResult> OnPostCreateAsync()
     {
         if (string.IsNullOrWhiteSpace(Invoice.InvoiceNumber))
@@ -42,7 +50,7 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
         if (!ModelState.IsValid)
         {
             await LoadAsync();
-            return Page();
+            return NativePartialOrPage();
         }
 
         Invoice.Balance = Invoice.OriginalAmount - Invoice.AmountPaid;
@@ -53,6 +61,26 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
         await _context.SaveChangesAsync();
         await _financeService.RecalculateARAccountBalanceAsync(Invoice.ARAccountId);
         return RedirectToPage();
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CreateInvoiceNative",
+            ViewData = new ViewDataDictionary<IndexModel>(ViewData, this)
+        };
     }
 
     private async Task LoadAsync()

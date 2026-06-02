@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -24,6 +25,14 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         await LoadAsync();
     }
 
+    public async Task<IActionResult> OnGetNativeAsync()
+    {
+        Payment.PaymentDate = DateTime.Today;
+        Payment.ReceivedBy = User.Identity?.Name ?? string.Empty;
+        await LoadAsync();
+        return NativePartial();
+    }
+
     public async Task<IActionResult> OnPostCreateAsync()
     {
         if (Payment.Amount <= 0)
@@ -34,12 +43,32 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         if (!ModelState.IsValid)
         {
             await LoadAsync();
-            return Page();
+            return NativePartialOrPage();
         }
 
         _context.ARPayments.Add(Payment);
         await _context.SaveChangesAsync();
         return RedirectToPage("Details", new { id = Payment.Id });
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CreatePaymentNative",
+            ViewData = new ViewDataDictionary<IndexModel>(ViewData, this)
+        };
     }
 
     private async Task LoadAsync()

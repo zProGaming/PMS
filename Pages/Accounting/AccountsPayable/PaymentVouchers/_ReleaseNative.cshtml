@@ -1,0 +1,53 @@
+@model Vantage.PMS.Pages.Accounting.AccountsPayable.PaymentVouchers.DetailsModel
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <div class="page-kicker">Treasury Release</div>
+        <h1>Release @Model.Voucher.VoucherNumber</h1>
+        <p>@Model.Voucher.Supplier?.SupplierName | @Model.Voucher.PaymentMethod</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Net Payment</span>
+        <strong>@Model.Voucher.NetPaymentAmount.ToString("C")</strong>
+    </div>
+</section>
+
+<div class="row g-3 mb-3 vpms-native-summary-row">
+    <div class="col-md-4">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Gross Amount</div>
+            <strong>@Model.Voucher.Amount.ToString("C")</strong>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Withholding</div>
+            <strong>@Model.Voucher.WithholdingTaxAmount.ToString("C")</strong>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Net Payment</div>
+            <strong>@Model.Voucher.NetPaymentAmount.ToString("C")</strong>
+        </div>
+    </div>
+</div>
+
+<form method="post" asp-page-handler="Release" asp-route-id="@Model.Voucher.Id" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="vpms-modal-form-grid">
+        <div class="vpms-modal-field wide">
+            <label asp-for="BankAccountId" class="form-label">Bank Account for bank/check/e-wallet payments</label>
+            <select asp-for="BankAccountId" asp-items="Model.BankAccountOptions" class="form-select">
+                <option value="">Cash payment / no bank account</option>
+            </select>
+            <span asp-validation-for="BankAccountId" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Release and Post</button>
+    </div>
+</form>

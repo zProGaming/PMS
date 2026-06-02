@@ -12,7 +12,11 @@
         <p class="page-subtitle">Supplier invoices linked to purchase orders, receiving records, and GL posting.</p>
     </div>
     <div class="page-actions">
-        <a class="btn vpms-btn-primary" asp-page="Create">Create AP Invoice</a>
+        <a class="btn vpms-btn-primary"
+           asp-page="Create"
+           data-vpms-native-dialog
+           data-vpms-native-handler="Native"
+           data-vpms-native-dialog-title="Create AP Invoice">Create AP Invoice</a>
     </div>
 </div>
 
@@ -48,7 +52,13 @@
                 <td class="text-end">@invoice.TotalAmount.ToString("C")</td>
                 <td class="text-end">@invoice.AmountPaid.ToString("C")</td>
                 <td class="text-end fw-semibold">@invoice.Balance.ToString("C")</td>
-                <td class="text-end"><a class="btn btn-sm vpms-btn-secondary" asp-page="Details" asp-route-id="@invoice.Id">Details</a></td>
+                <td class="text-end">
+                    <a class="btn btn-sm vpms-btn-secondary"
+                       asp-page="Details"
+                       asp-route-id="@invoice.Id"
+                       data-vpms-dialog
+                       data-vpms-dialog-title="AP Invoice Control">Details</a>
+                </td>
             </tr>
         }
         </tbody>

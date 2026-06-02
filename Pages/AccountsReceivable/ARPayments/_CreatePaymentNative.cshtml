@@ -1,0 +1,61 @@
+@model Vantage.PMS.Pages.AccountsReceivable.ARPayments.IndexModel
+@using Vantage.PMS.Models.Finance
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <div class="page-kicker">Accounts Receivable</div>
+        <h1>Post AR Payment</h1>
+        <p>Record a collection and allocate it after posting while keeping the report context open.</p>
+    </div>
+    <div class="vpms-native-balance-pill positive">
+        <span>Collection</span>
+        <strong>AR</strong>
+    </div>
+</section>
+
+<form method="post" asp-page-handler="Create" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="vpms-modal-form-grid">
+        <div class="vpms-modal-field wide">
+            <label asp-for="Payment.ARAccountId" class="form-label">AR Account</label>
+            <select asp-for="Payment.ARAccountId" asp-items="Model.ARAccountOptions" class="form-select"></select>
+            <span asp-validation-for="Payment.ARAccountId" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Payment.PaymentDate" class="form-label">Payment Date</label>
+            <input asp-for="Payment.PaymentDate" type="date" class="form-control" />
+            <span asp-validation-for="Payment.PaymentDate" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Payment.Amount" class="form-label">Amount</label>
+            <input asp-for="Payment.Amount" class="form-control" />
+            <span asp-validation-for="Payment.Amount" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Payment.PaymentMethod" class="form-label">Method</label>
+            <select asp-for="Payment.PaymentMethod" asp-items="Html.GetEnumSelectList<FinancePaymentMethod>()" class="form-select"></select>
+            <span asp-validation-for="Payment.PaymentMethod" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Payment.ReferenceNumber" class="form-label">Reference</label>
+            <input asp-for="Payment.ReferenceNumber" class="form-control" />
+            <span asp-validation-for="Payment.ReferenceNumber" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field">
+            <label asp-for="Payment.ReceivedBy" class="form-label">Received By</label>
+            <input asp-for="Payment.ReceivedBy" class="form-control" />
+            <span asp-validation-for="Payment.ReceivedBy" class="text-danger"></span>
+        </div>
+        <div class="vpms-modal-field wide">
+            <label asp-for="Payment.Notes" class="form-label">Notes</label>
+            <input asp-for="Payment.Notes" class="form-control" />
+            <span asp-validation-for="Payment.Notes" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Post AR Payment</button>
+    </div>
+</form>

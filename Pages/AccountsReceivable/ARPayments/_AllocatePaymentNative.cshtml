@@ -1,0 +1,69 @@
+@model Vantage.PMS.Pages.AccountsReceivable.ARPayments.DetailsModel
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <div class="page-kicker">Accounts Receivable</div>
+        <h1>Allocate AR Payment</h1>
+        <p>@Model.Payment.ARAccount?.AccountName | Payment #@Model.Payment.Id</p>
+    </div>
+    <div class="vpms-native-balance-pill @(Model.RemainingAmount > 0 ? "warning" : "positive")">
+        <span>Remaining</span>
+        <strong>@Model.RemainingAmount.ToString("C")</strong>
+    </div>
+</section>
+
+<div class="row g-3 mb-3 vpms-native-summary-row">
+    <div class="col-md-4">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Payment Amount</div>
+            <strong>@Model.Payment.Amount.ToString("C")</strong>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Allocated</div>
+            <strong>@Model.Payment.Allocations.Sum(item => item.AllocatedAmount).ToString("C")</strong>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="border rounded p-3 h-100">
+            <div class="text-muted small">Remaining</div>
+            <strong>@Model.RemainingAmount.ToString("C")</strong>
+        </div>
+    </div>
+</div>
+
+@if (ViewData.ModelState.ErrorCount > 0)
+{
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+}
+
+@if (Model.RemainingAmount > 0)
+{
+    <form method="post" asp-page-handler="Allocate" asp-route-id="@Model.Payment.Id" class="vpms-native-workflow-form">
+        <div class="vpms-modal-form-grid">
+            <div class="vpms-modal-field wide">
+                <label asp-for="ARInvoiceId" class="form-label">Open Invoice</label>
+                <select asp-for="ARInvoiceId" asp-items="Model.InvoiceOptions" class="form-select"></select>
+                <span asp-validation-for="ARInvoiceId" class="text-danger"></span>
+            </div>
+            <div class="vpms-modal-field">
+                <label asp-for="AllocatedAmount" class="form-label">Allocated Amount</label>
+                <input asp-for="AllocatedAmount" class="form-control" />
+                <span asp-validation-for="AllocatedAmount" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="vpms-native-action-row">
+            <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+            <button class="btn vpms-btn-primary" type="submit">Allocate Payment</button>
+        </div>
+    </form>
+}
+else
+{
+    <section class="vpms-empty-state">
+        <strong>This payment is fully allocated.</strong>
+        <span>No additional allocation is required.</span>
+    </section>
+}
