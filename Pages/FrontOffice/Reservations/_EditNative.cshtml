@@ -1,0 +1,99 @@
+@model Vantage.PMS.Pages.FrontOffice.Reservations.EditModel
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <span class="page-kicker">Stay Profile</span>
+        <h1>Edit Reservation</h1>
+        <p>Adjust guest, rooming, dates, rate, and status while keeping the front desk board in context.</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Confirmation</span>
+        <strong>@Model.Reservation.ConfirmationNumber</strong>
+    </div>
+</section>
+
+<form method="post" asp-page="./Edit" asp-route-id="@Model.Reservation.Id" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Reservation.Id" />
+    <input type="hidden" asp-for="Reservation.ConfirmationNumber" />
+    <input type="hidden" asp-for="Reservation.CreatedAtUtc" />
+    <input type="hidden" asp-for="Reservation.ActualCheckInDate" />
+    <input type="hidden" asp-for="Reservation.ActualCheckOutDate" />
+    <input type="hidden" asp-for="Reservation.ManagerOverrideRequested" />
+    <input type="hidden" asp-for="Reservation.RoomTypeId" />
+
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Guest and Rooming</h2>
+            <p>Control the guest assignment and active rooming decision for this stay.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Reservation.GuestId" class="form-label">Guest</label>
+                <select asp-for="Reservation.GuestId" class="form-select" asp-items="Model.GuestOptions">
+                    <option value="">Select guest</option>
+                </select>
+                <span asp-validation-for="Reservation.GuestId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Reservation.RoomId" class="form-label">Room</label>
+                <select asp-for="Reservation.RoomId" class="form-select" asp-items="Model.RoomOptions">
+                    <option value="">Select room</option>
+                </select>
+                <span asp-validation-for="Reservation.RoomId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Reservation.RatePlanId" class="form-label">Rate Plan</label>
+                <select asp-for="Reservation.RatePlanId" class="form-select" asp-items="Model.RatePlanOptions">
+                    <option value="">Use room type base rate</option>
+                </select>
+                <span asp-validation-for="Reservation.RatePlanId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Reservation.Status" class="form-label">Status</label>
+                <select asp-for="Reservation.Status" class="form-select" asp-items="Model.ReservationStatusOptions"></select>
+                <span asp-validation-for="Reservation.Status" class="text-danger"></span>
+            </div>
+        </div>
+    </section>
+
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Stay and Rate</h2>
+            <p>Dates must remain valid and rate controls continue to use the existing revenue validation rules.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label asp-for="Reservation.ArrivalDate" class="form-label">Check-in Date</label>
+                <input asp-for="Reservation.ArrivalDate" class="form-control" type="date" asp-format="{0:yyyy-MM-dd}" />
+                <span asp-validation-for="Reservation.ArrivalDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Reservation.DepartureDate" class="form-label">Check-out Date</label>
+                <input asp-for="Reservation.DepartureDate" class="form-control" type="date" asp-format="{0:yyyy-MM-dd}" />
+                <span asp-validation-for="Reservation.DepartureDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Reservation.RateAmount" class="form-label">Rate Amount</label>
+                <input asp-for="Reservation.RateAmount" class="form-control" type="number" min="0" step="0.01" />
+                <div class="form-text">Suggested rate: @(Model.SuggestedRate?.ToString("N2") ?? "select room/rate and save to calculate").</div>
+                <span asp-validation-for="Reservation.RateAmount" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Reservation.Adults" class="form-label">Adults</label>
+                <input asp-for="Reservation.Adults" class="form-control" type="number" min="0" />
+                <span asp-validation-for="Reservation.Adults" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="Reservation.Children" class="form-label">Children</label>
+                <input asp-for="Reservation.Children" class="form-control" type="number" min="0" />
+                <span asp-validation-for="Reservation.Children" class="text-danger"></span>
+            </div>
+        </div>
+    </section>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button type="submit" class="btn vpms-btn-primary">Save Reservation</button>
+    </div>
+</form>

@@ -1,0 +1,58 @@
+@model Vantage.PMS.Pages.Purchasing.Receiving.CreateModel
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <span class="page-kicker">Purchasing Control</span>
+        <h1>New Receiving Record</h1>
+        <p>Create a draft receiving record for approved purchase orders or controlled manual receiving.</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Receiving</span>
+        <strong>@Model.ReceivingRecord.ReceivingNumber</strong>
+    </div>
+</section>
+
+<form method="post" asp-page="./Create" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Receiving Header</h2>
+            <p>Supplier and PO validation continues to use the existing purchasing controls.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="ReceivingRecord.ReceivingNumber" class="form-label">Receiving Number</label>
+                <input asp-for="ReceivingRecord.ReceivingNumber" class="form-control" readonly />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="ReceivingRecord.PurchaseOrderId" class="form-label">Purchase Order</label>
+                <select asp-for="ReceivingRecord.PurchaseOrderId" asp-items="Model.PurchaseOrderOptions" class="form-select">
+                    <option value="">Manual receiving</option>
+                </select>
+                <span asp-validation-for="ReceivingRecord.PurchaseOrderId" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="ReceivingRecord.SupplierId" class="form-label">Supplier</label>
+                <select asp-for="ReceivingRecord.SupplierId" asp-items="Model.SupplierOptions" class="form-select">
+                    <option value="">No supplier</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ReceivingRecord.ReceivedDate" class="form-label">Received Date</label>
+                <input asp-for="ReceivingRecord.ReceivedDate" type="date" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ReceivingRecord.ReceivedBy" class="form-label">Received By</label>
+                <input asp-for="ReceivingRecord.ReceivedBy" class="form-control" />
+            </div>
+            <div class="col-12">
+                <label asp-for="ReceivingRecord.Notes" class="form-label">Notes</label>
+                <textarea asp-for="ReceivingRecord.Notes" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+    </section>
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Create Receiving</button>
+    </div>
+</form>

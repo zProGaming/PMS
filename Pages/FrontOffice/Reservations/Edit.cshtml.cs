@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -28,21 +29,13 @@ public class EditModel(ApplicationDbContext context, RevenueManagementService re
 
     public async Task<IActionResult> OnGetAsync(int? id)
     {
-        if (id is null)
-        {
-            return NotFound();
-        }
+        return await LoadReservationOrNotFoundAsync(id);
+    }
 
-        var reservation = await _context.Reservations.FindAsync(id);
-        if (reservation is null)
-        {
-            return NotFound();
-        }
-
-        Reservation = reservation;
-        SuggestedRate = await _revenueManagement.GetSuggestedRateAsync(Reservation.RatePlanId, Reservation.RoomTypeId, Reservation.ArrivalDate, Reservation.DepartureDate);
-        await LoadSelectListsAsync(Reservation.GuestId, Reservation.RoomId, Reservation.RatePlanId, Reservation.Status);
-        return Page();
+    public async Task<IActionResult> OnGetNativeAsync(int? id)
+    {
+        var result = await LoadReservationOrNotFoundAsync(id);
+        return result is NotFoundResult ? result : NativePartial();
     }
 
     public async Task<IActionResult> OnPostAsync()
@@ -55,7 +48,7 @@ public class EditModel(ApplicationDbContext context, RevenueManagementService re
         if (!ModelState.IsValid)
         {
             await LoadSelectListsAsync(Reservation.GuestId, Reservation.RoomId, Reservation.RatePlanId, Reservation.Status);
-            return Page();
+            return NativePartialOrPage();
         }
 
         _context.Attach(Reservation).State = EntityState.Modified;
@@ -75,6 +68,45 @@ public class EditModel(ApplicationDbContext context, RevenueManagementService re
         }
 
         return RedirectToPage("./Index");
+    }
+
+    private async Task<IActionResult> LoadReservationOrNotFoundAsync(int? id)
+    {
+        if (id is null)
+        {
+            return NotFound();
+        }
+
+        var reservation = await _context.Reservations.FindAsync(id);
+        if (reservation is null)
+        {
+            return NotFound();
+        }
+
+        Reservation = reservation;
+        SuggestedRate = await _revenueManagement.GetSuggestedRateAsync(Reservation.RatePlanId, Reservation.RoomTypeId, Reservation.ArrivalDate, Reservation.DepartureDate);
+        await LoadSelectListsAsync(Reservation.GuestId, Reservation.RoomId, Reservation.RatePlanId, Reservation.Status);
+        return Page();
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_EditNative",
+            ViewData = new ViewDataDictionary<EditModel>(ViewData, this)
+        };
     }
 
     private async Task ApplySelectedRoomAsync()

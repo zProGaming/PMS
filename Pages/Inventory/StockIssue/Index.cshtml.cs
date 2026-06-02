@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -29,6 +30,12 @@ public class IndexModel(ApplicationDbContext context, InventoryService inventory
 
     public async Task OnGetAsync() => await LoadOptionsAsync();
 
+    public async Task<IActionResult> OnGetNativeAsync()
+    {
+        await LoadOptionsAsync();
+        return NativePartial();
+    }
+
     public async Task<IActionResult> OnPostAsync()
     {
         if (Quantity <= 0)
@@ -39,7 +46,7 @@ public class IndexModel(ApplicationDbContext context, InventoryService inventory
         if (!ModelState.IsValid)
         {
             await LoadOptionsAsync();
-            return Page();
+            return NativePartialOrPage();
         }
 
         var errors = await _inventoryService.IssueStockAsync(InventoryItemId, DepartmentId, Quantity, Remarks, User.Identity?.Name ?? "System");
@@ -51,11 +58,31 @@ public class IndexModel(ApplicationDbContext context, InventoryService inventory
             }
 
             await LoadOptionsAsync();
-            return Page();
+            return NativePartialOrPage();
         }
 
         TempData["SuccessMessage"] = "Stock issue posted.";
         return RedirectToPage();
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_IssueNative",
+            ViewData = new ViewDataDictionary<IndexModel>(ViewData, this)
+        };
     }
 
     private async Task LoadOptionsAsync()

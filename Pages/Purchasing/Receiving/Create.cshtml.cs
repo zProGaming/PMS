@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -21,17 +22,14 @@ public class CreateModel(ApplicationDbContext context, InventoryService inventor
 
     public async Task<IActionResult> OnGetAsync(int? purchaseOrderId)
     {
-        ReceivingRecord.ReceivingNumber = await _inventoryService.GenerateNumberAsync("RR");
-        ReceivingRecord.ReceivedBy = User.Identity?.Name ?? string.Empty;
-        ReceivingRecord.PurchaseOrderId = purchaseOrderId;
-        if (purchaseOrderId is not null)
-        {
-            var order = await _context.PurchaseOrders.AsNoTracking().FirstOrDefaultAsync(po => po.Id == purchaseOrderId);
-            ReceivingRecord.SupplierId = order?.SupplierId;
-        }
-
-        await LoadOptionsAsync();
+        await PrepareInputAsync(purchaseOrderId);
         return Page();
+    }
+
+    public async Task<IActionResult> OnGetNativeAsync(int? purchaseOrderId)
+    {
+        await PrepareInputAsync(purchaseOrderId);
+        return NativePartial();
     }
 
     public async Task<IActionResult> OnPostAsync()
@@ -56,7 +54,7 @@ public class CreateModel(ApplicationDbContext context, InventoryService inventor
         if (!ModelState.IsValid)
         {
             await LoadOptionsAsync();
-            return Page();
+            return NativePartialOrPage();
         }
 
         if (string.IsNullOrWhiteSpace(ReceivingRecord.ReceivingNumber))
@@ -68,6 +66,40 @@ public class CreateModel(ApplicationDbContext context, InventoryService inventor
         _context.ReceivingRecords.Add(ReceivingRecord);
         await _context.SaveChangesAsync();
         return RedirectToPage("Details", new { id = ReceivingRecord.Id });
+    }
+
+    private async Task PrepareInputAsync(int? purchaseOrderId)
+    {
+        ReceivingRecord.ReceivingNumber = await _inventoryService.GenerateNumberAsync("RR");
+        ReceivingRecord.ReceivedBy = User.Identity?.Name ?? string.Empty;
+        ReceivingRecord.PurchaseOrderId = purchaseOrderId;
+        if (purchaseOrderId is not null)
+        {
+            var order = await _context.PurchaseOrders.AsNoTracking().FirstOrDefaultAsync(po => po.Id == purchaseOrderId);
+            ReceivingRecord.SupplierId = order?.SupplierId;
+        }
+
+        await LoadOptionsAsync();
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CreateNative",
+            ViewData = new ViewDataDictionary<CreateModel>(ViewData, this)
+        };
     }
 
     private async Task LoadOptionsAsync()

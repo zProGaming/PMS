@@ -1,0 +1,32 @@
+@model Vantage.PMS.Pages.FrontOffice.Reservations.DeleteModel
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <span class="page-kicker">Arrival Control</span>
+        <h1>Mark No-Show</h1>
+        <p>Record this arrival as a no-show while preserving the reservation for reporting and follow-up review.</p>
+    </div>
+    <div class="vpms-native-balance-pill warning">
+        <span>Arrival</span>
+        <strong>@Model.Reservation.ArrivalDate.ToString("MMM d")</strong>
+    </div>
+</section>
+
+<dl class="row mt-3 vpms-native-definition-strip">
+    <dt class="col-sm-4">Confirmation</dt>
+    <dd class="col-sm-8">@Model.Reservation.ConfirmationNumber</dd>
+    <dt class="col-sm-4">Guest</dt>
+    <dd class="col-sm-8">@Model.Reservation.Guest?.FirstName @Model.Reservation.Guest?.LastName</dd>
+    <dt class="col-sm-4">Room</dt>
+    <dd class="col-sm-8">@(Model.Reservation.Room?.RoomNumber ?? "Unassigned")</dd>
+    <dt class="col-sm-4">Current Status</dt>
+    <dd class="col-sm-8">@Model.Reservation.Status</dd>
+</dl>
+
+<form method="post" asp-page="./Delete" asp-page-handler="NoShow" asp-route-id="@Model.Reservation.Id" class="vpms-native-workflow-form">
+    <input type="hidden" asp-for="Reservation.Id" />
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Keep Reservation</a>
+        <button type="submit" class="btn btn-warning">Mark No-Show</button>
+    </div>
+</form>

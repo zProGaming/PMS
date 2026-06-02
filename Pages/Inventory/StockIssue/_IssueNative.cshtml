@@ -1,0 +1,48 @@
+@model Vantage.PMS.Pages.Inventory.StockIssue.IndexModel
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <span class="page-kicker">Inventory Control</span>
+        <h1>Post Stock Issue</h1>
+        <p>Issue stock to a department with the existing negative-stock validation and stock movement controls.</p>
+    </div>
+    <div class="vpms-native-balance-pill warning">
+        <span>Movement</span>
+        <strong>Issue</strong>
+    </div>
+</section>
+
+<form method="post" asp-page="./Index" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Issue Details</h2>
+            <p>Select the stock item, consuming department, and quantity to post.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="InventoryItemId" class="form-label">Item</label>
+                <select asp-for="InventoryItemId" asp-items="Model.InventoryItemOptions" class="form-select"></select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="DepartmentId" class="form-label">Department</label>
+                <select asp-for="DepartmentId" asp-items="Model.DepartmentOptions" class="form-select">
+                    <option value="">No department</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Quantity" class="form-label">Quantity</label>
+                <input asp-for="Quantity" class="form-control" />
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Remarks" class="form-label">Remarks</label>
+                <textarea asp-for="Remarks" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+    </section>
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Post Stock Issue</button>
+    </div>
+</form>

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Inventory;
 using Vantage.PMS.Services;
@@ -16,16 +17,21 @@ public class CreateModel(ApplicationDbContext context, InventoryService inventor
 
     public async Task<IActionResult> OnGetAsync()
     {
-        StockAdjustment.AdjustmentNumber = await _inventoryService.GenerateNumberAsync("ADJ");
-        StockAdjustment.PreparedBy = User.Identity?.Name ?? string.Empty;
+        await PrepareInputAsync();
         return Page();
+    }
+
+    public async Task<IActionResult> OnGetNativeAsync()
+    {
+        await PrepareInputAsync();
+        return NativePartial();
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid)
         {
-            return Page();
+            return NativePartialOrPage();
         }
 
         if (string.IsNullOrWhiteSpace(StockAdjustment.AdjustmentNumber))
@@ -37,5 +43,31 @@ public class CreateModel(ApplicationDbContext context, InventoryService inventor
         _context.StockAdjustments.Add(StockAdjustment);
         await _context.SaveChangesAsync();
         return RedirectToPage("Details", new { id = StockAdjustment.Id });
+    }
+
+    private async Task PrepareInputAsync()
+    {
+        StockAdjustment.AdjustmentNumber = await _inventoryService.GenerateNumberAsync("ADJ");
+        StockAdjustment.PreparedBy = User.Identity?.Name ?? string.Empty;
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CreateNative",
+            ViewData = new ViewDataDictionary<CreateModel>(ViewData, this)
+        };
     }
 }

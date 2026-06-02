@@ -1,0 +1,49 @@
+@model Vantage.PMS.Pages.Inventory.StockAdjustments.CreateModel
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <span class="page-kicker">Inventory Control</span>
+        <h1>New Stock Adjustment</h1>
+        <p>Create a draft adjustment header. Item variance and approval controls remain on the adjustment details workflow.</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Adjustment</span>
+        <strong>@Model.StockAdjustment.AdjustmentNumber</strong>
+    </div>
+</section>
+
+<form method="post" asp-page="./Create" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Adjustment Header</h2>
+            <p>Record the reason and reviewer context before adding line-level variances.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="StockAdjustment.AdjustmentNumber" class="form-label">Adjustment Number</label>
+                <input asp-for="StockAdjustment.AdjustmentNumber" class="form-control" readonly />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="StockAdjustment.AdjustmentDate" class="form-label">Adjustment Date</label>
+                <input asp-for="StockAdjustment.AdjustmentDate" type="date" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="StockAdjustment.PreparedBy" class="form-label">Prepared By</label>
+                <input asp-for="StockAdjustment.PreparedBy" class="form-control" />
+            </div>
+            <div class="col-12">
+                <label asp-for="StockAdjustment.Reason" class="form-label">Reason</label>
+                <textarea asp-for="StockAdjustment.Reason" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="col-12">
+                <label asp-for="StockAdjustment.Notes" class="form-label">Notes</label>
+                <textarea asp-for="StockAdjustment.Notes" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+    </section>
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Create Adjustment</button>
+    </div>
+</form>
