@@ -408,11 +408,12 @@
                 <span class="vpms-command-item vpms-command-online commandbar-status"><span class="vpms-online-dot"></span>Online</span>
                 @if (canAccessRevenue)
                 {
-                    <a class="vpms-command-item" asp-page="/Revenue/Calendar/Index"><span class="vpms-command-icon"></span>Room Calendar</a>
+                    <a class="vpms-command-item" asp-page="/Revenue/Calendar/Index"><span class="vpms-command-icon"></span>Revenue Calendar</a>
                 }
                 @if (canAccessFrontOffice)
                 {
                     <a class="vpms-command-item" asp-page="/FrontOffice/Reservations/Create" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Create Reservation"><span class="vpms-command-icon"></span>Reservation</a>
+                    <a class="vpms-command-item" asp-page="/FrontOffice/RoomRack/Index"><span class="vpms-command-icon"></span>Room Calendar</a>
                     <a class="vpms-command-item" asp-page="/FrontOffice/Index"><span class="vpms-command-icon"></span>In-House</a>
                     <a class="vpms-command-item" asp-page="/FrontOffice/Reservations/Index"><span class="vpms-command-icon"></span>Quick Desk</a>
                 }

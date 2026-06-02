@@ -8744,6 +8744,30 @@ body,
   border-color: rgba(239, 68, 68, 0.2);
 }
 
+.vpms-calendar-label-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.16rem 0.44rem;
+  color: #0f766e;
+  font-size: 0.64rem;
+  font-weight: 820;
+  line-height: 1;
+  text-decoration: none;
+  background: rgba(240, 253, 250, 0.9);
+  border: 1px solid rgba(20, 184, 166, 0.22);
+  border-radius: 999px;
+  transition: background-color 0.14s ease, border-color 0.14s ease, transform 0.14s ease;
+}
+
+.vpms-calendar-label-action:hover,
+.vpms-calendar-label-action:focus-visible {
+  color: #0f766e;
+  background: #ccfbf1;
+  border-color: rgba(20, 184, 166, 0.38);
+  transform: translateY(-1px);
+}
+
 .vpms-calendar-cell {
   position: relative;
   z-index: 1;
@@ -11031,9 +11055,193 @@ html {
   display: grid;
 }
 
+/* Trial-ready setup and modal-first workflow polish. */
+.vpms-admin-setup-command {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) 1fr;
+  gap: 0.8rem;
+  margin: 0 0 1rem;
+}
+
+.vpms-admin-setup-summary,
+.vpms-admin-setup-flow article,
+.vpms-setup-guide-grid article {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(221, 229, 238, 0.94);
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.055);
+}
+
+.vpms-admin-setup-summary {
+  display: grid;
+  align-content: center;
+  gap: 0.18rem;
+  padding: 0.95rem 1rem;
+}
+
+.vpms-admin-setup-summary span,
+.vpms-admin-setup-summary small,
+.vpms-admin-setup-flow small,
+.vpms-setup-guide-grid small {
+  color: #64748b;
+  font-size: 0.74rem;
+  letter-spacing: 0;
+}
+
+.vpms-admin-setup-summary strong {
+  color: #0f172a;
+  font-size: 2rem;
+  font-weight: 860;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.vpms-admin-setup-summary .progress {
+  height: 0.42rem;
+  margin-top: 0.35rem;
+  background: #e2e8f0;
+  border-radius: 999px;
+}
+
+.vpms-admin-setup-summary .progress-bar {
+  background: linear-gradient(90deg, #0f766e, #06b6d4);
+  border-radius: inherit;
+}
+
+.vpms-admin-setup-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.62rem;
+}
+
+.vpms-admin-setup-flow article {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  padding: 0.72rem 0.78rem;
+}
+
+.vpms-admin-setup-flow article > span,
+.vpms-setup-guide-grid article > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: #0f766e;
+  font-size: 0.76rem;
+  font-weight: 860;
+  background: rgba(20, 184, 166, 0.1);
+  border: 1px solid rgba(20, 184, 166, 0.2);
+  border-radius: 999px;
+}
+
+.vpms-admin-setup-flow article.attention > span,
+.vpms-setup-guide-grid article.attention > span {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.24);
+}
+
+.vpms-admin-setup-flow strong,
+.vpms-setup-guide-grid h3 {
+  display: block;
+  overflow: hidden;
+  margin: 0;
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 820;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vpms-admin-setup-flow a {
+  color: #0f766e;
+  font-size: 0.72rem;
+  font-weight: 820;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.vpms-setup-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.vpms-setup-guide-grid article {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.78rem;
+  padding: 1rem;
+}
+
+.vpms-setup-guide-grid p {
+  margin: 0.18rem 0 0.35rem;
+  color: #64748b;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.vpms-setup-guide-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.vpms-density-command .vpms-dashboard-compact-command {
+  gap: clamp(0.85rem, 1.6vw, 1.35rem);
+  padding-block: clamp(1rem, 2vw, 1.35rem);
+}
+
+.vpms-density-command .vpms-dashboard-metric-ribbon article {
+  min-height: 0;
+  padding: 0.68rem 0.76rem;
+  border-radius: 14px;
+}
+
+.vpms-density-command .vpms-refined-grid {
+  gap: 0.85rem;
+}
+
+.vpms-density-command .vpms-refined-card {
+  padding: 0.9rem;
+  border-radius: 18px;
+}
+
 @keyframes vpmsSpin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1199.98px) {
+  .vpms-admin-setup-command {
+    grid-template-columns: 1fr;
+  }
+
+  .vpms-admin-setup-flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767.98px) {
+  .vpms-admin-setup-flow,
+  .vpms-setup-guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vpms-admin-setup-flow article {
+    grid-template-columns: auto 1fr;
+  }
+
+  .vpms-admin-setup-flow a {
+    grid-column: 2;
   }
 }
 

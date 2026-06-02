@@ -3,6 +3,17 @@
 
 @{
     ViewData["Title"] = "Admin";
+    var setupSteps = new[]
+    {
+        new { Number = "01", Title = "Company Code", Description = "Create the hotel/company record that binds users to the correct tenant.", Count = Model.Hotels, IndexPage = "/Admin/Hotels/Index", CreatePage = "/Admin/Hotels/Create", Action = "Create Company" },
+        new { Number = "02", Title = "Property", Description = "Define the operating property, address, and property-level context.", Count = Model.Properties, IndexPage = "/Admin/Properties/Index", CreatePage = "/Admin/Properties/Create", Action = "Create Property" },
+        new { Number = "03", Title = "Departments", Description = "Set front office, rooms, finance, F&B, and operating departments.", Count = Model.Departments, IndexPage = "/Admin/Departments/Index", CreatePage = "/Admin/Departments/Create", Action = "Create Department" },
+        new { Number = "04", Title = "Room Types", Description = "Build sellable categories before loading physical room inventory.", Count = Model.RoomTypes, IndexPage = "/Admin/RoomTypes/Index", CreatePage = "/Admin/RoomTypes/Create", Action = "Create Room Type" },
+        new { Number = "05", Title = "Rooms", Description = "Create physical rooms that power the room calendar and housekeeping board.", Count = Model.Rooms, IndexPage = "/Admin/Rooms/Index", CreatePage = "/Admin/Rooms/Create", Action = "Create Room" },
+        new { Number = "06", Title = "Users and Roles", Description = "Grant staff access after the operating structure is ready.", Count = Model.Roles, IndexPage = "/Admin/UsersAndRoles/Index", CreatePage = "/Admin/UsersAndRoles/Index", Action = "Manage Access" }
+    };
+    var completedSteps = setupSteps.Count(step => step.Count > 0);
+    var setupPercent = Math.Round(completedSteps * 100m / setupSteps.Length, 0);
 }
 
 <nav aria-label="breadcrumb">
@@ -19,10 +30,38 @@
         <p class="page-subtitle">Central setup landing page for hotel structure, property records, rooms, departments, and access roles.</p>
     </div>
     <div class="d-flex flex-wrap gap-2">
+        <button class="btn vpms-btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#adminSetupGuide">Setup Guide</button>
         <a class="btn vpms-btn-primary" asp-page="/Admin/Properties/Index">Properties</a>
         <a class="btn vpms-btn-secondary" asp-page="/Admin/UsersAndRoles/Index">Users and Roles</a>
     </div>
 </div>
+
+<section class="vpms-admin-setup-command" aria-label="Global admin setup guide">
+    <div class="vpms-admin-setup-summary">
+        <span>Trial Readiness Setup</span>
+        <strong>@setupPercent.ToString("N0")%</strong>
+        <small>@completedSteps of @setupSteps.Length setup controls have records.</small>
+        <div class="progress" aria-hidden="true">
+            <div class="progress-bar" style="width: @setupPercent%"></div>
+        </div>
+    </div>
+    <div class="vpms-admin-setup-flow">
+        @foreach (var step in setupSteps)
+        {
+            var isComplete = step.Count > 0;
+            <article class="@(isComplete ? "complete" : "attention")">
+                <span>@step.Number</span>
+                <div>
+                    <strong>@step.Title</strong>
+                    <small>@(isComplete ? $"{step.Count} configured" : "Needs setup")</small>
+                </div>
+                <a asp-page="@step.CreatePage"
+                   data-vpms-dialog
+                   data-vpms-dialog-title="@step.Action">@step.Action</a>
+            </article>
+        }
+    </div>
+</section>
 
 <div class="row g-3 mb-4">
     <div class="col-md-4 col-xl-2">
@@ -109,3 +148,40 @@
         </div>
     </div>
 </section>
+
+<div class="modal fade vpms-command-modal" id="adminSetupGuide" tabindex="-1" aria-labelledby="adminSetupGuideLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="page-kicker">Global Admin</div>
+                    <h2 class="modal-title" id="adminSetupGuideLabel">Hotel Setup Sequence</h2>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="vpms-setup-guide-grid">
+                    @foreach (var step in setupSteps)
+                    {
+                        var isComplete = step.Count > 0;
+                        <article class="@(isComplete ? "complete" : "attention")">
+                            <span>@step.Number</span>
+                            <div>
+                                <h3>@step.Title</h3>
+                                <p>@step.Description</p>
+                                <small>@(isComplete ? $"{step.Count} configured" : "Required before trials")</small>
+                            </div>
+                            <div class="vpms-setup-guide-actions">
+                                <a class="btn btn-sm vpms-btn-secondary" asp-page="@step.IndexPage">Open List</a>
+                                <a class="btn btn-sm vpms-btn-primary"
+                                   asp-page="@step.CreatePage"
+                                   data-vpms-dialog
+                                   data-vpms-dialog-title="@step.Action">@step.Action</a>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -228,6 +228,12 @@ else
                                     {
                                         <span class="vpms-calendar-alert-pill">@room.OpenTaskCount task</span>
                                     }
+                                    <a class="vpms-calendar-label-action"
+                                       asp-page="/Housekeeping/Rooms/UpdateStatus"
+                                       asp-route-id="@room.RoomId"
+                                       data-vpms-native-dialog
+                                       data-vpms-native-handler="Native"
+                                       data-vpms-native-dialog-title="Update Room Status">Status</a>
                                 </div>
                             </div>
 
@@ -239,6 +245,8 @@ else
                                 var hasReservation = cell.ReservationId.HasValue;
                                 var isAssignableRoom = room.Status is RoomStatus.Available or RoomStatus.Clean or RoomStatus.Inspected;
                                 var canQuickCreate = !hasReservation && isAssignableRoom && !cell.IsStopSell;
+                                var usesReservationDialog = hasReservation;
+                                var usesStatusDialog = !hasReservation && !isAssignableRoom;
                                 var cellActionLabel = hasReservation
                                     ? "Open Reservation"
                                     : !isAssignableRoom
@@ -269,7 +277,7 @@ else
                                 var cellNavigationUrl = hasReservation
                                     ? Url.Page("/FrontOffice/Reservations/Details", new { id = cell.ReservationId!.Value }) ?? "#"
                                     : !isAssignableRoom
-                                        ? Url.Page("/Housekeeping/Index") ?? "#"
+                                        ? Url.Page("/Housekeeping/Rooms/UpdateStatus", new { id = room.RoomId }) ?? "#"
                                         : cell.IsStopSell
                                             ? Url.Page("/Revenue/RoomInventoryControls/Index") ?? "#"
                                             : cellActionUrl;
@@ -283,6 +291,11 @@ else
                                    data-arrival="@arrival"
                                    data-departure="@departure"
                                    data-rate="@room.BaseRate.ToString("0.##", global::System.Globalization.CultureInfo.InvariantCulture)"
+                                   data-vpms-dialog="@(usesReservationDialog ? string.Empty : null)"
+                                   data-vpms-dialog-title="Reservation Control"
+                                   data-vpms-native-dialog="@(usesStatusDialog ? string.Empty : null)"
+                                   data-vpms-native-handler="@(usesStatusDialog ? "Native" : null)"
+                                   data-vpms-native-dialog-title="Update Room Status"
                                    data-calendar-inspector
                                    data-inspector-title="Room @room.RoomNumber - @cellTitleDate"
                                    data-inspector-detail="@cellFocusText"
@@ -343,6 +356,8 @@ else
                                            data-inspector-detail="@bar.ConfirmationNumber - @IndexModel.FormatEnum(bar.Status.ToString()) - @bar.ArrivalDate.ToString("MMM d") to @bar.DepartureDate.ToString("MMM d")"
                                            data-inspector-action="Open Reservation"
                                            data-inspector-url="@stayUrl"
+                                           data-vpms-dialog
+                                           data-vpms-dialog-title="Reservation Control"
                                            title="@stayTitle">
                                             <span>@bar.GuestName</span>
                                             <small>@IndexModel.FormatEnum(bar.Status.ToString())</small>

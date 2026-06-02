@@ -918,10 +918,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (link.dataset.vpmsNativeDialog === undefined ||
       link.dataset.vpmsNoDialog !== undefined ||
+      link.dataset.quickReservation === "true" ||
       link.target ||
       link.hasAttribute("download") ||
-      link.closest(".modal") ||
-      link.closest(".vpms-room-calendar-shell")) {
+      link.closest(".modal")) {
       return false;
     }
 
@@ -937,12 +937,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return false;
     }
 
+    const parentModal = link.closest(".modal");
     if (link.dataset.vpmsNoDialog !== undefined ||
-      link.dataset.quickReservation !== undefined ||
+      link.dataset.quickReservation === "true" ||
       link.target ||
       link.hasAttribute("download") ||
-      link.closest(".modal") ||
-      link.closest(".vpms-room-calendar-shell")) {
+      (parentModal && parentModal.id !== "adminSetupGuide")) {
       return false;
     }
 
@@ -963,6 +963,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (link.dataset.vpmsDialog !== undefined) {
       return true;
+    }
+
+    if (link.closest(".vpms-room-calendar-shell")) {
+      return false;
     }
 
     const isInOperationalSurface = link.closest(".vpms-content, .app-commandbar") !== null;
@@ -986,6 +990,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (workflowDialogOpenFull) {
       workflowDialogOpenFull.href = link.href;
+    }
+
+    const parentModal = link.closest(".modal");
+    if (parentModal?.id === "adminSetupGuide" && window.bootstrap) {
+      window.bootstrap.Modal.getInstance(parentModal)?.hide();
     }
 
     workflowDialog?.classList.remove("is-loaded");

@@ -89,7 +89,10 @@
             <dd>
                 @if (Model.Folio.ReservationId > 0)
                 {
-                    <a asp-page="/FrontOffice/Reservations/Details" asp-route-id="@Model.Folio.ReservationId">Open reservation</a>
+                    <a asp-page="/FrontOffice/Reservations/Details"
+                       asp-route-id="@Model.Folio.ReservationId"
+                       data-vpms-dialog
+                       data-vpms-dialog-title="Reservation Control">Open reservation</a>
                 }
                 else
                 {
