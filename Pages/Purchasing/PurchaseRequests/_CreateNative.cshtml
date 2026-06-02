@@ -1,0 +1,53 @@
+@model Vantage.PMS.Pages.Purchasing.PurchaseRequests.CreateModel
+
+<div class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Purchasing request</div>
+    <h2>New purchase request</h2>
+    <p>Create the request shell first, then add items and submit it from the request control page.</p>
+
+    <form method="post" asp-page="./Create" class="vpms-native-workflow-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <section class="vpms-form-section">
+            <div class="vpms-form-section-heading">
+                <div>
+                    <h2>Request Control</h2>
+                    <p>Department, requested-by, and timing details.</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="PurchaseRequest.RequestNumber" class="form-label"></label>
+                    <input asp-for="PurchaseRequest.RequestNumber" class="form-control" readonly />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PurchaseRequest.DepartmentId" class="form-label">Department</label>
+                    <select asp-for="PurchaseRequest.DepartmentId" asp-items="Model.DepartmentOptions" class="form-select"><option value="">General</option></select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PurchaseRequest.RequestedBy" class="form-label"></label>
+                    <input asp-for="PurchaseRequest.RequestedBy" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PurchaseRequest.RequestDate" class="form-label"></label>
+                    <input asp-for="PurchaseRequest.RequestDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PurchaseRequest.NeededDate" class="form-label"></label>
+                    <input asp-for="PurchaseRequest.NeededDate" type="date" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="PurchaseRequest.Purpose" class="form-label"></label>
+                    <textarea asp-for="PurchaseRequest.Purpose" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="col-12">
+                    <label asp-for="PurchaseRequest.Notes" class="form-label"></label>
+                    <textarea asp-for="PurchaseRequest.Notes" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+        </section>
+        <div class="vpms-native-workflow-actions">
+            <button class="btn vpms-btn-primary">Create Request</button>
+            <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Cancel</a>
+        </div>
+    </form>
+</div>

@@ -11924,3 +11924,105 @@ html {
     min-width: 0;
   }
 }
+
+/* Modal-first control queue polish and anti-clipping refinements. */
+.vpms-inline-create-panel {
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(221, 229, 238, 0.92);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.92));
+}
+
+.vpms-inline-create-panel > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  color: #334155;
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 800;
+  list-style: none;
+}
+
+.vpms-inline-create-panel > summary::-webkit-details-marker {
+  display: none;
+}
+
+.vpms-inline-create-panel > summary::after {
+  content: "+";
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  color: #0f766e;
+  background: rgba(20, 184, 166, 0.1);
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.vpms-inline-create-panel[open] > summary::after {
+  content: "-";
+}
+
+.vpms-content .table {
+  table-layout: auto;
+}
+
+.vpms-content .table th,
+.vpms-content .table td,
+.vpms-table th,
+.vpms-table td {
+  max-width: 22rem;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.vpms-content .table td.text-end,
+.vpms-content .table th.text-end,
+.vpms-table td.text-end,
+.vpms-table th.text-end {
+  white-space: nowrap;
+}
+
+.vpms-content .btn,
+.vpms-actions .btn,
+.page-actions .btn {
+  white-space: normal;
+  text-align: center;
+}
+
+.vpms-content .badge,
+.vpms-content .status-badge,
+.vpms-content .vpms-status-badge {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+}
+
+.vpms-content .d-flex.justify-content-between.align-items-center {
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .vpms-content .d-flex.justify-content-between.align-items-center {
+    align-items: stretch !important;
+    flex-direction: column;
+  }
+
+  .vpms-content .d-flex.justify-content-between.align-items-center > .btn,
+  .vpms-content .d-flex.justify-content-between.align-items-center > .vpms-actions {
+    width: 100%;
+  }
+
+  .vpms-content .d-flex.justify-content-between.align-items-center > .vpms-actions {
+    justify-content: stretch;
+  }
+
+  .vpms-content .d-flex.justify-content-between.align-items-center > .vpms-actions .btn {
+    flex: 1 1 0;
+  }
+}

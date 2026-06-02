@@ -1,0 +1,48 @@
+@model Vantage.PMS.Pages.Finance.VoidRequests.IndexModel
+
+<div class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Void request</div>
+    <h2>New void request</h2>
+    <p>Create a traceable void request for finance approval before processing.</p>
+
+    <form method="post" asp-page="./Index" asp-page-handler="Create" class="vpms-native-workflow-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <section class="vpms-form-section">
+            <div class="vpms-form-section-heading">
+                <div>
+                    <h2>Source Reference</h2>
+                    <p>Identify the transaction or document to be voided.</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="VoidRequest.ReferenceType" class="form-label"></label>
+                    <select asp-for="VoidRequest.ReferenceType" class="form-select">
+                        <option>FolioItem</option>
+                        <option>Payment</option>
+                        <option>POSOrder</option>
+                        <option>FinanceDocument</option>
+                    </select>
+                    <span asp-validation-for="VoidRequest.ReferenceType" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="VoidRequest.ReferenceId" class="form-label"></label>
+                    <input asp-for="VoidRequest.ReferenceId" class="form-control" />
+                    <span asp-validation-for="VoidRequest.ReferenceId" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="VoidRequest.RequestedBy" class="form-label"></label>
+                    <input asp-for="VoidRequest.RequestedBy" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="VoidRequest.Reason" class="form-label"></label>
+                    <input asp-for="VoidRequest.Reason" class="form-control" />
+                </div>
+            </div>
+        </section>
+        <div class="vpms-native-workflow-actions">
+            <button class="btn vpms-btn-primary">Create Void Request</button>
+            <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Cancel</a>
+        </div>
+    </form>
+</div>

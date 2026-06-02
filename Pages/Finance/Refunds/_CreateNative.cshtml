@@ -1,0 +1,59 @@
+@model Vantage.PMS.Pages.Finance.Refunds.IndexModel
+@using Vantage.PMS.Models.Finance
+
+<div class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Refund request</div>
+    <h2>New refund request</h2>
+    <p>Create a controlled refund request for finance approval and cashier processing.</p>
+
+    <form method="post" asp-page="./Index" asp-page-handler="Create" class="vpms-native-workflow-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <section class="vpms-form-section">
+            <div class="vpms-form-section-heading">
+                <div>
+                    <h2>Refund Details</h2>
+                    <p>Link the source folio or payment where available.</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="Refund.RefundNumber" class="form-label"></label>
+                    <input asp-for="Refund.RefundNumber" class="form-control" readonly />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Refund.RefundDate" class="form-label"></label>
+                    <input asp-for="Refund.RefundDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Refund.Amount" class="form-label"></label>
+                    <input asp-for="Refund.Amount" class="form-control" />
+                    <span asp-validation-for="Refund.Amount" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Refund.RefundMethod" class="form-label"></label>
+                    <select asp-for="Refund.RefundMethod" asp-items="Html.GetEnumSelectList<FinancePaymentMethod>()" class="form-select"></select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Refund.FolioId" class="form-label">Folio</label>
+                    <select asp-for="Refund.FolioId" asp-items="Model.FolioOptions" class="form-select"><option value="">None</option></select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Refund.PaymentId" class="form-label">Payment</label>
+                    <select asp-for="Refund.PaymentId" asp-items="Model.PaymentOptions" class="form-select"><option value="">None</option></select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Refund.RequestedBy" class="form-label"></label>
+                    <input asp-for="Refund.RequestedBy" class="form-control" />
+                </div>
+                <div class="col-md-8">
+                    <label asp-for="Refund.Reason" class="form-label"></label>
+                    <input asp-for="Refund.Reason" class="form-control" />
+                </div>
+            </div>
+        </section>
+        <div class="vpms-native-workflow-actions">
+            <button class="btn vpms-btn-primary">Create Refund Request</button>
+            <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Cancel</a>
+        </div>
+    </form>
+</div>

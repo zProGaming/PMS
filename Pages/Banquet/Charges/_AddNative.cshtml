@@ -1,0 +1,45 @@
+@model Vantage.PMS.Pages.Banquet.Charges.IndexModel
+
+<div class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Banquet charges</div>
+    <h2>Add event charge</h2>
+    <p>Add a charge to @Model.BanquetEvent?.EventName without leaving the banquet event workspace.</p>
+
+    <form method="post" asp-page="./Index" asp-page-handler="Add" asp-route-eventId="@Model.BanquetEvent?.Id" class="vpms-native-workflow-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <section class="vpms-form-section">
+            <div class="vpms-form-section-heading">
+                <div>
+                    <h2>Charge Details</h2>
+                    <p>Use positive quantities and non-negative unit prices.</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="NewCharge.ChargeDate" class="form-label">Charge Date</label>
+                    <input asp-for="NewCharge.ChargeDate" type="date" class="form-control" />
+                    <span asp-validation-for="NewCharge.ChargeDate" class="text-danger"></span>
+                </div>
+                <div class="col-md-8">
+                    <label asp-for="NewCharge.Description" class="form-label"></label>
+                    <input asp-for="NewCharge.Description" class="form-control" />
+                    <span asp-validation-for="NewCharge.Description" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="NewCharge.Quantity" class="form-label"></label>
+                    <input asp-for="NewCharge.Quantity" class="form-control" />
+                    <span asp-validation-for="NewCharge.Quantity" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="NewCharge.UnitPrice" class="form-label">Unit Price</label>
+                    <input asp-for="NewCharge.UnitPrice" class="form-control" />
+                    <span asp-validation-for="NewCharge.UnitPrice" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+        <div class="vpms-native-workflow-actions">
+            <button type="submit" class="btn vpms-btn-primary">Add Charge</button>
+            <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Cancel</a>
+        </div>
+    </form>
+</div>

@@ -41,6 +41,13 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             .ToListAsync();
     }
 
+    public IActionResult OnGetCreateNative()
+    {
+        Discount.RequestedBy = User.Identity?.Name ?? string.Empty;
+        Discount.RequestedAt = DateTime.Now;
+        return NativeCreatePartial();
+    }
+
     public Task<IActionResult> OnGetApproveNativeAsync(int id) =>
         NativeConfirmAsync(
             id,
@@ -81,7 +88,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         if (!ModelState.IsValid)
         {
             await OnGetAsync();
-            return Page();
+            return IsNativeWorkflowRequest() ? NativeCreatePartial() : Page();
         }
 
         Discount.Status = Discount.DiscountType == Vantage.PMS.Models.Finance.DiscountType.Percentage && Discount.DiscountValue <= 10
@@ -199,6 +206,21 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         User.IsInRole(PmsRoles.SystemAdmin) ||
         User.IsInRole(PmsRoles.GeneralManager) ||
         User.IsInRole(PmsRoles.FinanceManager);
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativeCreatePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CreateNative",
+            ViewData = new ViewDataDictionary<IndexModel>(ViewData, this)
+        };
+    }
 
     private async Task<IActionResult> NativeConfirmAsync(
         int id,

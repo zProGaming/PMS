@@ -38,6 +38,15 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
         await LoadAsync();
     }
 
+    public async Task<IActionResult> OnGetCreateNativeAsync()
+    {
+        Refund.RefundNumber = await _financeService.GenerateSimpleNumberAsync("REF");
+        Refund.RequestedBy = User.Identity?.Name ?? string.Empty;
+        Refund.RefundDate = DateTime.Today;
+        await LoadAsync();
+        return NativeCreatePartial();
+    }
+
     public Task<IActionResult> OnGetApproveNativeAsync(int id) =>
         NativeConfirmAsync(
             id,
@@ -93,7 +102,7 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
         if (!ModelState.IsValid)
         {
             await LoadAsync();
-            return Page();
+            return IsNativeWorkflowRequest() ? NativeCreatePartial() : Page();
         }
 
         Refund.Status = RefundStatus.Requested;
@@ -243,6 +252,21 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
         User.IsInRole(PmsRoles.SystemAdmin) ||
         User.IsInRole(PmsRoles.GeneralManager) ||
         User.IsInRole(PmsRoles.FinanceManager);
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativeCreatePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CreateNative",
+            ViewData = new ViewDataDictionary<IndexModel>(ViewData, this)
+        };
+    }
 
     private async Task<IActionResult> NativeConfirmAsync(
         int id,

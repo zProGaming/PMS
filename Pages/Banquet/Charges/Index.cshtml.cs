@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Banquet;
@@ -16,6 +17,8 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
     [BindProperty]
     public BanquetCharge NewCharge { get; set; } = new() { Quantity = 1, ChargeDate = DateTime.Today };
+
+    public BanquetCharge? NativeCharge { get; private set; }
 
     public decimal TotalCharges => (BanquetEvent?.Charges ?? AllCharges).Where(charge => !charge.IsVoided).Sum(charge => charge.Amount);
 
@@ -45,6 +48,53 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         return Page();
     }
 
+    public async Task<IActionResult> OnGetAddNativeAsync(int? eventId)
+    {
+        if (eventId is null)
+        {
+            return NotFound();
+        }
+
+        var banquetEvent = await LoadEventAsync(eventId.Value, asTracking: false);
+        if (banquetEvent is null)
+        {
+            return NotFound();
+        }
+
+        BanquetEvent = banquetEvent;
+        NewCharge.BanquetEventId = banquetEvent.Id;
+        NewCharge.Quantity = NewCharge.Quantity <= 0 ? 1 : NewCharge.Quantity;
+        NewCharge.ChargeDate = NewCharge.ChargeDate == default ? DateTime.Today : NewCharge.ChargeDate;
+        return NativeAddPartial();
+    }
+
+    public async Task<IActionResult> OnGetVoidNativeAsync(int? eventId, int? chargeId)
+    {
+        if (eventId is null || chargeId is null)
+        {
+            return NotFound();
+        }
+
+        var banquetEvent = await LoadEventAsync(eventId.Value, asTracking: false);
+        if (banquetEvent is null)
+        {
+            return NotFound();
+        }
+
+        NativeCharge = banquetEvent.Charges.FirstOrDefault(charge => charge.Id == chargeId);
+        if (NativeCharge is null)
+        {
+            return NotFound();
+        }
+
+        BanquetEvent = banquetEvent;
+        return new PartialViewResult
+        {
+            ViewName = "_VoidNative",
+            ViewData = new ViewDataDictionary<IndexModel>(ViewData, this)
+        };
+    }
+
     public async Task<IActionResult> OnPostAddAsync(int? eventId)
     {
         if (eventId is null)
@@ -63,7 +113,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
         if (!ModelState.IsValid)
         {
-            return Page();
+            return IsNativeWorkflowRequest() ? NativeAddPartial() : Page();
         }
 
         NewCharge.BanquetEventId = banquetEvent.Id;
@@ -128,5 +178,20 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         }
 
         return await query.AsSplitQuery().FirstOrDefaultAsync();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativeAddPartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_AddNative",
+            ViewData = new ViewDataDictionary<IndexModel>(ViewData, this)
+        };
     }
 }

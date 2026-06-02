@@ -1,0 +1,57 @@
+@model Vantage.PMS.Pages.Purchasing.PurchaseOrders.CreateModel
+
+<div class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Purchase order</div>
+    <h2>New purchase order</h2>
+    <p>Create the PO header first, then add items and move it through purchasing approval from the order control page.</p>
+
+    <form method="post" asp-page="./Create" class="vpms-native-workflow-form">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <section class="vpms-form-section">
+            <div class="vpms-form-section-heading">
+                <div>
+                    <h2>Supplier and Delivery</h2>
+                    <p>Supplier, dates, and initial control amounts.</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label asp-for="PurchaseOrder.PONumber" class="form-label"></label>
+                    <input asp-for="PurchaseOrder.PONumber" class="form-control" readonly />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PurchaseOrder.SupplierId" class="form-label">Supplier</label>
+                    <select asp-for="PurchaseOrder.SupplierId" asp-items="Model.SupplierOptions" class="form-select"></select>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PurchaseOrder.PreparedBy" class="form-label"></label>
+                    <input asp-for="PurchaseOrder.PreparedBy" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PurchaseOrder.OrderDate" class="form-label"></label>
+                    <input asp-for="PurchaseOrder.OrderDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PurchaseOrder.ExpectedDeliveryDate" class="form-label"></label>
+                    <input asp-for="PurchaseOrder.ExpectedDeliveryDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="PurchaseOrder.TaxAmount" class="form-label"></label>
+                    <input asp-for="PurchaseOrder.TaxAmount" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="PurchaseOrder.DiscountAmount" class="form-label"></label>
+                    <input asp-for="PurchaseOrder.DiscountAmount" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="PurchaseOrder.Notes" class="form-label"></label>
+                    <textarea asp-for="PurchaseOrder.Notes" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+        </section>
+        <div class="vpms-native-workflow-actions">
+            <button class="btn vpms-btn-primary">Create PO</button>
+            <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Cancel</a>
+        </div>
+    </form>
+</div>

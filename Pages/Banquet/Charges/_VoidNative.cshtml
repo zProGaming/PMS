@@ -1,0 +1,28 @@
+@model Vantage.PMS.Pages.Banquet.Charges.IndexModel
+
+@if (Model.NativeCharge is not null && Model.BanquetEvent is not null)
+{
+    <div class="vpms-native-workflow-card">
+        <div class="vpms-native-workflow-kicker">Banquet control</div>
+        <h2>Void banquet charge</h2>
+        <p>Void this charge while preserving the event charge history.</p>
+
+        <div class="vpms-native-workflow-summary">
+            <span>Event</span>
+            <strong>@Model.BanquetEvent.EventName</strong>
+            <span>Description</span>
+            <strong>@Model.NativeCharge.Description</strong>
+            <span>Date</span>
+            <strong>@Model.NativeCharge.ChargeDate.ToString("d")</strong>
+            <span>Amount</span>
+            <strong>@Model.NativeCharge.Amount.ToString("C")</strong>
+        </div>
+
+        <div class="vpms-native-workflow-note">Voided banquet charges remain visible in history and are excluded from active charge totals.</div>
+
+        <form method="post" asp-page="./Index" asp-page-handler="Void" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-chargeId="@Model.NativeCharge.Id" class="vpms-native-workflow-actions">
+            <button type="submit" class="btn vpms-btn-danger">Void Charge</button>
+            <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Charge</a>
+        </form>
+    </div>
+}

@@ -22,15 +22,19 @@
     </div>
     @if (Model.BanquetEvent is not null)
     {
-        <a class="btn btn-outline-secondary" asp-page="/Banquet/Events/Details" asp-route-id="@Model.BanquetEvent.Id">Back to Event</a>
+        <div class="vpms-actions">
+            <a class="btn btn-primary" asp-page="./Index" asp-page-handler="AddNative" asp-route-eventId="@Model.BanquetEvent.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Add Banquet Charge">Add Charge</a>
+            <a class="btn btn-outline-secondary" asp-page="/Banquet/Events/Details" asp-route-id="@Model.BanquetEvent.Id">Back to Event</a>
+        </div>
     }
 </div>
 
 @if (Model.BanquetEvent is not null)
 {
-<form method="post" asp-page-handler="Add" asp-route-eventId="@Model.BanquetEvent.Id" class="border rounded p-3 mb-4">
+<details class="vpms-refined-card vpms-inline-create-panel mb-4">
+    <summary>Manual charge entry</summary>
+<form method="post" asp-page-handler="Add" asp-route-eventId="@Model.BanquetEvent.Id" class="row g-3 mt-3">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <h2 class="h5">Add Charge</h2>
     <div class="row align-items-end">
         <div class="col-md-2 mb-3">
             <label asp-for="NewCharge.ChargeDate" class="form-label">Charge Date</label>
@@ -57,6 +61,7 @@
         </div>
     </div>
 </form>
+</details>
 }
 
 <table class="table table-striped table-hover align-middle">
@@ -92,9 +97,7 @@
                 <td class="text-end">
                     @if (!charge.IsVoided && Model.BanquetEvent is not null)
                     {
-                        <form method="post" asp-page-handler="Void" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-chargeId="@charge.Id" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Void</button>
-                        </form>
+                        <a asp-page="./Index" asp-page-handler="VoidNative" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-chargeId="@charge.Id" class="btn btn-sm btn-outline-danger" data-vpms-native-dialog data-vpms-native-dialog-title="Void Banquet Charge">Void</a>
                     }
                 </td>
             </tr>
