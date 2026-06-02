@@ -1,0 +1,91 @@
+@model Vantage.PMS.Pages.Groups.DetailsModel
+@using Vantage.PMS.Models.Groups
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <span class="page-kicker">Group Control</span>
+        <h1>Edit Group Summary</h1>
+        <p>Update the operational header, contact, status, and billing instructions for @Model.GroupBooking.GroupCode.</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Status</span>
+        <strong>@Model.EditInput.BookingStatus</strong>
+    </div>
+</section>
+
+<form method="post" asp-page-handler="Update" asp-route-id="@Model.GroupBooking.Id" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Group Profile</h2>
+            <p>Keep commercial, front office, and finance details aligned before arrival.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label asp-for="EditInput.GroupName" class="form-label">Group Name</label>
+                <input asp-for="EditInput.GroupName" class="form-control" />
+                <span asp-validation-for="EditInput.GroupName" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="EditInput.BookingStatus" class="form-label">Status</label>
+                <select asp-for="EditInput.BookingStatus" asp-items="Html.GetEnumSelectList<GroupBookingStatus>()" class="form-select"></select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EditInput.ArrivalDate" class="form-label">Arrival</label>
+                <input asp-for="EditInput.ArrivalDate" type="date" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EditInput.DepartureDate" class="form-label">Departure</label>
+                <input asp-for="EditInput.DepartureDate" type="date" class="form-control" />
+                <span asp-validation-for="EditInput.DepartureDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EditInput.ContactPerson" class="form-label">Contact</label>
+                <input asp-for="EditInput.ContactPerson" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EditInput.ContactNumber" class="form-label">Contact No.</label>
+                <input asp-for="EditInput.ContactNumber" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EditInput.Email" class="form-label">Email</label>
+                <input asp-for="EditInput.Email" type="email" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EditInput.MarketSegment" class="form-label">Market Segment</label>
+                <input asp-for="EditInput.MarketSegment" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EditInput.Source" class="form-label">Source</label>
+                <input asp-for="EditInput.Source" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label asp-for="EditInput.CreditLimit" class="form-label">Credit Limit</label>
+                <input asp-for="EditInput.CreditLimit" type="number" min="0" step="0.01" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label asp-for="EditInput.DepositAmount" class="form-label">Required Deposit</label>
+                <input asp-for="EditInput.DepositAmount" type="number" min="0" step="0.01" class="form-control" />
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <div class="form-check">
+                    <input asp-for="EditInput.DepositRequired" class="form-check-input" />
+                    <label asp-for="EditInput.DepositRequired" class="form-check-label">Deposit required</label>
+                </div>
+            </div>
+            <div class="col-12">
+                <label asp-for="EditInput.BillingInstruction" class="form-label">Billing Instruction</label>
+                <textarea asp-for="EditInput.BillingInstruction" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="col-12">
+                <label asp-for="EditInput.Notes" class="form-label">Notes</label>
+                <textarea asp-for="EditInput.Notes" class="form-control" rows="2"></textarea>
+            </div>
+        </div>
+    </section>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Save Group</button>
+    </div>
+</form>

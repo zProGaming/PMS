@@ -99,7 +99,11 @@
                         <td class="text-end">@group.GroupFolioBalance.ToString("C")</td>
                         <td class="text-end fw-semibold">@group.OutstandingBalance.ToString("C")</td>
                         <td class="text-end">
-                            <a class="btn btn-sm vpms-btn-secondary" asp-page="/Groups/Details" asp-route-id="@group.GroupBookingId">Open Group</a>
+                            <a class="btn btn-sm vpms-btn-secondary"
+                               asp-page="/Groups/Details"
+                               asp-route-id="@group.GroupBookingId"
+                               data-vpms-dialog
+                               data-vpms-dialog-title="Group Collection Control">Open Group</a>
                         </td>
                     </tr>
                 }

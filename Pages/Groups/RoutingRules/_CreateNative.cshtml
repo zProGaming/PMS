@@ -1,0 +1,93 @@
+@model Vantage.PMS.Pages.Groups.RoutingRules.IndexModel
+@using Vantage.PMS.Models.Finance
+@using Vantage.PMS.Models.Groups
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <span class="page-kicker">Charge Routing</span>
+        <h1>Create Routing Rule</h1>
+        <p>Route selected charges to guest folios, group master folios, pseudo room folios, or future AR handling while preserving the source reference.</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Control</span>
+        <strong>Active</strong>
+    </div>
+</section>
+
+<form method="post" asp-page-handler="Create" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Source</h2>
+            <p>Select the group, reservation, or folio where the charge originates.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="Input.GroupBookingId" class="form-label">Source Group</label>
+                <select asp-for="Input.GroupBookingId" asp-items="Model.GroupBookingOptions" class="form-select">
+                    <option value="">None</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Input.ReservationId" class="form-label">Source Reservation</label>
+                <select asp-for="Input.ReservationId" asp-items="Model.ReservationOptions" class="form-select">
+                    <option value="">None</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Input.FolioId" class="form-label">Source Folio</label>
+                <select asp-for="Input.FolioId" asp-items="Model.FolioOptions" class="form-select">
+                    <option value="">None</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Routing Logic</h2>
+            <p>Choose the charge category and the target control account for posting behavior.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="Input.SourceChargeCategory" class="form-label">Charge Category</label>
+                <select asp-for="Input.SourceChargeCategory" asp-items="Html.GetEnumSelectList<ChargeCategory>()" class="form-select"></select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Input.RouteToType" class="form-label">Route To</label>
+                <select asp-for="Input.RouteToType" asp-items="Html.GetEnumSelectList<RouteToType>()" class="form-select"></select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Input.TargetGroupFolioId" class="form-label">Target Group Folio</label>
+                <select asp-for="Input.TargetGroupFolioId" asp-items="Model.GroupFolioOptions" class="form-select">
+                    <option value="">None</option>
+                </select>
+                <span asp-validation-for="Input.TargetGroupFolioId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.TargetFolioId" class="form-label">Target Folio</label>
+                <select asp-for="Input.TargetFolioId" asp-items="Model.FolioOptions" class="form-select">
+                    <option value="">None</option>
+                </select>
+                <span asp-validation-for="Input.TargetFolioId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.TargetPseudoRoomId" class="form-label">Target Pseudo Room</label>
+                <select asp-for="Input.TargetPseudoRoomId" asp-items="Model.PseudoRoomOptions" class="form-select">
+                    <option value="">None</option>
+                </select>
+                <span asp-validation-for="Input.TargetPseudoRoomId" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Input.Notes" class="form-label">Notes</label>
+                <input asp-for="Input.Notes" class="form-control" />
+            </div>
+        </div>
+    </section>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Create Routing Rule</button>
+    </div>
+</form>

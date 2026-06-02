@@ -12,82 +12,15 @@
         <p class="page-subtitle">Manage group accounts, room blocks, master folios, deposits, and collection readiness.</p>
     </div>
     <div class="page-actions">
+        <a class="btn vpms-btn-primary"
+           asp-page="./Index"
+           data-vpms-native-dialog
+           data-vpms-native-handler="Native"
+           data-vpms-native-dialog-title="Create Group Booking">Create Group</a>
         <a class="btn vpms-btn-secondary" asp-page="/Groups/PseudoRooms/Index">Pseudo Rooms</a>
         <a class="btn vpms-btn-secondary" asp-page="/Groups/Reports/Index">Group Reports</a>
     </div>
 </div>
-
-<form method="post" asp-page-handler="Create" class="vpms-form-card mb-4">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="row g-3">
-        <div class="col-md-2">
-            <label asp-for="Input.GroupCode" class="form-label">Group Code</label>
-            <input asp-for="Input.GroupCode" class="form-control" placeholder="ABC-2026" required />
-            <span asp-validation-for="Input.GroupCode" class="text-danger"></span>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="Input.GroupName" class="form-label">Group Name</label>
-            <input asp-for="Input.GroupName" class="form-control" required />
-            <span asp-validation-for="Input.GroupName" class="text-danger"></span>
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.SalesAccountId" class="form-label">Sales Account</label>
-            <select asp-for="Input.SalesAccountId" asp-items="Model.SalesAccountOptions" class="form-select">
-                <option value="">No linked account</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.BookingStatus" class="form-label">Status</label>
-            <select asp-for="Input.BookingStatus" asp-items="Html.GetEnumSelectList<GroupBookingStatus>()" class="form-select"></select>
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.ArrivalDate" class="form-label">Arrival</label>
-            <input asp-for="Input.ArrivalDate" type="date" class="form-control" />
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.DepartureDate" class="form-label">Departure</label>
-            <input asp-for="Input.DepartureDate" type="date" class="form-control" />
-            <span asp-validation-for="Input.DepartureDate" class="text-danger"></span>
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.ContactPerson" class="form-label">Contact</label>
-            <input asp-for="Input.ContactPerson" class="form-control" />
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.Email" class="form-label">Email</label>
-            <input asp-for="Input.Email" class="form-control" type="email" />
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.MarketSegment" class="form-label">Market Segment</label>
-            <input asp-for="Input.MarketSegment" class="form-control" placeholder="Corporate / Wedding" />
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.Source" class="form-label">Source</label>
-            <input asp-for="Input.Source" class="form-control" placeholder="Direct / Sales / Agency" />
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.CreditLimit" class="form-label">Credit Limit</label>
-            <input asp-for="Input.CreditLimit" type="number" min="0" step="0.01" class="form-control" />
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.DepositAmount" class="form-label">Required Deposit</label>
-            <input asp-for="Input.DepositAmount" type="number" min="0" step="0.01" class="form-control" />
-        </div>
-        <div class="col-md-3 d-flex align-items-end">
-            <div class="form-check">
-                <input asp-for="Input.DepositRequired" class="form-check-input" />
-                <label asp-for="Input.DepositRequired" class="form-check-label">Deposit required</label>
-            </div>
-        </div>
-        <div class="col-12">
-            <label asp-for="Input.BillingInstruction" class="form-label">Billing Instruction</label>
-            <textarea asp-for="Input.BillingInstruction" class="form-control" rows="2"></textarea>
-        </div>
-        <div class="col-12">
-            <button class="btn vpms-btn-primary" type="submit">Create Group Booking</button>
-        </div>
-    </div>
-</form>
 
 <section class="vpms-card">
     @if (Model.GroupBookings.Count == 0)
@@ -115,7 +48,7 @@
                 {
                     <tr>
                         <td>
-                            <a asp-page="./Details" asp-route-id="@group.Id" class="fw-semibold">@group.GroupCode</a>
+                            <a asp-page="./Details" asp-route-id="@group.Id" class="fw-semibold" data-vpms-dialog data-vpms-dialog-title="Group Booking Control">@group.GroupCode</a>
                             <div>@group.GroupName</div>
                             <div class="text-muted small">@group.SalesAccount?.AccountName</div>
                         </td>
@@ -128,7 +61,7 @@
                         <td class="text-end">@group.RoomBlocks.Sum(item => item.RoomsBlocked)</td>
                         <td class="text-end">@group.RoomBlocks.Sum(item => item.RoomsPickedUp)</td>
                         <td class="text-end">@group.Deposits.Where(item => item.Status != GroupDepositStatus.Cancelled).Sum(item => item.Amount).ToString("C")</td>
-                        <td class="text-end"><a class="btn btn-sm vpms-btn-secondary" asp-page="./Details" asp-route-id="@group.Id">Open</a></td>
+                        <td class="text-end"><a class="btn btn-sm vpms-btn-secondary" asp-page="./Details" asp-route-id="@group.Id" data-vpms-dialog data-vpms-dialog-title="Group Booking Control">Open</a></td>
                     </tr>
                 }
                 </tbody>

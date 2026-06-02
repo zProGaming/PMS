@@ -48,7 +48,7 @@
                             <strong>@folio.FolioName</strong>
                             <div class="small text-muted">Linked folio @(folio.Folio?.FolioNumber ?? "Virtual")</div>
                         </td>
-                        <td><a asp-page="/Groups/Details" asp-route-id="@folio.GroupBookingId">@folio.GroupBooking?.GroupName</a></td>
+                        <td><a asp-page="/Groups/Details" asp-route-id="@folio.GroupBookingId" data-vpms-dialog data-vpms-dialog-title="Group Folio Control">@folio.GroupBooking?.GroupName</a></td>
                         <td>@(folio.PseudoRoom?.PseudoRoomCode ?? "None")</td>
                         <td>@folio.BillingName</td>
                         <td><span class="status-badge">@folio.Status</span></td>
@@ -56,7 +56,7 @@
                         <td class="text-end">@payments.ToString("C")</td>
                         <td class="text-end fw-semibold">@((charges - payments).ToString("C"))</td>
                         <td class="text-end">
-                            <a class="btn btn-sm vpms-btn-secondary" asp-page="/Groups/Details" asp-route-id="@folio.GroupBookingId">Open Group</a>
+                            <a class="btn btn-sm vpms-btn-secondary" asp-page="/Groups/Details" asp-route-id="@folio.GroupBookingId" data-vpms-dialog data-vpms-dialog-title="Group Folio Control">Open Group</a>
                             <a class="btn btn-sm vpms-btn-secondary" asp-page="/Groups/Print" asp-route-type="group-master-folio" asp-route-id="@folio.GroupBookingId">Print</a>
                         </td>
                     </tr>

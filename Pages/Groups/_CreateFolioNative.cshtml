@@ -1,0 +1,60 @@
+@model Vantage.PMS.Pages.Groups.DetailsModel
+@using Vantage.PMS.Models.Groups
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <span class="page-kicker">Group Master Folio</span>
+        <h1>Create Master Folio</h1>
+        <p>Create a group master, pseudo room, or paymaster folio for centralized billing review.</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Group</span>
+        <strong>@Model.GroupBooking.GroupCode</strong>
+    </div>
+</section>
+
+<form method="post" asp-page-handler="CreateFolio" asp-route-id="@Model.GroupBooking.Id" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Billing Header</h2>
+            <p>Link to a pseudo room/paymaster account or an existing folio when finance requires ledger movement.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="GroupFolioInput.FolioName" class="form-label">Folio Name</label>
+                <input asp-for="GroupFolioInput.FolioName" class="form-control" />
+                <span asp-validation-for="GroupFolioInput.FolioName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="GroupFolioInput.BillingName" class="form-label">Billing Name</label>
+                <input asp-for="GroupFolioInput.BillingName" class="form-control" />
+                <span asp-validation-for="GroupFolioInput.BillingName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="GroupFolioInput.PseudoRoomId" class="form-label">Pseudo Room</label>
+                <select asp-for="GroupFolioInput.PseudoRoomId" asp-items="Model.PseudoRoomOptions" class="form-select">
+                    <option value="">None</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="GroupFolioInput.FolioId" class="form-label">Linked Folio</label>
+                <select asp-for="GroupFolioInput.FolioId" asp-items="Model.FolioOptions" class="form-select">
+                    <option value="">Virtual only</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="GroupFolioInput.Status" class="form-label">Status</label>
+                <select asp-for="GroupFolioInput.Status" asp-items="Html.GetEnumSelectList<GroupFolioStatus>()" class="form-select"></select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="GroupFolioInput.Notes" class="form-label">Notes</label>
+                <input asp-for="GroupFolioInput.Notes" class="form-control" />
+            </div>
+        </div>
+    </section>
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Create Master Folio</button>
+    </div>
+</form>

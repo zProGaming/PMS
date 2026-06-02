@@ -1,0 +1,62 @@
+@model Vantage.PMS.Pages.Groups.DetailsModel
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <span class="page-kicker">Room Block</span>
+        <h1>Add Room Block</h1>
+        <p>Add room-type inventory to @Model.GroupBooking.GroupCode for a date inside the group stay window.</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Stay</span>
+        <strong>@Model.GroupBooking.ArrivalDate.ToString("MMM d") - @Model.GroupBooking.DepartureDate.ToString("MMM d")</strong>
+    </div>
+</section>
+
+<form method="post" asp-page-handler="AddBlock" asp-route-id="@Model.GroupBooking.Id" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Inventory Hold</h2>
+            <p>Blocks are for group hold and pickup forecasting. Cancelled/released blocks should not affect sellable availability.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="BlockInput.BlockDate" class="form-label">Date</label>
+                <input asp-for="BlockInput.BlockDate" type="date" class="form-control" />
+                <span asp-validation-for="BlockInput.BlockDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="BlockInput.RoomTypeId" class="form-label">Room Type</label>
+                <select asp-for="BlockInput.RoomTypeId" asp-items="Model.RoomTypeOptions" class="form-select"></select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="BlockInput.RoomsBlocked" class="form-label">Blocked</label>
+                <input asp-for="BlockInput.RoomsBlocked" type="number" min="0" class="form-control" />
+                <span asp-validation-for="BlockInput.RoomsBlocked" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="BlockInput.RateAmount" class="form-label">Rate</label>
+                <input asp-for="BlockInput.RateAmount" type="number" min="0" step="0.01" class="form-control" />
+                <span asp-validation-for="BlockInput.RateAmount" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="BlockInput.CutOffDate" class="form-label">Cut-off</label>
+                <input asp-for="BlockInput.CutOffDate" type="date" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="BlockInput.RatePlanId" class="form-label">Rate Plan</label>
+                <select asp-for="BlockInput.RatePlanId" asp-items="Model.RatePlanOptions" class="form-select">
+                    <option value="">None</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="BlockInput.Notes" class="form-label">Notes</label>
+                <input asp-for="BlockInput.Notes" class="form-control" />
+            </div>
+        </div>
+    </section>
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Add Block</button>
+    </div>
+</form>

@@ -31,28 +31,30 @@
     </div>
 </section>
 
-<section class="vpms-form-card mb-4">
-    <h2 class="h5">Group Summary</h2>
-    <form method="post" asp-page-handler="Update" asp-route-id="@group.Id">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div class="row g-3">
-            <div class="col-md-4"><label asp-for="EditInput.GroupName" class="form-label">Group Name</label><input asp-for="EditInput.GroupName" class="form-control" /></div>
-            <div class="col-md-2"><label asp-for="EditInput.BookingStatus" class="form-label">Status</label><select asp-for="EditInput.BookingStatus" asp-items="Html.GetEnumSelectList<GroupBookingStatus>()" class="form-select"></select></div>
-            <div class="col-md-3"><label asp-for="EditInput.ArrivalDate" class="form-label">Arrival</label><input asp-for="EditInput.ArrivalDate" type="date" class="form-control" /></div>
-            <div class="col-md-3"><label asp-for="EditInput.DepartureDate" class="form-label">Departure</label><input asp-for="EditInput.DepartureDate" type="date" class="form-control" /></div>
-            <div class="col-md-3"><label asp-for="EditInput.ContactPerson" class="form-label">Contact</label><input asp-for="EditInput.ContactPerson" class="form-control" /></div>
-            <div class="col-md-3"><label asp-for="EditInput.ContactNumber" class="form-label">Contact No.</label><input asp-for="EditInput.ContactNumber" class="form-control" /></div>
-            <div class="col-md-3"><label asp-for="EditInput.Email" class="form-label">Email</label><input asp-for="EditInput.Email" type="email" class="form-control" /></div>
-            <div class="col-md-3"><label asp-for="EditInput.CreditLimit" class="form-label">Credit Limit</label><input asp-for="EditInput.CreditLimit" type="number" min="0" step="0.01" class="form-control" /></div>
-            <div class="col-md-3"><label asp-for="EditInput.MarketSegment" class="form-label">Market Segment</label><input asp-for="EditInput.MarketSegment" class="form-control" /></div>
-            <div class="col-md-3"><label asp-for="EditInput.Source" class="form-label">Source</label><input asp-for="EditInput.Source" class="form-control" /></div>
-            <div class="col-md-3"><label asp-for="EditInput.DepositAmount" class="form-label">Required Deposit</label><input asp-for="EditInput.DepositAmount" type="number" min="0" step="0.01" class="form-control" /></div>
-            <div class="col-md-3 d-flex align-items-end"><div class="form-check"><input asp-for="EditInput.DepositRequired" class="form-check-input" /><label asp-for="EditInput.DepositRequired" class="form-check-label">Deposit required</label></div></div>
-            <div class="col-12"><label asp-for="EditInput.BillingInstruction" class="form-label">Billing Instruction</label><textarea asp-for="EditInput.BillingInstruction" class="form-control" rows="2"></textarea></div>
-            <div class="col-12"><label asp-for="EditInput.Notes" class="form-label">Notes</label><textarea asp-for="EditInput.Notes" class="form-control" rows="2"></textarea></div>
-            <div class="col-12"><button class="btn vpms-btn-primary">Save Group</button></div>
+<section class="vpms-card mb-4">
+    <div class="vpms-section-header d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="h5 mb-0">Group Summary</h2>
+            <small class="text-muted">Commercial profile, billing instruction, and contact details.</small>
         </div>
-    </form>
+        <a class="btn btn-sm vpms-btn-secondary"
+           asp-page-handler="UpdateNative"
+           asp-route-id="@group.Id"
+           data-vpms-native-dialog
+           data-vpms-native-handler="UpdateNative"
+           data-vpms-native-dialog-title="Edit Group Summary">Edit Summary</a>
+    </div>
+    <div class="row g-3 p-3">
+        <div class="col-md-3"><div class="text-muted small">Contact</div><strong>@(group.ContactPerson ?? "Not set")</strong><div class="small text-muted">@group.ContactNumber</div></div>
+        <div class="col-md-3"><div class="text-muted small">Email</div><strong>@(group.Email ?? "Not set")</strong></div>
+        <div class="col-md-2"><div class="text-muted small">Market</div><strong>@(group.MarketSegment ?? "Not set")</strong></div>
+        <div class="col-md-2"><div class="text-muted small">Source</div><strong>@(group.Source ?? "Not set")</strong></div>
+        <div class="col-md-2"><div class="text-muted small">Deposit</div><strong>@group.DepositAmount.ToString("C")</strong><div class="small text-muted">@(group.DepositRequired ? "Required" : "Optional")</div></div>
+        <div class="col-12">
+            <div class="text-muted small">Billing Instruction</div>
+            <div>@(string.IsNullOrWhiteSpace(group.BillingInstruction) ? "No billing instruction recorded." : group.BillingInstruction)</div>
+        </div>
+    </div>
 </section>
 
 <div class="row g-4">
@@ -60,20 +62,16 @@
         <section class="vpms-card mb-4">
             <div class="vpms-section-header d-flex justify-content-between align-items-center">
                 <div><h2 class="h5 mb-0">Room Blocks</h2><small class="text-muted">Blocks affect availability only as group holds; pseudo rooms do not.</small></div>
-                <a class="btn btn-sm vpms-btn-secondary" asp-page="./Print" asp-route-type="rooming-list" asp-route-id="@group.Id">Print Rooming List</a>
-            </div>
-            <form method="post" asp-page-handler="AddBlock" asp-route-id="@group.Id" class="p-3 border-bottom">
-                <div class="row g-2 align-items-end">
-                    <div class="col-md-3"><label asp-for="BlockInput.BlockDate" class="form-label">Date</label><input asp-for="BlockInput.BlockDate" type="date" class="form-control" /></div>
-                    <div class="col-md-3"><label asp-for="BlockInput.RoomTypeId" class="form-label">Room Type</label><select asp-for="BlockInput.RoomTypeId" asp-items="Model.RoomTypeOptions" class="form-select"></select></div>
-                    <div class="col-md-2"><label asp-for="BlockInput.RoomsBlocked" class="form-label">Blocked</label><input asp-for="BlockInput.RoomsBlocked" type="number" min="0" class="form-control" /></div>
-                    <div class="col-md-2"><label asp-for="BlockInput.RateAmount" class="form-label">Rate</label><input asp-for="BlockInput.RateAmount" type="number" min="0" step="0.01" class="form-control" /></div>
-                    <div class="col-md-2"><button class="btn vpms-btn-primary w-100">Add</button></div>
-                    <div class="col-md-4"><label asp-for="BlockInput.RatePlanId" class="form-label">Rate Plan</label><select asp-for="BlockInput.RatePlanId" asp-items="Model.RatePlanOptions" class="form-select"><option value="">None</option></select></div>
-                    <div class="col-md-4"><label asp-for="BlockInput.CutOffDate" class="form-label">Cut-off</label><input asp-for="BlockInput.CutOffDate" type="date" class="form-control" /></div>
-                    <div class="col-md-4"><label asp-for="BlockInput.Notes" class="form-label">Notes</label><input asp-for="BlockInput.Notes" class="form-control" /></div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-sm vpms-btn-primary"
+                       asp-page-handler="AddBlockNative"
+                       asp-route-id="@group.Id"
+                       data-vpms-native-dialog
+                       data-vpms-native-handler="AddBlockNative"
+                       data-vpms-native-dialog-title="Add Group Room Block">Add Block</a>
+                    <a class="btn btn-sm vpms-btn-secondary" asp-page="./Print" asp-route-type="rooming-list" asp-route-id="@group.Id">Print Rooming List</a>
                 </div>
-            </form>
+            </div>
             @if (group.RoomBlocks.Count == 0)
             {
                 <div class="vpms-empty-state m-3">No room blocks have been created.</div>
@@ -105,31 +103,21 @@
         <section class="vpms-card mb-4">
             <div class="vpms-section-header d-flex justify-content-between align-items-center">
                 <div><h2 class="h5 mb-0">Group Members</h2><small class="text-muted">Linked reservations picked up from or associated with this group.</small></div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-sm vpms-btn-primary"
+                       asp-page-handler="PickupNative"
+                       asp-route-id="@group.Id"
+                       data-vpms-native-dialog
+                       data-vpms-native-handler="PickupNative"
+                       data-vpms-native-dialog-title="Create Group Pickup Reservation">Pick Up Block</a>
+                    <a class="btn btn-sm vpms-btn-secondary"
+                       asp-page-handler="LinkReservationNative"
+                       asp-route-id="@group.Id"
+                       data-vpms-native-dialog
+                       data-vpms-native-handler="LinkReservationNative"
+                       data-vpms-native-dialog-title="Link Existing Reservation">Link Reservation</a>
+                </div>
             </div>
-            <form method="post" asp-page-handler="PickupReservation" asp-route-id="@group.Id" class="p-3 border-bottom">
-                <h3 class="h6">Create Reservation from Block Pickup</h3>
-                <div class="row g-2 align-items-end">
-                    <div class="col-md-4"><label asp-for="PickupInput.GroupRoomBlockId" class="form-label">Room Block</label><select asp-for="PickupInput.GroupRoomBlockId" asp-items="Model.BlockOptions" class="form-select"></select></div>
-                    <div class="col-md-4"><label asp-for="PickupInput.GuestId" class="form-label">Guest</label><select asp-for="PickupInput.GuestId" asp-items="Model.GuestOptions" class="form-select"></select></div>
-                    <div class="col-md-4"><label asp-for="PickupInput.RoomId" class="form-label">Assign Room</label><select asp-for="PickupInput.RoomId" asp-items="Model.RoomOptions" class="form-select"><option value="">Assign later</option></select></div>
-                    <div class="col-md-3"><label asp-for="PickupInput.RateAmount" class="form-label">Rate Override</label><input asp-for="PickupInput.RateAmount" type="number" min="0" step="0.01" class="form-control" /></div>
-                    <div class="col-md-2"><label asp-for="PickupInput.Adults" class="form-label">Adults</label><input asp-for="PickupInput.Adults" type="number" min="1" class="form-control" /></div>
-                    <div class="col-md-2"><label asp-for="PickupInput.Children" class="form-label">Children</label><input asp-for="PickupInput.Children" type="number" min="0" class="form-control" /></div>
-                    <div class="col-md-3"><label asp-for="PickupInput.BillingRoutingType" class="form-label">Routing</label><select asp-for="PickupInput.BillingRoutingType" asp-items="Html.GetEnumSelectList<BillingRoutingType>()" class="form-select"></select></div>
-                    <div class="col-md-2"><button class="btn vpms-btn-primary w-100">Pick Up</button></div>
-                    <div class="col-md-4 d-flex align-items-center"><div class="form-check mt-4"><input asp-for="PickupInput.IsPrimaryGuest" class="form-check-input" /><label asp-for="PickupInput.IsPrimaryGuest" class="form-check-label">Primary guest</label></div></div>
-                    <div class="col-md-8"><label asp-for="PickupInput.Notes" class="form-label">Pickup Notes</label><input asp-for="PickupInput.Notes" class="form-control" /></div>
-                </div>
-            </form>
-            <form method="post" asp-page-handler="LinkReservation" asp-route-id="@group.Id" class="p-3 border-bottom">
-                <h3 class="h6">Link Existing Reservation</h3>
-                <div class="row g-2 align-items-end">
-                    <div class="col-md-5"><label asp-for="MemberInput.ReservationId" class="form-label">Reservation</label><select asp-for="MemberInput.ReservationId" asp-items="Model.ReservationOptions" class="form-select"></select></div>
-                    <div class="col-md-3"><label asp-for="MemberInput.BillingRoutingType" class="form-label">Billing Routing</label><select asp-for="MemberInput.BillingRoutingType" asp-items="Html.GetEnumSelectList<BillingRoutingType>()" class="form-select"></select></div>
-                    <div class="col-md-2 d-flex align-items-end"><div class="form-check"><input asp-for="MemberInput.IsPrimaryGuest" class="form-check-input" /><label asp-for="MemberInput.IsPrimaryGuest" class="form-check-label">Primary</label></div></div>
-                    <div class="col-md-2"><button class="btn vpms-btn-primary w-100">Link</button></div>
-                </div>
-            </form>
             @if (group.Members.Count == 0)
             {
                 <div class="vpms-empty-state m-3">No member reservations linked yet.</div>
@@ -144,7 +132,7 @@
                         {
                             <tr>
                                 <td>@member.Reservation?.Guest?.FirstName @member.Reservation?.Guest?.LastName @(member.IsPrimaryGuest ? "(Primary)" : "")</td>
-                                <td><a asp-page="/FrontOffice/Reservations/Details" asp-route-id="@member.ReservationId">@member.Reservation?.ConfirmationNumber</a></td>
+                                <td><a asp-page="/FrontOffice/Reservations/Details" asp-route-id="@member.ReservationId" data-vpms-dialog data-vpms-dialog-title="Reservation Control">@member.Reservation?.ConfirmationNumber</a></td>
                                 <td>@(member.Reservation?.Room?.RoomNumber ?? member.Reservation?.RoomType?.Code)</td>
                                 <td>@member.Reservation?.ArrivalDate.ToString("MMM d") - @member.Reservation?.DepartureDate.ToString("MMM d")</td>
                                 <td>@member.Reservation?.Status</td>
@@ -162,19 +150,16 @@
         <section class="vpms-card mb-4">
             <div class="vpms-section-header d-flex justify-content-between align-items-center">
                 <div><h2 class="h5 mb-0">Group Master Folios</h2><small class="text-muted">Link a master folio to a pseudo room/paymaster account when needed.</small></div>
-                <a class="btn btn-sm vpms-btn-secondary" asp-page="./Print" asp-route-type="group-master-folio" asp-route-id="@group.Id">Print</a>
-            </div>
-            <form method="post" asp-page-handler="CreateFolio" asp-route-id="@group.Id" class="p-3 border-bottom">
-                <div class="row g-2">
-                    <div class="col-md-6"><label asp-for="GroupFolioInput.FolioName" class="form-label">Folio Name</label><input asp-for="GroupFolioInput.FolioName" class="form-control" /></div>
-                    <div class="col-md-6"><label asp-for="GroupFolioInput.BillingName" class="form-label">Billing Name</label><input asp-for="GroupFolioInput.BillingName" class="form-control" /></div>
-                    <div class="col-md-6"><label asp-for="GroupFolioInput.PseudoRoomId" class="form-label">Pseudo Room</label><select asp-for="GroupFolioInput.PseudoRoomId" asp-items="Model.PseudoRoomOptions" class="form-select"><option value="">None</option></select></div>
-                    <div class="col-md-6"><label asp-for="GroupFolioInput.FolioId" class="form-label">Linked Folio</label><select asp-for="GroupFolioInput.FolioId" asp-items="Model.FolioOptions" class="form-select"><option value="">Virtual only</option></select></div>
-                    <div class="col-md-6"><label asp-for="GroupFolioInput.Status" class="form-label">Status</label><select asp-for="GroupFolioInput.Status" asp-items="Html.GetEnumSelectList<GroupFolioStatus>()" class="form-select"></select></div>
-                    <div class="col-md-6"><button class="btn vpms-btn-primary w-100 mt-4">Create Folio</button></div>
-                    <div class="col-12"><label asp-for="GroupFolioInput.Notes" class="form-label">Notes</label><input asp-for="GroupFolioInput.Notes" class="form-control" /></div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-sm vpms-btn-primary"
+                       asp-page-handler="CreateFolioNative"
+                       asp-route-id="@group.Id"
+                       data-vpms-native-dialog
+                       data-vpms-native-handler="CreateFolioNative"
+                       data-vpms-native-dialog-title="Create Group Master Folio">Create Folio</a>
+                    <a class="btn btn-sm vpms-btn-secondary" asp-page="./Print" asp-route-type="group-master-folio" asp-route-id="@group.Id">Print</a>
                 </div>
-            </form>
+            </div>
             <div class="p-3">
                 @foreach (var folio in group.GroupFolios)
                 {
@@ -212,29 +197,25 @@
         <section class="vpms-card mb-4">
             <div class="vpms-section-header d-flex justify-content-between align-items-center">
                 <div><h2 class="h5 mb-0">Deposits and Allocations</h2><small class="text-muted">Finance-controlled group collection management.</small></div>
-                <a class="btn btn-sm vpms-btn-secondary" asp-page="./Print" asp-route-type="collection-statement" asp-route-id="@group.Id">Print Statement</a>
+                <div class="d-flex flex-wrap gap-2">
+                    @if (Model.CanUseFinanceActions)
+                    {
+                        <a class="btn btn-sm vpms-btn-primary"
+                           asp-page-handler="ReceiveDepositNative"
+                           asp-route-id="@group.Id"
+                           data-vpms-native-dialog
+                           data-vpms-native-handler="ReceiveDepositNative"
+                           data-vpms-native-dialog-title="Receive Group Deposit">Receive Deposit</a>
+                        <a class="btn btn-sm vpms-btn-secondary"
+                           asp-page-handler="AllocateNative"
+                           asp-route-id="@group.Id"
+                           data-vpms-native-dialog
+                           data-vpms-native-handler="AllocateNative"
+                           data-vpms-native-dialog-title="Allocate Group Deposit">Allocate</a>
+                    }
+                    <a class="btn btn-sm vpms-btn-secondary" asp-page="./Print" asp-route-type="collection-statement" asp-route-id="@group.Id">Print Statement</a>
+                </div>
             </div>
-            @if (Model.CanUseFinanceActions)
-            {
-                <form method="post" asp-page-handler="ReceiveDeposit" asp-route-id="@group.Id" class="p-3 border-bottom">
-                    <div class="row g-2 align-items-end">
-                        <div class="col-md-4"><label asp-for="DepositInput.DepositDate" class="form-label">Date</label><input asp-for="DepositInput.DepositDate" type="date" class="form-control" /></div>
-                        <div class="col-md-4"><label asp-for="DepositInput.Amount" class="form-label">Amount</label><input asp-for="DepositInput.Amount" type="number" min="0.01" step="0.01" class="form-control" /></div>
-                        <div class="col-md-4"><label asp-for="DepositInput.PaymentMethod" class="form-label">Method</label><input asp-for="DepositInput.PaymentMethod" class="form-control" /></div>
-                        <div class="col-md-8"><label asp-for="DepositInput.ReferenceNumber" class="form-label">Reference</label><input asp-for="DepositInput.ReferenceNumber" class="form-control" /></div>
-                        <div class="col-md-4"><button class="btn vpms-btn-primary w-100">Receive</button></div>
-                    </div>
-                </form>
-                <form method="post" asp-page-handler="Allocate" asp-route-id="@group.Id" class="p-3 border-bottom">
-                    <div class="row g-2 align-items-end">
-                        <div class="col-md-4"><label asp-for="AllocationInput.GroupDepositId" class="form-label">Deposit</label><select asp-for="AllocationInput.GroupDepositId" asp-items="Model.DepositOptions" class="form-select"><option value="">None</option></select></div>
-                        <div class="col-md-4"><label asp-for="AllocationInput.TargetFolioId" class="form-label">Target Folio</label><select asp-for="AllocationInput.TargetFolioId" asp-items="Model.FolioOptions" class="form-select"><option value="">None</option></select></div>
-                        <div class="col-md-4"><label asp-for="AllocationInput.TargetReservationId" class="form-label">Target Reservation</label><select asp-for="AllocationInput.TargetReservationId" asp-items="Model.MemberReservationOptions" class="form-select"><option value="">None</option></select></div>
-                        <div class="col-md-4"><label asp-for="AllocationInput.AllocatedAmount" class="form-label">Amount</label><input asp-for="AllocationInput.AllocatedAmount" type="number" min="0.01" step="0.01" class="form-control" /></div>
-                        <div class="col-md-8"><button class="btn vpms-btn-primary w-100 mt-4">Allocate Payment / Deposit</button></div>
-                    </div>
-                </form>
-            }
             <div class="p-3">
                 <h3 class="h6">Deposits</h3>
                 @foreach (var deposit in group.Deposits.OrderByDescending(item => item.DepositDate))

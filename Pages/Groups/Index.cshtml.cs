@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
@@ -26,6 +27,12 @@ public class IndexModel(ApplicationDbContext context, AuditLogService auditLogSe
     public async Task OnGetAsync()
     {
         await LoadAsync();
+    }
+
+    public async Task<IActionResult> OnGetNativeAsync()
+    {
+        await LoadAsync();
+        return NativePartial();
     }
 
     public async Task<IActionResult> OnPostCreateAsync()
@@ -63,13 +70,33 @@ public class IndexModel(ApplicationDbContext context, AuditLogService auditLogSe
         if (!ModelState.IsValid)
         {
             await LoadAsync();
-            return Page();
+            return NativePartialOrPage();
         }
 
         context.GroupBookings.Add(Input);
         await context.SaveChangesAsync();
         await auditLogService.LogAsync(AuditActionType.Create, "Group Management", nameof(GroupBooking), Input.Id.ToString(), null, new { Input.GroupCode, Input.GroupName, Input.BookingStatus });
         return RedirectToPage("./Details", new { id = Input.Id });
+    }
+
+    private IActionResult NativePartialOrPage()
+    {
+        return IsNativeWorkflowRequest() ? NativePartial() : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_CreateNative",
+            ViewData = new ViewDataDictionary<IndexModel>(ViewData, this)
+        };
     }
 
     private async Task LoadAsync()

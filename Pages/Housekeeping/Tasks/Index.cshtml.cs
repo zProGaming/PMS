@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Housekeeping;
@@ -12,6 +13,8 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
     public IList<HousekeepingTask> Tasks { get; set; } = new List<HousekeepingTask>();
 
+    public HousekeepingTask? SelectedTask { get; private set; }
+
     public async Task OnGetAsync()
     {
         Tasks = await _context.HousekeepingTasks
@@ -21,6 +24,25 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             .ThenByDescending(task => task.Priority)
             .ThenBy(task => task.Room!.RoomNumber)
             .ToListAsync();
+    }
+
+    public async Task<IActionResult> OnGetCompleteNativeAsync(int id)
+    {
+        SelectedTask = await _context.HousekeepingTasks
+            .Include(task => task.Room)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(task => task.Id == id);
+
+        if (SelectedTask is null)
+        {
+            return NotFound();
+        }
+
+        return new PartialViewResult
+        {
+            ViewName = "_CompleteNative",
+            ViewData = new ViewDataDictionary<IndexModel>(ViewData, this)
+        };
     }
 
     public async Task<IActionResult> OnPostCompleteAsync(int? id)

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Authorization;
@@ -59,6 +60,51 @@ public class DetailsModel(ApplicationDbContext context, GroupManagementService g
         return await LoadOrNotFoundAsync(id);
     }
 
+    public async Task<IActionResult> OnGetUpdateNativeAsync(int id)
+    {
+        return await NativePartialOrNotFoundAsync(id, "_UpdateNative");
+    }
+
+    public async Task<IActionResult> OnGetAddBlockNativeAsync(int id)
+    {
+        return await NativePartialOrNotFoundAsync(id, "_AddBlockNative");
+    }
+
+    public async Task<IActionResult> OnGetPickupNativeAsync(int id)
+    {
+        return await NativePartialOrNotFoundAsync(id, "_PickupNative");
+    }
+
+    public async Task<IActionResult> OnGetLinkReservationNativeAsync(int id)
+    {
+        return await NativePartialOrNotFoundAsync(id, "_LinkReservationNative");
+    }
+
+    public async Task<IActionResult> OnGetCreateFolioNativeAsync(int id)
+    {
+        return await NativePartialOrNotFoundAsync(id, "_CreateFolioNative");
+    }
+
+    public async Task<IActionResult> OnGetReceiveDepositNativeAsync(int id)
+    {
+        if (!CanUseFinanceActions)
+        {
+            return Forbid();
+        }
+
+        return await NativePartialOrNotFoundAsync(id, "_ReceiveDepositNative");
+    }
+
+    public async Task<IActionResult> OnGetAllocateNativeAsync(int id)
+    {
+        if (!CanUseFinanceActions)
+        {
+            return Forbid();
+        }
+
+        return await NativePartialOrNotFoundAsync(id, "_AllocateNative");
+    }
+
     public async Task<IActionResult> OnPostUpdateAsync(int id)
     {
         var group = await context.GroupBookings.FindAsync(id);
@@ -79,7 +125,7 @@ public class DetailsModel(ApplicationDbContext context, GroupManagementService g
 
         if (!ModelState.IsValid)
         {
-            return await LoadOrNotFoundAsync(id);
+            return await NativePartialOrPageAsync(id, "_UpdateNative");
         }
 
         group.GroupName = EditInput.GroupName.Trim();
@@ -136,7 +182,7 @@ public class DetailsModel(ApplicationDbContext context, GroupManagementService g
 
         if (!ModelState.IsValid)
         {
-            return await LoadOrNotFoundAsync(id);
+            return await NativePartialOrPageAsync(id, "_AddBlockNative");
         }
 
         context.GroupRoomBlocks.Add(BlockInput);
@@ -173,7 +219,7 @@ public class DetailsModel(ApplicationDbContext context, GroupManagementService g
 
         if (!ModelState.IsValid)
         {
-            return await LoadOrNotFoundAsync(id);
+            return await NativePartialOrPageAsync(id, "_LinkReservationNative");
         }
 
         context.GroupMemberReservations.Add(MemberInput);
@@ -277,7 +323,7 @@ public class DetailsModel(ApplicationDbContext context, GroupManagementService g
 
         if (!ModelState.IsValid || block is null)
         {
-            return await LoadOrNotFoundAsync(id);
+            return await NativePartialOrPageAsync(id, "_PickupNative");
         }
 
         var reservation = new Reservation
@@ -337,7 +383,7 @@ public class DetailsModel(ApplicationDbContext context, GroupManagementService g
 
         if (!ModelState.IsValid)
         {
-            return await LoadOrNotFoundAsync(id);
+            return await NativePartialOrPageAsync(id, "_CreateFolioNative");
         }
 
         context.GroupFolios.Add(GroupFolioInput);
@@ -369,7 +415,7 @@ public class DetailsModel(ApplicationDbContext context, GroupManagementService g
 
         if (!ModelState.IsValid)
         {
-            return await LoadOrNotFoundAsync(id);
+            return await NativePartialOrPageAsync(id, "_ReceiveDepositNative");
         }
 
         context.GroupDeposits.Add(DepositInput);
@@ -429,7 +475,7 @@ public class DetailsModel(ApplicationDbContext context, GroupManagementService g
 
         if (!ModelState.IsValid)
         {
-            return await LoadOrNotFoundAsync(id);
+            return await NativePartialOrPageAsync(id, "_AllocateNative");
         }
 
         context.GroupPaymentAllocations.Add(AllocationInput);
@@ -462,6 +508,38 @@ public class DetailsModel(ApplicationDbContext context, GroupManagementService g
         await context.SaveChangesAsync();
         await auditLogService.LogAsync(AuditActionType.Create, "Group Management", nameof(GroupPaymentAllocation), AllocationInput.Id.ToString(), null, new { AllocationInput.GroupBookingId, AllocationInput.GroupDepositId, AllocationInput.TargetFolioId, AllocationInput.TargetReservationId, AllocationInput.AllocatedAmount });
         return RedirectToPage(new { id });
+    }
+
+    private async Task<IActionResult> NativePartialOrNotFoundAsync(int id, string partialName)
+    {
+        var result = await LoadOrNotFoundAsync(id);
+        return result is NotFoundResult ? result : NativePartial(partialName);
+    }
+
+    private async Task<IActionResult> NativePartialOrPageAsync(int id, string partialName)
+    {
+        var result = await LoadOrNotFoundAsync(id);
+        if (result is NotFoundResult)
+        {
+            return result;
+        }
+
+        return IsNativeWorkflowRequest() ? NativePartial(partialName) : Page();
+    }
+
+    private bool IsNativeWorkflowRequest()
+    {
+        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private PartialViewResult NativePartial(string partialName)
+    {
+        return new PartialViewResult
+        {
+            ViewName = partialName,
+            ViewData = new ViewDataDictionary<DetailsModel>(ViewData, this)
+        };
     }
 
     public async Task<IActionResult> OnPostCloseGroupFolioAsync(int id, int groupFolioId)

@@ -1,0 +1,45 @@
+@model Vantage.PMS.Pages.Groups.DetailsModel
+@using Vantage.PMS.Models.Groups
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <span class="page-kicker">Group Member</span>
+        <h1>Link Existing Reservation</h1>
+        <p>Attach an existing reservation to @Model.GroupBooking.GroupCode and apply group billing routing.</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Members</span>
+        <strong>@Model.GroupBooking.Members.Count</strong>
+    </div>
+</section>
+
+<form method="post" asp-page-handler="LinkReservation" asp-route-id="@Model.GroupBooking.Id" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Reservation Link</h2>
+            <p>Use this when the reservation already exists and should be included in pickup and collection reporting.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="MemberInput.ReservationId" class="form-label">Reservation</label>
+                <select asp-for="MemberInput.ReservationId" asp-items="Model.ReservationOptions" class="form-select"></select>
+                <span asp-validation-for="MemberInput.ReservationId" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="MemberInput.BillingRoutingType" class="form-label">Billing Routing</label>
+                <select asp-for="MemberInput.BillingRoutingType" asp-items="Html.GetEnumSelectList<BillingRoutingType>()" class="form-select"></select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <div class="form-check">
+                    <input asp-for="MemberInput.IsPrimaryGuest" class="form-check-input" />
+                    <label asp-for="MemberInput.IsPrimaryGuest" class="form-check-label">Primary</label>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Link Reservation</button>
+    </div>
+</form>

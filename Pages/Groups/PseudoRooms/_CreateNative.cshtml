@@ -1,0 +1,81 @@
+@model Vantage.PMS.Pages.Groups.PseudoRooms.IndexModel
+@using Vantage.PMS.Models.Groups
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <span class="page-kicker">Paymaster Setup</span>
+        <h1>Create Pseudo Room</h1>
+        <p>Pseudo rooms support paymaster billing, group master accounts, banquet accounts, and house accounts without affecting room inventory or occupancy.</p>
+    </div>
+    <div class="vpms-native-balance-pill positive">
+        <span>Inventory Impact</span>
+        <strong>None</strong>
+    </div>
+</section>
+
+<div class="alert alert-info">
+    Pseudo Room / Paymaster Account - not included in physical room inventory, room rack occupancy, or housekeeping inventory.
+</div>
+
+<form method="post" asp-page-handler="Create" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Account Identity</h2>
+            <p>Use a code finance and front office can recognize quickly during charge routing.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="Input.PseudoRoomCode" class="form-label">Code</label>
+                <input asp-for="Input.PseudoRoomCode" class="form-control" placeholder="PM-001" />
+                <span asp-validation-for="Input.PseudoRoomCode" class="text-danger"></span>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="Input.PseudoRoomName" class="form-label">Name</label>
+                <input asp-for="Input.PseudoRoomName" class="form-control" />
+                <span asp-validation-for="Input.PseudoRoomName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.PseudoRoomType" class="form-label">Type</label>
+                <select asp-for="Input.PseudoRoomType" asp-items="Html.GetEnumSelectList<PseudoRoomType>()" class="form-select"></select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.LinkedGroupBookingId" class="form-label">Group</label>
+                <select asp-for="Input.LinkedGroupBookingId" asp-items="Model.GroupBookingOptions" class="form-select">
+                    <option value="">None</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Optional Links</h2>
+            <p>Connect this pseudo room to a commercial account, banquet event, or notes for finance review.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Input.LinkedSalesAccountId" class="form-label">Sales Account</label>
+                <select asp-for="Input.LinkedSalesAccountId" asp-items="Model.SalesAccountOptions" class="form-select">
+                    <option value="">None</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.LinkedBanquetEventId" class="form-label">Banquet Event</label>
+                <select asp-for="Input.LinkedBanquetEventId" asp-items="Model.BanquetEventOptions" class="form-select">
+                    <option value="">None</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <label asp-for="Input.Notes" class="form-label">Notes</label>
+                <input asp-for="Input.Notes" class="form-control" />
+            </div>
+        </div>
+    </section>
+
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Create Pseudo Room</button>
+    </div>
+</form>

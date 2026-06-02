@@ -1,0 +1,62 @@
+@model Vantage.PMS.Pages.Groups.DetailsModel
+@using Vantage.PMS.Models.Groups
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <span class="page-kicker">Group Collection</span>
+        <h1>Receive Group Deposit</h1>
+        <p>Record a finance-controlled group deposit for later allocation to group or member folios.</p>
+    </div>
+    <div class="vpms-native-balance-pill positive">
+        <span>Deposits</span>
+        <strong>@Model.CollectionSummary.TotalDeposits.ToString("C")</strong>
+    </div>
+</section>
+
+<form method="post" asp-page-handler="ReceiveDeposit" asp-route-id="@Model.GroupBooking.Id" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Deposit Receipt</h2>
+            <p>Capture method, reference, refundable status, and notes for group collection monitoring.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="DepositInput.DepositDate" class="form-label">Date</label>
+                <input asp-for="DepositInput.DepositDate" type="date" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="DepositInput.Amount" class="form-label">Amount</label>
+                <input asp-for="DepositInput.Amount" type="number" min="0.01" step="0.01" class="form-control" />
+                <span asp-validation-for="DepositInput.Amount" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="DepositInput.PaymentMethod" class="form-label">Method</label>
+                <input asp-for="DepositInput.PaymentMethod" class="form-control" placeholder="Cash / Bank / Card" />
+                <span asp-validation-for="DepositInput.PaymentMethod" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="DepositInput.ReferenceNumber" class="form-label">Reference</label>
+                <input asp-for="DepositInput.ReferenceNumber" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label asp-for="DepositInput.Status" class="form-label">Status</label>
+                <select asp-for="DepositInput.Status" asp-items="Html.GetEnumSelectList<GroupDepositStatus>()" class="form-select"></select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <div class="form-check">
+                    <input asp-for="DepositInput.IsRefundable" class="form-check-input" />
+                    <label asp-for="DepositInput.IsRefundable" class="form-check-label">Refundable deposit</label>
+                </div>
+            </div>
+            <div class="col-12">
+                <label asp-for="DepositInput.Notes" class="form-label">Notes</label>
+                <input asp-for="DepositInput.Notes" class="form-control" />
+            </div>
+        </div>
+    </section>
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Receive Deposit</button>
+    </div>
+</form>

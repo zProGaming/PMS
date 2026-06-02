@@ -13,55 +13,15 @@
         <p class="page-subtitle">Route room, tax, F&B, banquet, and incidental charges to guest folios, group master folios, or pseudo room accounts.</p>
     </div>
     <div class="page-actions">
+        <a class="btn vpms-btn-primary"
+           asp-page="./Index"
+           data-vpms-native-dialog
+           data-vpms-native-handler="Native"
+           data-vpms-native-dialog-title="Create Routing Rule">Create Rule</a>
         <a class="btn vpms-btn-secondary" asp-page="/Groups/Index">Group Bookings</a>
         <a class="btn vpms-btn-secondary" asp-page="/Groups/PseudoRooms/Index">Pseudo Rooms</a>
     </div>
 </div>
-
-<form method="post" asp-page-handler="Create" class="vpms-form-card mb-4">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="row g-3 align-items-end">
-        <div class="col-md-4">
-            <label asp-for="Input.GroupBookingId" class="form-label">Source Group</label>
-            <select asp-for="Input.GroupBookingId" asp-items="Model.GroupBookingOptions" class="form-select"><option value="">None</option></select>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="Input.ReservationId" class="form-label">Source Reservation</label>
-            <select asp-for="Input.ReservationId" asp-items="Model.ReservationOptions" class="form-select"><option value="">None</option></select>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="Input.FolioId" class="form-label">Source Folio</label>
-            <select asp-for="Input.FolioId" asp-items="Model.FolioOptions" class="form-select"><option value="">None</option></select>
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.SourceChargeCategory" class="form-label">Charge Category</label>
-            <select asp-for="Input.SourceChargeCategory" asp-items="Html.GetEnumSelectList<ChargeCategory>()" class="form-select"></select>
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.RouteToType" class="form-label">Route To</label>
-            <select asp-for="Input.RouteToType" asp-items="Html.GetEnumSelectList<RouteToType>()" class="form-select"></select>
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.TargetGroupFolioId" class="form-label">Target Group Folio</label>
-            <select asp-for="Input.TargetGroupFolioId" asp-items="Model.GroupFolioOptions" class="form-select"><option value="">None</option></select>
-        </div>
-        <div class="col-md-3">
-            <label asp-for="Input.TargetFolioId" class="form-label">Target Folio</label>
-            <select asp-for="Input.TargetFolioId" asp-items="Model.FolioOptions" class="form-select"><option value="">None</option></select>
-        </div>
-        <div class="col-md-4">
-            <label asp-for="Input.TargetPseudoRoomId" class="form-label">Target Pseudo Room</label>
-            <select asp-for="Input.TargetPseudoRoomId" asp-items="Model.PseudoRoomOptions" class="form-select"><option value="">None</option></select>
-        </div>
-        <div class="col-md-6">
-            <label asp-for="Input.Notes" class="form-label">Notes</label>
-            <input asp-for="Input.Notes" class="form-control" />
-        </div>
-        <div class="col-md-2">
-            <button class="btn vpms-btn-primary w-100">Create Rule</button>
-        </div>
-    </div>
-</form>
 
 <section class="vpms-card">
     @if (Model.Rules.Count == 0)

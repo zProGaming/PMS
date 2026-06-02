@@ -1,0 +1,74 @@
+@model Vantage.PMS.Pages.Groups.DetailsModel
+@using Vantage.PMS.Models.Groups
+
+<section class="vpms-native-modal-intro">
+    <div>
+        <span class="page-kicker">Group Pickup</span>
+        <h1>Create Reservation From Block</h1>
+        <p>Pick up group inventory into a normal guest reservation while preserving billing routing and group membership.</p>
+    </div>
+    <div class="vpms-native-balance-pill">
+        <span>Group</span>
+        <strong>@Model.GroupBooking.GroupCode</strong>
+    </div>
+</section>
+
+<form method="post" asp-page-handler="PickupReservation" asp-route-id="@Model.GroupBooking.Id" class="vpms-native-workflow-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <section class="vpms-form-section">
+        <div class="vpms-form-section-heading">
+            <h2>Reservation Pickup</h2>
+            <p>Choose the held inventory, guest, optional room assignment, and routing instruction.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="PickupInput.GroupRoomBlockId" class="form-label">Room Block</label>
+                <select asp-for="PickupInput.GroupRoomBlockId" asp-items="Model.BlockOptions" class="form-select"></select>
+                <span asp-validation-for="PickupInput.GroupRoomBlockId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="PickupInput.GuestId" class="form-label">Guest</label>
+                <select asp-for="PickupInput.GuestId" asp-items="Model.GuestOptions" class="form-select"></select>
+                <span asp-validation-for="PickupInput.GuestId" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="PickupInput.RoomId" class="form-label">Assign Room</label>
+                <select asp-for="PickupInput.RoomId" asp-items="Model.RoomOptions" class="form-select">
+                    <option value="">Assign later</option>
+                </select>
+                <span asp-validation-for="PickupInput.RoomId" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="PickupInput.RateAmount" class="form-label">Rate Override</label>
+                <input asp-for="PickupInput.RateAmount" type="number" min="0" step="0.01" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label asp-for="PickupInput.BillingRoutingType" class="form-label">Routing</label>
+                <select asp-for="PickupInput.BillingRoutingType" asp-items="Html.GetEnumSelectList<BillingRoutingType>()" class="form-select"></select>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="PickupInput.Adults" class="form-label">Adults</label>
+                <input asp-for="PickupInput.Adults" type="number" min="1" class="form-control" />
+                <span asp-validation-for="PickupInput.Adults" class="text-danger"></span>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="PickupInput.Children" class="form-label">Children</label>
+                <input asp-for="PickupInput.Children" type="number" min="0" class="form-control" />
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+                <div class="form-check">
+                    <input asp-for="PickupInput.IsPrimaryGuest" class="form-check-input" />
+                    <label asp-for="PickupInput.IsPrimaryGuest" class="form-check-label">Primary guest</label>
+                </div>
+            </div>
+            <div class="col-12">
+                <label asp-for="PickupInput.Notes" class="form-label">Pickup Notes</label>
+                <input asp-for="PickupInput.Notes" class="form-control" />
+            </div>
+        </div>
+    </section>
+    <div class="vpms-native-action-row">
+        <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
+        <button class="btn vpms-btn-primary" type="submit">Create Pickup Reservation</button>
+    </div>
+</form>

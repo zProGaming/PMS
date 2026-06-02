@@ -12,6 +12,11 @@
         <p class="page-subtitle">Paymaster, group master, house, banquet, and city ledger accounts. Pseudo rooms are not physical rooms and never count toward occupancy or housekeeping inventory.</p>
     </div>
     <div class="page-actions">
+        <a class="btn vpms-btn-primary"
+           asp-page="./Index"
+           data-vpms-native-dialog
+           data-vpms-native-handler="Native"
+           data-vpms-native-dialog-title="Create Pseudo Room">Create Pseudo Room</a>
         <a class="btn vpms-btn-secondary" asp-page="/Groups/Index">Group Bookings</a>
         <a class="btn vpms-btn-secondary" asp-page="/Groups/RoutingRules/Index">Routing Rules</a>
     </div>
@@ -20,20 +25,6 @@
 <div class="alert alert-info">
     Pseudo Room / Paymaster Account - not included in physical room inventory or occupancy.
 </div>
-
-<form method="post" asp-page-handler="Create" class="vpms-form-card mb-4">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="row g-3 align-items-end">
-        <div class="col-md-2"><label asp-for="Input.PseudoRoomCode" class="form-label">Code</label><input asp-for="Input.PseudoRoomCode" class="form-control" placeholder="PM-001" /></div>
-        <div class="col-md-3"><label asp-for="Input.PseudoRoomName" class="form-label">Name</label><input asp-for="Input.PseudoRoomName" class="form-control" /></div>
-        <div class="col-md-2"><label asp-for="Input.PseudoRoomType" class="form-label">Type</label><select asp-for="Input.PseudoRoomType" asp-items="Html.GetEnumSelectList<PseudoRoomType>()" class="form-select"></select></div>
-        <div class="col-md-3"><label asp-for="Input.LinkedGroupBookingId" class="form-label">Group</label><select asp-for="Input.LinkedGroupBookingId" asp-items="Model.GroupBookingOptions" class="form-select"><option value="">None</option></select></div>
-        <div class="col-md-2"><button class="btn vpms-btn-primary w-100">Create</button></div>
-        <div class="col-md-4"><label asp-for="Input.LinkedSalesAccountId" class="form-label">Sales Account</label><select asp-for="Input.LinkedSalesAccountId" asp-items="Model.SalesAccountOptions" class="form-select"><option value="">None</option></select></div>
-        <div class="col-md-4"><label asp-for="Input.LinkedBanquetEventId" class="form-label">Banquet Event</label><select asp-for="Input.LinkedBanquetEventId" asp-items="Model.BanquetEventOptions" class="form-select"><option value="">None</option></select></div>
-        <div class="col-md-4"><label asp-for="Input.Notes" class="form-label">Notes</label><input asp-for="Input.Notes" class="form-control" /></div>
-    </div>
-</form>
 
 <section class="vpms-card">
     @if (Model.PseudoRooms.Count == 0)
@@ -50,7 +41,7 @@
                 {
                     <tr>
                         <td class="fw-semibold">@room.PseudoRoomCode</td>
-                        <td><a asp-page="./Details" asp-route-id="@room.Id">@room.PseudoRoomName</a><div class="small text-muted">@room.Notes</div></td>
+                        <td><a asp-page="./Details" asp-route-id="@room.Id" data-vpms-dialog data-vpms-dialog-title="Pseudo Room Control">@room.PseudoRoomName</a><div class="small text-muted">@room.Notes</div></td>
                         <td>@room.PseudoRoomType</td>
                         <td>
                             <div>@room.LinkedGroupBooking?.GroupName</div>
@@ -58,7 +49,7 @@
                         </td>
                         <td><span class="status-badge @(room.IsActive ? "status-paid" : "status-cancelled")">@(room.IsActive ? "Active" : "Inactive")</span></td>
                         <td class="text-end">
-                            <a class="btn btn-sm vpms-btn-secondary" asp-page="./Details" asp-route-id="@room.Id">Details</a>
+                            <a class="btn btn-sm vpms-btn-secondary" asp-page="./Details" asp-route-id="@room.Id" data-vpms-dialog data-vpms-dialog-title="Pseudo Room Control">Details</a>
                             <form method="post" asp-page-handler="Toggle" asp-route-id="@room.Id" class="d-inline"><button class="btn btn-sm vpms-btn-secondary">@(room.IsActive ? "Deactivate" : "Activate")</button></form>
                         </td>
                     </tr>
