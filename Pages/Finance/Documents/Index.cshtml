@@ -34,23 +34,39 @@
 </form>
 </details>
 
-<table class="table table-striped table-hover align-middle">
-    <thead><tr><th>Number</th><th>Type</th><th>Date</th><th>Billing Name</th><th>Status</th><th class="text-end">Total</th><th class="text-end">Balance</th><th></th></tr></thead>
-    <tbody>
-        @foreach (var document in Model.Documents)
-        {
-            <tr>
-                <td>@document.DocumentNumber</td>
-                <td>@document.DocumentType</td>
-                <td>@document.DocumentDate.ToString("d")</td>
-                <td>@document.BillingName</td>
-                <td><span class="badge text-bg-secondary">@document.Status</span></td>
-                <td class="text-end">@document.TotalAmount.ToString("C")</td>
-                <td class="text-end">@document.Balance.ToString("C")</td>
-                <td class="text-end"><a asp-page="Details" asp-route-id="@document.Id" class="btn btn-sm btn-outline-primary">Open</a></td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="vpms-table-wrapper">
+    <table class="table table-striped table-hover align-middle mb-0">
+        <thead><tr><th>Number</th><th>Type</th><th>Date</th><th>Billing Name</th><th>Status</th><th class="text-end">Total</th><th class="text-end">Balance</th><th></th></tr></thead>
+        <tbody>
+            @if (!Model.Documents.Any())
+            {
+                <tr class="vpms-empty-row">
+                    <td colspan="8">
+                        <section class="vpms-empty-state vpms-empty-state-table">
+                            <strong>No finance documents found.</strong>
+                            <span>Create a document from a folio, banquet, or AR workflow when billing control is ready.</span>
+                        </section>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var document in Model.Documents)
+                {
+                    <tr>
+                        <td>@document.DocumentNumber</td>
+                        <td>@document.DocumentType</td>
+                        <td>@document.DocumentDate.ToString("d")</td>
+                        <td>@document.BillingName</td>
+                        <td><span class="badge text-bg-secondary">@document.Status</span></td>
+                        <td class="text-end">@document.TotalAmount.ToString("C")</td>
+                        <td class="text-end">@document.Balance.ToString("C")</td>
+                        <td class="text-end"><a asp-page="Details" asp-route-id="@document.Id" class="btn btn-sm btn-outline-primary">Open</a></td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
 
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

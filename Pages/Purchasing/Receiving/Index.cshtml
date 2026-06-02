@@ -13,21 +13,37 @@
        data-vpms-native-dialog-title="New Receiving Record">New Receiving</a>
 </div>
 
-<table class="table table-striped table-hover align-middle">
-    <thead><tr><th>Receiving #</th><th>PO</th><th>Supplier</th><th>Date</th><th>Received By</th><th>Status</th><th class="text-end">Amount</th><th></th></tr></thead>
-    <tbody>
-        @foreach (var record in Model.ReceivingRecords)
-        {
-            <tr>
-                <td>@record.ReceivingNumber</td>
-                <td>@record.PurchaseOrder?.PONumber</td>
-                <td>@record.Supplier?.SupplierName</td>
-                <td>@record.ReceivedDate.ToString("d")</td>
-                <td>@record.ReceivedBy</td>
-                <td><span class="badge text-bg-secondary">@record.Status</span></td>
-                <td class="text-end">@record.Items.Sum(item => item.Amount).ToString("C")</td>
-                <td class="text-end"><a asp-page="Details" asp-route-id="@record.Id" class="btn btn-sm btn-outline-primary" data-vpms-dialog data-vpms-dialog-title="Receiving Control">Open</a></td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="vpms-table-wrapper">
+    <table class="table table-striped table-hover align-middle mb-0">
+        <thead><tr><th>Receiving #</th><th>PO</th><th>Supplier</th><th>Date</th><th>Received By</th><th>Status</th><th class="text-end">Amount</th><th></th></tr></thead>
+        <tbody>
+            @if (!Model.ReceivingRecords.Any())
+            {
+                <tr class="vpms-empty-row">
+                    <td colspan="8">
+                        <section class="vpms-empty-state vpms-empty-state-table">
+                            <strong>No receiving records found.</strong>
+                            <span>Create a receiving record when goods are accepted so inventory and purchasing controls stay aligned.</span>
+                        </section>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var record in Model.ReceivingRecords)
+                {
+                    <tr>
+                        <td>@record.ReceivingNumber</td>
+                        <td>@record.PurchaseOrder?.PONumber</td>
+                        <td>@record.Supplier?.SupplierName</td>
+                        <td>@record.ReceivedDate.ToString("d")</td>
+                        <td>@record.ReceivedBy</td>
+                        <td><span class="badge text-bg-secondary">@record.Status</span></td>
+                        <td class="text-end">@record.Items.Sum(item => item.Amount).ToString("C")</td>
+                        <td class="text-end"><a asp-page="Details" asp-route-id="@record.Id" class="btn btn-sm btn-outline-primary" data-vpms-dialog data-vpms-dialog-title="Receiving Control">Open</a></td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

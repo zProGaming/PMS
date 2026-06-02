@@ -12026,3 +12026,130 @@ html {
     flex: 1 1 0;
   }
 }
+
+/* Batch 4 visual QA refinements: prevent dense command rails and empty tables
+   from reading as clipped or unfinished on desktop, tablet, and mobile. */
+.vpms-commandbar.app-commandbar,
+.app-commandbar {
+  position: sticky;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  scroll-padding-inline: clamp(1rem, 1.8vw, 1.45rem);
+}
+
+.vpms-commandbar.app-commandbar::-webkit-scrollbar,
+.app-commandbar::-webkit-scrollbar {
+  display: none;
+}
+
+.vpms-commandbar.app-commandbar::after,
+.app-commandbar::after {
+  position: sticky;
+  right: -1px;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 100%;
+  min-height: 48px;
+  margin-left: -42px;
+  pointer-events: none;
+  content: "";
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.96));
+}
+
+.vpms-commandbar-label {
+  flex: 0 0 auto;
+  border-right: 1px solid rgba(221, 229, 238, 0.72);
+}
+
+.app-commandbar a,
+.app-commandbar .vpms-command-item,
+.app-commandbar .commandbar-status {
+  flex: 0 0 auto;
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.vpms-empty-row:hover,
+.vpms-content .table tbody tr.vpms-empty-row:hover {
+  background: transparent;
+  box-shadow: none;
+}
+
+.vpms-empty-row td {
+  padding: 0 !important;
+  border-bottom: 0;
+}
+
+.vpms-empty-state-table {
+  margin: 0;
+  min-height: 118px;
+  border-style: solid;
+  border-color: rgba(221, 229, 238, 0.86);
+  border-radius: 0 0 18px 18px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+.vpms-empty-state-table span {
+  max-width: 62rem;
+  color: #64748b;
+}
+
+@media (max-width: 991.98px) {
+  .vpms-commandbar-label {
+    min-width: 108px;
+  }
+
+  .vpms-commandbar-label small {
+    display: none;
+  }
+
+  .app-commandbar a,
+  .app-commandbar .vpms-command-item,
+  .app-commandbar .commandbar-status {
+    min-height: 40px;
+    padding-inline: 0.58rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .vpms-commandbar.app-commandbar::after,
+  .app-commandbar::after {
+    flex-basis: 108px;
+    width: 108px;
+    margin-left: -108px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), #ffffff 86%);
+  }
+
+  .vpms-commandbar-label {
+    min-width: 92px;
+    padding-right: 0.58rem;
+    font-size: 0.7rem;
+  }
+
+  .app-commandbar a,
+  .app-commandbar .vpms-command-item,
+  .app-commandbar .commandbar-status {
+    min-width: max-content;
+    max-width: none;
+  }
+
+  .vpms-table-wrapper .vpms-empty-state-table {
+    width: calc(100vw - 1.5rem);
+    max-width: calc(100vw - 1.5rem);
+    min-height: 116px;
+  }
+
+  .vpms-empty-state-table span {
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+}

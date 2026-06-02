@@ -26,24 +26,40 @@
 </form>
 </details>
 
-<table class="table table-striped table-hover align-middle">
-    <thead><tr><th>Shift #</th><th>Business Date</th><th>Opened By</th><th>Opened</th><th>Closed</th><th>Status</th><th class="text-end">Expected Cash</th><th class="text-end">Over/Short</th><th></th></tr></thead>
-    <tbody>
-        @foreach (var shift in Model.Shifts)
-        {
-            <tr>
-                <td>@shift.ShiftNumber</td>
-                <td>@shift.BusinessDate.ToString("d")</td>
-                <td>@shift.OpenedBy</td>
-                <td>@shift.OpenedAt.ToString("g")</td>
-                <td>@shift.ClosedAt?.ToString("g")</td>
-                <td><span class="badge text-bg-secondary">@shift.Status</span></td>
-                <td class="text-end">@shift.ExpectedCashAmount?.ToString("C")</td>
-                <td class="text-end">@shift.CashOverShort?.ToString("C")</td>
-                <td class="text-end"><a asp-page="Details" asp-route-id="@shift.Id" class="btn btn-sm btn-outline-primary">Open</a></td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="vpms-table-wrapper">
+    <table class="table table-striped table-hover align-middle mb-0">
+        <thead><tr><th>Shift #</th><th>Business Date</th><th>Opened By</th><th>Opened</th><th>Closed</th><th>Status</th><th class="text-end">Expected Cash</th><th class="text-end">Over/Short</th><th></th></tr></thead>
+        <tbody>
+            @if (!Model.Shifts.Any())
+            {
+                <tr class="vpms-empty-row">
+                    <td colspan="9">
+                        <section class="vpms-empty-state vpms-empty-state-table">
+                            <strong>No cashier shifts open or recorded yet.</strong>
+                            <span>Open a shift to begin front cash accountability for the current business date.</span>
+                        </section>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var shift in Model.Shifts)
+                {
+                    <tr>
+                        <td>@shift.ShiftNumber</td>
+                        <td>@shift.BusinessDate.ToString("d")</td>
+                        <td>@shift.OpenedBy</td>
+                        <td>@shift.OpenedAt.ToString("g")</td>
+                        <td>@shift.ClosedAt?.ToString("g")</td>
+                        <td><span class="badge text-bg-secondary">@shift.Status</span></td>
+                        <td class="text-end">@shift.ExpectedCashAmount?.ToString("C")</td>
+                        <td class="text-end">@shift.CashOverShort?.ToString("C")</td>
+                        <td class="text-end"><a asp-page="Details" asp-route-id="@shift.Id" class="btn btn-sm btn-outline-primary">Open</a></td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
 
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }
