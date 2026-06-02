@@ -218,5 +218,9 @@
 </section>
 
 <div class="vpms-actions d-flex flex-wrap gap-2">
-    <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/Reservations/Details" asp-route-id="@Model.Folio.ReservationId">Back to Reservation</a>
+    <a class="btn vpms-btn-secondary"
+       asp-page="/FrontOffice/Reservations/Details"
+       asp-route-id="@Model.Folio.ReservationId"
+       data-vpms-dialog
+       data-vpms-dialog-title="Reservation Control">Back to Reservation</a>
 </div>

@@ -47,7 +47,7 @@
                     @if (Model.CanEditItems)
                     {
                         <form method="post" asp-page-handler="DeleteItem" asp-route-itemId="@item.Id">
-                            <button class="btn btn-sm btn-outline-danger">Remove</button>
+                            <button class="btn btn-sm btn-outline-danger" data-vpms-confirm="Remove this received item line before posting?">Remove</button>
                         </form>
                     }
                 </td>

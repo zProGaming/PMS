@@ -11053,6 +11053,7 @@ html {
 
 .vpms-native-workflow-dialog .modal-body {
   position: relative;
+  isolation: isolate;
   min-height: 360px;
   max-height: min(760px, calc(100vh - 12rem));
   padding: 0;
@@ -11062,11 +11063,29 @@ html {
     #ffffff !important;
 }
 
+.vpms-native-workflow-dialog .modal-body::before,
+.vpms-workflow-dialog .modal-body::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  content: "";
+  background: #ffffff;
+}
+
 .vpms-native-workflow-content {
+  position: relative;
+  z-index: 1;
   min-height: 360px;
   padding: 1rem;
   background: #ffffff;
   opacity: 1;
+}
+
+.vpms-workflow-dialog iframe,
+.vpms-workflow-dialog-loading {
+  position: relative;
+  z-index: 1;
 }
 
 .vpms-native-workflow-content h1 {
@@ -12101,6 +12120,23 @@ html {
 .vpms-empty-state-table span {
   max-width: 62rem;
   color: #64748b;
+}
+
+.vpms-confirm-dialog .modal-content {
+  border: 1px solid rgba(20, 184, 166, 0.24);
+  border-radius: 22px;
+  box-shadow: 0 34px 90px rgba(15, 23, 42, 0.24);
+}
+
+.vpms-confirm-dialog .modal-header,
+.vpms-confirm-dialog .modal-footer {
+  border-color: rgba(221, 229, 238, 0.8);
+}
+
+.vpms-confirm-dialog .vpms-confirm-message {
+  color: #334155;
+  font-size: 0.98rem;
+  line-height: 1.55;
 }
 
 @media (max-width: 991.98px) {

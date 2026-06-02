@@ -20,7 +20,10 @@
         <p class="page-subtitle">Guest folio control center for charges, payments, balances, and print-ready account review.</p>
     </div>
     <div class="d-flex flex-wrap gap-2">
-        <a class="btn vpms-btn-primary" asp-page="/FrontOffice/Reservations/Index">Reservations</a>
+        <a class="btn vpms-btn-primary"
+           asp-page="/FrontOffice/Reservations/Index"
+           data-vpms-dialog
+           data-vpms-dialog-title="Reservations Control">Reservations</a>
         <a class="btn vpms-btn-secondary" asp-page="/Finance/Payments/Index">Payments</a>
     </div>
 </div>
@@ -91,7 +94,11 @@
                         <td class="text-end fw-semibold">@folio.Balance.ToString("C")</td>
                         <td>@folio.OpenedAtUtc.ToLocalTime().ToString("MMM d, yyyy")</td>
                         <td class="text-end">
-                            <a class="btn btn-sm vpms-btn-secondary" asp-page="/FrontOffice/Folios/Details" asp-route-id="@folio.Id">Open</a>
+                            <a class="btn btn-sm vpms-btn-secondary"
+                               asp-page="/FrontOffice/Folios/Details"
+                               asp-route-id="@folio.Id"
+                               data-vpms-dialog
+                               data-vpms-dialog-title="Folio Control">Open</a>
                         </td>
                     </tr>
                 }

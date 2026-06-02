@@ -126,7 +126,7 @@
                                         <button type="submit" class="btn btn-sm btn-outline-success">Ready</button>
                                     </form>
                                     <form method="post" asp-page-handler="MarkCancelled" asp-route-itemId="@item.OrderItemId" class="d-inline">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" data-vpms-confirm="Cancel this kitchen item? This keeps the order trace but removes it from active prep.">Cancel</button>
                                     </form>
                                 }
                                 else if (item.ItemStatus == POSOrderItemStatus.Preparing)
@@ -135,7 +135,7 @@
                                         <button type="submit" class="btn btn-sm btn-outline-success">Ready</button>
                                     </form>
                                     <form method="post" asp-page-handler="MarkCancelled" asp-route-itemId="@item.OrderItemId" class="d-inline">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" data-vpms-confirm="Cancel this kitchen item? This keeps the order trace but removes it from active prep.">Cancel</button>
                                     </form>
                                 }
                                 else if (item.ItemStatus == POSOrderItemStatus.Ready)
@@ -144,7 +144,7 @@
                                         <button type="submit" class="btn btn-sm btn-outline-primary">Served</button>
                                     </form>
                                     <form method="post" asp-page-handler="MarkCancelled" asp-route-itemId="@item.OrderItemId" class="d-inline">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" data-vpms-confirm="Cancel this kitchen item? This keeps the order trace but removes it from active prep.">Cancel</button>
                                     </form>
                                 }
                             </td>

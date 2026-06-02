@@ -11,13 +11,108 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  document.querySelectorAll("[data-vpms-confirm]").forEach((trigger) => {
-    trigger.addEventListener("click", (event) => {
-      const message = trigger.getAttribute("data-vpms-confirm");
-      if (message && !window.confirm(message)) {
-        event.preventDefault();
+  const confirmDialog = (() => {
+    if (!window.bootstrap) {
+      return null;
+    }
+
+    const modal = document.createElement("div");
+    modal.className = "modal fade vpms-command-modal vpms-confirm-dialog";
+    modal.id = "vpmsConfirmDialog";
+    modal.tabIndex = -1;
+    modal.setAttribute("aria-labelledby", "vpmsConfirmDialogTitle");
+    modal.setAttribute("aria-hidden", "true");
+    modal.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div>
+              <span class="page-kicker">Workflow Confirmation</span>
+              <h2 class="modal-title" id="vpmsConfirmDialogTitle">Confirm Action</h2>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="vpms-confirm-message mb-0"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn vpms-btn-secondary" data-bs-dismiss="modal">Keep Reviewing</button>
+            <button type="button" class="btn vpms-btn-primary" data-vpms-confirm-continue>Continue</button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+
+    const instance = bootstrap.Modal.getOrCreateInstance(modal);
+    const messageElement = modal.querySelector(".vpms-confirm-message");
+    const continueButton = modal.querySelector("[data-vpms-confirm-continue]");
+    let pendingTrigger = null;
+
+    continueButton?.addEventListener("click", () => {
+      const trigger = pendingTrigger;
+      pendingTrigger = null;
+      instance.hide();
+
+      if (!trigger) {
+        return;
       }
+
+      trigger.dataset.vpmsConfirmApproved = "1";
+      const form = trigger.form instanceof HTMLFormElement ? trigger.form : trigger.closest("form");
+      const isSubmitControl = trigger.matches("button[type='submit'], input[type='submit'], button:not([type]), input:not([type])");
+
+      if (form && isSubmitControl && typeof form.requestSubmit === "function") {
+        form.requestSubmit(trigger);
+        return;
+      }
+
+      trigger.click();
     });
+
+    modal.addEventListener("hidden.bs.modal", () => {
+      pendingTrigger = null;
+    });
+
+    return {
+      open(trigger, message) {
+        pendingTrigger = trigger;
+        if (messageElement) {
+          messageElement.textContent = message;
+        }
+
+        instance.show();
+      }
+    };
+  })();
+
+  document.addEventListener("click", (event) => {
+    const trigger = event.target?.closest?.("[data-vpms-confirm]");
+    if (!trigger) {
+      return;
+    }
+
+    const message = trigger.getAttribute("data-vpms-confirm");
+    if (!message) {
+      return;
+    }
+
+    if (trigger.dataset.vpmsConfirmApproved === "1") {
+      delete trigger.dataset.vpmsConfirmApproved;
+      return;
+    }
+
+    event.preventDefault();
+
+    if (!confirmDialog) {
+      if (window.confirm(message)) {
+        trigger.dataset.vpmsConfirmApproved = "1";
+        trigger.click();
+      }
+
+      return;
+    }
+
+    confirmDialog.open(trigger, message);
   });
 
   const navIconMap = {

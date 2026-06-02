@@ -29,38 +29,54 @@
 </form>
 </details>
 
-<table class="table table-striped table-hover align-middle">
-    <thead><tr><th>Number</th><th>Date</th><th>Status</th><th>Method</th><th class="text-end">Amount</th><th>Reason</th><th>Approved By</th><th>Processed By</th><th></th></tr></thead>
-    <tbody>
-        @foreach (var refund in Model.Refunds)
-        {
-            <tr>
-                <td>@refund.RefundNumber</td>
-                <td>@refund.RefundDate.ToString("d")</td>
-                <td><span class="badge text-bg-secondary">@refund.Status</span></td>
-                <td>@refund.RefundMethod</td>
-                <td class="text-end">@refund.Amount.ToString("C")</td>
-                <td>@refund.Reason</td>
-                <td>@refund.ApprovedBy</td>
-                <td>@refund.ProcessedBy</td>
-                <td class="text-end">
-                    @if (refund.Status is RefundStatus.Requested or RefundStatus.ForApproval)
-                    {
-                        <a asp-page="./Index" asp-page-handler="ApproveNative" asp-route-id="@refund.Id" class="btn btn-sm btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Approve Refund">Approve</a>
-                        <a asp-page="./Index" asp-page-handler="RejectNative" asp-route-id="@refund.Id" class="btn btn-sm btn-outline-danger" data-vpms-native-dialog data-vpms-native-dialog-title="Reject Refund">Reject</a>
-                    }
-                    @if (refund.Status == RefundStatus.Approved)
-                    {
-                        <a asp-page="./Index" asp-page-handler="ProcessNative" asp-route-id="@refund.Id" class="btn btn-sm btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Process Refund">Process</a>
-                    }
-                    @if (refund.Status != RefundStatus.Processed)
-                    {
-                        <a asp-page="./Index" asp-page-handler="CancelNative" asp-route-id="@refund.Id" class="btn btn-sm btn-outline-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Refund">Cancel</a>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="vpms-table-wrapper">
+    <table class="table table-striped table-hover align-middle mb-0">
+        <thead><tr><th>Number</th><th>Date</th><th>Status</th><th>Method</th><th class="text-end">Amount</th><th>Reason</th><th>Approved By</th><th>Processed By</th><th></th></tr></thead>
+        <tbody>
+            @if (!Model.Refunds.Any())
+            {
+                <tr class="vpms-empty-row">
+                    <td colspan="9">
+                        <section class="vpms-empty-state vpms-empty-state-table">
+                            <strong>No refund requests found.</strong>
+                            <span>Create a refund request only when the guest payment trail and approval policy are ready for review.</span>
+                        </section>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var refund in Model.Refunds)
+                {
+                    <tr>
+                        <td>@refund.RefundNumber</td>
+                        <td>@refund.RefundDate.ToString("d")</td>
+                        <td><span class="badge text-bg-secondary">@refund.Status</span></td>
+                        <td>@refund.RefundMethod</td>
+                        <td class="text-end">@refund.Amount.ToString("C")</td>
+                        <td>@refund.Reason</td>
+                        <td>@refund.ApprovedBy</td>
+                        <td>@refund.ProcessedBy</td>
+                        <td class="text-end">
+                            @if (refund.Status is RefundStatus.Requested or RefundStatus.ForApproval)
+                            {
+                                <a asp-page="./Index" asp-page-handler="ApproveNative" asp-route-id="@refund.Id" class="btn btn-sm btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Approve Refund">Approve</a>
+                                <a asp-page="./Index" asp-page-handler="RejectNative" asp-route-id="@refund.Id" class="btn btn-sm btn-outline-danger" data-vpms-native-dialog data-vpms-native-dialog-title="Reject Refund">Reject</a>
+                            }
+                            @if (refund.Status == RefundStatus.Approved)
+                            {
+                                <a asp-page="./Index" asp-page-handler="ProcessNative" asp-route-id="@refund.Id" class="btn btn-sm btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Process Refund">Process</a>
+                            }
+                            @if (refund.Status != RefundStatus.Processed)
+                            {
+                                <a asp-page="./Index" asp-page-handler="CancelNative" asp-route-id="@refund.Id" class="btn btn-sm btn-outline-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Refund">Cancel</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
 
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }
