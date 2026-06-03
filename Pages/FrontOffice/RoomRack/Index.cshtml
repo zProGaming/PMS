@@ -545,6 +545,53 @@
                 });
             }
 
+            const resetWorkflowTarget = (target) => {
+                if (!target) {
+                    return;
+                }
+
+                delete target.dataset.vpmsDialog;
+                delete target.dataset.vpmsDialogTitle;
+                delete target.dataset.vpmsNativeDialog;
+                delete target.dataset.vpmsNativeDialogTitle;
+                delete target.dataset.vpmsNativeHandler;
+            };
+
+            const configureWorkflowTarget = (target, element, action, url) => {
+                if (!target) {
+                    return;
+                }
+
+                resetWorkflowTarget(target);
+
+                let path = '';
+                try {
+                    path = new URL(url, window.location.origin).pathname.toLowerCase();
+                } catch {
+                    path = '';
+                }
+
+                if (element.dataset.vpmsDialog !== undefined || path.includes('/frontoffice/reservations/details')) {
+                    target.dataset.vpmsDialog = '';
+                    target.dataset.vpmsDialogTitle = element.dataset.vpmsDialogTitle || 'Reservation Control';
+                    return;
+                }
+
+                if (element.dataset.vpmsNativeDialog !== undefined || path.includes('/housekeeping/rooms/updatestatus')) {
+                    target.dataset.vpmsNativeDialog = '';
+                    target.dataset.vpmsNativeHandler = element.dataset.vpmsNativeHandler || 'Native';
+                    target.dataset.vpmsNativeDialogTitle = element.dataset.vpmsNativeDialogTitle || 'Update Room Status';
+                    return;
+                }
+
+                if (element.dataset.quickReservation === 'true' || path.includes('/frontoffice/reservations/create')) {
+                    target.dataset.vpmsNativeDialog = '';
+                    target.dataset.vpmsNativeHandler = 'Native';
+                    target.dataset.vpmsNativeDialogTitle = 'Create Reservation';
+                    target.textContent = action || 'Create Reservation';
+                }
+            };
+
             const setFocus = (element) => {
                 if (!element) {
                     return;
@@ -566,6 +613,7 @@
                     focusDetail.textContent = detail;
                     focusAction.textContent = action;
                     focusAction.href = url;
+                    configureWorkflowTarget(focusAction, element, action, url);
                 }
 
                 if (inspectorTitle && inspectorDetail && inspectorPrimary) {
@@ -573,6 +621,7 @@
                     inspectorDetail.textContent = detail;
                     inspectorPrimary.textContent = action;
                     inspectorPrimary.href = url;
+                    configureWorkflowTarget(inspectorPrimary, element, action, url);
                 }
 
                 if (inspectorStatus) {

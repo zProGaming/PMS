@@ -54,7 +54,13 @@
                         <td><span class="badge text-bg-secondary">@shift.Status</span></td>
                         <td class="text-end">@shift.ExpectedCashAmount?.ToString("C")</td>
                         <td class="text-end">@shift.CashOverShort?.ToString("C")</td>
-                        <td class="text-end"><a asp-page="Details" asp-route-id="@shift.Id" class="btn btn-sm btn-outline-primary">Open</a></td>
+                        <td class="text-end">
+                            <a asp-page="Details"
+                               asp-route-id="@shift.Id"
+                               class="btn btn-sm btn-outline-primary"
+                               data-vpms-dialog
+                               data-vpms-dialog-title="Cashier Shift Control">Open</a>
+                        </td>
                     </tr>
                 }
             }

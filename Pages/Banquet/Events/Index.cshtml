@@ -10,41 +10,64 @@
         <h1 class="mb-1">Banquet Events</h1>
         <p class="text-muted mb-0">Event bookings and function room assignments.</p>
     </div>
-    <a class="btn btn-primary" asp-page="./Create">Create Event</a>
+    <a class="btn btn-primary" asp-page="./Create" data-vpms-dialog data-vpms-dialog-title="Create Banquet Event">Create Event</a>
 </div>
 
-<table class="table table-striped table-hover align-middle">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Event</th>
-            <th>Client</th>
-            <th>Room</th>
-            <th>Status</th>
-            <th class="text-end">Pax</th>
-            <th class="text-end">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var banquetEvent in Model.BanquetEvents)
-        {
+<div class="vpms-table-wrapper">
+    <table class="table table-striped table-hover align-middle mb-0">
+        <thead>
             <tr>
-                <td>@banquetEvent.EventDate.ToString("d")</td>
-                <td>@banquetEvent.StartTime.ToString(@"hh\:mm") - @banquetEvent.EndTime.ToString(@"hh\:mm")</td>
-                <td><a asp-page="./Details" asp-route-id="@banquetEvent.Id">@banquetEvent.EventName</a></td>
-                <td>@banquetEvent.ClientName</td>
-                <td>@banquetEvent.FunctionRoom?.Name</td>
-                <td>@banquetEvent.EventStatus</td>
-                <td class="text-end">@banquetEvent.ExpectedPax / @banquetEvent.GuaranteedPax</td>
-                <td class="text-end">
-                    <a class="btn btn-sm btn-outline-secondary" asp-page="/Banquet/BEOs/Details" asp-route-eventId="@banquetEvent.Id">BEO</a>
-                    <a class="btn btn-sm btn-outline-secondary" asp-page="/Banquet/Charges/Index" asp-route-eventId="@banquetEvent.Id">Charges</a>
-                    <a class="btn btn-sm btn-outline-secondary" asp-page="./Details" asp-route-id="@banquetEvent.Id">Details</a>
-                    <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@banquetEvent.Id">Edit</a>
-                    <a class="btn btn-sm btn-outline-danger" asp-page="./Delete" asp-route-id="@banquetEvent.Id">Delete</a>
-                </td>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Event</th>
+                <th>Client</th>
+                <th>Room</th>
+                <th>Status</th>
+                <th class="text-end">Pax</th>
+                <th class="text-end">Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @if (!Model.BanquetEvents.Any())
+            {
+                <tr class="vpms-empty-row">
+                    <td colspan="8">
+                        <section class="vpms-empty-state vpms-empty-state-table">
+                            <strong>No banquet events scheduled.</strong>
+                            <span>Create an event to manage function rooms, BEOs, charges, and group billing instructions.</span>
+                        </section>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var banquetEvent in Model.BanquetEvents)
+                {
+                    <tr>
+                        <td>@banquetEvent.EventDate.ToString("d")</td>
+                        <td>@banquetEvent.StartTime.ToString(@"hh\:mm") - @banquetEvent.EndTime.ToString(@"hh\:mm")</td>
+                        <td>
+                            <a asp-page="./Details"
+                               asp-route-id="@banquetEvent.Id"
+                               data-vpms-dialog
+                               data-vpms-dialog-title="Banquet Event Control">@banquetEvent.EventName</a>
+                        </td>
+                        <td>@banquetEvent.ClientName</td>
+                        <td>@banquetEvent.FunctionRoom?.Name</td>
+                        <td>@banquetEvent.EventStatus</td>
+                        <td class="text-end">@banquetEvent.ExpectedPax / @banquetEvent.GuaranteedPax</td>
+                        <td class="text-end">
+                            <div class="vpms-row-actions">
+                                <a class="btn btn-sm btn-outline-secondary" asp-page="/Banquet/BEOs/Details" asp-route-eventId="@banquetEvent.Id" data-vpms-dialog data-vpms-dialog-title="Banquet Event Order">BEO</a>
+                                <a class="btn btn-sm btn-outline-secondary" asp-page="/Banquet/Charges/Index" asp-route-eventId="@banquetEvent.Id" data-vpms-dialog data-vpms-dialog-title="Banquet Charges">Charges</a>
+                                <a class="btn btn-sm btn-outline-secondary" asp-page="./Details" asp-route-id="@banquetEvent.Id" data-vpms-dialog data-vpms-dialog-title="Banquet Event Control">Details</a>
+                                <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@banquetEvent.Id" data-vpms-dialog data-vpms-dialog-title="Edit Banquet Event">Edit</a>
+                                <a class="btn btn-sm btn-outline-danger" asp-page="./Delete" asp-route-id="@banquetEvent.Id">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

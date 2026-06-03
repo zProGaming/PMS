@@ -61,7 +61,13 @@
                         <td><span class="badge text-bg-secondary">@document.Status</span></td>
                         <td class="text-end">@document.TotalAmount.ToString("C")</td>
                         <td class="text-end">@document.Balance.ToString("C")</td>
-                        <td class="text-end"><a asp-page="Details" asp-route-id="@document.Id" class="btn btn-sm btn-outline-primary">Open</a></td>
+                        <td class="text-end">
+                            <a asp-page="Details"
+                               asp-route-id="@document.Id"
+                               class="btn btn-sm btn-outline-primary"
+                               data-vpms-dialog
+                               data-vpms-dialog-title="Finance Document Control">Open</a>
+                        </td>
                     </tr>
                 }
             }

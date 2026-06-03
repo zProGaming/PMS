@@ -839,6 +839,27 @@ document.addEventListener("DOMContentLoaded", () => {
     nativeWorkflowDialogLoading?.classList.toggle("d-none", !isLoading);
   };
 
+  const completeNativeWorkflow = (message = "Workflow completed. Refreshing workspace.") => {
+    if (!nativeWorkflowDialogContent) {
+      window.location.reload();
+      return;
+    }
+
+    setNativeWorkflowLoading(false);
+    nativeWorkflowDialog?.classList.add("is-complete");
+    nativeWorkflowDialogContent.innerHTML = `
+      <div class="vpms-native-workflow-complete" role="status" aria-live="polite">
+        <span class="vpms-native-workflow-complete-mark" aria-hidden="true"></span>
+        <strong>Workflow Updated</strong>
+        <p>${message}</p>
+      </div>`;
+
+    window.setTimeout(() => {
+      nativeWorkflowDialogInstance?.hide();
+      window.location.reload();
+    }, 760);
+  };
+
   const buildDialogUrl = (href, options = {}) => {
     const url = new URL(href, window.location.origin);
     url.searchParams.set("vpmsDialog", "1");
@@ -988,8 +1009,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (response.redirected) {
-        nativeWorkflowDialogInstance?.hide();
-        window.location.reload();
+        completeNativeWorkflow();
         return;
       }
 
@@ -1160,7 +1180,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     nativeWorkflowDialogUrl = "";
-    nativeWorkflowDialog?.classList.remove("is-loaded", "is-submitting");
+    nativeWorkflowDialog?.classList.remove("is-complete", "is-loaded", "is-submitting");
     nativeWorkflowDialogLoading?.classList.remove("d-none");
   });
 

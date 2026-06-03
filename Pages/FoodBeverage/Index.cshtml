@@ -97,7 +97,12 @@
                     {
                         var orderStatusClass = order.OrderStatus.ToString().ToLowerInvariant();
                         <tr>
-                            <td><a asp-page="/FoodBeverage/Orders/Details" asp-route-id="@order.Id">@order.OrderNumber</a></td>
+                            <td>
+                                <a asp-page="/FoodBeverage/Orders/Details"
+                                   asp-route-id="@order.Id"
+                                   data-vpms-dialog
+                                   data-vpms-dialog-title="POS Order Control">@order.OrderNumber</a>
+                            </td>
                             <td>@order.Outlet?.Name</td>
                             <td>@order.OrderType</td>
                             <td>@(order.DiningTable?.TableName ?? "-")</td>
