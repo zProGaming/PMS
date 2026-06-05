@@ -2,7 +2,7 @@
 @model Vantage.PMS.Pages.Admin.DemoSetup.IndexModel
 @{
     ViewData["Title"] = "Demo Setup";
-    var hasDemoData = Model.Status.Hotels + Model.Status.Rooms + Model.Status.Guests + Model.Status.Reservations + Model.Status.PosOrders + Model.Status.BanquetEvents + Model.Status.InventoryItems + Model.Status.ARInvoices > 0;
+    var hasDemoData = Model.Status.Hotels + Model.Status.Rooms + Model.Status.Guests + Model.Status.Reservations + Model.Status.PosOrders + Model.Status.BanquetEvents + Model.Status.InventoryItems + Model.Status.ARInvoices + Model.Status.APInvoices + Model.Status.GroupBookings > 0;
 }
 
 <nav aria-label="breadcrumb">
@@ -93,6 +93,27 @@
             <span class="vpms-stat-label">Finance Close Pack</span>
             <strong>@Model.Status.FinanceClosePackRecords</strong>
             <small>Posted, reconciled DEMO-CLOSE entries</small>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="vpms-stat-card">
+            <span class="vpms-stat-label">AP Control</span>
+            <strong>@Model.Status.APInvoices</strong>
+            <small>@Model.Status.PaymentVouchers payment voucher samples</small>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="vpms-stat-card">
+            <span class="vpms-stat-label">Stock Adjustments</span>
+            <strong>@Model.Status.StockAdjustments</strong>
+            <small>Inventory variance control samples</small>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="vpms-stat-card">
+            <span class="vpms-stat-label">Group Bookings</span>
+            <strong>@Model.Status.GroupBookings</strong>
+            <small>Blocks, folios, deposits, allocations</small>
         </div>
     </div>
 </div>

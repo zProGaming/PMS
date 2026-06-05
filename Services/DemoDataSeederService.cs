@@ -70,6 +70,8 @@ public class DemoDataSeederService(
         await EnsureLaborCostingAsync(result);
         await EnsureExecutiveReportingAsync(result);
         await EnsureGroupManagementAsync(result);
+        await EnsureDemoAccountsPayableCoverageAsync(result);
+        await EnsureDemoGroupCollectionCoverageAsync(result);
         await LogAsync(result, userName);
         await context.SaveChangesAsync();
         return result;
@@ -100,6 +102,7 @@ public class DemoDataSeederService(
     {
         var result = new DemoSeedResult("Demo Inventory");
         await EnsureInventoryPurchasingAsync(result);
+        await EnsureDemoStockAdjustmentCoverageAsync(result);
         await LogAsync(result, userName);
         await context.SaveChangesAsync();
         return result;
@@ -127,6 +130,9 @@ public class DemoDataSeederService(
         await EnsureExecutiveReportingAsync(result);
         await EnsureManagementAiAsync(result);
         await EnsureGroupManagementAsync(result);
+        await EnsureDemoAccountsPayableCoverageAsync(result);
+        await EnsureDemoStockAdjustmentCoverageAsync(result);
+        await EnsureDemoGroupCollectionCoverageAsync(result);
         await LogAsync(result, userName);
         await context.SaveChangesAsync();
         return result;
@@ -162,6 +168,10 @@ public class DemoDataSeederService(
             BanquetEvents = await context.BanquetEvents.AsNoTracking().CountAsync(item => item.Notes != null && item.Notes.Contains(DemoMarker)),
             InventoryItems = await context.InventoryItems.AsNoTracking().CountAsync(item => item.CreatedBy == "DemoDataSeeder"),
             ARInvoices = await context.ARInvoices.AsNoTracking().CountAsync(invoice => invoice.CreatedBy == "DemoDataSeeder"),
+            APInvoices = await context.APInvoices.AsNoTracking().CountAsync(invoice => invoice.CreatedBy == "DemoDataSeeder" || invoice.InvoiceNumber.StartsWith("DEMO-")),
+            PaymentVouchers = await context.PaymentVouchers.AsNoTracking().CountAsync(voucher => voucher.PreparedBy == "DemoDataSeeder" || voucher.VoucherNumber.StartsWith("DEMO-")),
+            StockAdjustments = await context.StockAdjustments.AsNoTracking().CountAsync(adjustment => adjustment.PreparedBy == "DemoDataSeeder" || adjustment.AdjustmentNumber.StartsWith("DEMO-")),
+            GroupBookings = await context.GroupBookings.AsNoTracking().CountAsync(group => group.CreatedBy == "DemoDataSeeder" || group.GroupCode.StartsWith("DEMO-")),
             FinanceClosePackRecords = await context.JournalEntries.AsNoTracking().CountAsync(entry => entry.JournalNumber.StartsWith("DEMO-CLOSE-")),
             LaborProfiles = await context.EmployeeCostProfiles.AsNoTracking().CountAsync(employee => employee.CreatedBy == "DemoDataSeeder"),
             ManagementInsights = await context.ManagementInsights.AsNoTracking().CountAsync(insight => insight.Summary.Contains(DemoMarker))
@@ -186,6 +196,9 @@ public class DemoDataSeederService(
             await ReadyAsync("Inventory", () => context.InventoryItems.AnyAsync(), () => context.StockMovements.AnyAsync()),
             await ReadyAsync("Purchasing", () => context.PurchaseOrders.AnyAsync(), () => context.ReceivingRecords.AnyAsync()),
             await ReadyAsync("Accounts Receivable", () => context.ARAccounts.AnyAsync(), () => context.ARInvoices.AnyAsync()),
+            await ReadyAsync("Accounts Payable", () => context.APInvoices.AnyAsync(), () => context.PaymentVouchers.AnyAsync()),
+            await ReadyAsync("Inventory Adjustments", () => context.StockAdjustments.AnyAsync(), () => context.StockAdjustmentItems.AnyAsync()),
+            await ReadyAsync("Group Bookings", () => context.GroupBookings.AnyAsync(), () => context.GroupFolios.AnyAsync()),
             await ReadyAsync("Finance Close Pack", () => context.JournalEntries.AnyAsync(entry => entry.JournalNumber.StartsWith("DEMO-CLOSE-")), () => context.BankReconciliations.AnyAsync(item => item.Notes != null && item.Notes.Contains("DEMO-CLOSE"))),
             await ReadyAsync("Labor Costing", () => context.EmployeeCostProfiles.AnyAsync(), () => context.PayrollPeriods.AnyAsync()),
             await ReadyAsync("Management AI", () => context.ManagementDailySummaries.AnyAsync(), () => context.ManagementInsights.AnyAsync()),
@@ -2714,6 +2727,235 @@ public class DemoDataSeederService(
         await context.SaveChangesAsync();
     }
 
+    private async Task EnsureDemoAccountsPayableCoverageAsync(DemoSeedResult result)
+    {
+        var supplier = await context.Suppliers.FirstOrDefaultAsync(item => item.SupplierName == "ABC Food Supplies");
+        if (supplier is null)
+        {
+            supplier = new InventorySupplier
+            {
+                SupplierName = "ABC Food Supplies",
+                ContactPerson = "Demo AP Contact",
+                Phone = "+63 2 8888 2000",
+                Email = "abc.food.supplies@demo.example",
+                Address = "Metro Manila",
+                Terms = "30 days",
+                IsActive = true,
+                Notes = DemoMarker
+            };
+            context.Suppliers.Add(supplier);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        var expenseAccountId = await context.GLAccounts
+            .Where(account => account.AccountCode == "6200")
+            .Select(account => (int?)account.Id)
+            .FirstOrDefaultAsync();
+
+        var invoice = await context.APInvoices.FirstOrDefaultAsync(item => item.InvoiceNumber == "DEMO-AP-CTRL-001");
+        if (invoice is null)
+        {
+            invoice = new APInvoice
+            {
+                SupplierId = supplier.Id,
+                InvoiceNumber = "DEMO-AP-CTRL-001",
+                SupplierInvoiceNumber = "ABC-SI-2026-CTRL",
+                InvoiceDate = DateTime.Today.AddDays(-10),
+                DueDate = DateTime.Today.AddDays(10),
+                SubTotal = 24000m,
+                TaxAmount = 2880m,
+                WithholdingTaxAmount = 480m,
+                DiscountAmount = 0m,
+                TotalAmount = 26400m,
+                AmountPaid = 12000m,
+                Balance = 14400m,
+                Status = APInvoiceStatus.PartiallyPaid,
+                Notes = $"{DemoMarker} AP control dialog coverage invoice.",
+                CreatedAt = DateTime.Now,
+                CreatedBy = "DemoDataSeeder",
+                ApprovedBy = "finance@vantagepms.demo",
+                ApprovedAt = DateTime.Today.AddDays(-8)
+            };
+            context.APInvoices.Add(invoice);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        if (!await context.APInvoiceLines.AnyAsync(item => item.APInvoiceId == invoice.Id && item.Description == "Demo supplier services for AP control"))
+        {
+            context.APInvoiceLines.Add(new APInvoiceLine
+            {
+                APInvoiceId = invoice.Id,
+                GLAccountId = expenseAccountId,
+                Description = "Demo supplier services for AP control",
+                Quantity = 1,
+                UnitCost = 24000m,
+                TaxAmount = 2880m,
+                WithholdingTaxAmount = 480m,
+                LineTotal = 26400m
+            });
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        var voucher = await context.PaymentVouchers.FirstOrDefaultAsync(item => item.VoucherNumber == "DEMO-PV-CTRL-001");
+        if (voucher is null)
+        {
+            voucher = new PaymentVoucher
+            {
+                VoucherNumber = "DEMO-PV-CTRL-001",
+                SupplierId = supplier.Id,
+                APInvoiceId = invoice.Id,
+                VoucherDate = DateTime.Today.AddDays(-3),
+                PaymentMethod = FinancePaymentMethod.BankTransfer,
+                BankAccountName = "Vantage Demo Operating Account",
+                BankReferenceNumber = "BANK-DEMO-PV-CTRL",
+                Amount = 12000m,
+                WithholdingTaxAmount = 480m,
+                NetPaymentAmount = 11520m,
+                Status = PaymentVoucherStatus.Released,
+                PreparedBy = "DemoDataSeeder",
+                ApprovedBy = "finance@vantagepms.demo",
+                ApprovedAt = DateTime.Today.AddDays(-2),
+                ReleasedBy = "finance@vantagepms.demo",
+                ReleasedAt = DateTime.Today.AddDays(-1),
+                Notes = $"{DemoMarker} payment voucher control dialog coverage."
+            };
+            context.PaymentVouchers.Add(voucher);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        if (!await context.Disbursements.AnyAsync(item => item.DisbursementNumber == "DEMO-DISB-CTRL-001"))
+        {
+            context.Disbursements.Add(new Disbursement
+            {
+                DisbursementNumber = "DEMO-DISB-CTRL-001",
+                PaymentVoucherId = voucher.Id,
+                SupplierId = supplier.Id,
+                DisbursementDate = DateTime.Today.AddDays(-1),
+                PaymentMethod = FinancePaymentMethod.BankTransfer,
+                Amount = voucher.NetPaymentAmount,
+                ReferenceNumber = voucher.BankReferenceNumber,
+                PaidBy = "finance@vantagepms.demo",
+                Status = DisbursementStatus.Cleared,
+                Notes = DemoMarker
+            });
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+    }
+
+    private async Task EnsureDemoStockAdjustmentCoverageAsync(DemoSeedResult result)
+    {
+        var category = await context.InventoryCategories.FirstOrDefaultAsync(item => item.Name == "Linen");
+        if (category is null)
+        {
+            category = new InventoryCategory { Name = "Linen", Description = DemoMarker, IsActive = true };
+            context.InventoryCategories.Add(category);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        var item = await context.InventoryItems.FirstOrDefaultAsync(existing => existing.ItemCode == "TOWEL");
+        if (item is null)
+        {
+            item = new InventoryItem
+            {
+                InventoryCategoryId = category.Id,
+                ItemCode = "TOWEL",
+                ItemName = "Bath Towel",
+                Description = DemoMarker,
+                UnitOfMeasure = "pc",
+                ReorderLevel = 80m,
+                ParStockLevel = 200m,
+                StandardCost = 220m,
+                CurrentStock = 140m,
+                IsActive = true,
+                CreatedBy = "DemoDataSeeder"
+            };
+            context.InventoryItems.Add(item);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        var adjustment = await context.StockAdjustments.FirstOrDefaultAsync(existing => existing.AdjustmentNumber == "DEMO-SA-001");
+        if (adjustment is null)
+        {
+            adjustment = new StockAdjustment
+            {
+                AdjustmentNumber = "DEMO-SA-001",
+                AdjustmentDate = DateTime.Today,
+                Status = StockAdjustmentStatus.ForApproval,
+                Reason = "Demo physical count variance",
+                PreparedBy = "DemoDataSeeder",
+                Notes = $"{DemoMarker} stock adjustment control dialog coverage."
+            };
+            context.StockAdjustments.Add(adjustment);
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+
+        if (!await context.StockAdjustmentItems.AnyAsync(line => line.StockAdjustmentId == adjustment.Id && line.InventoryItemId == item.Id))
+        {
+            var actualQuantity = Math.Max(0m, item.CurrentStock - 5m);
+            context.StockAdjustmentItems.Add(new StockAdjustmentItem
+            {
+                StockAdjustmentId = adjustment.Id,
+                InventoryItemId = item.Id,
+                SystemQuantity = item.CurrentStock,
+                ActualQuantity = actualQuantity,
+                VarianceQuantity = actualQuantity - item.CurrentStock,
+                UnitCost = item.StandardCost,
+                VarianceAmount = (actualQuantity - item.CurrentStock) * item.StandardCost,
+                Notes = DemoMarker
+            });
+            await context.SaveChangesAsync();
+            result.Inserted++;
+        }
+    }
+
+    private async Task EnsureDemoGroupCollectionCoverageAsync(DemoSeedResult result)
+    {
+        var groups = await context.GroupBookings
+            .Include(group => group.GroupFolios)
+            .Include(group => group.Deposits)
+            .Where(group => group.GroupCode == "DEMO-GRP-ABC" || group.GroupCode == "DEMO-GRP-WED")
+            .ToListAsync();
+
+        foreach (var group in groups)
+        {
+            var deposit = group.Deposits
+                .Where(item => item.Status != GroupDepositStatus.Cancelled)
+                .OrderByDescending(item => item.DepositDate)
+                .FirstOrDefault();
+            var groupFolio = group.GroupFolios.FirstOrDefault();
+            if (deposit is null || groupFolio is null)
+            {
+                continue;
+            }
+
+            var marker = group.GroupCode == "DEMO-GRP-ABC" ? "DEMO-GALLOC-ABC" : "DEMO-GALLOC-WED";
+            if (!await context.GroupPaymentAllocations.AnyAsync(item => item.GroupBookingId == group.Id && item.Notes != null && item.Notes.Contains(marker)))
+            {
+                context.GroupPaymentAllocations.Add(new GroupPaymentAllocation
+                {
+                    GroupBookingId = group.Id,
+                    GroupDepositId = deposit.Id,
+                    TargetFolioId = groupFolio.FolioId,
+                    AllocatedAmount = Math.Min(deposit.Amount, group.GroupCode == "DEMO-GRP-ABC" ? 25000m : 40000m),
+                    AllocationDate = DateTime.Today,
+                    AllocatedBy = "DemoDataSeeder",
+                    Notes = $"{marker} | {DemoMarker}"
+                });
+                result.Inserted++;
+            }
+        }
+
+        await context.SaveChangesAsync();
+    }
+
     private async Task EnsureManagementAiAsync(DemoSeedResult result)
     {
         var rules = new[] { "High occupancy action", "Dirty room risk", "High guest balance risk", "Low stock warning", "Banquet BEO missing warning", "AR aging critical warning", "Low occupancy revenue opportunity" };
@@ -2925,6 +3167,10 @@ public class DemoDataStatus
     public int BanquetEvents { get; set; }
     public int InventoryItems { get; set; }
     public int ARInvoices { get; set; }
+    public int APInvoices { get; set; }
+    public int PaymentVouchers { get; set; }
+    public int StockAdjustments { get; set; }
+    public int GroupBookings { get; set; }
     public int FinanceClosePackRecords { get; set; }
     public int LaborProfiles { get; set; }
     public int ManagementInsights { get; set; }
