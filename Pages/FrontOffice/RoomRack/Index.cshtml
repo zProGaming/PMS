@@ -24,7 +24,7 @@
     <div>
         <div class="page-kicker">Front Office / Housekeeping Grid</div>
         <h1 class="page-title">Room Calendar</h1>
-        <p class="page-subtitle">A date-range command view for physical room occupancy, arrivals, departures, housekeeping attention, and room inventory controls.</p>
+        <p class="page-subtitle">Physical room occupancy, reservations, arrivals, departures, and readiness by date.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">@dateRangeLabel</span>
             <span class="vpms-mini-chip">Business date @Model.BusinessDate.ToString("MMM d, yyyy")</span>
@@ -118,8 +118,8 @@
 <section class="vpms-calendar-focus-panel" aria-live="polite">
     <div>
         <span>Calendar Focus</span>
-        <strong id="vpmsCalendarFocusTitle">Hover a room, date, or stay</strong>
-        <small id="vpmsCalendarFocusDetail">Open cells create a one-night reservation from that room and date. Stay bars open the reservation control page.</small>
+        <strong id="vpmsCalendarFocusTitle">Room, date, or stay</strong>
+        <small id="vpmsCalendarFocusDetail">Calendar context appears here.</small>
     </div>
     <a id="vpmsCalendarFocusAction" class="btn btn-sm vpms-btn-secondary" asp-page="/FrontOffice/Reservations/Index">Open Reservations</a>
 </section>
@@ -148,7 +148,7 @@
         {
             <section class="vpms-empty-state vpms-calendar-empty">
                 <strong>No rooms match this calendar view.</strong>
-                <span>Adjust the filters, create active physical rooms, or seed demo data to populate the room calendar. Pseudo rooms and paymaster accounts are intentionally excluded from occupancy inventory.</span>
+                <span>No active physical rooms match the selected filters.</span>
                 <a class="btn vpms-btn-primary" asp-page="/Admin/Rooms/Create">Create Room</a>
             </section>
         }
@@ -379,8 +379,8 @@
     <aside class="vpms-calendar-side-inspector" aria-live="polite">
         <div class="vpms-calendar-side-inspector-header">
             <span>Calendar Inspector</span>
-            <strong id="vpmsCalendarInspectorTitle">Select a stay, room, or date</strong>
-            <p id="vpmsCalendarInspectorDetail">Use the calendar to inspect a room/stay while keeping the date grid in view.</p>
+            <strong id="vpmsCalendarInspectorTitle">Room calendar context</strong>
+            <p id="vpmsCalendarInspectorDetail">Select a stay, room, or date.</p>
         </div>
         <div class="vpms-calendar-side-inspector-meta">
             <span id="vpmsCalendarInspectorStatus">Context pending</span>
@@ -399,22 +399,7 @@
             <a class="btn vpms-btn-secondary" asp-page="/Housekeeping/Index">Room Readiness</a>
             <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/Reservations/Create" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Create Reservation">New Reservation</a>
         </div>
-        <div class="vpms-calendar-side-inspector-note">
-            <strong>Stay in context</strong>
-            <span>Reservation bars open a control dialog. Sellable open cells launch quick reservation. Room status pills open housekeeping status control.</span>
-        </div>
     </aside>
-</section>
-
-<section class="vpms-card vpms-calendar-note">
-    <div>
-        <h2>Operational Notes</h2>
-        <p>This grid is designed for Front Office and Housekeeping coordination. It shows active physical rooms only, overlays reservations by stay dates, highlights room readiness risks, and links empty cells to a prefilled reservation workflow.</p>
-    </div>
-    <div class="vpms-calendar-note-actions">
-        <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/Reservations/Index">Reservations</a>
-        <a class="btn vpms-btn-secondary" asp-page="/Housekeeping/Tasks/Index">Housekeeping Tasks</a>
-    </div>
 </section>
 
 <div class="modal fade vpms-command-modal vpms-quick-reservation-modal" id="quickReservationModal" tabindex="-1" aria-labelledby="quickReservationModalLabel" aria-hidden="true">
@@ -422,8 +407,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div>
-                    <span class="page-kicker">Room Calendar Workflow</span>
-                    <h2 class="modal-title" id="quickReservationModalLabel">Create Stay Without Leaving Calendar</h2>
+                    <span class="page-kicker">Room Calendar</span>
+                    <h2 class="modal-title" id="quickReservationModalLabel">Create Reservation</h2>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -454,7 +439,6 @@
                             <select asp-for="QuickReservation.GuestId" class="form-select" asp-items="Model.ReservationGuestOptions">
                                 <option value="">Select guest profile</option>
                             </select>
-                            <small class="form-text">For a new guest profile, use the full reservation workflow.</small>
                         </div>
                         <div class="vpms-modal-field">
                             <label asp-for="QuickReservation.ArrivalDate" class="form-label">Check-in</label>

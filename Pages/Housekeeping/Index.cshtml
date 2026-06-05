@@ -12,7 +12,7 @@
     <div>
         <div class="page-kicker">Room Readiness</div>
         <h1 class="page-title">Room Readiness Board</h1>
-        <p class="page-subtitle">A calm command view for turnover urgency, inspected inventory, room release, and engineering attention.</p>
+        <p class="page-subtitle">Turnover urgency, inspected inventory, room release, and engineering attention.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">@totalRooms active rooms</span>
             <span class="vpms-mini-chip">@readinessPercent.ToString("N1")% readiness</span>
@@ -52,17 +52,17 @@
     <article class="@(Model.VacantDirtyRooms > 0 ? "warning" : "positive")">
         <span>Turnover Attention</span>
         <strong>@Model.VacantDirtyRooms vacant dirty</strong>
-        <p>Prioritize arrivals and release-ready rooms before front desk pressure builds.</p>
+        <p>Vacant dirty rooms by priority.</p>
     </article>
     <article class="positive">
         <span>Release Confidence</span>
         <strong>@Model.InspectedRooms inspected</strong>
-        <p>Rooms already inspected can be released confidently for rooming and upsell recovery.</p>
+        <p>Inspected rooms ready for release.</p>
     </article>
     <article class="@(Model.OutOfOrderRooms + Model.MaintenanceRooms > 0 ? "danger" : "")">
         <span>Engineering Attention</span>
         <strong>@(Model.OutOfOrderRooms + Model.MaintenanceRooms) blocked</strong>
-        <p>Coordinate unavailable inventory before it affects occupancy and walk-in decisions.</p>
+        <p>Unavailable room inventory.</p>
     </article>
 </section>
 
@@ -70,7 +70,7 @@
     <div class="vpms-section-titlebar">
         <div>
             <h2>Room Readiness Board</h2>
-            <p>Scan rooms by condition, urgency, and release action.</p>
+            <p>Room condition, urgency, and release action.</p>
         </div>
         <div class="vpms-legend-row">
             <span class="status-badge status-available">Ready</span>
@@ -84,7 +84,6 @@
     {
         <div class="vpms-empty-state">
             <strong>No rooms configured.</strong>
-            <span>Create rooms or seed demo data to populate the housekeeping board.</span>
         </div>
     }
     else

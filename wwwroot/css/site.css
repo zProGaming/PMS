@@ -6681,7 +6681,7 @@ strong,
   font-weight: 800;
 }
 
-.vpms-report-card.is-planned {
+.vpms-report-card.is-unavailable {
   background:
     linear-gradient(135deg, rgba(248, 250, 252, 0.88), rgba(255, 255, 255, 0.96)),
     #fff;

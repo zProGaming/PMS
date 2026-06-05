@@ -3,7 +3,7 @@
 <div class="vpms-native-workflow-card">
     <div class="vpms-native-workflow-kicker">Banquet charges</div>
     <h2>Add event charge</h2>
-    <p>Add a charge to @Model.BanquetEvent?.EventName without leaving the banquet event workspace.</p>
+    <p>@Model.BanquetEvent?.EventName</p>
 
     <form method="post" asp-page="./Index" asp-page-handler="Add" asp-route-eventId="@Model.BanquetEvent?.Id" class="vpms-native-workflow-form">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>

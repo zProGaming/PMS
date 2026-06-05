@@ -93,7 +93,7 @@ public class DetailsModel(ApplicationDbContext context) : PageModel
             _ => "Update Status"
         };
         NativeActionButtonClass = status == BanquetEventOrderStatus.Revised ? "vpms-btn-secondary" : "vpms-btn-primary";
-        NativeActionSupport = "The BEO stays in this workspace after the status change so operations can continue reviewing setup, kitchen, service, and billing instructions.";
+        NativeActionSupport = "Setup, kitchen, service, and billing controls remain available after the status change.";
 
         return new PartialViewResult
         {

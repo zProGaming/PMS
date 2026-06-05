@@ -47,10 +47,10 @@ public class DetailsModel(ApplicationDbContext context, InventoryService invento
             id,
             "ForApproval",
             "Submit purchase order for approval",
-            "Submit this purchase order for purchasing approval? The order remains visible here after the workflow completes.",
+            "Submit this purchase order for purchasing approval.",
             "Submit for Approval",
             "vpms-btn-primary",
-            "Inventory items and totals will be validated by the existing approval rules.");
+            "Inventory items and totals remain under approval control.");
 
     public Task<IActionResult> OnGetApproveNativeAsync(int id) =>
         NativeConfirmAsync(
@@ -67,10 +67,10 @@ public class DetailsModel(ApplicationDbContext context, InventoryService invento
             id,
             "MarkFullyReceived",
             "Mark purchase order fully received",
-            "Mark this purchase order as fully received? Use this only after receiving has been reviewed.",
+            "Mark this purchase order as fully received.",
             "Mark Fully Received",
             "vpms-btn-primary",
-            "This keeps the purchasing control page in place and advances the PO status.");
+            "The PO status advances to received control.");
 
     public Task<IActionResult> OnGetCloseNativeAsync(int id) =>
         NativeConfirmAsync(
@@ -80,7 +80,7 @@ public class DetailsModel(ApplicationDbContext context, InventoryService invento
             "Close this fully received purchase order. Closed POs are no longer editable.",
             "Close PO",
             "vpms-btn-primary",
-            "Use this after receiving and supplier documentation are complete.");
+            "Receiving and supplier documentation should be complete.");
 
     public Task<IActionResult> OnGetCancelNativeAsync(int id) =>
         NativeConfirmAsync(

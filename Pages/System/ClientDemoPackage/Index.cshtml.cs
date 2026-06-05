@@ -84,7 +84,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
 public class ClientDemoPackageInput
 {
-    public string PackageName { get; set; } = "Vantage PMS Client Demo Package";
+    public string PackageName { get; set; } = "Vantage PMS Client Review Package";
 
     public string ClientName { get; set; } = "Sample Hotel Client";
 

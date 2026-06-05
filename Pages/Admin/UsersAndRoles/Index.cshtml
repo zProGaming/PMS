@@ -16,7 +16,7 @@
     <div>
         <div class="page-kicker">Global Administration</div>
         <h1 class="page-title">Users and Roles</h1>
-        <p class="page-subtitle">Create staff accounts, assign operational roles, and confirm company-code access before trial sign-in.</p>
+        <p class="page-subtitle">Staff accounts, operational roles, and company-code access.</p>
     </div>
     <div class="d-flex flex-wrap gap-2">
         <a class="btn btn-outline-secondary" asp-page="/Admin/CompanyAccess/Index">Company Access</a>
@@ -50,7 +50,7 @@
                 <div class="mb-3">
                     <label asp-for="CreateUser.Password" class="form-label"></label>
                     <input asp-for="CreateUser.Password" class="form-control" type="password" autocomplete="new-password" />
-                    <div class="form-text">Use a temporary password and require the user to change it through the account recovery process.</div>
+                    <div class="form-text">Temporary password required.</div>
                     <span asp-validation-for="CreateUser.Password" class="text-danger"></span>
                 </div>
 

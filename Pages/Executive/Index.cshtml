@@ -16,7 +16,7 @@
     <div>
         <div class="page-kicker">Owner / GM Intelligence</div>
         <h1 class="page-title">Executive Command View</h1>
-        <p class="page-subtitle">A boardroom-grade operating narrative for hotel performance, cash exposure, labor discipline, and management attention.</p>
+        <p class="page-subtitle">Performance, cash exposure, labor discipline, and management attention.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">@summary.HotelName</span>
             <span class="vpms-mini-chip">@Model.StartDate.ToString("MMM d") - @Model.EndDate.ToString("MMM d, yyyy")</span>
@@ -97,7 +97,7 @@
                 <div class="vpms-section-titlebar">
                     <div>
                         <h2>Financial Position</h2>
-                        <p>Revenue, collection, receivables, payables, and labor exposure for leadership review.</p>
+                        <p>Revenue, collections, receivables, payables, and labor exposure.</p>
                     </div>
                 </div>
                 <div class="vpms-finance-grid">
@@ -116,7 +116,7 @@
                 <div class="vpms-section-titlebar">
                     <div>
                         <h2>Revenue Architecture</h2>
-                        <p>Operating revenue share by rooms, F&amp;B, banquet, and other streams.</p>
+                        <p>Revenue share by operating stream.</p>
                     </div>
                 </div>
                 <div class="vpms-revenue-mix">
@@ -131,7 +131,7 @@
                 <div class="vpms-section-titlebar">
                     <div>
                         <h2>Department Performance</h2>
-                        <p>Revenue, labor, profit, and margin contribution by department.</p>
+                        <p>Revenue, labor, profit, and margin by department.</p>
                     </div>
                     <a class="btn vpms-btn-secondary vpms-no-print" asp-page="/Executive/DepartmentPerformance">Open Department View</a>
                 </div>
@@ -167,7 +167,7 @@
                 <div class="vpms-section-titlebar">
                     <div>
                         <h2>Operational Attention</h2>
-                        <p>Open signals requiring management review.</p>
+                        <p>Open management signals.</p>
                     </div>
                 </div>
                 <div class="vpms-risk-list">
@@ -182,7 +182,7 @@
                 <div class="vpms-section-titlebar">
                     <div>
                         <h2>Executive Alerts</h2>
-                        <p>Unresolved alerts by severity and operating area.</p>
+                        <p>Unresolved alerts by severity and area.</p>
                     </div>
                 </div>
                 @if (Model.Dashboard.Alerts.Count == 0)

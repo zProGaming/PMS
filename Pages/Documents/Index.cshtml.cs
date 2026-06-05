@@ -49,7 +49,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             [
                 Link("Banquet Event Order", "banquet-event-order", banquetEventId),
                 Link("Banquet Quotation", "banquet-quotation", banquetEventId),
-                Link("Event Contract Placeholder", "event-contract", banquetEventId)
+                Link("Event Contract", "event-contract", banquetEventId)
             ]),
             new("Inventory and Purchasing Documents",
             [
@@ -61,12 +61,12 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             new("Sales Documents",
             [
                 Link("Sales Account Profile", "sales-account-profile", salesAccountId),
-                Link("Sales Proposal Placeholder", "sales-proposal", salesAccountId)
+                Link("Sales Proposal", "sales-proposal", salesAccountId)
             ]),
             new("Management Documents",
             [
                 Link("Management AI Summary", "management-ai-summary", managementSummaryId),
-                Link("Client Demo Package", "client-demo-package", null, "/System/ClientDemoPackage/Index")
+                Link("Client Review Package", "client-demo-package", null, "/System/ClientDemoPackage/Index")
             ])
         ];
     }

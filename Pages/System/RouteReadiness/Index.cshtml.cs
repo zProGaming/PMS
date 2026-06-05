@@ -34,10 +34,10 @@ public class IndexModel(IWebHostEnvironment environment) : PageModel
 
         var content = global::System.IO.File.ReadAllText(absolutePath);
         var lower = content.ToLowerInvariant();
-        var placeholderSignals = new[] { "planned", "not yet configured", "placeholder", "awaiting", "coming soon" };
-        if (placeholderSignals.Any(signal => lower.Contains(signal)))
+        var unavailableSignals = new[] { "planned", "not yet configured", "placeholder", "awaiting", "coming soon" };
+        if (unavailableSignals.Any(signal => lower.Contains(signal)))
         {
-            return new RouteSmokeResult(candidate, RouteSmokeStatus.NeedsReview, relativePath, "Page exists, but contains placeholder or planned-language signals.");
+            return new RouteSmokeResult(candidate, RouteSmokeStatus.NeedsReview, relativePath, "Page exists, but contains unavailable-language signals.");
         }
 
         return new RouteSmokeResult(candidate, RouteSmokeStatus.Ready, relativePath, "Razor page exists.");
@@ -120,8 +120,8 @@ public class IndexModel(IWebHostEnvironment environment) : PageModel
         Item("Groups and Documents", "Pseudo Rooms", "/Groups/PseudoRooms/Index", "Paymaster accounts"),
         Item("Groups and Documents", "Printable Documents", "/Documents/Index", "Print center"),
         Item("Groups and Documents", "Report Center", "/Reports/Center", "Curated report catalog"),
-        Item("Groups and Documents", "Demo Presentation", "/System/DemoPresentation/Index", "Guided demo surface"),
-        Item("Groups and Documents", "Demo Workflow Launcher", "/System/DemoWorkflowLauncher/Index", "Demo launchpad")
+        Item("Groups and Documents", "Presentation Mode", "/System/DemoPresentation/Index", "Presentation surface"),
+        Item("Groups and Documents", "Workflow Launcher", "/System/DemoWorkflowLauncher/Index", "Workflow launchpad")
     ];
 
     private static RouteSmokeCandidate Item(string module, string name, string routePath, string purpose)

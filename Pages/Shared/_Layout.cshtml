@@ -198,7 +198,7 @@
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Labor/DepartmentLaborBudgets/Index" data-sidebar-link>Labor Budgets</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Labor/ServiceChargePools/Index" data-sidebar-link>Service Charge Pools</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Labor/Reports/Index" data-sidebar-link>Labor Reports</a>
-                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Labor/Import/Index" data-sidebar-link>Payroll Import Placeholder</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Labor/Import/Index" data-sidebar-link>Payroll Import</a>
                             }
                         </div>
                     }
@@ -324,12 +324,12 @@
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/AuditLogs/Index" data-sidebar-link>Audit Logs</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/HealthCheck/Index" data-sidebar-link>System Health</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/QAChecklist/Index" data-sidebar-link>QA Checklist</a>
-                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/DemoPresentation/Index" data-sidebar-link>Demo Presentation</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/DemoPresentation/Index" data-sidebar-link>Presentation Mode</a>
                             }
                             @if (canAccessClientDemo)
                             {
-                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/ClientDemoPackage/Index" data-sidebar-link>Client Demo Package</a>
-                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/DemoWorkflowLauncher/Index" data-sidebar-link>Demo Workflow Launcher</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/ClientDemoPackage/Index" data-sidebar-link>Client Review Package</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/System/DemoWorkflowLauncher/Index" data-sidebar-link>Workflow Launcher</a>
                             }
                         </div>
                     }
@@ -356,7 +356,7 @@
                             }
                             @if (canAccessSystemAdministration)
                             {
-                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Admin/DemoSetup/Index" data-sidebar-link>Demo Setup</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Admin/DemoSetup/Index" data-sidebar-link>Data Setup</a>
                             }
                             @if (canAccessSystemAdministration)
                             {

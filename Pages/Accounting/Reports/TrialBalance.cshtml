@@ -11,7 +11,7 @@
     {
         <section class="vpms-empty-state mb-3">
             <strong>No posted journal entries found.</strong>
-            <span>Post accounting batches or seed demo data before generating the Trial Balance.</span>
+            <span>No posted balances are available for the selected date.</span>
         </section>
     }
     <div class="vpms-table-wrapper"><table class="table vpms-table"><thead><tr><th>Account Code</th><th>Account Name</th><th class="text-end">Debit Balance</th><th class="text-end">Credit Balance</th></tr></thead><tbody>@foreach (var row in Model.Rows){<tr><td>@row.AccountCode</td><td>@row.AccountName</td><td class="text-end">@row.DebitBalance.ToString("C")</td><td class="text-end">@row.CreditBalance.ToString("C")</td></tr>}</tbody><tfoot><tr><th colspan="2">Totals</th><th class="text-end">@Model.TotalDebits.ToString("C")</th><th class="text-end">@Model.TotalCredits.ToString("C")</th></tr></tfoot></table></div>

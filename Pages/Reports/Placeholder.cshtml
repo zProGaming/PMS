@@ -9,32 +9,16 @@
     <div>
         <div class="page-kicker">@Model.Category</div>
         <h1 class="vpms-page-title">@Model.ReportName</h1>
-        <p class="vpms-page-subtitle">This report surface is intentionally controlled until source data, mappings, or workflow configuration are ready.</p>
+        <p class="vpms-page-subtitle">Report unavailable for the current configuration.</p>
     </div>
     <a class="btn vpms-btn-secondary" asp-page="/Reports/Center">Back to Report Center</a>
-</section>
-
-<section class="vpms-placeholder-guidance" aria-label="Report readiness guidance">
-    <article>
-        <span>Safe Routing</span>
-        <strong>No broken link is exposed to the user.</strong>
-    </article>
-    <article>
-        <span>Setup Needed</span>
-        <strong>Complete source data, mappings, or module configuration.</strong>
-    </article>
-    <article>
-        <span>Demo Control</span>
-        <strong>Return to the curated Report Center for available reports.</strong>
-    </article>
 </section>
 
 <section class="vpms-placeholder-panel">
     <div class="vpms-placeholder-mark">R</div>
     <div>
-        <span>Planned or not yet configured</span>
+        <span>Unavailable</span>
         <h2>@Model.Message</h2>
-        <p>No broken report route is exposed. Seed demo data, complete module setup, or configure the report route before using this report in production review.</p>
         <div class="vpms-placeholder-actions">
             <a class="btn vpms-btn-primary" asp-page="/Reports/Center">Open Report Center</a>
             <a class="btn vpms-btn-secondary" asp-page="/Documents/Index">Printable Documents</a>

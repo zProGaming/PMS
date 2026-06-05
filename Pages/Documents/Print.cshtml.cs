@@ -212,7 +212,7 @@ public class PrintModel(ApplicationDbContext context) : PageModel
     {
         if (condition)
         {
-            MissingDataMessage = "No sample record is available yet. Seed demo data from System > Demo Setup or create a record first.";
+            MissingDataMessage = "Source record required before this document can be generated.";
         }
     }
 
@@ -234,13 +234,13 @@ public class PrintModel(ApplicationDbContext context) : PageModel
         "kitchen-order-ticket" => "Kitchen Order Ticket",
         "banquet-event-order" => "Banquet Event Order",
         "banquet-quotation" => "Banquet Quotation",
-        "event-contract" => "Event Contract Placeholder",
+        "event-contract" => "Event Contract",
         "purchase-request" => "Purchase Request",
         "purchase-order" => "Purchase Order",
         "receiving-report" => "Receiving Report",
         "stock-adjustment" => "Stock Adjustment / Stock Count",
         "sales-account-profile" => "Sales Account Profile",
-        "sales-proposal" => "Sales Proposal Placeholder",
+        "sales-proposal" => "Sales Proposal",
         "management-ai-summary" => "Management AI Summary",
         _ => "Printable Document"
     };

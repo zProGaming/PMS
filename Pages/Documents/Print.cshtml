@@ -9,7 +9,6 @@
     <div>
         <div class="page-kicker">Printable Document</div>
         <h1 class="vpms-page-title">@Model.DocumentTitle</h1>
-        <p class="vpms-page-subtitle">Use browser print to print or save this document as PDF.</p>
     </div>
     <div class="vpms-actions">
         <a class="btn vpms-btn-secondary" asp-page="/Documents/Index">Documents Center</a>
@@ -23,7 +22,7 @@
     <div class="vpms-empty-state">
         <h2>@Model.DocumentTitle</h2>
         <p>@Model.MissingDataMessage</p>
-        <a class="btn vpms-btn-secondary vpms-no-print" asp-page="/Admin/DemoSetup/Index">Go to Demo Setup</a>
+        <a class="btn vpms-btn-secondary vpms-no-print" asp-page="/Documents/Index">Documents Center</a>
     </div>
 }
 else
@@ -274,7 +273,7 @@ else
                         </tbody>
                     </table>
                     <div class="vpms-print-totals"><div><span>Estimated Total</span><strong>@PrintModel.Money(e.Charges.Where(item => !item.IsVoided).Sum(item => item.Amount))</strong></div></div>
-                    <p class="vpms-print-note">Contract template is for demo purposes and should be reviewed before production use.</p>
+                    <p class="vpms-print-note">Review contract terms before release.</p>
                     <div class="vpms-print-signatures"><span>Client Signature</span><span>Hotel Representative</span></div>
                 }
             </section>

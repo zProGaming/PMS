@@ -65,7 +65,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         Surface("System Management", "/System", PmsRoles.SystemManagement),
         Surface("System Administration", "/Admin/UsersAndRoles", PmsRoles.SystemAdministration),
         Surface("Printable Documents", "/Documents", PmsRoles.PrintableDocuments),
-        Surface("Client Demo", "/System/DemoPresentation", PmsRoles.ClientDemo),
+        Surface("Client Review", "/System/DemoPresentation", PmsRoles.ClientDemo),
         Surface("Labor Costing", "/Labor", PmsRoles.LaborCosting),
         Surface("Executive Reporting", "/Executive", PmsRoles.ExecutiveReporting),
         Surface("Executive Management", "/Executive management actions", PmsRoles.ExecutiveManagement),

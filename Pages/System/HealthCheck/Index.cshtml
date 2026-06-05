@@ -18,7 +18,7 @@
     <div>
         <div class="page-kicker">Phase 5 Audit</div>
         <h1 class="vpms-page-title">Pilot Readiness &amp; System Health</h1>
-        <p class="vpms-page-subtitle">A management-grade control surface for validating data integrity, finance close readiness, demo evidence, and operational blockers before trial hotel review.</p>
+        <p class="vpms-page-subtitle">Data integrity, finance close readiness, and operational blockers.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">Business date @(Model.Readiness.BusinessDate?.ToString("MMM dd, yyyy") ?? "not set")</span>
             <span class="vpms-mini-chip">@openIssues open issue(s)</span>
@@ -34,7 +34,7 @@
         <a class="btn vpms-btn-secondary" asp-page="/System/WorkflowReadiness/Index">Workflow SOP</a>
         <a class="btn vpms-btn-secondary" asp-page="/System/RoleAccessReadiness/Index">Role Access</a>
         <a class="btn vpms-btn-secondary" asp-page="/System/ReportReadiness/Index">Reports</a>
-        <a class="btn vpms-btn-secondary" asp-page="/Admin/DemoSetup/Index">Demo Setup</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Admin/DemoSetup/Index">Data Setup</a>
     </div>
 </section>
 
@@ -108,7 +108,7 @@
                 {
                     <div class="vpms-empty-state">
                         <h3>No open validation issues.</h3>
-                        <p>Run a fresh validation scan before final pilot presentation.</p>
+                        <p>No validation results are available.</p>
                     </div>
                 }
                 else

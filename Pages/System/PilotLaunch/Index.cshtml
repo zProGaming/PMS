@@ -16,7 +16,7 @@
     <div>
         <div class="page-kicker">Phase 10 Audit</div>
         <h1 class="vpms-page-title">Pilot Launch Command Center</h1>
-        <p class="vpms-page-subtitle">A final management cockpit for deciding whether the current environment is ready for trial demos, hotel pilot walkthroughs, and stakeholder review.</p>
+        <p class="vpms-page-subtitle">Management cockpit for launch readiness, blockers, and stakeholder review.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">Business date @(Model.Snapshot.BusinessDate?.ToString("MMM dd, yyyy") ?? "not set")</span>
             <span class="vpms-mini-chip">@Model.Snapshot.PassedGates passed</span>
@@ -26,7 +26,7 @@
     </div>
     <div class="vpms-actions">
         <a class="btn vpms-btn-primary" asp-page="/System/HealthCheck/Index">Run Health Review</a>
-        <a class="btn vpms-btn-secondary" asp-page="/System/DemoPresentation/Index">Demo Presentation</a>
+        <a class="btn vpms-btn-secondary" asp-page="/System/DemoPresentation/Index">Presentation Mode</a>
     </div>
 </section>
 
@@ -107,7 +107,7 @@
     <div class="col-md-6 col-xl-3">
         <a class="vpms-section-card h-100 text-decoration-none d-block" asp-page="/System/RouteReadiness/Index">
             <h3 class="h6">Route Smoke</h3>
-            <p class="text-muted mb-0">Confirm launch-critical pages exist before the walkthrough.</p>
+            <p class="text-muted mb-0">Confirm launch-critical pages are available.</p>
         </a>
     </div>
     <div class="col-md-6 col-xl-3">

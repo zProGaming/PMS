@@ -1,7 +1,7 @@
 @page
 @model Vantage.PMS.Pages.System.DemoWorkflowLauncher.IndexModel
 @{
-    ViewData["Title"] = "Demo Workflow Launcher";
+    ViewData["Title"] = "Workflow Launcher";
     var featuredItems = Model.Items.Take(6).ToList();
     var operationsItems = Model.Items.Skip(6).Take(6).ToList();
     var controlItems = Model.Items.Skip(12).ToList();
@@ -9,9 +9,9 @@
 
 <section class="vpms-demo-stage">
     <div>
-        <div class="page-kicker">Client Demo</div>
-        <h1 class="vpms-page-title">Guided Demo Command Deck</h1>
-        <p class="vpms-page-subtitle">A curated presenter surface for launching Vantage PMS workflows in a confident order, from command center to guest-facing and finance controls.</p>
+        <div class="page-kicker">Presentation Mode</div>
+        <h1 class="vpms-page-title">Workflow Command Deck</h1>
+        <p class="vpms-page-subtitle">A curated surface for launching Vantage PMS workflows in a confident order, from command center to guest-facing and finance controls.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">@Model.Items.Count guided stops</span>
             <span class="vpms-mini-chip">Client-safe sequence</span>
@@ -19,7 +19,7 @@
         </div>
     </div>
     <div class="vpms-actions">
-        <a class="btn vpms-btn-secondary" asp-page="/System/ClientDemoPackage/Index">Client Demo Package</a>
+        <a class="btn vpms-btn-secondary" asp-page="/System/ClientDemoPackage/Index">Client Review Package</a>
         <a class="btn vpms-btn-primary" asp-page="/Documents/Index">Printable Documents</a>
     </div>
 </section>

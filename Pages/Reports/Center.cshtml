@@ -125,7 +125,7 @@ else
                         var csvUrl = report.SupportsCsvExport
                             ? Url.Page("/Reports/Export", "Csv", new { reportKey = report.ReportKey })
                             : null;
-                        <article class="vpms-report-card @(report.IsAvailable ? "is-available" : "is-planned")">
+                        <article class="vpms-report-card @(report.IsAvailable ? "is-available" : "is-unavailable")">
                             <div class="vpms-report-card-body">
                                 <div class="vpms-report-card-kicker">@(report.IsAvailable ? "Ready for review" : "Controlled status")</div>
                                 <h3>@report.ReportName</h3>

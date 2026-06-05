@@ -1,14 +1,14 @@
 @page
 @model Vantage.PMS.Pages.System.ClientDemoPackage.IndexModel
 @{
-    ViewData["Title"] = "Client Demo Package";
+    ViewData["Title"] = "Client Review Package";
 }
 
 <div class="vpms-page-header vpms-no-print">
     <div>
-        <div class="page-kicker">Client Demo</div>
-        <h1 class="vpms-page-title">Client Demo Package</h1>
-        <p class="vpms-page-subtitle">A presenter-ready package that frames Vantage PMS as a complete Philippine hospitality operating platform, not a loose collection of modules.</p>
+        <div class="page-kicker">Client Review</div>
+        <h1 class="vpms-page-title">Client Review Package</h1>
+        <p class="vpms-page-subtitle">A curated package that frames Vantage PMS as a complete Philippine hospitality operating platform.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">Owner-ready</span>
             <span class="vpms-mini-chip">Pilot discussion aid</span>
@@ -24,7 +24,7 @@
 <section class="vpms-product-proof-strip vpms-no-print">
     <article><span>Coverage</span><strong>Rooms to finance</strong><p>Front office, folios, POS, banquet, inventory, AR, reports, and management controls in one story.</p></article>
     <article><span>Market fit</span><strong>Philippine full-service</strong><p>Designed to speak to hotels, resorts, condotels, serviced apartments, restaurants, and event venues.</p></article>
-    <article><span>Demo control</span><strong>Curated walkthrough</strong><p>Package items keep client presentations focused on proven workflows and visible strengths.</p></article>
+    <article><span>Package control</span><strong>Curated surfaces</strong></article>
 </section>
 
 <div class="row g-4 vpms-no-print mb-4">
@@ -37,7 +37,7 @@
             <div class="mb-3"><label class="form-label" asp-for="Input.PreparedBy">Prepared by</label><input class="form-control" asp-for="Input.PreparedBy" /></div>
             <div class="mb-3"><label class="form-label" asp-for="Input.PreparedDate">Prepared date</label><input class="form-control" type="date" asp-for="Input.PreparedDate" /></div>
             <div class="mb-3"><label class="form-label" asp-for="Input.Notes">Notes</label><textarea class="form-control" asp-for="Input.Notes" rows="2"></textarea></div>
-            <button class="btn vpms-btn-primary w-100" asp-page-handler="Create">Create Demo Package</button>
+            <button class="btn vpms-btn-primary w-100" asp-page-handler="Create">Create Package</button>
         </form>
     </div>
     <div class="col-lg-8">
@@ -47,7 +47,7 @@
                 @if (!Model.Packages.Any())
                 {
                     <div class="vpms-empty-state py-4">
-                        <p>No client demo package has been created yet. Use the form to create a reusable package.</p>
+                        <p>No client package has been created yet.</p>
                     </div>
                 }
                 else
@@ -80,10 +80,10 @@
     </header>
 
     <section class="vpms-print-section client-package-cover">
-        <div class="page-kicker">Client Demo Package</div>
-        <h1>@(Model.ActivePackage?.PackageName ?? "Vantage PMS Client Demo Package")</h1>
-        <p class="lead">Prepared for: @(Model.ActivePackage?.ClientName ?? "Sample Hotel Client")</p>
-        <p>Demo hotel: @(Model.ActivePackage?.HotelName ?? "Vantage Grand Hotel")</p>
+        <div class="page-kicker">Client Review Package</div>
+        <h1>@(Model.ActivePackage?.PackageName ?? "Vantage PMS Client Review Package")</h1>
+        <p class="lead">Prepared for: @(Model.ActivePackage?.ClientName ?? "Hotel Client")</p>
+        <p>Property: @(Model.ActivePackage?.HotelName ?? "Vantage Grand Hotel")</p>
         <p class="text-muted">A Philippine hospitality operating platform for hotels, resorts, serviced apartments, condotels, restaurants, banquet venues, and multi-property operators.</p>
     </section>
 
@@ -98,7 +98,7 @@
     </section>
 
     <section class="vpms-print-section">
-        <h2>Demo Workflows</h2>
+        <h2>Operating Workflows</h2>
         <table class="vpms-print-table">
             <thead><tr><th>Module</th><th>Workflow</th><th>Description</th></tr></thead>
             <tbody>
@@ -133,8 +133,8 @@
     <section class="vpms-print-section">
         <h2>Implementation Readiness</h2>
         <ul>
-            <li>Curated modules prepared for controlled demo walkthroughs.</li>
-            <li>Demo data available through System &gt; Demo Setup.</li>
+            <li>Curated modules prepared for controlled review.</li>
+            <li>Controlled records available through System &gt; Data Setup.</li>
             <li>Print templates available through Printable Documents.</li>
             <li>Browser print / Save as PDF available for current report and document outputs.</li>
             <li>Audit trail and system health included.</li>

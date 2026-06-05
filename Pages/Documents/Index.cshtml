@@ -12,10 +12,10 @@
     <div>
         <div class="page-kicker">Document Studio</div>
         <h1 class="vpms-page-title">Printable Documents</h1>
-        <p class="vpms-page-subtitle">A polished document studio for guest correspondence, finance outputs, F&amp;B, banquet, purchasing, and management print packages.</p>
+        <p class="vpms-page-subtitle">Guest, finance, F&amp;B, banquet, purchasing, and management print packages.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">@totalDocuments templates</span>
-            <span class="vpms-mini-chip">@availableDocuments sample-ready</span>
+            <span class="vpms-mini-chip">@availableDocuments available</span>
             <span class="vpms-mini-chip">Browser print / Save as PDF</span>
         </div>
     </div>
@@ -28,55 +28,6 @@
     </div>
 </section>
 
-<section class="vpms-document-readiness-strip" aria-label="Document readiness">
-    <article>
-        <span>Guest Journey</span>
-        <strong>Reservation, registration, folio, and receipt documents.</strong>
-    </article>
-    <article>
-        <span>Commercial Events</span>
-        <strong>BEO, banquet, purchasing, and POS documents for demos.</strong>
-    </article>
-    <article>
-        <span>Controlled Output</span>
-        <strong>Print-ready templates with clear sample availability.</strong>
-    </article>
-</section>
-
-<section class="vpms-document-assurance">
-    <article>
-        <span>Brand-controlled</span>
-        <strong>Consistent templates</strong>
-        <p>Operational documents use the same Vantage PMS print language.</p>
-    </article>
-    <article>
-        <span>Demo-ready</span>
-        <strong>Sample-aware links</strong>
-        <p>Available samples open directly; missing samples explain what data is needed.</p>
-    </article>
-    <article>
-        <span>Finance-safe</span>
-        <strong>Browser PDF workflow</strong>
-        <p>No external PDF service or submission integration is required.</p>
-    </article>
-</section>
-
-<section class="vpms-document-product-strip">
-    <div>
-        <span>Document governance</span>
-        <strong>Every printout should look client-ready before it leaves the system.</strong>
-        <p>Use template settings for branding and review finance or statutory-facing documents with authorized hotel finance personnel before official use.</p>
-    </div>
-    <div class="vpms-document-product-actions">
-        @if (canManageTemplates)
-        {
-            <a class="btn vpms-btn-secondary" asp-page="/Reports/TemplateSettings/Index">Report Templates</a>
-            <a class="btn vpms-btn-secondary" asp-page="/System/DocumentTemplateSettings/Index">Document Templates</a>
-        }
-        <a class="btn vpms-btn-secondary" asp-page="/Reports/Center">Report Center</a>
-    </div>
-</section>
-
 <div class="vpms-document-grid">
     @foreach (var documentSection in Model.Sections)
     {
@@ -85,7 +36,7 @@
             <div class="vpms-document-section-header">
                 <div>
                     <h2>@documentSection.Title</h2>
-                    <p>@availableInSection of @documentSection.Links.Count sample@(documentSection.Links.Count == 1 ? "" : "s") ready.</p>
+                    <p>@availableInSection of @documentSection.Links.Count available.</p>
                 </div>
                 <span>@availableInSection/@documentSection.Links.Count</span>
             </div>
@@ -97,11 +48,11 @@
                             <strong>@link.Title</strong>
                             @if (link.IsAvailable)
                             {
-                                <p>Sample record is available for review and browser print.</p>
+                                <p>Available for review and print.</p>
                             }
                             else
                             {
-                                <p>Create source records or seed demo data to activate this template.</p>
+                                <p>Source record required.</p>
                             }
                         </div>
                         @if (link.IsAvailable)
@@ -117,7 +68,7 @@
                         }
                         else
                         {
-                            <span class="vpms-status-badge status-draft">No sample</span>
+                            <span class="vpms-status-badge status-draft">Source needed</span>
                         }
                     </article>
                 }

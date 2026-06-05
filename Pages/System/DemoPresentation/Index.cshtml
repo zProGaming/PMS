@@ -1,7 +1,7 @@
 @page
 @model Vantage.PMS.Pages.System.DemoPresentation.IndexModel
 @{
-    ViewData["Title"] = "Demo Presentation";
+    ViewData["Title"] = "Presentation Mode";
     var readyCount = Model.ReadinessItems.Count(item => item.Status == "Ready");
     var readinessCount = Model.ReadinessItems.Count;
     var readinessPercent = readinessCount == 0 ? 0 : (int)Math.Round(readyCount * 100m / readinessCount);
@@ -11,7 +11,7 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">System</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Demo Presentation</li>
+        <li class="breadcrumb-item active" aria-current="page">Presentation Mode</li>
     </ol>
 </nav>
 
@@ -19,9 +19,9 @@
     <div>
         <div class="page-kicker">Vantage PMS</div>
         <h1 class="vpms-page-title">Philippine Hospitality Command Platform</h1>
-        <p class="vpms-page-subtitle">A guided presentation surface for hotels, resorts, condotels, serviced apartments, restaurants, banquet venues, and multi-property operators.</p>
+        <p class="vpms-page-subtitle">Operating views for hotels, resorts, condotels, serviced apartments, restaurants, banquet venues, and multi-property operators.</p>
         <div class="vpms-hero-chip-row">
-            <span class="vpms-mini-chip">@readyCount of @readinessCount demo areas ready</span>
+            <span class="vpms-mini-chip">@readyCount of @readinessCount areas ready</span>
             <span class="vpms-mini-chip">@Model.Status.Rooms rooms</span>
             <span class="vpms-mini-chip">@Model.Status.Reservations reservations</span>
             <span class="vpms-mini-chip">@Model.Status.ManagementInsights insights</span>
@@ -30,14 +30,14 @@
     <div class="vpms-demo-stage-panel">
         <span>Demo readiness</span>
         <strong>@readinessPercent%</strong>
-        <p>Based on installed sample records and module readiness checks.</p>
+        <p>Based on configured records and module readiness checks.</p>
     </div>
     <div class="vpms-actions">
         <a class="btn vpms-btn-primary" asp-page="/Index">Start at Dashboard</a>
         <a class="btn vpms-btn-secondary" asp-page="/System/DemoWorkflowLauncher/Index">Workflow Launcher</a>
         @if (User.IsInRole(Vantage.PMS.Authorization.PmsRoles.SystemAdmin))
         {
-            <a class="btn vpms-btn-secondary" asp-page="/Admin/DemoSetup/Index">Demo Setup</a>
+            <a class="btn vpms-btn-secondary" asp-page="/Admin/DemoSetup/Index">Data Setup</a>
         }
     </div>
 </section>
@@ -45,7 +45,7 @@
 @if (!Model.HasDemoData)
 {
     <div class="alert alert-info vpms-alert" role="alert">
-        Demo data has not been installed yet. Go to <a asp-page="/Admin/DemoSetup/Index">System &gt; Demo Setup</a> as a SystemAdmin to seed the demo hotel.
+        Controlled records have not been installed yet. Go to <a asp-page="/Admin/DemoSetup/Index">System &gt; Data Setup</a> as a SystemAdmin.
     </div>
 }
 
@@ -59,19 +59,19 @@
     <div class="card-body">
         <div class="row g-4 align-items-center">
             <div class="col-lg-8">
-                <div class="page-kicker">Demo Hotel</div>
+                <div class="page-kicker">Property Profile</div>
                 <h2 class="h3 mb-2">Vantage Grand Hotel</h2>
                 <p class="lead mb-3">Modern comfort. Smarter hotel operations.</p>
-                <p class="text-muted mb-0">Quezon City, Philippines - Vantage Hospitality - prepared for professional guided demos and QA test runs.</p>
+                <p class="text-muted mb-0">Quezon City, Philippines - Vantage Hospitality.</p>
             </div>
             <div class="col-lg-4">
                 <div class="vpms-section-card">
                     <div class="d-flex justify-content-between">
-                        <span class="text-muted">Demo Rooms</span>
+                        <span class="text-muted">Rooms</span>
                         <strong>@Model.Status.Rooms</strong>
                     </div>
                     <div class="d-flex justify-content-between">
-                        <span class="text-muted">Demo Reservations</span>
+                        <span class="text-muted">Reservations</span>
                         <strong>@Model.Status.Reservations</strong>
                     </div>
                     <div class="d-flex justify-content-between">
@@ -95,7 +95,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
                         <h2 class="h5 mb-1">Module Readiness Checklist</h2>
-                        <p class="text-muted mb-0">Rule-based readiness from existing records. Ready means enough sample records exist for a demo flow.</p>
+                        <p class="text-muted mb-0">Rule-based readiness from existing records.</p>
                     </div>
                 </div>
                 <div class="vpms-table-wrapper">
@@ -215,7 +215,7 @@
     <div class="col-md-6 col-xl-4">
         <div class="vpms-section-card h-100">
             <h3 class="h6">Banquet Demo Flow</h3>
-            <p class="text-muted mb-0">Event calendar, function rooms, packages, charges, and professional BEO operational instructions.</p>
+            <p class="text-muted mb-0">Event calendar, function rooms, packages, charges, and BEO controls.</p>
         </div>
     </div>
     <div class="col-md-6 col-xl-4">

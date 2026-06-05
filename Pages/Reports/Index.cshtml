@@ -7,7 +7,7 @@
     var reportCards = new[]
     {
         new { Title = "Occupancy Report", Description = "Room inventory, rooms sold, and occupancy percentage for daily rooms review.", Page = "./Occupancy", Accent = "Rooms" },
-        new { Title = "Arrivals Report", Description = "Reservations arriving on the business date with front-desk workflow visibility.", Page = "./Arrivals", Accent = "Front Desk" },
+        new { Title = "Arrivals Report", Description = "Reservations arriving on the business date.", Page = "./Arrivals", Accent = "Front Desk" },
         new { Title = "Departures Report", Description = "Expected departures, checkout control, and room-turnover planning.", Page = "./Departures", Accent = "Rooms" },
         new { Title = "In-House Guest Report", Description = "Checked-in guests, stay status, and current folio balance visibility.", Page = "./InHouse", Accent = "Guests" },
         new { Title = "Daily Revenue Report", Description = "Daily charges, payments, and open balances for finance review.", Page = "./DailyRevenue", Accent = "Finance" }
@@ -18,11 +18,11 @@
     <div>
         <div class="page-kicker">Reports Overview</div>
         <h1 class="vpms-page-title">Operational Report Shortcuts</h1>
-        <p class="vpms-page-subtitle">A focused legacy route for core front-desk and finance reports. Use the Report Center for the full catalog, export capability, and category filters.</p>
+        <p class="vpms-page-subtitle">Core front-desk and finance report shortcuts.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">Business date: @Model.BusinessDate.ToString("D")</span>
             <span class="vpms-mini-chip">@reportCards.Length core reports</span>
-            <span class="vpms-mini-chip">Print-ready workflows</span>
+            <span class="vpms-mini-chip">Print-ready</span>
         </div>
     </div>
     <div class="vpms-hero-actions">
@@ -31,26 +31,11 @@
     </div>
 </section>
 
-<section class="vpms-report-legacy-standard">
-    <article>
-        <span>Primary Entry</span>
-        <strong>Use Report Center for the full report catalog.</strong>
-    </article>
-    <article>
-        <span>Daily Operations</span>
-        <strong>This page keeps core front-office reports close at hand.</strong>
-    </article>
-    <article>
-        <span>Output Control</span>
-        <strong>Print-ready views should follow the shared Vantage report style.</strong>
-    </article>
-</section>
-
 <section class="vpms-report-legacy-panel">
     <div class="vpms-card-header">
         <div>
             <h2>Core Daily Reports</h2>
-            <p>Curated for front office review, daily revenue checks, and quick print access.</p>
+            <p>Front office review, daily revenue checks, and print access.</p>
         </div>
         <span class="vpms-report-legacy-badge">Secondary route</span>
     </div>

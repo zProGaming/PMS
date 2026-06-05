@@ -347,13 +347,13 @@
             <section class="vpms-sidebar-group" data-sidebar-section data-vpms-sidebar-group data-group-id="demo-documents">
                 <button class="vpms-sidebar-group-header" type="button" data-vpms-sidebar-toggle aria-expanded="false" aria-controls="sidebar-demo-documents">
                     <span class="vpms-sidebar-group-icon" aria-hidden="true">DD</span>
-                    <span class="vpms-sidebar-group-title">Demo &amp; Documents</span>
+                    <span class="vpms-sidebar-group-title">Documents &amp; Readiness</span>
                     <span class="vpms-sidebar-chevron" aria-hidden="true"></span>
                 </button>
                 <div class="vpms-sidebar-group-body" id="sidebar-demo-documents" data-vpms-sidebar-body>
                     @if (canAccessSystemAdministration)
                     {
-                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Admin/DemoSetup/Index" data-sidebar-link><span>Demo Setup</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Admin/DemoSetup/Index" data-sidebar-link><span>Data Setup</span></a>
                     }
                     @if (canAccessSystemManagement)
                     {
@@ -362,7 +362,7 @@
                     }
                     @if (canAccessClientDemo)
                     {
-                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/ClientDemoPackage/Index" data-sidebar-link><span>Client Package</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/ClientDemoPackage/Index" data-sidebar-link><span>Client Review Package</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/System/DemoWorkflowLauncher/Index" data-sidebar-link><span>Workflow Launcher</span></a>
                     }
                     @if (canAccessPrintableDocuments)

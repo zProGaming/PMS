@@ -12,7 +12,6 @@
         <div>
             <div class="page-kicker">Reservation Desk</div>
             <h1>Create Reservation</h1>
-            <p>Capture the guest, stay dates, room, and rate without leaving the current desk view.</p>
         </div>
         <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/Guests/Create" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Create Guest">New Guest</a>
     </section>
@@ -23,7 +22,7 @@ else
     <div>
         <div class="page-kicker">Reservation Desk Workflow</div>
         <h1 class="page-title">Create Reservation</h1>
-        <p class="page-subtitle">Create a controlled stay record with guest, rooming, revenue, and occupancy decisions clearly separated.</p>
+        <p class="page-subtitle">Guest, rooming, stay dates, rate, and occupancy controls.</p>
     </div>
     <div class="vpms-hero-actions">
         <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/Guests/Create" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Create Guest">New Guest</a>
@@ -35,17 +34,17 @@ else
     <article>
         <span>01</span>
         <strong>Guest profile</strong>
-        <small>Use an existing guest profile or create one before confirming.</small>
+        <small>Guest selected</small>
     </article>
     <article>
         <span>02</span>
         <strong>Room control</strong>
-        <small>Only active available, clean, or inspected rooms can be assigned.</small>
+        <small>Assignable inventory</small>
     </article>
     <article>
         <span>03</span>
         <strong>Rate confidence</strong>
-        <small>Revenue controls and suggested rates are evaluated before save.</small>
+        <small>Revenue controls</small>
     </article>
 </section>
 }
@@ -67,7 +66,7 @@ else
             <span>01</span>
             <div>
                 <h2>Guest and Rooming</h2>
-                <p>Select the guest profile and assign a room that is operationally available.</p>
+                <p>Guest profile and room assignment.</p>
             </div>
         </div>
         <div class="row g-3">

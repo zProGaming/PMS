@@ -20,7 +20,7 @@
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">@Model.Summary.Available available</span>
             <span class="vpms-mini-chip">@Model.Summary.NeedsReview review</span>
-            <span class="vpms-mini-chip">@Model.Summary.Planned planned/hidden</span>
+            <span class="vpms-mini-chip">@Model.Summary.Planned unavailable</span>
             <span class="vpms-mini-chip">@Model.Summary.CsvEnabled CSV-enabled</span>
         </div>
     </div>
@@ -64,7 +64,7 @@
 <section class="vpms-product-proof-strip mb-4">
     <article><span>Print standard</span><strong>Browser print / Save as PDF</strong><p>PDF output remains browser-print based; no paid or heavy PDF engine is required.</p></article>
     <article><span>Finance caution</span><strong>Configurable reports</strong><p>USALI-style and Philippine finance reports should be reviewed by hotel finance/accounting personnel.</p></article>
-    <article><span>Demo safety</span><strong>Planned reports are separated</strong><p>Catalog items without routes should stay clearly planned or hidden from live client demos.</p></article>
+    <article><span>Availability</span><strong>Unavailable reports are separated</strong></article>
 </section>
 
 @foreach (var group in Model.Groups)

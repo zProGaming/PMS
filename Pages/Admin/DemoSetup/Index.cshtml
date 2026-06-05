@@ -1,7 +1,7 @@
 @page
 @model Vantage.PMS.Pages.Admin.DemoSetup.IndexModel
 @{
-    ViewData["Title"] = "Demo Setup";
+    ViewData["Title"] = "Data Setup";
     var hasDemoData = Model.Status.Hotels + Model.Status.Rooms + Model.Status.Guests + Model.Status.Reservations + Model.Status.PosOrders + Model.Status.BanquetEvents + Model.Status.InventoryItems + Model.Status.ARInvoices + Model.Status.APInvoices + Model.Status.GroupBookings > 0;
 }
 
@@ -9,15 +9,15 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/Admin/Hotels/Index">Admin</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Demo Setup</li>
+        <li class="breadcrumb-item active" aria-current="page">Data Setup</li>
     </ol>
 </nav>
 
 <div class="vpms-page-header">
     <div>
         <div class="page-kicker">System Administration</div>
-        <h1 class="vpms-page-title">Demo Mode Setup</h1>
-        <p class="vpms-page-subtitle">Install safe, idempotent sample data and prepare a controlled walkthrough for client demos, investor previews, and pilot QA rehearsal.</p>
+        <h1 class="vpms-page-title">Controlled Data Setup</h1>
+        <p class="vpms-page-subtitle">Controlled data setup for QA, training, and trial environments.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">Idempotent seeding</span>
             <span class="vpms-mini-chip">No destructive reset</span>
@@ -25,22 +25,22 @@
         </div>
     </div>
     <div class="vpms-actions">
-        <a class="btn vpms-btn-secondary" asp-page="/System/DemoPresentation/Index">Open Demo Presentation</a>
+        <a class="btn vpms-btn-secondary" asp-page="/System/DemoPresentation/Index">Open Presentation Mode</a>
         <a class="btn vpms-btn-primary" asp-page="/System/DemoWorkflowLauncher/Index">Workflow Launcher</a>
     </div>
 </div>
 
 <section class="vpms-product-proof-strip">
     <article><span>Step 1</span><strong>Seed only what is missing</strong><p>Natural keys prevent duplicate demo records and protect existing trial data.</p></article>
-    <article><span>Step 2</span><strong>Review readiness</strong><p>Use presentation mode to verify sample rooms, reservations, POS, banquet, AR, and insights.</p></article>
-    <article><span>Step 3</span><strong>Launch guided flow</strong><p>Use the workflow launcher to keep demos on polished, high-confidence surfaces.</p></article>
+    <article><span>Step 2</span><strong>Review readiness</strong></article>
+    <article><span>Step 3</span><strong>Open control surfaces</strong></article>
 </section>
 
 @if (Model.Result is not null)
 {
     <div class="alert alert-success vpms-alert" role="alert">
         <strong>@Model.Result.ActionName completed.</strong>
-        Inserted @Model.Result.Inserted new sample records. Existing matching records were left unchanged.
+        Inserted @Model.Result.Inserted records. Existing matching records were left unchanged.
         @if (Model.Result.Messages.Any())
         {
             <ul class="mb-0 mt-2">
@@ -55,21 +55,21 @@
 
 <div class="alert alert-warning vpms-alert" role="alert">
     <strong>Presentation-only data.</strong>
-    Demo setup only inserts missing sample records and should not be used on a live production database. No reset or destructive cleanup is included.
+    Data setup only inserts missing controlled records. No reset or destructive cleanup is included.
 </div>
 
 @if (!hasDemoData)
 {
     <div class="vpms-empty-state mb-4">
-        <h2>Demo data has not been installed yet.</h2>
-        <p>Use the Full Demo Dataset action, or seed individual areas as needed for a narrower walkthrough.</p>
+        <h2>Controlled records have not been installed yet.</h2>
+        <p>No controlled records are installed.</p>
     </div>
 }
 
 <div class="row g-3 mb-4">
     <div class="col-6 col-lg-3">
         <div class="vpms-stat-card">
-            <span class="vpms-stat-label">Demo Mode</span>
+            <span class="vpms-stat-label">Presentation Mode</span>
             <strong>@(Model.Status.DemoModeEnabled ? "Enabled" : "Disabled")</strong>
             <small>Default setting remains off until explicitly changed.</small>
         </div>
@@ -78,7 +78,7 @@
         <div class="vpms-stat-card">
             <span class="vpms-stat-label">Rooms</span>
             <strong>@Model.Status.Rooms</strong>
-            <small>Marked demo rooms</small>
+            <small>Controlled room records</small>
         </div>
     </div>
     <div class="col-6 col-lg-3">

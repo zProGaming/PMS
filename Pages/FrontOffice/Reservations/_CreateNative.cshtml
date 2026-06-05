@@ -4,7 +4,7 @@
     <div>
         <div class="page-kicker">Reservation Desk</div>
         <h1>Create Reservation</h1>
-        <p>Capture the guest, stay dates, room, and rate without leaving the current desk view.</p>
+        <p>Guest, stay dates, room, and rate.</p>
     </div>
     <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/Guests/Create" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Create Guest">New Guest</a>
 </section>
@@ -40,7 +40,7 @@
                     <option value="">Select room</option>
                 </select>
                 <span asp-validation-for="Reservation.RoomId" class="text-danger"></span>
-                <div class="form-text">Only active available, clean, or inspected rooms are listed.</div>
+                <div class="form-text">Assignable rooms only.</div>
             </div>
         </div>
     </section>

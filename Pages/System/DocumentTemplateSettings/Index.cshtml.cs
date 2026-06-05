@@ -132,7 +132,7 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         "Stock Adjustment",
         "Sales Account Profile",
         "Management AI Summary",
-        "Client Demo Package"
+        "Client Review Package"
     ];
 }
 

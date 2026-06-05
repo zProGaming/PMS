@@ -16,7 +16,7 @@
     <div>
         <div class="page-kicker">Phase 6 Audit</div>
         <h1 class="vpms-page-title">Route Smoke Console</h1>
-        <p class="vpms-page-subtitle">A launch-critical route matrix for validating that pilot, demo, and workflow surfaces have live Razor Pages before client walkthroughs.</p>
+        <p class="vpms-page-subtitle">Route matrix for critical operating, finance, report, and system surfaces.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">@Model.Summary.Total route candidates</span>
             <span class="vpms-mini-chip">@Model.Summary.Ready ready</span>
@@ -42,14 +42,14 @@
         <article class="vpms-stat-card h-100">
             <span class="vpms-stat-label">Ready</span>
             <strong>@Model.Summary.Ready</strong>
-            <small>Page exists without placeholder signals.</small>
+            <small>Available routes.</small>
         </article>
     </div>
     <div class="col-md-6 col-xl-3">
         <article class="vpms-stat-card h-100">
             <span class="vpms-stat-label">Needs Review</span>
             <strong>@Model.Summary.NeedsReview</strong>
-            <small>Page exists but has planned/placeholder wording.</small>
+            <small>Routes requiring review.</small>
         </article>
     </div>
     <div class="col-md-6 col-xl-3">
@@ -64,13 +64,13 @@
 <section class="vpms-product-proof-strip mb-4">
     <article>
         <span>Purpose</span>
-        <strong>Prevent broken walkthroughs</strong>
-        <p>Use this before demos and pilot QA to catch launch-critical missing pages early.</p>
+        <strong>Route control</strong>
+        <p>Critical route availability.</p>
     </article>
     <article>
         <span>Scope</span>
         <strong>Route presence, not business validation</strong>
-        <p>This complements System Health and Module QA. It does not replace end-to-end workflow testing.</p>
+        <p>Route, health, and QA status are reviewed separately.</p>
     </article>
     <article>
         <span>Next action</span>
