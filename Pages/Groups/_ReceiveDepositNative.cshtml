@@ -15,6 +15,13 @@
 
 <form method="post" asp-page-handler="ReceiveDeposit" asp-route-id="@Model.GroupBooking.Id" class="vpms-native-workflow-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="vpms-native-step-grid compact" aria-label="Group deposit control path">
+        <span><strong>Amount</strong><small>Collection value</small></span>
+        <span><strong>Reference</strong><small>Tender trace</small></span>
+        <span><strong>Allocate</strong><small>Apply later</small></span>
+    </div>
+
     <section class="vpms-form-section">
         <div class="vpms-form-section-heading">
             <h2>Deposit Receipt</h2>

@@ -16,6 +16,12 @@
 <form method="post" asp-page-handler="Create" class="vpms-native-workflow-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+    <div class="vpms-native-step-grid compact" aria-label="AR collection control path">
+        <span><strong>Account</strong><small>City ledger owner</small></span>
+        <span><strong>Collection</strong><small>Amount and tender</small></span>
+        <span><strong>Allocation</strong><small>Apply after posting</small></span>
+    </div>
+
     <div class="vpms-modal-form-grid">
         <div class="vpms-modal-field wide">
             <label asp-for="Payment.ARAccountId" class="form-label">AR Account</label>

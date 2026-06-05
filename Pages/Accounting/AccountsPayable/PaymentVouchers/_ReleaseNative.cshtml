@@ -36,6 +36,12 @@
 <form method="post" asp-page-handler="Release" asp-route-id="@Model.Voucher.Id" class="vpms-native-workflow-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+    <div class="vpms-native-step-grid compact" aria-label="Treasury release control path">
+        <span><strong>Bank</strong><small>Select cash source</small></span>
+        <span><strong>Post</strong><small>Creates disbursement</small></span>
+        <span><strong>Trace</strong><small>Release audit retained</small></span>
+    </div>
+
     <div class="vpms-modal-form-grid">
         <div class="vpms-modal-field wide">
             <label asp-for="BankAccountId" class="form-label">Bank Account for bank/check/e-wallet payments</label>

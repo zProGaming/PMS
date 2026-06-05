@@ -16,6 +16,12 @@
 <form method="post" class="vpms-native-workflow-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+    <div class="vpms-native-step-grid compact" aria-label="AP voucher control path">
+        <span><strong>Supplier</strong><small>Payee context</small></span>
+        <span><strong>Gross / WHT</strong><small>Tax review</small></span>
+        <span><strong>Treasury</strong><small>Release later</small></span>
+    </div>
+
     <div class="vpms-modal-form-grid">
         <div class="vpms-modal-field">
             <label asp-for="Input.VoucherNumber" class="form-label">Voucher Number</label>

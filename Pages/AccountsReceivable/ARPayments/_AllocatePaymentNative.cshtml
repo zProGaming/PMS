@@ -41,6 +41,12 @@
 @if (Model.RemainingAmount > 0)
 {
     <form method="post" asp-page-handler="Allocate" asp-route-id="@Model.Payment.Id" class="vpms-native-workflow-form">
+        <div class="vpms-native-step-grid compact" aria-label="AR allocation control path">
+            <span><strong>Invoice</strong><small>Select open AR</small></span>
+            <span><strong>Amount</strong><small>Cannot exceed balance</small></span>
+            <span><strong>Trace</strong><small>Allocation retained</small></span>
+        </div>
+
         <div class="vpms-modal-form-grid">
             <div class="vpms-modal-field wide">
                 <label asp-for="ARInvoiceId" class="form-label">Open Invoice</label>

@@ -15,6 +15,12 @@
 <form method="post" asp-page-handler="Create" class="vpms-native-workflow-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+    <div class="vpms-native-step-grid compact" aria-label="AR invoice control path">
+        <span><strong>Account</strong><small>City ledger debtor</small></span>
+        <span><strong>Due Date</strong><small>Aging basis</small></span>
+        <span><strong>Amount</strong><small>Open balance source</small></span>
+    </div>
+
     <div class="vpms-modal-form-grid">
         <div class="vpms-modal-field">
             <label asp-for="Invoice.InvoiceNumber" class="form-label">Invoice Number</label>
