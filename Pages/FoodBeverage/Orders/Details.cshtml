@@ -5,140 +5,167 @@
     ViewData["Title"] = "POS Order Details";
     var orderStatusClass = Model.Order.OrderStatus.ToString().ToLowerInvariant();
     var paymentStatusClass = Model.Order.PaymentStatus.ToString().ToLowerInvariant();
+    var itemCount = Model.Order.Items.Count;
+    var activeItemCount = Model.Order.Items.Count(item => !item.IsVoided);
+    var guestName = $"{Model.Order.Guest?.FirstName} {Model.Order.Guest?.LastName}".Trim();
 }
 
-<div class="vpms-page-header page-header">
-    <div>
-        <div class="page-kicker">F&amp;B Service POS</div>
-        <h1 class="vpms-page-title page-title">Order @Model.Order.OrderNumber</h1>
-        <p class="vpms-page-subtitle page-subtitle">@Model.Order.Outlet?.Name | @Model.Order.OrderType | @Model.Order.OrderDate.ToString("g")</p>
-    </div>
-    <div class="vpms-actions d-flex flex-wrap gap-2">
-        <span class="vpms-status-badge status-@orderStatusClass">@Model.Order.OrderStatus</span>
-        @if (Model.CanEditOrder)
-        {
-            <a class="btn btn-primary" asp-page="./AddItem" asp-route-orderId="@Model.Order.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Add POS Item">Add Item</a>
-            @if (Model.Order.OrderStatus == Vantage.PMS.Models.FoodBeverage.POSOrderStatus.Open)
-            {
-                <form method="post" asp-page-handler="SendToKitchen" asp-route-id="@Model.Order.Id">
-                    <button type="submit" class="btn btn-outline-primary" data-vpms-confirm="Send this order to the kitchen display?">Send to Kitchen</button>
-                </form>
-            }
-            <a class="btn btn-success" asp-page="./Close" asp-route-id="@Model.Order.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Close POS Order">Close Order</a>
-        }
-        <a class="btn btn-outline-secondary" asp-page="./Index">Orders</a>
-    </div>
-</div>
-
-<div class="vpms-detail-grid mb-4">
-    <div class="vpms-stat-card border rounded p-3">
-            <div class="text-muted small">Table</div>
-            <div class="fs-5">@(Model.Order.DiningTable?.TableName ?? "-")</div>
-    </div>
-    <div class="vpms-stat-card border rounded p-3">
-            <div class="text-muted small">Guest</div>
-            <div class="fs-5">@Model.Order.Guest?.FirstName @Model.Order.Guest?.LastName</div>
-    </div>
-    <div class="vpms-stat-card border rounded p-3">
-            <div class="text-muted small">Room</div>
-            <div class="fs-5">@(Model.Order.Reservation?.Room?.RoomNumber ?? "-")</div>
-    </div>
-    <div class="vpms-stat-card border rounded p-3">
-            <div class="text-muted small">Payment</div>
-            <span class="vpms-status-badge status-@paymentStatusClass">@Model.Order.PaymentStatus</span>
-    </div>
-</div>
-
-<h2 class="h4">Ordered Items</h2>
-<div class="vpms-table-wrapper table-responsive">
-<table class="table vpms-table table-striped table-hover align-middle">
-    <thead>
-        <tr>
-            <th>Item</th>
-            <th>Notes</th>
-            <th>Status</th>
-            <th>Kitchen</th>
-            <th class="text-end">Qty</th>
-            <th class="text-end">Unit</th>
-            <th class="text-end">Discount</th>
-            <th class="text-end">Line Total</th>
-            <th class="text-end">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.Order.Items.Count == 0)
-        {
-            <tr>
-                <td colspan="9" class="text-muted">No items added.</td>
-            </tr>
-        }
-        @foreach (var item in Model.Order.Items.OrderBy(item => item.Id))
-        {
-            var itemStatusClass = item.ItemStatus.ToString().ToLowerInvariant();
-            <tr class="@(item.IsVoided ? "table-secondary text-muted" : "")">
-                <td>
-                    <div>@item.MenuItem?.Name</div>
-                    <div class="text-muted small">@item.MenuItem?.MenuCategory?.Name</div>
-                </td>
-                <td>@item.Notes</td>
-                <td><span class="vpms-status-badge status-@itemStatusClass">@item.ItemStatus</span></td>
-                <td class="small">
-                    <div>@(item.MenuItem?.KitchenStation?.Name ?? "Unassigned Station")</div>
-                    <div>Sent: @(item.SentToKitchenAt?.ToString("g") ?? "-")</div>
-                    <div>Prep: @(item.PreparingAt?.ToString("g") ?? "-")</div>
-                    <div>Ready: @(item.ReadyAt?.ToString("g") ?? "-")</div>
-                    <div>Served: @(item.ServedAt?.ToString("g") ?? "-")</div>
-                    <div>Cancelled: @(item.CancelledAt?.ToString("g") ?? "-")</div>
-                </td>
-                <td class="text-end">@item.Quantity.ToString("N2")</td>
-                <td class="text-end">@item.UnitPrice.ToString("N2")</td>
-                <td class="text-end">@item.DiscountAmount.ToString("N2")</td>
-                <td class="text-end">@item.LineTotal.ToString("N2")</td>
-                <td class="text-end">
-                    @if (Model.CanEditOrder && !item.IsVoided)
-                    {
-                        <a class="btn btn-sm btn-outline-danger" asp-page="./VoidItem" asp-route-orderItemId="@item.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Void POS Item">Void</a>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-</div>
-
-<div class="row justify-content-end">
-    <div class="col-md-5 col-lg-4">
-        <div class="vpms-table-wrapper table-responsive">
-        <table class="table vpms-table table-sm">
-            <tbody>
-                <tr>
-                    <th>Subtotal</th>
-                    <td class="text-end">@Model.Order.SubTotal.ToString("N2")</td>
-                </tr>
-                <tr>
-                    <th>Service Charge</th>
-                    <td class="text-end">@Model.Order.ServiceCharge.ToString("N2")</td>
-                </tr>
-                <tr>
-                    <th>Tax Amount</th>
-                    <td class="text-end">@Model.Order.TaxAmount.ToString("N2")</td>
-                </tr>
-                <tr>
-                    <th>Discount</th>
-                    <td class="text-end">@Model.Order.DiscountAmount.ToString("N2")</td>
-                </tr>
-                <tr class="fs-5">
-                    <th>Total</th>
-                    <td class="text-end">@Model.Order.TotalAmount.ToString("N2")</td>
-                </tr>
-            </tbody>
-        </table>
+<div class="vpms-dialog-control-page vpms-pos-order-control">
+    <section class="vpms-ops-hero vpms-pos-control-hero">
+        <div>
+            <div class="page-kicker">F&amp;B Order Control</div>
+            <h1 class="page-title">@Model.Order.OrderNumber</h1>
+            <p class="page-subtitle">@Model.Order.Outlet?.Name | @Model.Order.OrderType | @Model.Order.OrderDate.ToString("g")</p>
+            <div class="vpms-hero-chip-row">
+                <span class="vpms-status-badge status-@orderStatusClass">@Model.Order.OrderStatus</span>
+                <span class="vpms-status-badge status-@paymentStatusClass">@Model.Order.PaymentStatus</span>
+                <span class="vpms-mini-chip">@activeItemCount active item@(activeItemCount == 1 ? "" : "s")</span>
+            </div>
         </div>
-    </div>
-</div>
+        <div class="vpms-hero-actions">
+            @if (Model.CanEditOrder)
+            {
+                <a class="btn vpms-btn-primary" asp-page="./AddItem" asp-route-orderId="@Model.Order.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Add POS Item">Add Item</a>
+                @if (Model.Order.OrderStatus == Vantage.PMS.Models.FoodBeverage.POSOrderStatus.Open)
+                {
+                    <form method="post" asp-page-handler="SendToKitchen" asp-route-id="@Model.Order.Id">
+                        <button type="submit" class="btn vpms-btn-secondary" data-vpms-confirm="Send this order to the kitchen display?">Send to Kitchen</button>
+                    </form>
+                }
+                <a class="btn btn-success" asp-page="./Close" asp-route-id="@Model.Order.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Close POS Order">Close Order</a>
+            }
+            <a class="btn btn-outline-secondary" asp-page="./Index">Orders</a>
+        </div>
+    </section>
 
-@if (!string.IsNullOrWhiteSpace(Model.Order.Notes))
-{
-    <h2 class="h5">Notes</h2>
-    <p class="text-break">@Model.Order.Notes</p>
-}
+    <section class="vpms-control-strip vpms-pos-order-strip" aria-label="POS order pulse">
+        <article>
+            <span>Table</span>
+            <strong>@(Model.Order.DiningTable?.TableName ?? "-")</strong>
+            <small>@Model.Order.OrderType</small>
+        </article>
+        <article>
+            <span>Guest</span>
+            <strong>@(string.IsNullOrWhiteSpace(guestName) ? "-" : guestName)</strong>
+            <small>Room @(Model.Order.Reservation?.Room?.RoomNumber ?? "-")</small>
+        </article>
+        <article>
+            <span>Kitchen Flow</span>
+            <strong>@itemCount</strong>
+            <small>total item@(itemCount == 1 ? "" : "s") tracked</small>
+        </article>
+        <article class="positive">
+            <span>Total Due</span>
+            <strong>@Model.Order.TotalAmount.ToString("C")</strong>
+            <small>inclusive of taxes and service</small>
+        </article>
+    </section>
+
+    <div class="vpms-two-column vpms-pos-control-layout">
+        <section class="vpms-card vpms-operational-panel vpms-pos-items-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Ordered Items</h2>
+                    <p>Kitchen status, line totals, and item controls for this check.</p>
+                </div>
+                @if (Model.CanEditOrder)
+                {
+                    <a class="btn vpms-btn-secondary" asp-page="./AddItem" asp-route-orderId="@Model.Order.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Add POS Item">Add Item</a>
+                }
+            </div>
+
+            @if (itemCount == 0)
+            {
+                <div class="vpms-empty-state">
+                    <strong>No items added.</strong>
+                    <span>Add menu items to build the guest check, then send the order to the kitchen.</span>
+                </div>
+            }
+            else
+            {
+                <div class="vpms-table-wrapper table-responsive">
+                    <table class="table vpms-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Kitchen</th>
+                                <th class="text-end">Qty</th>
+                                <th class="text-end">Unit</th>
+                                <th class="text-end">Discount</th>
+                                <th class="text-end">Line Total</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Order.Items.OrderBy(item => item.Id))
+                            {
+                                var itemStatusClass = item.ItemStatus.ToString().ToLowerInvariant();
+                                <tr class="@(item.IsVoided ? "table-secondary text-muted" : "")">
+                                    <td>
+                                        <div class="vpms-line-title">@item.MenuItem?.Name</div>
+                                        <div class="text-muted small">@item.MenuItem?.MenuCategory?.Name</div>
+                                        @if (!string.IsNullOrWhiteSpace(item.Notes))
+                                        {
+                                            <div class="vpms-line-note">@item.Notes</div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="vpms-status-badge status-@itemStatusClass">@item.ItemStatus</span>
+                                        <div class="vpms-kitchen-trace">
+                                            <span>@(item.MenuItem?.KitchenStation?.Name ?? "Unassigned Station")</span>
+                                            <small>Sent: @(item.SentToKitchenAt?.ToString("g") ?? "-")</small>
+                                            <small>Ready: @(item.ReadyAt?.ToString("g") ?? "-")</small>
+                                        </div>
+                                    </td>
+                                    <td class="text-end">@item.Quantity.ToString("N2")</td>
+                                    <td class="text-end">@item.UnitPrice.ToString("C")</td>
+                                    <td class="text-end">@item.DiscountAmount.ToString("C")</td>
+                                    <td class="text-end vpms-money">@item.LineTotal.ToString("C")</td>
+                                    <td class="text-end">
+                                        @if (Model.CanEditOrder && !item.IsVoided)
+                                        {
+                                            <a class="btn btn-sm btn-outline-danger" asp-page="./VoidItem" asp-route-orderItemId="@item.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Void POS Item">Void</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        <aside class="vpms-card vpms-operational-panel vpms-pos-settlement-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Settlement</h2>
+                    <p>Check totals and closing posture.</p>
+                </div>
+            </div>
+            <div class="vpms-total-stack">
+                <div><span>Subtotal</span><strong>@Model.Order.SubTotal.ToString("C")</strong></div>
+                <div><span>Service Charge</span><strong>@Model.Order.ServiceCharge.ToString("C")</strong></div>
+                <div><span>Tax Amount</span><strong>@Model.Order.TaxAmount.ToString("C")</strong></div>
+                <div><span>Discount</span><strong>@Model.Order.DiscountAmount.ToString("C")</strong></div>
+                <div class="total"><span>Total</span><strong>@Model.Order.TotalAmount.ToString("C")</strong></div>
+            </div>
+            @if (Model.CanEditOrder)
+            {
+                <a class="btn vpms-btn-primary w-100" asp-page="./Close" asp-route-id="@Model.Order.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Close POS Order">Close Order</a>
+            }
+        </aside>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Order.Notes))
+    {
+        <section class="vpms-card vpms-operational-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Order Notes</h2>
+                    <p>Service instructions and cashier context.</p>
+                </div>
+            </div>
+            <p class="text-break mb-0">@Model.Order.Notes</p>
+        </section>
+    }
+</div>

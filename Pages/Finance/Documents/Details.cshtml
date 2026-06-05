@@ -3,100 +3,190 @@
 @{
     ViewData["Title"] = "Finance Document Details";
     var statusClass = Model.FinanceDocument.Status.ToString().ToLowerInvariant();
+    var lineCount = Model.FinanceDocument.Lines.Count;
+    var balanceTone = Model.FinanceDocument.Balance > 0 ? "warning" : Model.FinanceDocument.Balance < 0 ? "danger" : "positive";
 }
 
-<div class="vpms-page-header page-header">
-    <div>
-        <div class="page-kicker">Finance Document</div>
-        <h1 class="vpms-page-title page-title">@Model.FinanceDocument.DocumentNumber</h1>
-        <p class="vpms-page-subtitle page-subtitle">@Model.FinanceDocument.DocumentType | @Model.FinanceDocument.BillingName</p>
-    </div>
-    <div class="vpms-actions d-flex flex-wrap gap-2">
-        <span class="vpms-status-badge status-@statusClass">@Model.FinanceDocument.Status</span>
-        <a asp-page="Index" class="btn btn-outline-secondary">Back</a>
-    </div>
-</div>
+<div class="vpms-dialog-control-page vpms-finance-document-control">
+    <section class="vpms-ops-hero vpms-document-control-hero">
+        <div>
+            <div class="page-kicker">Finance Document Control</div>
+            <h1 class="page-title">@Model.FinanceDocument.DocumentNumber</h1>
+            <p class="page-subtitle">@Model.FinanceDocument.DocumentType | @Model.FinanceDocument.BillingName</p>
+            <div class="vpms-hero-chip-row">
+                <span class="vpms-status-badge status-@statusClass">@Model.FinanceDocument.Status</span>
+                <span class="vpms-mini-chip">@lineCount line@(lineCount == 1 ? "" : "s")</span>
+                <span class="vpms-mini-chip">Due @(Model.FinanceDocument.DueDate?.ToString("MMM d, yyyy") ?? "not set")</span>
+            </div>
+        </div>
+        <div class="vpms-hero-actions">
+            @if (Model.FinanceDocument.Status == Vantage.PMS.Models.Finance.FinanceDocumentStatus.Draft)
+            {
+                <a asp-page="./Details" asp-page-handler="IssueNative" asp-route-id="@Model.FinanceDocument.Id" class="btn vpms-btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Issue Finance Document">Issue Document</a>
+            }
+            @if (Model.FinanceDocument.Status is Vantage.PMS.Models.Finance.FinanceDocumentStatus.Issued or Vantage.PMS.Models.Finance.FinanceDocumentStatus.PartiallyPaid)
+            {
+                <a asp-page="./Details" asp-page-handler="RecordPaymentNative" asp-route-id="@Model.FinanceDocument.Id" class="btn vpms-btn-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Record Document Payment">Record Payment</a>
+                <a asp-page="./Details" asp-page-handler="ConvertToARNative" asp-route-id="@Model.FinanceDocument.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Convert to AR Invoice">Convert to AR</a>
+            }
+            @if (Model.FinanceDocument.Status is Vantage.PMS.Models.Finance.FinanceDocumentStatus.Draft or Vantage.PMS.Models.Finance.FinanceDocumentStatus.Issued)
+            {
+                <a asp-page="./Details" asp-page-handler="VoidNative" asp-route-id="@Model.FinanceDocument.Id" class="btn btn-outline-danger" data-vpms-native-dialog data-vpms-native-dialog-title="Void Finance Document">Void</a>
+            }
+            <a asp-page="Index" class="btn btn-outline-secondary">Back</a>
+        </div>
+    </section>
 
-@if (TempData["ErrorMessage"] is string error)
-{
-    <div class="alert alert-danger">@error</div>
-}
-
-<div class="alert alert-info">Document templates are configurable and must be validated for local compliance before official use.</div>
-
-<div class="vpms-detail-grid mb-4">
-    <div class="vpms-stat-card border rounded p-3"><div class="text-muted">Type</div><strong>@Model.FinanceDocument.DocumentType</strong></div>
-    <div class="vpms-stat-card border rounded p-3"><div class="text-muted">Status</div><span class="vpms-status-badge status-@statusClass">@Model.FinanceDocument.Status</span></div>
-    <div class="vpms-stat-card border rounded p-3"><div class="text-muted">Billing Name</div><strong>@Model.FinanceDocument.BillingName</strong></div>
-    <div class="vpms-stat-card border rounded p-3"><div class="text-muted">Balance</div><strong>@Model.FinanceDocument.Balance.ToString("C")</strong></div>
-</div>
-
-<div class="vpms-actions d-flex flex-wrap gap-2 mb-3">
-    @if (Model.FinanceDocument.Status == Vantage.PMS.Models.Finance.FinanceDocumentStatus.Draft)
+    @if (TempData["ErrorMessage"] is string error)
     {
-        <a asp-page="./Details" asp-page-handler="IssueNative" asp-route-id="@Model.FinanceDocument.Id" class="btn btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Issue Finance Document">Issue Document</a>
+        <div class="alert alert-danger vpms-alert">@error</div>
     }
-    @if (Model.FinanceDocument.Status is Vantage.PMS.Models.Finance.FinanceDocumentStatus.Issued or Vantage.PMS.Models.Finance.FinanceDocumentStatus.PartiallyPaid)
-    {
-        <a asp-page="./Details" asp-page-handler="RecordPaymentNative" asp-route-id="@Model.FinanceDocument.Id" class="btn btn-outline-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Record Document Payment">Record Payment</a>
-        <a asp-page="./Details" asp-page-handler="ConvertToARNative" asp-route-id="@Model.FinanceDocument.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Convert to AR Invoice">Convert to AR Invoice</a>
-    }
-    @if (Model.FinanceDocument.Status is Vantage.PMS.Models.Finance.FinanceDocumentStatus.Draft or Vantage.PMS.Models.Finance.FinanceDocumentStatus.Issued)
-    {
-        <a asp-page="./Details" asp-page-handler="VoidNative" asp-route-id="@Model.FinanceDocument.Id" class="btn btn-outline-danger" data-vpms-native-dialog data-vpms-native-dialog-title="Void Finance Document">Void</a>
-    }
-</div>
 
-<h2 class="h5">Lines</h2>
-<div class="vpms-table-wrapper table-responsive">
-<table class="table vpms-table table-striped align-middle">
-    <thead><tr><th>Charge Code</th><th>Description</th><th class="text-end">Qty</th><th class="text-end">Unit</th><th class="text-end">Tax</th><th class="text-end">Service</th><th class="text-end">Discount</th><th class="text-end">Total</th><th></th></tr></thead>
-    <tbody>
-        @foreach (var line in Model.FinanceDocument.Lines)
+    <section class="vpms-control-strip vpms-document-strip" aria-label="Finance document pulse">
+        <article>
+            <span>Document Type</span>
+            <strong>@Model.FinanceDocument.DocumentType</strong>
+            <small>@Model.FinanceDocument.DocumentDate.ToString("MMM d, yyyy")</small>
+        </article>
+        <article>
+            <span>Billing Name</span>
+            <strong>@Model.FinanceDocument.BillingName</strong>
+            <small>TIN @(string.IsNullOrWhiteSpace(Model.FinanceDocument.BillingTIN) ? "not provided" : Model.FinanceDocument.BillingTIN)</small>
+        </article>
+        <article class="@balanceTone">
+            <span>Balance</span>
+            <strong>@Model.FinanceDocument.Balance.ToString("C")</strong>
+            <small>@Model.FinanceDocument.Status</small>
+        </article>
+        <article class="positive">
+            <span>Total</span>
+            <strong>@Model.FinanceDocument.TotalAmount.ToString("C")</strong>
+            <small>including tax and service</small>
+        </article>
+    </section>
+
+    <section class="vpms-control-brief vpms-document-brief">
+        <article>
+            <span>Compliance Note</span>
+            <strong>Document templates are configurable and must be validated for local compliance before official use.</strong>
+        </article>
+        <article class="@(Model.CanEditLines ? "warning" : "positive")">
+            <span>Line Control</span>
+            <strong>@(Model.CanEditLines ? "Draft lines editable" : "Document locked")</strong>
+        </article>
+    </section>
+
+    <section class="vpms-card vpms-operational-panel">
+        <div class="vpms-section-titlebar">
+            <div>
+                <h2>Document Lines</h2>
+                <p>Charge code, quantity, tax, service charge, discount, and line total.</p>
+            </div>
+        </div>
+
+        @if (lineCount == 0)
         {
-            <tr>
-                <td>@line.ChargeCode?.Code</td>
-                <td>@line.Description</td>
-                <td class="text-end">@line.Quantity.ToString("N2")</td>
-                <td class="text-end">@line.UnitPrice.ToString("C")</td>
-                <td class="text-end">@line.TaxAmount.ToString("C")</td>
-                <td class="text-end">@line.ServiceCharge.ToString("C")</td>
-                <td class="text-end">@line.DiscountAmount.ToString("C")</td>
-                <td class="text-end">@line.LineTotal.ToString("C")</td>
-                <td class="text-end">
-                    @if (Model.CanEditLines)
-                    {
-                        <form method="post" asp-page-handler="DeleteLine" asp-route-lineId="@line.Id">
-                            <button class="btn btn-sm btn-outline-danger">Remove</button>
-                        </form>
-                    }
-                </td>
-            </tr>
+            <div class="vpms-empty-state">
+                <strong>No document lines yet.</strong>
+                <span>Add a line before issuing this document.</span>
+            </div>
         }
-    </tbody>
-    <tfoot>
-        <tr><th colspan="7" class="text-end">Subtotal</th><th class="text-end">@Model.FinanceDocument.SubTotal.ToString("C")</th><th></th></tr>
-        <tr><th colspan="7" class="text-end">Tax</th><th class="text-end">@Model.FinanceDocument.TaxAmount.ToString("C")</th><th></th></tr>
-        <tr><th colspan="7" class="text-end">Service Charge</th><th class="text-end">@Model.FinanceDocument.ServiceCharge.ToString("C")</th><th></th></tr>
-        <tr><th colspan="7" class="text-end">Discount</th><th class="text-end">@Model.FinanceDocument.DiscountAmount.ToString("C")</th><th></th></tr>
-        <tr><th colspan="7" class="text-end">Total</th><th class="text-end">@Model.FinanceDocument.TotalAmount.ToString("C")</th><th></th></tr>
-    </tfoot>
-</table>
-</div>
+        else
+        {
+            <div class="vpms-table-wrapper table-responsive">
+                <table class="table vpms-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Charge Code</th>
+                            <th>Description</th>
+                            <th class="text-end">Qty</th>
+                            <th class="text-end">Unit</th>
+                            <th class="text-end">Tax</th>
+                            <th class="text-end">Service</th>
+                            <th class="text-end">Discount</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-end"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in Model.FinanceDocument.Lines)
+                        {
+                            <tr>
+                                <td><span class="vpms-mini-chip">@(line.ChargeCode?.Code ?? "-")</span></td>
+                                <td>@line.Description</td>
+                                <td class="text-end">@line.Quantity.ToString("N2")</td>
+                                <td class="text-end">@line.UnitPrice.ToString("C")</td>
+                                <td class="text-end">@line.TaxAmount.ToString("C")</td>
+                                <td class="text-end">@line.ServiceCharge.ToString("C")</td>
+                                <td class="text-end">@line.DiscountAmount.ToString("C")</td>
+                                <td class="text-end vpms-money">@line.LineTotal.ToString("C")</td>
+                                <td class="text-end">
+                                    @if (Model.CanEditLines)
+                                    {
+                                        <form method="post" asp-page-handler="DeleteLine" asp-route-lineId="@line.Id">
+                                            <button class="btn btn-sm btn-outline-danger">Remove</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr><th colspan="7" class="text-end">Subtotal</th><th class="text-end">@Model.FinanceDocument.SubTotal.ToString("C")</th><th></th></tr>
+                        <tr><th colspan="7" class="text-end">Tax</th><th class="text-end">@Model.FinanceDocument.TaxAmount.ToString("C")</th><th></th></tr>
+                        <tr><th colspan="7" class="text-end">Service Charge</th><th class="text-end">@Model.FinanceDocument.ServiceCharge.ToString("C")</th><th></th></tr>
+                        <tr><th colspan="7" class="text-end">Discount</th><th class="text-end">@Model.FinanceDocument.DiscountAmount.ToString("C")</th><th></th></tr>
+                        <tr><th colspan="7" class="text-end">Total</th><th class="text-end">@Model.FinanceDocument.TotalAmount.ToString("C")</th><th></th></tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+    </section>
 
-@if (Model.CanEditLines)
-{
-    <h2 class="h5 mt-4">Add Line</h2>
-    <form method="post" asp-page-handler="AddLine" class="vpms-form-card row g-3">
-        <div class="col-md-3"><label asp-for="NewLine.ChargeCodeId" class="form-label">Charge Code</label><select asp-for="NewLine.ChargeCodeId" asp-items="Model.ChargeCodeOptions" class="form-select"><option value="">None</option></select></div>
-        <div class="col-md-5"><label asp-for="NewLine.Description" class="form-label"></label><input asp-for="NewLine.Description" class="form-control" /></div>
-        <div class="col-md-2"><label asp-for="NewLine.Quantity" class="form-label"></label><input asp-for="NewLine.Quantity" class="form-control" /></div>
-        <div class="col-md-2"><label asp-for="NewLine.UnitPrice" class="form-label"></label><input asp-for="NewLine.UnitPrice" class="form-control" /></div>
-        <div class="col-md-2"><label asp-for="NewLine.TaxAmount" class="form-label"></label><input asp-for="NewLine.TaxAmount" class="form-control" /></div>
-        <div class="col-md-2"><label asp-for="NewLine.ServiceCharge" class="form-label"></label><input asp-for="NewLine.ServiceCharge" class="form-control" /></div>
-        <div class="col-md-2"><label asp-for="NewLine.DiscountAmount" class="form-label"></label><input asp-for="NewLine.DiscountAmount" class="form-control" /></div>
-        <div class="col-md-2 align-self-end"><button class="btn btn-primary">Add Line</button></div>
-    </form>
-}
+    @if (Model.CanEditLines)
+    {
+        <section class="vpms-card vpms-operational-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Add Line</h2>
+                    <p>Add document details while the document remains in draft control.</p>
+                </div>
+            </div>
+            <form method="post" asp-page-handler="AddLine" class="vpms-inline-command-form">
+                <div>
+                    <label asp-for="NewLine.ChargeCodeId" class="form-label">Charge Code</label>
+                    <select asp-for="NewLine.ChargeCodeId" asp-items="Model.ChargeCodeOptions" class="form-select"><option value="">None</option></select>
+                </div>
+                <div class="wide">
+                    <label asp-for="NewLine.Description" class="form-label"></label>
+                    <input asp-for="NewLine.Description" class="form-control" />
+                </div>
+                <div>
+                    <label asp-for="NewLine.Quantity" class="form-label"></label>
+                    <input asp-for="NewLine.Quantity" class="form-control" />
+                </div>
+                <div>
+                    <label asp-for="NewLine.UnitPrice" class="form-label"></label>
+                    <input asp-for="NewLine.UnitPrice" class="form-control" />
+                </div>
+                <div>
+                    <label asp-for="NewLine.TaxAmount" class="form-label"></label>
+                    <input asp-for="NewLine.TaxAmount" class="form-control" />
+                </div>
+                <div>
+                    <label asp-for="NewLine.ServiceCharge" class="form-label"></label>
+                    <input asp-for="NewLine.ServiceCharge" class="form-control" />
+                </div>
+                <div>
+                    <label asp-for="NewLine.DiscountAmount" class="form-label"></label>
+                    <input asp-for="NewLine.DiscountAmount" class="form-control" />
+                </div>
+                <div class="submit">
+                    <button class="btn vpms-btn-primary">Add Line</button>
+                </div>
+            </form>
+        </section>
+    }
+</div>
 
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

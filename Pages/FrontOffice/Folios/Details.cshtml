@@ -10,6 +10,7 @@
     var settlementLabel = Model.Folio.Balance == 0 ? "Settlement clear" : Model.Folio.Balance > 0 ? "Collect before checkout" : "Review credit balance";
 }
 
+<div class="vpms-dialog-control-page vpms-folio-detail-control">
 <section class="vpms-ops-hero vpms-folio-hero">
     <div>
         <div class="page-kicker">Guest Ledger Control</div>
@@ -223,4 +224,6 @@
        asp-route-id="@Model.Folio.ReservationId"
        data-vpms-dialog
        data-vpms-dialog-title="Reservation Control">Back to Reservation</a>
+</div>
+
 </div>

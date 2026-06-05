@@ -17,27 +17,27 @@
             </div>
             <div class="row g-3">
                 <div class="col-md-3">
-                    <label asp-for="FinanceDocument.DocumentNumber" class="form-label"></label>
+                    <label asp-for="FinanceDocument.DocumentNumber" class="form-label">Document Number</label>
                     <input asp-for="FinanceDocument.DocumentNumber" class="form-control" placeholder="Auto-generated" readonly />
                 </div>
                 <div class="col-md-3">
-                    <label asp-for="FinanceDocument.DocumentType" class="form-label"></label>
+                    <label asp-for="FinanceDocument.DocumentType" class="form-label">Document Type</label>
                     <select asp-for="FinanceDocument.DocumentType" asp-items="Html.GetEnumSelectList<FinanceDocumentType>()" class="form-select"></select>
                 </div>
                 <div class="col-md-3">
-                    <label asp-for="FinanceDocument.DocumentDate" class="form-label"></label>
+                    <label asp-for="FinanceDocument.DocumentDate" class="form-label">Document Date</label>
                     <input asp-for="FinanceDocument.DocumentDate" type="date" class="form-control" />
                 </div>
                 <div class="col-md-3">
-                    <label asp-for="FinanceDocument.DueDate" class="form-label"></label>
+                    <label asp-for="FinanceDocument.DueDate" class="form-label">Due Date</label>
                     <input asp-for="FinanceDocument.DueDate" type="date" class="form-control" />
                 </div>
                 <div class="col-md-4">
-                    <label asp-for="FinanceDocument.BillingName" class="form-label"></label>
+                    <label asp-for="FinanceDocument.BillingName" class="form-label">Billing Name</label>
                     <input asp-for="FinanceDocument.BillingName" class="form-control" />
                 </div>
                 <div class="col-md-4">
-                    <label asp-for="FinanceDocument.BillingTIN" class="form-label"></label>
+                    <label asp-for="FinanceDocument.BillingTIN" class="form-label">Billing TIN</label>
                     <input asp-for="FinanceDocument.BillingTIN" class="form-control" />
                 </div>
                 <div class="col-md-4">
@@ -61,7 +61,7 @@
                     <select asp-for="FinanceDocument.BanquetEventId" asp-items="Model.BanquetEventOptions" class="form-select"><option value="">None</option></select>
                 </div>
                 <div class="col-12">
-                    <label asp-for="FinanceDocument.BillingAddress" class="form-label"></label>
+                    <label asp-for="FinanceDocument.BillingAddress" class="form-label">Billing Address</label>
                     <textarea asp-for="FinanceDocument.BillingAddress" class="form-control" rows="2"></textarea>
                 </div>
             </div>

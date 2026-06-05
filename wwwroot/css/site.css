@@ -11459,6 +11459,414 @@ html {
   display: grid;
 }
 
+/* Batch 8: dialog workflow polish for reservation, folio, POS, and finance controls. */
+.vpms-dialog-control-page {
+  display: grid;
+  gap: 0.78rem;
+  min-width: 0;
+}
+
+.vpms-workflow-dialog .modal-body {
+  min-height: min(700px, calc(100vh - 12rem));
+}
+
+.vpms-workflow-dialog iframe {
+  height: min(700px, calc(100vh - 12rem));
+  min-height: 520px;
+}
+
+.vpms-dialog-frame .vpms-dialog-frame-content {
+  min-height: auto;
+}
+
+.vpms-dialog-frame .vpms-dialog-control-page {
+  gap: 0.64rem;
+}
+
+.vpms-dialog-frame .vpms-page-header,
+.vpms-dialog-frame .vpms-ops-hero {
+  min-height: auto;
+  padding: 0.92rem 1rem;
+  margin-bottom: 0;
+  border-radius: 18px;
+}
+
+.vpms-dialog-frame .vpms-page-title,
+.vpms-dialog-frame .page-title,
+.vpms-dialog-frame .vpms-ops-hero h1 {
+  max-width: 100%;
+  font-size: clamp(1.18rem, 1.7vw, 1.62rem);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.vpms-dialog-frame .page-subtitle,
+.vpms-dialog-frame .vpms-page-subtitle {
+  max-width: 72ch;
+  font-size: 0.86rem;
+  line-height: 1.42;
+}
+
+.vpms-dialog-frame .vpms-hero-actions,
+.vpms-dialog-frame .vpms-actions {
+  gap: 0.45rem !important;
+}
+
+.vpms-dialog-frame .vpms-hero-actions .btn,
+.vpms-dialog-frame .vpms-actions .btn,
+.vpms-dialog-frame .vpms-hero-actions form .btn {
+  min-height: 38px;
+  padding: 0.52rem 0.76rem;
+  font-size: 0.82rem;
+}
+
+.vpms-dialog-frame .vpms-control-strip,
+.vpms-dialog-frame .vpms-control-brief {
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.vpms-dialog-frame .vpms-control-strip > article,
+.vpms-dialog-frame .vpms-control-brief > article {
+  min-width: 0;
+  min-height: auto;
+  padding: 0.72rem 0.78rem;
+  border-radius: 16px;
+}
+
+.vpms-dialog-frame .vpms-control-strip strong {
+  font-size: clamp(1rem, 1.25vw, 1.24rem);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.vpms-dialog-frame .vpms-control-strip span,
+.vpms-dialog-frame .vpms-control-strip small,
+.vpms-dialog-frame .vpms-control-brief span,
+.vpms-dialog-frame .vpms-control-brief strong {
+  overflow-wrap: anywhere;
+}
+
+.vpms-dialog-frame .vpms-reservation-action-drawer {
+  grid-template-columns: minmax(190px, 0.75fr) minmax(0, 1.45fr);
+  gap: 0.75rem;
+  padding: 0.78rem;
+  border-radius: 18px;
+}
+
+.vpms-dialog-frame .vpms-reservation-action-grid {
+  grid-template-columns: repeat(auto-fit, minmax(122px, 1fr));
+  gap: 0.48rem;
+}
+
+.vpms-dialog-frame .vpms-reservation-action-grid a {
+  min-height: 72px;
+  padding: 0.62rem 0.68rem;
+  border-radius: 14px;
+}
+
+.vpms-dialog-frame .vpms-two-column,
+.vpms-dialog-frame .vpms-pos-control-layout {
+  gap: 0.65rem;
+  margin: 0;
+}
+
+.vpms-dialog-frame .vpms-card,
+.vpms-dialog-frame .vpms-operational-panel {
+  min-width: 0;
+  padding: 0.86rem;
+  border-radius: 18px;
+}
+
+.vpms-dialog-frame .vpms-section-titlebar {
+  gap: 0.55rem;
+  margin-bottom: 0.62rem;
+}
+
+.vpms-dialog-frame .vpms-section-titlebar h2 {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.vpms-dialog-frame .vpms-section-titlebar p {
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.vpms-dialog-frame .vpms-definition-list,
+.vpms-dialog-frame .vpms-status-timeline {
+  gap: 0.46rem;
+}
+
+.vpms-dialog-frame .vpms-table-wrapper {
+  max-height: min(360px, 46vh);
+  overflow: auto;
+  border-radius: 16px;
+}
+
+.vpms-dialog-frame .vpms-table th,
+.vpms-dialog-frame .vpms-table td {
+  padding: 0.56rem 0.62rem;
+  font-size: 0.82rem;
+  vertical-align: middle;
+}
+
+.vpms-dialog-frame .vpms-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f8fafc;
+}
+
+.vpms-line-title {
+  color: #0f172a;
+  font-weight: 820;
+  line-height: 1.25;
+}
+
+.vpms-line-note {
+  margin-top: 0.28rem;
+  color: #64748b;
+  font-size: 0.76rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.vpms-kitchen-trace {
+  display: grid;
+  gap: 0.14rem;
+  margin-top: 0.28rem;
+}
+
+.vpms-kitchen-trace span {
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 760;
+}
+
+.vpms-kitchen-trace small {
+  color: #64748b;
+  font-size: 0.72rem;
+}
+
+.vpms-pos-control-layout {
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.45fr);
+  align-items: start;
+}
+
+.vpms-pos-settlement-panel,
+.vpms-finance-document-control .vpms-document-strip > article {
+  position: relative;
+}
+
+.vpms-total-stack {
+  display: grid;
+  gap: 0.48rem;
+  margin-bottom: 0.75rem;
+}
+
+.vpms-total-stack > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.62rem 0;
+  border-bottom: 1px solid rgba(221, 229, 238, 0.8);
+}
+
+.vpms-total-stack span {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 760;
+}
+
+.vpms-total-stack strong {
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 820;
+}
+
+.vpms-total-stack .total {
+  margin-top: 0.25rem;
+  padding: 0.72rem 0.8rem;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(6, 182, 212, 0.05));
+  border: 1px solid rgba(153, 246, 228, 0.78);
+  border-radius: 14px;
+}
+
+.vpms-total-stack .total strong {
+  color: #0f766e;
+  font-size: 1.16rem;
+}
+
+.vpms-inline-command-form {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(260px, 1.6fr) repeat(5, minmax(104px, 0.72fr)) minmax(116px, auto);
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.vpms-inline-command-form > div {
+  min-width: 0;
+}
+
+.vpms-inline-command-form .wide {
+  min-width: 220px;
+}
+
+.vpms-inline-command-form .submit .btn {
+  width: 100%;
+}
+
+.vpms-native-workflow-card .vpms-native-workflow-form {
+  margin-top: 0 !important;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.vpms-native-workflow-card .vpms-form-section,
+.vpms-native-workflow-content .vpms-native-workflow-form > .vpms-form-section {
+  background: #ffffff;
+  border: 1px solid rgba(221, 229, 238, 0.92);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.045);
+}
+
+.vpms-native-workflow-content .vpms-native-ledger-form,
+.vpms-native-workflow-content .vpms-native-pos-form,
+.vpms-native-workflow-content .vpms-native-reservation-form {
+  gap: 0.72rem;
+}
+
+.vpms-native-workflow-content .row.g-3 {
+  --bs-gutter-x: 0.68rem;
+  --bs-gutter-y: 0.68rem;
+}
+
+.vpms-native-workflow-content .form-label {
+  margin-bottom: 0.28rem;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 760;
+}
+
+.vpms-native-workflow-content .form-control,
+.vpms-native-workflow-content .form-select {
+  min-height: 42px;
+  border-radius: 13px;
+  font-size: 0.9rem;
+}
+
+.vpms-native-workflow-actions,
+.vpms-native-action-row {
+  align-items: center;
+}
+
+.vpms-native-workflow-actions .btn,
+.vpms-native-action-row .btn {
+  min-height: 40px;
+}
+
+@media (max-width: 991.98px) {
+  .vpms-dialog-frame .vpms-reservation-action-drawer,
+  .vpms-pos-control-layout,
+  .vpms-inline-command-form {
+    grid-template-columns: 1fr;
+  }
+
+  .vpms-inline-command-form .wide {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .vpms-workflow-dialog .modal-dialog,
+  .vpms-native-workflow-dialog .modal-dialog {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    margin: 0;
+    align-items: flex-end;
+  }
+
+  .vpms-workflow-dialog .modal-content,
+  .vpms-native-workflow-dialog .modal-content {
+    height: 94vh;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .vpms-workflow-dialog .modal-body,
+  .vpms-native-workflow-dialog .modal-body {
+    max-height: calc(94vh - 4rem);
+  }
+
+  .vpms-workflow-dialog iframe {
+    height: calc(94vh - 4rem);
+    min-height: 0;
+  }
+
+  .vpms-dialog-frame-content,
+  .vpms-native-workflow-content {
+    padding: 0.75rem;
+  }
+
+  .vpms-dialog-frame .vpms-page-header,
+  .vpms-dialog-frame .vpms-ops-hero,
+  .vpms-native-modal-intro {
+    align-items: flex-start;
+    padding: 0.82rem;
+  }
+
+  .vpms-dialog-frame .vpms-hero-actions,
+  .vpms-dialog-frame .vpms-actions {
+    width: 100%;
+  }
+
+  .vpms-dialog-frame .vpms-hero-actions .btn,
+  .vpms-dialog-frame .vpms-hero-actions form,
+  .vpms-dialog-frame .vpms-hero-actions form .btn,
+  .vpms-dialog-frame .vpms-actions .btn {
+    flex: 1 1 140px;
+  }
+
+  .vpms-dialog-frame .vpms-control-strip,
+  .vpms-dialog-frame .vpms-control-brief {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vpms-dialog-frame .vpms-card,
+  .vpms-dialog-frame .vpms-operational-panel {
+    padding: 0.76rem;
+  }
+
+  .vpms-native-action-row {
+    justify-content: stretch;
+  }
+
+  .vpms-native-action-row .btn {
+    flex: 1 1 140px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .vpms-dialog-frame .vpms-control-strip,
+  .vpms-dialog-frame .vpms-control-brief,
+  .vpms-native-step-grid,
+  .vpms-native-step-grid.compact {
+    grid-template-columns: 1fr;
+  }
+
+  .vpms-native-modal-intro {
+    display: grid;
+  }
+
+  .vpms-native-balance-pill {
+    width: 100%;
+    text-align: left;
+  }
+}
+
 /* Trial-ready setup and modal-first workflow polish. */
 .vpms-admin-setup-command {
   display: grid;
