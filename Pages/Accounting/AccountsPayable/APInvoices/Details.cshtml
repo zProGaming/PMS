@@ -3,103 +3,240 @@
 @using Vantage.PMS.Models.Accounting
 @{
     ViewData["Title"] = "AP Invoice Details";
+    var statusClass = Model.Invoice.Status.ToString().ToLowerInvariant();
+    var supplierName = Model.Invoice.Supplier?.SupplierName ?? "Supplier not set";
+    var sourceDocument = Model.Invoice.ReceivingRecord?.ReceivingNumber ?? Model.Invoice.PurchaseOrder?.PONumber ?? "Manual entry";
+    var lineCount = Model.Invoice.Lines.Count;
+    var voucherCount = Model.Invoice.PaymentVouchers.Count;
+    var isOverdue = Model.Invoice.DueDate.Date < DateTime.Today && Model.Invoice.Balance > 0 && Model.Invoice.Status is not APInvoiceStatus.Paid;
+    var balanceTone = Model.Invoice.Balance <= 0 ? "positive" : isOverdue ? "danger" : "warning";
+    var dueLabel = Model.Invoice.Status == APInvoiceStatus.Paid ? "Fully settled" : isOverdue ? "Overdue supplier payable" : "Within payment control";
 }
 
-<div class="page-header">
-    <div>
-        <div class="page-kicker">Accounts Payable</div>
-        <h1 class="page-title">@Model.Invoice.InvoiceNumber</h1>
-        <p class="page-subtitle">@Model.Invoice.Supplier?.SupplierName · Due @Model.Invoice.DueDate.ToString("yyyy-MM-dd")</p>
-    </div>
-    <div class="page-actions">
-        @if (Model.Invoice.Status == APInvoiceStatus.Draft)
-        {
-            <a class="btn vpms-btn-secondary" asp-page="./Details" asp-page-handler="MarkForApprovalNative" asp-route-id="@Model.Invoice.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Mark AP Invoice For Approval">Mark For Approval</a>
-        }
-        @if (Model.Invoice.Status is APInvoiceStatus.Draft or APInvoiceStatus.ForApproval)
-        {
-            <a class="btn vpms-btn-primary" asp-page="./Details" asp-page-handler="ApproveNative" asp-route-id="@Model.Invoice.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Approve AP Invoice">Approve &amp; Post</a>
-            <a class="btn vpms-btn-danger" asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.Invoice.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel AP Invoice">Cancel</a>
-        }
-        @if (Model.Invoice.Status is APInvoiceStatus.Approved or APInvoiceStatus.PartiallyPaid)
-        {
-            <a class="btn vpms-btn-primary"
-               asp-page="/Accounting/AccountsPayable/PaymentVouchers/Create"
-               asp-route-apInvoiceId="@Model.Invoice.Id"
-               data-vpms-native-dialog
-               data-vpms-native-handler="Native"
-               data-vpms-native-dialog-title="Create Payment Voucher">Create Voucher</a>
-        }
-    </div>
-</div>
-
-@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
-{
-    <div class="alert alert-info vpms-alert">@Model.StatusMessage</div>
-}
-
-<div class="row g-3 mb-4">
-    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Status</span><strong class="kpi-value">@Model.Invoice.Status</strong><span class="kpi-meta">AP workflow</span></div></div>
-    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Total</span><strong class="kpi-value">@Model.Invoice.TotalAmount.ToString("C")</strong><span class="kpi-meta">Gross invoice</span></div></div>
-    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Paid</span><strong class="kpi-value">@Model.Invoice.AmountPaid.ToString("C")</strong><span class="kpi-meta">Voucher releases</span></div></div>
-    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Balance</span><strong class="kpi-value">@Model.Invoice.Balance.ToString("C")</strong><span class="kpi-meta">Outstanding AP</span></div></div>
-</div>
-
-<section class="vpms-card mb-4">
-    <h2 class="h6">Supplier Reference</h2>
-    <div class="row g-3">
-        <div class="col-md-4"><span class="text-muted small d-block">Internal AP number</span><strong>@Model.Invoice.InvoiceNumber</strong></div>
-        <div class="col-md-4"><span class="text-muted small d-block">Supplier invoice/reference</span><strong>@(!string.IsNullOrWhiteSpace(Model.Invoice.SupplierInvoiceNumber) ? Model.Invoice.SupplierInvoiceNumber : "Not set")</strong></div>
-        <div class="col-md-4"><span class="text-muted small d-block">Source document</span><strong>@(Model.Invoice.ReceivingRecord?.ReceivingNumber ?? Model.Invoice.PurchaseOrder?.PONumber ?? "Manual")</strong></div>
-    </div>
-</section>
-
-<section class="vpms-card mb-4">
-    <h2 class="h6">Invoice Lines</h2>
-    <div class="table-responsive">
-        <table class="table vpms-table align-middle">
-            <thead><tr><th>Description</th><th>GL Account</th><th>Inventory Item</th><th class="text-end">Qty</th><th class="text-end">Unit Cost</th><th class="text-end">Tax</th><th class="text-end">WHT</th><th class="text-end">Line Total</th></tr></thead>
-            <tbody>
-            @foreach (var line in Model.Invoice.Lines)
+<div class="vpms-dialog-control-page vpms-ap-invoice-control">
+    <section class="vpms-ops-hero vpms-ap-control-hero">
+        <div>
+            <div class="page-kicker">Supplier Payables Control</div>
+            <h1 class="page-title">@Model.Invoice.InvoiceNumber</h1>
+            <p class="page-subtitle">@supplierName | Due @Model.Invoice.DueDate.ToString("MMM d, yyyy") | @sourceDocument</p>
+            <div class="vpms-hero-chip-row">
+                <span class="vpms-status-badge status-@statusClass">@Model.Invoice.Status</span>
+                <span class="vpms-mini-chip">@lineCount line@(lineCount == 1 ? "" : "s")</span>
+                <span class="vpms-mini-chip">@voucherCount voucher@(voucherCount == 1 ? "" : "s")</span>
+            </div>
+        </div>
+        <div class="vpms-hero-actions">
+            @if (Model.Invoice.Status == APInvoiceStatus.Draft)
             {
-                <tr>
-                    <td>@line.Description</td>
-                    <td>@line.GLAccount?.AccountCode @line.GLAccount?.AccountName</td>
-                    <td>@line.InventoryItem?.ItemName</td>
-                    <td class="text-end">@line.Quantity</td>
-                    <td class="text-end">@line.UnitCost.ToString("C")</td>
-                    <td class="text-end">@line.TaxAmount.ToString("C")</td>
-                    <td class="text-end">@line.WithholdingTaxAmount.ToString("C")</td>
-                    <td class="text-end">@line.LineTotal.ToString("C")</td>
-                </tr>
+                <a class="btn vpms-btn-secondary" asp-page="./Details" asp-page-handler="MarkForApprovalNative" asp-route-id="@Model.Invoice.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Mark AP Invoice For Approval">Mark For Approval</a>
             }
-            </tbody>
-        </table>
-    </div>
-</section>
-
-<section class="vpms-card">
-    <h2 class="h6">Payment Vouchers</h2>
-    <div class="table-responsive">
-        <table class="table vpms-table align-middle">
-            <thead><tr><th>Voucher</th><th>Date</th><th>Status</th><th class="text-end">Amount</th><th class="text-end">Net</th></tr></thead>
-            <tbody>
-            @foreach (var voucher in Model.Invoice.PaymentVouchers.OrderByDescending(voucher => voucher.VoucherDate))
+            @if (Model.Invoice.Status is APInvoiceStatus.Draft or APInvoiceStatus.ForApproval)
             {
-                <tr>
-                    <td>
-                        <a asp-page="/Accounting/AccountsPayable/PaymentVouchers/Details"
-                           asp-route-id="@voucher.Id"
-                           data-vpms-dialog
-                           data-vpms-dialog-title="Payment Voucher Control">@voucher.VoucherNumber</a>
-                    </td>
-                    <td>@voucher.VoucherDate.ToString("yyyy-MM-dd")</td>
-                    <td><span class="status-badge">@voucher.Status</span></td>
-                    <td class="text-end">@voucher.Amount.ToString("C")</td>
-                    <td class="text-end">@voucher.NetPaymentAmount.ToString("C")</td>
-                </tr>
+                <a class="btn vpms-btn-primary" asp-page="./Details" asp-page-handler="ApproveNative" asp-route-id="@Model.Invoice.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Approve AP Invoice">Approve &amp; Post</a>
+                <a class="btn vpms-btn-danger" asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.Invoice.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel AP Invoice">Cancel</a>
             }
-            </tbody>
-        </table>
+            @if (Model.Invoice.Status is APInvoiceStatus.Approved or APInvoiceStatus.PartiallyPaid)
+            {
+                <a class="btn vpms-btn-primary"
+                   asp-page="/Accounting/AccountsPayable/PaymentVouchers/Create"
+                   asp-route-apInvoiceId="@Model.Invoice.Id"
+                   data-vpms-native-dialog
+                   data-vpms-native-handler="Native"
+                   data-vpms-native-dialog-title="Create Payment Voucher">Create Voucher</a>
+            }
+        </div>
+    </section>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="alert alert-info vpms-alert">@Model.StatusMessage</div>
+    }
+
+    <section class="vpms-control-strip vpms-finance-strip">
+        <article>
+            <span>Invoice Total</span>
+            <strong>@Model.Invoice.TotalAmount.ToString("C")</strong>
+            <small>Gross supplier payable</small>
+        </article>
+        <article class="positive">
+            <span>Amount Paid</span>
+            <strong>@Model.Invoice.AmountPaid.ToString("C")</strong>
+            <small>Released through vouchers</small>
+        </article>
+        <article class="@balanceTone">
+            <span>Open Balance</span>
+            <strong>@Model.Invoice.Balance.ToString("C")</strong>
+            <small>@dueLabel</small>
+        </article>
+        <article>
+            <span>Tax and WHT</span>
+            <strong>@((Model.Invoice.TaxAmount - Model.Invoice.WithholdingTaxAmount).ToString("C"))</strong>
+            <small>Net tax movement</small>
+        </article>
+    </section>
+
+    <section class="vpms-control-brief vpms-ap-control-brief">
+        <article class="@balanceTone">
+            <span>Payment Posture</span>
+            <strong>@dueLabel</strong>
+        </article>
+        <article>
+            <span>Supplier Reference</span>
+            <strong>@(!string.IsNullOrWhiteSpace(Model.Invoice.SupplierInvoiceNumber) ? Model.Invoice.SupplierInvoiceNumber : "Not recorded")</strong>
+        </article>
+        <article>
+            <span>Posting Trace</span>
+            <strong>@(Model.Invoice.JournalEntryId is null ? "Not posted to GL" : $"Journal #{Model.Invoice.JournalEntryId}")</strong>
+        </article>
+    </section>
+
+    <div class="vpms-two-column vpms-ap-control-layout">
+        <section class="vpms-card vpms-operational-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Supplier and Source</h2>
+                    <p>Invoice identity, source document, and approval context.</p>
+                </div>
+            </div>
+            <dl class="vpms-definition-list">
+                <dt>Supplier</dt>
+                <dd>@supplierName</dd>
+                <dt>Internal AP number</dt>
+                <dd>@Model.Invoice.InvoiceNumber</dd>
+                <dt>Supplier invoice/reference</dt>
+                <dd>@(!string.IsNullOrWhiteSpace(Model.Invoice.SupplierInvoiceNumber) ? Model.Invoice.SupplierInvoiceNumber : "Not set")</dd>
+                <dt>Source document</dt>
+                <dd>@sourceDocument</dd>
+            </dl>
+        </section>
+
+        <section class="vpms-card vpms-operational-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Approval Readiness</h2>
+                    <p>Finance controls before payable release.</p>
+                </div>
+            </div>
+            <dl class="vpms-definition-list">
+                <dt>Invoice date</dt>
+                <dd>@Model.Invoice.InvoiceDate.ToString("MMM d, yyyy")</dd>
+                <dt>Due date</dt>
+                <dd>@Model.Invoice.DueDate.ToString("MMM d, yyyy")</dd>
+                <dt>Prepared by</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.Invoice.CreatedBy) ? "System" : Model.Invoice.CreatedBy)</dd>
+                <dt>Approved by</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.Invoice.ApprovedBy) ? "Pending approval" : $"{Model.Invoice.ApprovedBy} on {Model.Invoice.ApprovedAt:MMM d, yyyy}")</dd>
+            </dl>
+        </section>
     </div>
-</section>
+
+    <section class="vpms-card vpms-operational-panel">
+        <div class="vpms-section-titlebar">
+            <div>
+                <h2>Invoice Lines</h2>
+                <p>Expense, inventory, tax, and withholding detail for GL review.</p>
+            </div>
+        </div>
+
+        @if (lineCount == 0)
+        {
+            <div class="vpms-empty-state">
+                <strong>No invoice lines recorded.</strong>
+                <span>Add invoice lines before approval so AP, tax, and expense posting can be reviewed.</span>
+            </div>
+        }
+        else
+        {
+            <div class="vpms-table-wrapper">
+                <table class="table vpms-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>GL Account</th>
+                            <th>Inventory Item</th>
+                            <th class="text-end">Qty</th>
+                            <th class="text-end">Unit Cost</th>
+                            <th class="text-end">Tax</th>
+                            <th class="text-end">WHT</th>
+                            <th class="text-end">Line Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in Model.Invoice.Lines)
+                        {
+                            <tr>
+                                <td>@line.Description</td>
+                                <td>@line.GLAccount?.AccountCode @line.GLAccount?.AccountName</td>
+                                <td>@(line.InventoryItem?.ItemName ?? "-")</td>
+                                <td class="text-end">@line.Quantity.ToString("N2")</td>
+                                <td class="text-end">@line.UnitCost.ToString("C")</td>
+                                <td class="text-end">@line.TaxAmount.ToString("C")</td>
+                                <td class="text-end">@line.WithholdingTaxAmount.ToString("C")</td>
+                                <td class="text-end vpms-money">@line.LineTotal.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="vpms-card vpms-operational-panel">
+        <div class="vpms-section-titlebar">
+            <div>
+                <h2>Payment Vouchers</h2>
+                <p>Voucher creation and treasury releases tied to this AP invoice.</p>
+            </div>
+            @if (Model.Invoice.Status is APInvoiceStatus.Approved or APInvoiceStatus.PartiallyPaid)
+            {
+                <a class="btn vpms-btn-secondary"
+                   asp-page="/Accounting/AccountsPayable/PaymentVouchers/Create"
+                   asp-route-apInvoiceId="@Model.Invoice.Id"
+                   data-vpms-native-dialog
+                   data-vpms-native-handler="Native"
+                   data-vpms-native-dialog-title="Create Payment Voucher">Create Voucher</a>
+            }
+        </div>
+
+        @if (voucherCount == 0)
+        {
+            <div class="vpms-empty-state">
+                <strong>No payment vouchers yet.</strong>
+                <span>Approved supplier invoices can be scheduled for payment from this control page.</span>
+            </div>
+        }
+        else
+        {
+            <div class="vpms-table-wrapper">
+                <table class="table vpms-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Voucher</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th class="text-end">Gross</th>
+                            <th class="text-end">Net Payment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var voucher in Model.Invoice.PaymentVouchers.OrderByDescending(voucher => voucher.VoucherDate))
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-page="/Accounting/AccountsPayable/PaymentVouchers/Details"
+                                       asp-route-id="@voucher.Id"
+                                       data-vpms-dialog
+                                       data-vpms-dialog-title="Payment Voucher Control">@voucher.VoucherNumber</a>
+                                </td>
+                                <td>@voucher.VoucherDate.ToString("MMM d, yyyy")</td>
+                                <td><span class="vpms-status-badge status-@voucher.Status.ToString().ToLowerInvariant()">@voucher.Status</span></td>
+                                <td class="text-end">@voucher.Amount.ToString("C")</td>
+                                <td class="text-end vpms-money">@voucher.NetPaymentAmount.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>

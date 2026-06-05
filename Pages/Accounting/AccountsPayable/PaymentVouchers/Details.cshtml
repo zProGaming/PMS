@@ -3,69 +3,206 @@
 @using Vantage.PMS.Models.Accounting
 @{
     ViewData["Title"] = "Payment Voucher Details";
+    var statusClass = Model.Voucher.Status.ToString().ToLowerInvariant();
+    var supplierName = Model.Voucher.Supplier?.SupplierName ?? "Supplier not set";
+    var disbursementCount = Model.Voucher.Disbursements.Count;
+    var voucherTone = Model.Voucher.Status == PaymentVoucherStatus.Released ? "positive" : Model.Voucher.Status == PaymentVoucherStatus.Approved ? "warning" : "neutral";
+    var releaseLabel = Model.Voucher.Status == PaymentVoucherStatus.Released ? "Released to treasury" : Model.Voucher.Status == PaymentVoucherStatus.Approved ? "Ready for release" : "Awaiting approval";
 }
 
-<div class="page-header">
-    <div><div class="page-kicker">Accounts Payable</div><h1 class="page-title">@Model.Voucher.VoucherNumber</h1><p class="page-subtitle">@Model.Voucher.Supplier?.SupplierName · @Model.Voucher.PaymentMethod</p></div>
-    <div class="page-actions">
-        @if (Model.Voucher.Status == PaymentVoucherStatus.Draft)
-        {
-            <a class="btn vpms-btn-secondary" asp-page="./Details" asp-page-handler="MarkForApprovalNative" asp-route-id="@Model.Voucher.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Mark Voucher For Approval">Mark For Approval</a>
-        }
-        @if (Model.Voucher.Status is PaymentVoucherStatus.Draft or PaymentVoucherStatus.ForApproval)
-        {
-            <a class="btn vpms-btn-primary" asp-page="./Details" asp-page-handler="ApproveNative" asp-route-id="@Model.Voucher.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Approve Payment Voucher">Approve</a>
-            <a class="btn vpms-btn-danger" asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.Voucher.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Payment Voucher">Cancel</a>
-        }
-    </div>
-</div>
-
-@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
-{
-    <div class="alert alert-info vpms-alert">@Model.StatusMessage</div>
-}
-
-<div class="row g-3 mb-4">
-    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Status</span><strong class="kpi-value">@Model.Voucher.Status</strong><span class="kpi-meta">Voucher workflow</span></div></div>
-    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Gross Amount</span><strong class="kpi-value">@Model.Voucher.Amount.ToString("C")</strong><span class="kpi-meta">AP debit</span></div></div>
-    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Withholding</span><strong class="kpi-value">@Model.Voucher.WithholdingTaxAmount.ToString("C")</strong><span class="kpi-meta">Tax payable</span></div></div>
-    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Net Payment</span><strong class="kpi-value">@Model.Voucher.NetPaymentAmount.ToString("C")</strong><span class="kpi-meta">Cash/bank release</span></div></div>
-</div>
-
-@if (Model.Voucher.Status == PaymentVoucherStatus.Approved)
-{
-    <section class="vpms-card mb-4">
-        <h2 class="h6">Release Payment</h2>
-        <p class="text-muted mb-3">Release the approved voucher through a controlled treasury dialog so the voucher summary remains visible.</p>
-        <div class="vpms-actions">
-            <a class="btn vpms-btn-primary"
-               asp-page="./Details"
-               asp-page-handler="ReleaseNative"
-               asp-route-id="@Model.Voucher.Id"
-               data-vpms-native-dialog
-               data-vpms-native-handler="ReleaseNative"
-               data-vpms-native-dialog-title="Release Payment Voucher">Release &amp; Post</a>
+<div class="vpms-dialog-control-page vpms-payment-voucher-control">
+    <section class="vpms-ops-hero vpms-ap-control-hero">
+        <div>
+            <div class="page-kicker">Treasury Voucher Control</div>
+            <h1 class="page-title">@Model.Voucher.VoucherNumber</h1>
+            <p class="page-subtitle">@supplierName | @Model.Voucher.PaymentMethod | @(Model.Voucher.APInvoice?.InvoiceNumber ?? "Standalone voucher")</p>
+            <div class="vpms-hero-chip-row">
+                <span class="vpms-status-badge status-@statusClass">@Model.Voucher.Status</span>
+                <span class="vpms-mini-chip">@disbursementCount disbursement@(disbursementCount == 1 ? "" : "s")</span>
+                <span class="vpms-mini-chip">@Model.Voucher.VoucherDate.ToString("MMM d, yyyy")</span>
+            </div>
+        </div>
+        <div class="vpms-hero-actions">
+            @if (Model.Voucher.Status == PaymentVoucherStatus.Draft)
+            {
+                <a class="btn vpms-btn-secondary" asp-page="./Details" asp-page-handler="MarkForApprovalNative" asp-route-id="@Model.Voucher.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Mark Voucher For Approval">Mark For Approval</a>
+            }
+            @if (Model.Voucher.Status is PaymentVoucherStatus.Draft or PaymentVoucherStatus.ForApproval)
+            {
+                <a class="btn vpms-btn-primary" asp-page="./Details" asp-page-handler="ApproveNative" asp-route-id="@Model.Voucher.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Approve Payment Voucher">Approve</a>
+                <a class="btn vpms-btn-danger" asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.Voucher.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Payment Voucher">Cancel</a>
+            }
+            @if (Model.Voucher.Status == PaymentVoucherStatus.Approved)
+            {
+                <a class="btn vpms-btn-primary"
+                   asp-page="./Details"
+                   asp-page-handler="ReleaseNative"
+                   asp-route-id="@Model.Voucher.Id"
+                   data-vpms-native-dialog
+                   data-vpms-native-handler="ReleaseNative"
+                   data-vpms-native-dialog-title="Release Payment Voucher">Release &amp; Post</a>
+            }
         </div>
     </section>
-}
 
-<section class="vpms-card">
-    <h2 class="h6">Disbursements</h2>
-    <div class="table-responsive">
-        <table class="table vpms-table align-middle">
-            <thead><tr><th>Disbursement</th><th>Date</th><th>Method</th><th>Status</th><th class="text-end">Amount</th></tr></thead>
-            <tbody>
-            @foreach (var disbursement in Model.Voucher.Disbursements.OrderByDescending(item => item.DisbursementDate))
-            {
-                <tr>
-                    <td>@disbursement.DisbursementNumber</td>
-                    <td>@disbursement.DisbursementDate.ToString("yyyy-MM-dd")</td>
-                    <td>@disbursement.PaymentMethod</td>
-                    <td><span class="status-badge">@disbursement.Status</span></td>
-                    <td class="text-end">@disbursement.Amount.ToString("C")</td>
-                </tr>
-            }
-            </tbody>
-        </table>
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="alert alert-info vpms-alert">@Model.StatusMessage</div>
+    }
+
+    <section class="vpms-control-strip vpms-finance-strip">
+        <article>
+            <span>Gross Amount</span>
+            <strong>@Model.Voucher.Amount.ToString("C")</strong>
+            <small>AP liability reduction</small>
+        </article>
+        <article class="warning">
+            <span>Withholding</span>
+            <strong>@Model.Voucher.WithholdingTaxAmount.ToString("C")</strong>
+            <small>Tax payable control</small>
+        </article>
+        <article class="positive">
+            <span>Net Payment</span>
+            <strong>@Model.Voucher.NetPaymentAmount.ToString("C")</strong>
+            <small>Cash or bank release</small>
+        </article>
+        <article class="@voucherTone">
+            <span>Release State</span>
+            <strong>@releaseLabel</strong>
+            <small>@Model.Voucher.PaymentMethod</small>
+        </article>
+    </section>
+
+    <section class="vpms-control-brief vpms-ap-control-brief">
+        <article class="@voucherTone">
+            <span>Treasury Posture</span>
+            <strong>@releaseLabel</strong>
+        </article>
+        <article>
+            <span>Bank Reference</span>
+            <strong>@(Model.Voucher.BankReferenceNumber ?? Model.Voucher.CheckNumber ?? "Not recorded")</strong>
+        </article>
+        <article>
+            <span>Posting Trace</span>
+            <strong>@(Model.Voucher.JournalEntryId is null ? "Not posted to GL" : $"Journal #{Model.Voucher.JournalEntryId}")</strong>
+        </article>
+    </section>
+
+    <div class="vpms-two-column vpms-ap-control-layout">
+        <section class="vpms-card vpms-operational-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Supplier and Invoice Link</h2>
+                    <p>Voucher context for approval, AP matching, and payment release.</p>
+                </div>
+            </div>
+            <dl class="vpms-definition-list">
+                <dt>Supplier</dt>
+                <dd>@supplierName</dd>
+                <dt>AP invoice</dt>
+                <dd>
+                    @if (Model.Voucher.APInvoiceId is not null)
+                    {
+                        <a asp-page="/Accounting/AccountsPayable/APInvoices/Details"
+                           asp-route-id="@Model.Voucher.APInvoiceId"
+                           data-vpms-dialog
+                           data-vpms-dialog-title="AP Invoice Control">@Model.Voucher.APInvoice?.InvoiceNumber</a>
+                    }
+                    else
+                    {
+                        <span>Standalone voucher</span>
+                    }
+                </dd>
+                <dt>Payment method</dt>
+                <dd>@Model.Voucher.PaymentMethod</dd>
+                <dt>Bank account</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.Voucher.BankAccountName) ? "Selected during release" : Model.Voucher.BankAccountName)</dd>
+            </dl>
+        </section>
+
+        <section class="vpms-card vpms-operational-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Approval and Release Trail</h2>
+                    <p>Finance sign-off and treasury release trace.</p>
+                </div>
+            </div>
+            <dl class="vpms-definition-list">
+                <dt>Prepared by</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.Voucher.PreparedBy) ? "System" : Model.Voucher.PreparedBy)</dd>
+                <dt>Approved by</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.Voucher.ApprovedBy) ? "Pending approval" : $"{Model.Voucher.ApprovedBy} on {Model.Voucher.ApprovedAt:MMM d, yyyy}")</dd>
+                <dt>Released by</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.Voucher.ReleasedBy) ? "Pending release" : $"{Model.Voucher.ReleasedBy} on {Model.Voucher.ReleasedAt:MMM d, yyyy}")</dd>
+                <dt>Reference</dt>
+                <dd>@(Model.Voucher.BankReferenceNumber ?? Model.Voucher.CheckNumber ?? "Not recorded")</dd>
+            </dl>
+        </section>
     </div>
-</section>
+
+    @if (Model.Voucher.Status == PaymentVoucherStatus.Approved)
+    {
+        <section class="vpms-card vpms-operational-panel vpms-control-callout warning">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Release Payment</h2>
+                    <p>Release the approved voucher through the controlled treasury dialog while this voucher remains visible.</p>
+                </div>
+                <a class="btn vpms-btn-primary"
+                   asp-page="./Details"
+                   asp-page-handler="ReleaseNative"
+                   asp-route-id="@Model.Voucher.Id"
+                   data-vpms-native-dialog
+                   data-vpms-native-handler="ReleaseNative"
+                   data-vpms-native-dialog-title="Release Payment Voucher">Release &amp; Post</a>
+            </div>
+        </section>
+    }
+
+    <section class="vpms-card vpms-operational-panel">
+        <div class="vpms-section-titlebar">
+            <div>
+                <h2>Disbursements</h2>
+                <p>Cash or bank movements produced by this voucher.</p>
+            </div>
+        </div>
+
+        @if (disbursementCount == 0)
+        {
+            <div class="vpms-empty-state">
+                <strong>No disbursement released.</strong>
+                <span>Approved vouchers can be released from this page once treasury details are ready.</span>
+            </div>
+        }
+        else
+        {
+            <div class="vpms-table-wrapper">
+                <table class="table vpms-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Disbursement</th>
+                            <th>Date</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Reference</th>
+                            <th class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var disbursement in Model.Voucher.Disbursements.OrderByDescending(item => item.DisbursementDate))
+                        {
+                            <tr>
+                                <td>@disbursement.DisbursementNumber</td>
+                                <td>@disbursement.DisbursementDate.ToString("MMM d, yyyy")</td>
+                                <td>@disbursement.PaymentMethod</td>
+                                <td><span class="vpms-status-badge status-@disbursement.Status.ToString().ToLowerInvariant()">@disbursement.Status</span></td>
+                                <td>@(disbursement.ReferenceNumber ?? "-")</td>
+                                <td class="text-end vpms-money">@disbursement.Amount.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>

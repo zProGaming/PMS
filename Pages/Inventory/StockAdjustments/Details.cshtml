@@ -3,81 +3,180 @@
 @{
     ViewData["Title"] = "Stock Adjustment";
     var totalVariance = Model.StockAdjustment.Items.Sum(item => item.VarianceAmount);
+    var statusClass = Model.StockAdjustment.Status.ToString().ToLowerInvariant();
+    var itemCount = Model.StockAdjustment.Items.Count;
+    var varianceTone = totalVariance == 0 ? "positive" : totalVariance > 0 ? "warning" : "danger";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3">Stock Adjustment @Model.StockAdjustment.AdjustmentNumber</h1>
-    <a asp-page="Index" class="btn btn-outline-secondary">Back</a>
-</div>
+<div class="vpms-dialog-control-page vpms-stock-adjustment-control">
+    <section class="vpms-ops-hero vpms-inventory-control-hero">
+        <div>
+            <div class="page-kicker">Inventory Variance Control</div>
+            <h1 class="page-title">Stock Adjustment @Model.StockAdjustment.AdjustmentNumber</h1>
+            <p class="page-subtitle">@Model.StockAdjustment.AdjustmentDate.ToString("MMM d, yyyy") | Prepared by @(string.IsNullOrWhiteSpace(Model.StockAdjustment.PreparedBy) ? "System" : Model.StockAdjustment.PreparedBy)</p>
+            <div class="vpms-hero-chip-row">
+                <span class="vpms-status-badge status-@statusClass">@Model.StockAdjustment.Status</span>
+                <span class="vpms-mini-chip">@itemCount item@(itemCount == 1 ? "" : "s")</span>
+                <span class="vpms-mini-chip">Variance @totalVariance.ToString("C")</span>
+            </div>
+        </div>
+        <div class="vpms-hero-actions">
+            @if (Model.StockAdjustment.Status == Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Draft)
+            {
+                <a asp-page="./Details" asp-page-handler="ForApprovalNative" asp-route-id="@Model.StockAdjustment.Id" class="btn vpms-btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Submit Stock Adjustment">Submit for Approval</a>
+            }
+            @if (Model.StockAdjustment.Status == Vantage.PMS.Models.Inventory.StockAdjustmentStatus.ForApproval)
+            {
+                <a asp-page="./Details" asp-page-handler="ApproveNative" asp-route-id="@Model.StockAdjustment.Id" class="btn vpms-btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Approve Stock Adjustment">Approve</a>
+            }
+            @if (Model.StockAdjustment.Status == Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Approved)
+            {
+                <a asp-page="./Details" asp-page-handler="PostAdjustmentNative" asp-route-id="@Model.StockAdjustment.Id" class="btn vpms-btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Post Stock Adjustment">Post Adjustment</a>
+            }
+            @if (Model.StockAdjustment.Status is not Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Posted and not Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Cancelled)
+            {
+                <a asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.StockAdjustment.Id" class="btn vpms-btn-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Stock Adjustment">Cancel</a>
+            }
+            <a asp-page="Index" class="btn btn-outline-secondary">Back</a>
+        </div>
+    </section>
 
-@if (TempData["ErrorMessage"] is string error)
-{
-    <div class="alert alert-danger">@error</div>
-}
+    @if (TempData["ErrorMessage"] is string error)
+    {
+        <div class="alert alert-danger vpms-alert">@error</div>
+    }
 
-<div class="row g-3 mb-4">
-    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Date</div><strong>@Model.StockAdjustment.AdjustmentDate.ToString("d")</strong></div></div>
-    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Status</div><span class="badge text-bg-secondary">@Model.StockAdjustment.Status</span></div></div>
-    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Prepared By</div><strong>@Model.StockAdjustment.PreparedBy</strong></div></div>
-    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Variance Amount</div><strong>@totalVariance.ToString("C")</strong></div></div>
-</div>
+    <section class="vpms-control-strip vpms-inventory-strip">
+        <article class="@varianceTone">
+            <span>Variance Amount</span>
+            <strong>@totalVariance.ToString("C")</strong>
+            <small>Inventory value movement</small>
+        </article>
+        <article>
+            <span>Line Count</span>
+            <strong>@itemCount</strong>
+            <small>Items under review</small>
+        </article>
+        <article class="@(Model.CanEditItems ? "warning" : "positive")">
+            <span>Posting State</span>
+            <strong>@(Model.CanEditItems ? "Draft variance" : "Approval controlled")</strong>
+            <small>Stock balance protection</small>
+        </article>
+        <article>
+            <span>Reason</span>
+            <strong>@(string.IsNullOrWhiteSpace(Model.StockAdjustment.Reason) ? "Not specified" : Model.StockAdjustment.Reason)</strong>
+            <small>Inventory audit context</small>
+        </article>
+    </section>
 
-<div class="mb-3 d-flex flex-wrap gap-2">
-    @if (Model.StockAdjustment.Status == Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Draft)
-    {
-        <a asp-page="./Details" asp-page-handler="ForApprovalNative" asp-route-id="@Model.StockAdjustment.Id" class="btn btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Submit Stock Adjustment">Submit for Approval</a>
-    }
-    @if (Model.StockAdjustment.Status == Vantage.PMS.Models.Inventory.StockAdjustmentStatus.ForApproval)
-    {
-        <a asp-page="./Details" asp-page-handler="ApproveNative" asp-route-id="@Model.StockAdjustment.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Approve Stock Adjustment">Approve</a>
-    }
-    @if (Model.StockAdjustment.Status == Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Approved)
-    {
-        <a asp-page="./Details" asp-page-handler="PostAdjustmentNative" asp-route-id="@Model.StockAdjustment.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Post Stock Adjustment">Post Adjustment</a>
-    }
-    @if (Model.StockAdjustment.Status is not Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Posted and not Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Cancelled)
-    {
-        <a asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.StockAdjustment.Id" class="btn btn-outline-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Stock Adjustment">Cancel</a>
-    }
-</div>
+    <section class="vpms-control-brief vpms-inventory-brief">
+        <article class="@varianceTone">
+            <span>Variance Posture</span>
+            <strong>@(totalVariance == 0 ? "No value variance" : "Review variance value")</strong>
+        </article>
+        <article>
+            <span>Approval Trail</span>
+            <strong>@(string.IsNullOrWhiteSpace(Model.StockAdjustment.ApprovedBy) ? "Pending approval" : $"{Model.StockAdjustment.ApprovedBy} on {Model.StockAdjustment.ApprovedAt:MMM d, yyyy}")</strong>
+        </article>
+        <article>
+            <span>Stock Impact</span>
+            <strong>@(Model.StockAdjustment.Status == Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Posted ? "Posted to inventory" : "Not yet posted")</strong>
+        </article>
+    </section>
 
-<h2 class="h5">Items</h2>
-<table class="table table-striped align-middle">
-    <thead><tr><th>Item</th><th class="text-end">System Qty</th><th class="text-end">Actual Qty</th><th class="text-end">Variance</th><th class="text-end">Unit Cost</th><th class="text-end">Variance Amount</th><th>Notes</th><th></th></tr></thead>
-    <tbody>
-        @foreach (var item in Model.StockAdjustment.Items)
+    <section class="vpms-card vpms-operational-panel">
+        <div class="vpms-section-titlebar">
+            <div>
+                <h2>Adjustment Lines</h2>
+                <p>System quantity, actual count, and variance value before stock posting.</p>
+            </div>
+        </div>
+
+        @if (itemCount == 0)
         {
-            <tr>
-                <td>@item.InventoryItem?.ItemCode - @item.InventoryItem?.ItemName</td>
-                <td class="text-end">@item.SystemQuantity.ToString("N2")</td>
-                <td class="text-end">@item.ActualQuantity.ToString("N2")</td>
-                <td class="text-end">@item.VarianceQuantity.ToString("N2")</td>
-                <td class="text-end">@item.UnitCost.ToString("C")</td>
-                <td class="text-end">@item.VarianceAmount.ToString("C")</td>
-                <td>@item.Notes</td>
-                <td class="text-end">
-                    @if (Model.CanEditItems)
-                    {
-                        <form method="post" asp-page-handler="DeleteItem" asp-route-itemId="@item.Id">
-                            <button class="btn btn-sm btn-outline-danger" data-vpms-confirm="Remove this stock adjustment line?">Remove</button>
-                        </form>
-                    }
-                </td>
-            </tr>
+            <div class="vpms-empty-state">
+                <strong>No adjustment lines recorded.</strong>
+                <span>Add counted items before submitting this stock adjustment for approval.</span>
+            </div>
         }
-    </tbody>
-</table>
+        else
+        {
+            <div class="vpms-table-wrapper">
+                <table class="table vpms-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-end">System Qty</th>
+                            <th class="text-end">Actual Qty</th>
+                            <th class="text-end">Variance</th>
+                            <th class="text-end">Unit Cost</th>
+                            <th class="text-end">Variance Amount</th>
+                            <th>Notes</th>
+                            <th class="text-end">Control</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.StockAdjustment.Items)
+                        {
+                            <tr>
+                                <td>@item.InventoryItem?.ItemCode - @item.InventoryItem?.ItemName</td>
+                                <td class="text-end">@item.SystemQuantity.ToString("N2")</td>
+                                <td class="text-end">@item.ActualQuantity.ToString("N2")</td>
+                                <td class="text-end">@item.VarianceQuantity.ToString("N2")</td>
+                                <td class="text-end">@item.UnitCost.ToString("C")</td>
+                                <td class="text-end vpms-money">@item.VarianceAmount.ToString("C")</td>
+                                <td>@item.Notes</td>
+                                <td class="text-end">
+                                    @if (Model.CanEditItems)
+                                    {
+                                        <form method="post" asp-page-handler="DeleteItem" asp-route-itemId="@item.Id">
+                                            <button class="btn btn-sm btn-outline-danger" data-vpms-confirm="Remove this stock adjustment line?">Remove</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="vpms-mini-chip">Locked</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
 
-@if (Model.CanEditItems)
-{
-    <h2 class="h5 mt-4">Add Item</h2>
-    <form method="post" asp-page-handler="AddItem" class="row g-3">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div class="col-md-5"><label asp-for="NewItem.InventoryItemId" class="form-label">Item</label><select asp-for="NewItem.InventoryItemId" asp-items="Model.InventoryItemOptions" class="form-select"></select></div>
-        <div class="col-md-2"><label asp-for="NewItem.ActualQuantity" class="form-label"></label><input asp-for="NewItem.ActualQuantity" class="form-control" /></div>
-        <div class="col-md-5"><label asp-for="NewItem.Notes" class="form-label"></label><input asp-for="NewItem.Notes" class="form-control" /></div>
-        <div class="col-12"><button class="btn btn-primary">Add Item</button></div>
-    </form>
+    @if (Model.CanEditItems)
+    {
+        <section class="vpms-card vpms-operational-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Add Counted Item</h2>
+                    <p>Capture the actual count; system quantity and variance are calculated by inventory controls.</p>
+                </div>
+            </div>
+            <form method="post" asp-page-handler="AddItem" class="vpms-compact-control-form row g-3">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="col-lg-5">
+                    <label asp-for="NewItem.InventoryItemId" class="form-label">Item</label>
+                    <select asp-for="NewItem.InventoryItemId" asp-items="Model.InventoryItemOptions" class="form-select"></select>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="NewItem.ActualQuantity" class="form-label"></label>
+                    <input asp-for="NewItem.ActualQuantity" class="form-control" />
+                </div>
+                <div class="col-lg-5">
+                    <label asp-for="NewItem.Notes" class="form-label"></label>
+                    <input asp-for="NewItem.Notes" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <button class="btn vpms-btn-primary">Add Item</button>
+                </div>
+            </form>
+        </section>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }
-
-@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -4,64 +4,131 @@
 @{
     ViewData["Title"] = "Group Booking Details";
     var group = Model.GroupBooking;
+    var statusClass = group.BookingStatus.ToString().ToLowerInvariant();
+    var blockCount = group.RoomBlocks.Count;
+    var memberCount = group.Members.Count;
+    var folioCount = group.GroupFolios.Count;
+    var depositCount = group.Deposits.Count;
+    var allocationCount = group.PaymentAllocations.Count;
+    var roomsBlocked = group.RoomBlocks.Sum(item => item.RoomsBlocked);
+    var roomsPickedUp = group.RoomBlocks.Sum(item => item.RoomsPickedUp);
+    var roomsReleased = group.RoomBlocks.Sum(item => item.RoomsReleased);
+    var pickupPercent = roomsBlocked <= 0 ? 0 : Math.Round((decimal)roomsPickedUp / roomsBlocked * 100, 1);
+    var collectionTone = Model.CollectionSummary.OutstandingBalance <= 0 ? "positive" : "warning";
 }
 
-<div class="page-header">
-    <div>
-        <div class="page-kicker">Group Booking</div>
-        <h1 class="page-title">@group.GroupName</h1>
-        <p class="page-subtitle">@group.GroupCode - @group.ArrivalDate.ToString("MMM d") - @group.DepartureDate.ToString("MMM d, yyyy") - @group.SalesAccount?.AccountName</p>
-    </div>
-    <div class="page-actions">
-        <span class="status-badge">@group.BookingStatus</span>
-        <a class="btn vpms-btn-secondary" asp-page="./Print" asp-route-type="group-confirmation" asp-route-id="@group.Id">Print Confirmation</a>
-        <a class="btn vpms-btn-secondary" asp-page="./Print" asp-route-type="billing-instruction" asp-route-id="@group.Id">Billing Sheet</a>
-        <a class="btn vpms-btn-secondary" asp-page="./Index">Back</a>
-    </div>
-</div>
-
-<section class="vpms-card mb-4">
-    <div class="row g-3 p-3">
-        <div class="col-md-2"><div class="text-muted small">Estimated Charges</div><strong>@Model.CollectionSummary.TotalEstimatedCharges.ToString("C")</strong></div>
-        <div class="col-md-2"><div class="text-muted small">Posted Charges</div><strong>@Model.CollectionSummary.TotalPostedCharges.ToString("C")</strong></div>
-        <div class="col-md-2"><div class="text-muted small">Deposits</div><strong>@Model.CollectionSummary.TotalDeposits.ToString("C")</strong></div>
-        <div class="col-md-2"><div class="text-muted small">Payments</div><strong>@Model.CollectionSummary.TotalPayments.ToString("C")</strong></div>
-        <div class="col-md-2"><div class="text-muted small">Allocated</div><strong>@Model.CollectionSummary.TotalAllocated.ToString("C")</strong></div>
-        <div class="col-md-2"><div class="text-muted small">Outstanding</div><strong>@Model.CollectionSummary.OutstandingBalance.ToString("C")</strong></div>
-    </div>
-</section>
-
-<section class="vpms-card mb-4">
-    <div class="vpms-section-header d-flex justify-content-between align-items-center">
+<div class="vpms-dialog-control-page vpms-group-booking-control">
+    <section class="vpms-ops-hero vpms-group-control-hero">
         <div>
-            <h2 class="h5 mb-0">Group Summary</h2>
-            <small class="text-muted">Commercial profile, billing instruction, and contact details.</small>
+            <div class="page-kicker">Group and Paymaster Control</div>
+            <h1 class="page-title">@group.GroupName</h1>
+            <p class="page-subtitle">@group.GroupCode | @group.ArrivalDate.ToString("MMM d") to @group.DepartureDate.ToString("MMM d, yyyy") | @(group.SalesAccount?.AccountName ?? "No sales account")</p>
+            <div class="vpms-hero-chip-row">
+                <span class="vpms-status-badge status-@statusClass">@group.BookingStatus</span>
+                <span class="vpms-mini-chip">@memberCount member@(memberCount == 1 ? "" : "s")</span>
+                <span class="vpms-mini-chip">@roomsPickedUp / @roomsBlocked picked up</span>
+            </div>
         </div>
-        <a class="btn btn-sm vpms-btn-secondary"
-           asp-page-handler="UpdateNative"
-           asp-route-id="@group.Id"
-           data-vpms-native-dialog
-           data-vpms-native-handler="UpdateNative"
-           data-vpms-native-dialog-title="Edit Group Summary">Edit Summary</a>
-    </div>
-    <div class="row g-3 p-3">
-        <div class="col-md-3"><div class="text-muted small">Contact</div><strong>@(group.ContactPerson ?? "Not set")</strong><div class="small text-muted">@group.ContactNumber</div></div>
-        <div class="col-md-3"><div class="text-muted small">Email</div><strong>@(group.Email ?? "Not set")</strong></div>
-        <div class="col-md-2"><div class="text-muted small">Market</div><strong>@(group.MarketSegment ?? "Not set")</strong></div>
-        <div class="col-md-2"><div class="text-muted small">Source</div><strong>@(group.Source ?? "Not set")</strong></div>
-        <div class="col-md-2"><div class="text-muted small">Deposit</div><strong>@group.DepositAmount.ToString("C")</strong><div class="small text-muted">@(group.DepositRequired ? "Required" : "Optional")</div></div>
-        <div class="col-12">
-            <div class="text-muted small">Billing Instruction</div>
-            <div>@(string.IsNullOrWhiteSpace(group.BillingInstruction) ? "No billing instruction recorded." : group.BillingInstruction)</div>
+        <div class="vpms-hero-actions">
+            <a class="btn vpms-btn-primary"
+               asp-page-handler="UpdateNative"
+               asp-route-id="@group.Id"
+               data-vpms-native-dialog
+               data-vpms-native-handler="UpdateNative"
+               data-vpms-native-dialog-title="Edit Group Summary">Edit Summary</a>
+            <a class="btn vpms-btn-secondary" asp-page="./Print" asp-route-type="group-confirmation" asp-route-id="@group.Id">Print Confirmation</a>
+            <a class="btn vpms-btn-secondary" asp-page="./Print" asp-route-type="billing-instruction" asp-route-id="@group.Id">Billing Sheet</a>
+            <a class="btn btn-outline-secondary" asp-page="./Index">Back</a>
         </div>
-    </div>
-</section>
+    </section>
 
-<div class="row g-4">
-    <div class="col-xl-7">
-        <section class="vpms-card mb-4">
-            <div class="vpms-section-header d-flex justify-content-between align-items-center">
-                <div><h2 class="h5 mb-0">Room Blocks</h2><small class="text-muted">Blocks affect availability only as group holds; pseudo rooms do not.</small></div>
+    <section class="vpms-control-strip vpms-group-strip">
+        <article>
+            <span>Estimated Charges</span>
+            <strong>@Model.CollectionSummary.TotalEstimatedCharges.ToString("C")</strong>
+            <small>Projected group value</small>
+        </article>
+        <article>
+            <span>Posted Charges</span>
+            <strong>@Model.CollectionSummary.TotalPostedCharges.ToString("C")</strong>
+            <small>Actual folio charges</small>
+        </article>
+        <article class="positive">
+            <span>Deposits and Payments</span>
+            <strong>@((Model.CollectionSummary.TotalDeposits + Model.CollectionSummary.TotalPayments).ToString("C"))</strong>
+            <small>@depositCount deposit@(depositCount == 1 ? "" : "s"), @allocationCount allocation@(allocationCount == 1 ? "" : "s")</small>
+        </article>
+        <article class="@collectionTone">
+            <span>Outstanding</span>
+            <strong>@Model.CollectionSummary.OutstandingBalance.ToString("C")</strong>
+            <small>Group collection exposure</small>
+        </article>
+    </section>
+
+    <section class="vpms-control-brief vpms-group-brief">
+        <article>
+            <span>Pickup Pace</span>
+            <strong>@pickupPercent.ToString("N1")% picked up</strong>
+        </article>
+        <article>
+            <span>Master Folios</span>
+            <strong>@folioCount active control record@(folioCount == 1 ? "" : "s")</strong>
+        </article>
+        <article class="@collectionTone">
+            <span>Collection Posture</span>
+            <strong>@(Model.CollectionSummary.OutstandingBalance <= 0 ? "Collection clear" : "Monitor balance")</strong>
+        </article>
+    </section>
+
+    <section class="vpms-card vpms-operational-panel">
+        <div class="vpms-section-titlebar">
+            <div>
+                <h2>Group Summary</h2>
+                <p>Commercial profile, billing instruction, contact details, and deposit terms.</p>
+            </div>
+            <a class="btn btn-sm vpms-btn-secondary"
+               asp-page-handler="UpdateNative"
+               asp-route-id="@group.Id"
+               data-vpms-native-dialog
+               data-vpms-native-handler="UpdateNative"
+               data-vpms-native-dialog-title="Edit Group Summary">Edit Summary</a>
+        </div>
+        <div class="vpms-group-summary-grid">
+            <article>
+                <span>Contact</span>
+                <strong>@(group.ContactPerson ?? "Not set")</strong>
+                <small>@(group.ContactNumber ?? "No phone recorded")</small>
+            </article>
+            <article>
+                <span>Email</span>
+                <strong>@(group.Email ?? "Not set")</strong>
+                <small>Group communication</small>
+            </article>
+            <article>
+                <span>Market and Source</span>
+                <strong>@(group.MarketSegment ?? "Not set")</strong>
+                <small>@(group.Source ?? "Source not recorded")</small>
+            </article>
+            <article>
+                <span>Deposit</span>
+                <strong>@group.DepositAmount.ToString("C")</strong>
+                <small>@(group.DepositRequired ? "Required" : "Optional")</small>
+            </article>
+            <article class="wide">
+                <span>Billing Instruction</span>
+                <strong>@(string.IsNullOrWhiteSpace(group.BillingInstruction) ? "No billing instruction recorded." : group.BillingInstruction)</strong>
+                <small>Used by front office, banquet, and finance routing teams.</small>
+            </article>
+        </div>
+    </section>
+
+    <div class="vpms-two-column vpms-group-control-layout">
+        <section class="vpms-card vpms-operational-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Room Blocks</h2>
+                    <p>Availability holds, pickup pace, released rooms, and group rate control.</p>
+                </div>
                 <div class="d-flex flex-wrap gap-2">
                     <a class="btn btn-sm vpms-btn-primary"
                        asp-page-handler="AddBlockNative"
@@ -72,37 +139,58 @@
                     <a class="btn btn-sm vpms-btn-secondary" asp-page="./Print" asp-route-type="rooming-list" asp-route-id="@group.Id">Print Rooming List</a>
                 </div>
             </div>
-            @if (group.RoomBlocks.Count == 0)
+
+            @if (blockCount == 0)
             {
-                <div class="vpms-empty-state m-3">No room blocks have been created.</div>
+                <div class="vpms-empty-state">
+                    <strong>No room blocks have been created.</strong>
+                    <span>Add block dates by room type to support pickup and availability control.</span>
+                </div>
             }
             else
             {
                 <div class="vpms-table-wrapper">
                     <table class="table vpms-table align-middle">
-                        <thead><tr><th>Date</th><th>Room Type</th><th class="text-end">Blocked</th><th class="text-end">Picked Up</th><th class="text-end">Released</th><th class="text-end">Rate</th><th></th></tr></thead>
-                        <tbody>
-                        @foreach (var block in group.RoomBlocks.OrderBy(item => item.BlockDate))
-                        {
+                        <thead>
                             <tr>
-                                <td>@block.BlockDate.ToString("MMM d, yyyy")</td>
-                                <td>@block.RoomType?.Code</td>
-                                <td class="text-end">@block.RoomsBlocked</td>
-                                <td class="text-end">@block.RoomsPickedUp</td>
-                                <td class="text-end">@block.RoomsReleased</td>
-                                <td class="text-end">@block.RateAmount.ToString("C")</td>
-                                <td class="text-end"><form method="post" asp-page-handler="ReleaseBlock" asp-route-id="@group.Id" asp-route-blockId="@block.Id"><button class="btn btn-sm vpms-btn-secondary">Release Unused</button></form></td>
+                                <th>Date</th>
+                                <th>Room Type</th>
+                                <th class="text-end">Blocked</th>
+                                <th class="text-end">Picked Up</th>
+                                <th class="text-end">Released</th>
+                                <th class="text-end">Rate</th>
+                                <th class="text-end">Control</th>
                             </tr>
-                        }
+                        </thead>
+                        <tbody>
+                            @foreach (var block in group.RoomBlocks.OrderBy(item => item.BlockDate))
+                            {
+                                <tr>
+                                    <td>@block.BlockDate.ToString("MMM d, yyyy")</td>
+                                    <td>@block.RoomType?.Code</td>
+                                    <td class="text-end">@block.RoomsBlocked</td>
+                                    <td class="text-end">@block.RoomsPickedUp</td>
+                                    <td class="text-end">@block.RoomsReleased</td>
+                                    <td class="text-end">@block.RateAmount.ToString("C")</td>
+                                    <td class="text-end">
+                                        <form method="post" asp-page-handler="ReleaseBlock" asp-route-id="@group.Id" asp-route-blockId="@block.Id">
+                                            <button class="btn btn-sm vpms-btn-secondary">Release Unused</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>
             }
         </section>
 
-        <section class="vpms-card mb-4">
-            <div class="vpms-section-header d-flex justify-content-between align-items-center">
-                <div><h2 class="h5 mb-0">Group Members</h2><small class="text-muted">Linked reservations picked up from or associated with this group.</small></div>
+        <section class="vpms-card vpms-operational-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Group Members</h2>
+                    <p>Reservations picked up from the block or linked to the group account.</p>
+                </div>
                 <div class="d-flex flex-wrap gap-2">
                     <a class="btn btn-sm vpms-btn-primary"
                        asp-page-handler="PickupNative"
@@ -118,27 +206,45 @@
                        data-vpms-native-dialog-title="Link Existing Reservation">Link Reservation</a>
                 </div>
             </div>
-            @if (group.Members.Count == 0)
+
+            @if (memberCount == 0)
             {
-                <div class="vpms-empty-state m-3">No member reservations linked yet.</div>
+                <div class="vpms-empty-state">
+                    <strong>No member reservations linked yet.</strong>
+                    <span>Pick up a block or link an existing reservation to build the rooming list.</span>
+                </div>
             }
             else
             {
                 <div class="vpms-table-wrapper">
                     <table class="table vpms-table align-middle">
-                        <thead><tr><th>Guest</th><th>Reservation</th><th>Room</th><th>Stay</th><th>Status</th><th>Routing</th></tr></thead>
-                        <tbody>
-                        @foreach (var member in group.Members)
-                        {
+                        <thead>
                             <tr>
-                                <td>@member.Reservation?.Guest?.FirstName @member.Reservation?.Guest?.LastName @(member.IsPrimaryGuest ? "(Primary)" : "")</td>
-                                <td><a asp-page="/FrontOffice/Reservations/Details" asp-route-id="@member.ReservationId" data-vpms-dialog data-vpms-dialog-title="Reservation Control">@member.Reservation?.ConfirmationNumber</a></td>
-                                <td>@(member.Reservation?.Room?.RoomNumber ?? member.Reservation?.RoomType?.Code)</td>
-                                <td>@member.Reservation?.ArrivalDate.ToString("MMM d") - @member.Reservation?.DepartureDate.ToString("MMM d")</td>
-                                <td>@member.Reservation?.Status</td>
-                                <td>@member.BillingRoutingType</td>
+                                <th>Guest</th>
+                                <th>Reservation</th>
+                                <th>Room</th>
+                                <th>Stay</th>
+                                <th>Status</th>
+                                <th>Routing</th>
                             </tr>
-                        }
+                        </thead>
+                        <tbody>
+                            @foreach (var member in group.Members)
+                            {
+                                <tr>
+                                    <td>@member.Reservation?.Guest?.FirstName @member.Reservation?.Guest?.LastName @(member.IsPrimaryGuest ? "(Primary)" : "")</td>
+                                    <td>
+                                        <a asp-page="/FrontOffice/Reservations/Details"
+                                           asp-route-id="@member.ReservationId"
+                                           data-vpms-dialog
+                                           data-vpms-dialog-title="Reservation Control">@member.Reservation?.ConfirmationNumber</a>
+                                    </td>
+                                    <td>@(member.Reservation?.Room?.RoomNumber ?? member.Reservation?.RoomType?.Code)</td>
+                                    <td>@member.Reservation?.ArrivalDate.ToString("MMM d") - @member.Reservation?.DepartureDate.ToString("MMM d")</td>
+                                    <td><span class="vpms-mini-chip">@member.Reservation?.Status</span></td>
+                                    <td>@member.BillingRoutingType</td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>
@@ -146,10 +252,13 @@
         </section>
     </div>
 
-    <div class="col-xl-5">
-        <section class="vpms-card mb-4">
-            <div class="vpms-section-header d-flex justify-content-between align-items-center">
-                <div><h2 class="h5 mb-0">Group Master Folios</h2><small class="text-muted">Link a master folio to a pseudo room/paymaster account when needed.</small></div>
+    <div class="vpms-two-column vpms-group-control-layout">
+        <section class="vpms-card vpms-operational-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Group Master Folios</h2>
+                    <p>Paymaster folios, pseudo-room links, status, and AR transfer control.</p>
+                </div>
                 <div class="d-flex flex-wrap gap-2">
                     <a class="btn btn-sm vpms-btn-primary"
                        asp-page-handler="CreateFolioNative"
@@ -160,43 +269,56 @@
                     <a class="btn btn-sm vpms-btn-secondary" asp-page="./Print" asp-route-type="group-master-folio" asp-route-id="@group.Id">Print</a>
                 </div>
             </div>
-            <div class="p-3">
-                @foreach (var folio in group.GroupFolios)
-                {
-                    <div class="border rounded p-3 mb-2">
-                        <div class="d-flex justify-content-between gap-2"><strong>@folio.FolioName</strong><span class="status-badge">@folio.Status</span></div>
-                        <div class="text-muted small">@folio.PseudoRoom?.PseudoRoomCode - Linked folio @(folio.Folio?.FolioNumber ?? "Virtual")</div>
-                        <div class="mt-2">Balance: <strong>@((folio.Folio?.Balance ?? 0).ToString("C"))</strong></div>
-                        @if (Model.CanUseFinanceActions)
-                        {
-                            <div class="d-flex gap-2 mt-3">
-                                <form method="post" asp-page-handler="CloseGroupFolio" asp-route-id="@group.Id" asp-route-groupFolioId="@folio.Id">
-                                    @if (folio.Status == GroupFolioStatus.Open)
-                                    {
-                                        <button class="btn btn-sm vpms-btn-secondary">Close</button>
-                                    }
-                                    else
-                                    {
-                                        <button class="btn btn-sm vpms-btn-secondary" disabled>Close</button>
-                                    }
-                                </form>
-                                <form method="post" asp-page-handler="TransferGroupFolioToAr" asp-route-id="@group.Id" asp-route-groupFolioId="@folio.Id">
-                                    <button class="btn btn-sm vpms-btn-secondary">Mark AR Transfer</button>
-                                </form>
+
+            @if (folioCount == 0)
+            {
+                <div class="vpms-empty-state">
+                    <strong>No group master folio yet.</strong>
+                    <span>Create a master folio when charges need to route to a paymaster account.</span>
+                </div>
+            }
+            else
+            {
+                <div class="vpms-stack-list">
+                    @foreach (var folio in group.GroupFolios)
+                    {
+                        <article class="vpms-control-list-item">
+                            <div>
+                                <strong>@folio.FolioName</strong>
+                                <span>@folio.PseudoRoom?.PseudoRoomCode | Linked folio @(folio.Folio?.FolioNumber ?? "Virtual")</span>
+                                <small>Balance @((folio.Folio?.Balance ?? 0).ToString("C"))</small>
                             </div>
-                        }
-                    </div>
-                }
-                @if (group.GroupFolios.Count == 0)
-                {
-                    <div class="vpms-empty-state">No group master folio yet.</div>
-                }
-            </div>
+                            <div class="vpms-control-list-actions">
+                                <span class="vpms-status-badge status-@folio.Status.ToString().ToLowerInvariant()">@folio.Status</span>
+                                @if (Model.CanUseFinanceActions)
+                                {
+                                    <form method="post" asp-page-handler="CloseGroupFolio" asp-route-id="@group.Id" asp-route-groupFolioId="@folio.Id">
+                                        @if (folio.Status == GroupFolioStatus.Open)
+                                        {
+                                            <button class="btn btn-sm vpms-btn-secondary">Close</button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm vpms-btn-secondary" disabled>Close</button>
+                                        }
+                                    </form>
+                                    <form method="post" asp-page-handler="TransferGroupFolioToAr" asp-route-id="@group.Id" asp-route-groupFolioId="@folio.Id">
+                                        <button class="btn btn-sm vpms-btn-secondary">Mark AR Transfer</button>
+                                    </form>
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
         </section>
 
-        <section class="vpms-card mb-4">
-            <div class="vpms-section-header d-flex justify-content-between align-items-center">
-                <div><h2 class="h5 mb-0">Deposits and Allocations</h2><small class="text-muted">Finance-controlled group collection management.</small></div>
+        <section class="vpms-card vpms-operational-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Deposits and Allocations</h2>
+                    <p>Finance-controlled group collection management and deposit application.</p>
+                </div>
                 <div class="d-flex flex-wrap gap-2">
                     @if (Model.CanUseFinanceActions)
                     {
@@ -216,22 +338,46 @@
                     <a class="btn btn-sm vpms-btn-secondary" asp-page="./Print" asp-route-type="collection-statement" asp-route-id="@group.Id">Print Statement</a>
                 </div>
             </div>
-            <div class="p-3">
-                <h3 class="h6">Deposits</h3>
-                @foreach (var deposit in group.Deposits.OrderByDescending(item => item.DepositDate))
-                {
-                    <div class="d-flex justify-content-between border-bottom py-2"><span>@deposit.DepositDate.ToString("MMM d") - @deposit.PaymentMethod - @deposit.ReferenceNumber</span><strong>@deposit.Amount.ToString("C")</strong></div>
-                }
-                <h3 class="h6 mt-3">Allocations</h3>
-                @foreach (var allocation in group.PaymentAllocations.OrderByDescending(item => item.AllocationDate))
-                {
-                    <div class="d-flex justify-content-between border-bottom py-2"><span>@allocation.AllocationDate.ToString("MMM d") - @allocation.Notes</span><strong>@allocation.AllocatedAmount.ToString("C")</strong></div>
-                }
-                @if (group.Deposits.Count == 0 && group.PaymentAllocations.Count == 0)
-                {
-                    <div class="vpms-empty-state">No group deposits or allocations yet.</div>
-                }
-            </div>
+
+            @if (depositCount == 0 && allocationCount == 0)
+            {
+                <div class="vpms-empty-state">
+                    <strong>No group deposits or allocations yet.</strong>
+                    <span>Record deposits and allocations when finance begins collecting against the group master account.</span>
+                </div>
+            }
+            else
+            {
+                <div class="vpms-stack-list">
+                    @foreach (var deposit in group.Deposits.OrderByDescending(item => item.DepositDate))
+                    {
+                        <article class="vpms-control-list-item">
+                            <div>
+                                <strong>@deposit.DepositDate.ToString("MMM d, yyyy") | @deposit.PaymentMethod</strong>
+                                <span>@(deposit.ReferenceNumber ?? "No reference")</span>
+                                <small>@deposit.Status | @(deposit.IsRefundable ? "Refundable" : "Non-refundable")</small>
+                            </div>
+                            <div class="vpms-control-list-actions">
+                                <strong>@deposit.Amount.ToString("C")</strong>
+                            </div>
+                        </article>
+                    }
+
+                    @foreach (var allocation in group.PaymentAllocations.OrderByDescending(item => item.AllocationDate))
+                    {
+                        <article class="vpms-control-list-item">
+                            <div>
+                                <strong>@allocation.AllocationDate.ToString("MMM d, yyyy") | Allocation</strong>
+                                <span>@(allocation.Notes ?? "No allocation note")</span>
+                                <small>@(allocation.TargetReservationId is null ? "Group folio allocation" : $"Reservation #{allocation.TargetReservationId}")</small>
+                            </div>
+                            <div class="vpms-control-list-actions">
+                                <strong>@allocation.AllocatedAmount.ToString("C")</strong>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
         </section>
     </div>
 </div>

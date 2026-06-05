@@ -3,71 +3,176 @@
 @{
     ViewData["Title"] = "Receiving Record";
     var total = Model.ReceivingRecord.Items.Sum(item => item.Amount);
+    var statusClass = Model.ReceivingRecord.Status.ToString().ToLowerInvariant();
+    var itemCount = Model.ReceivingRecord.Items.Count;
+    var supplierName = Model.ReceivingRecord.Supplier?.SupplierName ?? "Supplier not set";
+    var purchaseOrder = Model.ReceivingRecord.PurchaseOrder?.PONumber ?? "No linked PO";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3">Receiving @Model.ReceivingRecord.ReceivingNumber</h1>
-    <a asp-page="Index" class="btn btn-outline-secondary">Back</a>
-</div>
+<div class="vpms-dialog-control-page vpms-receiving-control">
+    <section class="vpms-ops-hero vpms-procurement-control-hero">
+        <div>
+            <div class="page-kicker">Receiving Control</div>
+            <h1 class="page-title">Receiving @Model.ReceivingRecord.ReceivingNumber</h1>
+            <p class="page-subtitle">@supplierName | @purchaseOrder | @Model.ReceivingRecord.ReceivedDate.ToString("MMM d, yyyy")</p>
+            <div class="vpms-hero-chip-row">
+                <span class="vpms-status-badge status-@statusClass">@Model.ReceivingRecord.Status</span>
+                <span class="vpms-mini-chip">@itemCount item@(itemCount == 1 ? "" : "s")</span>
+                <span class="vpms-mini-chip">Received by @(string.IsNullOrWhiteSpace(Model.ReceivingRecord.ReceivedBy) ? "System" : Model.ReceivingRecord.ReceivedBy)</span>
+            </div>
+        </div>
+        <div class="vpms-hero-actions">
+            @if (Model.ReceivingRecord.Status == Vantage.PMS.Models.Inventory.ReceivingStatus.Draft)
+            {
+                <a asp-page="./Details" asp-page-handler="PostReceivingNative" asp-route-id="@Model.ReceivingRecord.Id" class="btn vpms-btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Post Receiving">Post Receiving</a>
+                <a asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.ReceivingRecord.Id" class="btn vpms-btn-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Receiving">Cancel</a>
+            }
+            <a asp-page="Index" class="btn btn-outline-secondary">Back</a>
+        </div>
+    </section>
 
-@if (TempData["ErrorMessage"] is string error)
-{
-    <div class="alert alert-danger">@error</div>
-}
-
-<div class="row g-3 mb-4">
-    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">PO</div><strong>@Model.ReceivingRecord.PurchaseOrder?.PONumber</strong></div></div>
-    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Supplier</div><strong>@Model.ReceivingRecord.Supplier?.SupplierName</strong></div></div>
-    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Status</div><span class="badge text-bg-secondary">@Model.ReceivingRecord.Status</span></div></div>
-    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Received Total</div><strong>@total.ToString("C")</strong></div></div>
-</div>
-
-<div class="mb-3 d-flex flex-wrap gap-2">
-    @if (Model.ReceivingRecord.Status == Vantage.PMS.Models.Inventory.ReceivingStatus.Draft)
+    @if (TempData["ErrorMessage"] is string error)
     {
-        <a asp-page="./Details" asp-page-handler="PostReceivingNative" asp-route-id="@Model.ReceivingRecord.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Post Receiving">Post Receiving</a>
-        <a asp-page="./Details" asp-page-handler="CancelNative" asp-route-id="@Model.ReceivingRecord.Id" class="btn btn-outline-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Receiving">Cancel</a>
+        <div class="alert alert-danger vpms-alert">@error</div>
+    }
+
+    <section class="vpms-control-strip vpms-procurement-strip">
+        <article>
+            <span>Received Total</span>
+            <strong>@total.ToString("C")</strong>
+            <small>Inventory value captured</small>
+        </article>
+        <article>
+            <span>Line Count</span>
+            <strong>@itemCount</strong>
+            <small>Received item lines</small>
+        </article>
+        <article class="@(Model.CanEditItems ? "warning" : "positive")">
+            <span>Posting State</span>
+            <strong>@(Model.CanEditItems ? "Draft review" : "Posted or locked")</strong>
+            <small>Stock movement control</small>
+        </article>
+        <article>
+            <span>Purchase Order</span>
+            <strong>@purchaseOrder</strong>
+            <small>Supplier receiving trace</small>
+        </article>
+    </section>
+
+    <section class="vpms-control-brief vpms-procurement-brief">
+        <article>
+            <span>Supplier</span>
+            <strong>@supplierName</strong>
+        </article>
+        <article>
+            <span>Receiving Date</span>
+            <strong>@Model.ReceivingRecord.ReceivedDate.ToString("MMM d, yyyy")</strong>
+        </article>
+        <article class="@(Model.CanEditItems ? "warning" : "positive")">
+            <span>Inventory Impact</span>
+            <strong>@(Model.CanEditItems ? "Not yet posted" : "Stock movement recorded")</strong>
+        </article>
+    </section>
+
+    <section class="vpms-card vpms-operational-panel">
+        <div class="vpms-section-titlebar">
+            <div>
+                <h2>Received Items</h2>
+                <p>Quantity, cost, expiry, and notes before stock posting.</p>
+            </div>
+        </div>
+
+        @if (itemCount == 0)
+        {
+            <div class="vpms-empty-state">
+                <strong>No received items recorded.</strong>
+                <span>Add received item lines before posting this receiving record.</span>
+            </div>
+        }
+        else
+        {
+            <div class="vpms-table-wrapper">
+                <table class="table vpms-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-end">Qty Received</th>
+                            <th class="text-end">Unit Cost</th>
+                            <th class="text-end">Amount</th>
+                            <th>Expiry</th>
+                            <th>Notes</th>
+                            <th class="text-end">Control</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.ReceivingRecord.Items)
+                        {
+                            <tr>
+                                <td>@item.InventoryItem?.ItemCode - @item.InventoryItem?.ItemName</td>
+                                <td class="text-end">@item.QuantityReceived.ToString("N2")</td>
+                                <td class="text-end">@item.UnitCost.ToString("C")</td>
+                                <td class="text-end vpms-money">@item.Amount.ToString("C")</td>
+                                <td>@(item.ExpiryDate?.ToString("MMM d, yyyy") ?? "-")</td>
+                                <td>@item.Notes</td>
+                                <td class="text-end">
+                                    @if (Model.CanEditItems)
+                                    {
+                                        <form method="post" asp-page-handler="DeleteItem" asp-route-itemId="@item.Id">
+                                            <button class="btn btn-sm btn-outline-danger" data-vpms-confirm="Remove this received item line before posting?">Remove</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="vpms-mini-chip">Locked</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    @if (Model.CanEditItems)
+    {
+        <section class="vpms-card vpms-operational-panel">
+            <div class="vpms-section-titlebar">
+                <div>
+                    <h2>Add Received Item</h2>
+                    <p>Capture received quantity and cost before stock movement posting.</p>
+                </div>
+            </div>
+            <form method="post" asp-page-handler="AddItem" class="vpms-compact-control-form row g-3">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="col-lg-4">
+                    <label asp-for="NewItem.InventoryItemId" class="form-label">Item</label>
+                    <select asp-for="NewItem.InventoryItemId" asp-items="Model.InventoryItemOptions" class="form-select"></select>
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="NewItem.QuantityReceived" class="form-label"></label>
+                    <input asp-for="NewItem.QuantityReceived" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="NewItem.UnitCost" class="form-label"></label>
+                    <input asp-for="NewItem.UnitCost" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="NewItem.ExpiryDate" class="form-label"></label>
+                    <input asp-for="NewItem.ExpiryDate" type="date" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="NewItem.Notes" class="form-label"></label>
+                    <input asp-for="NewItem.Notes" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <button class="btn vpms-btn-primary">Add Item</button>
+                </div>
+            </form>
+        </section>
     }
 </div>
 
-<h2 class="h5">Items</h2>
-<table class="table table-striped align-middle">
-    <thead><tr><th>Item</th><th class="text-end">Qty Received</th><th class="text-end">Unit Cost</th><th class="text-end">Amount</th><th>Expiry</th><th>Notes</th><th></th></tr></thead>
-    <tbody>
-        @foreach (var item in Model.ReceivingRecord.Items)
-        {
-            <tr>
-                <td>@item.InventoryItem?.ItemCode - @item.InventoryItem?.ItemName</td>
-                <td class="text-end">@item.QuantityReceived.ToString("N2")</td>
-                <td class="text-end">@item.UnitCost.ToString("C")</td>
-                <td class="text-end">@item.Amount.ToString("C")</td>
-                <td>@item.ExpiryDate?.ToString("d")</td>
-                <td>@item.Notes</td>
-                <td class="text-end">
-                    @if (Model.CanEditItems)
-                    {
-                        <form method="post" asp-page-handler="DeleteItem" asp-route-itemId="@item.Id">
-                            <button class="btn btn-sm btn-outline-danger" data-vpms-confirm="Remove this received item line before posting?">Remove</button>
-                        </form>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@if (Model.CanEditItems)
-{
-    <h2 class="h5 mt-4">Add Received Item</h2>
-    <form method="post" asp-page-handler="AddItem" class="row g-3">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div class="col-md-4"><label asp-for="NewItem.InventoryItemId" class="form-label">Item</label><select asp-for="NewItem.InventoryItemId" asp-items="Model.InventoryItemOptions" class="form-select"></select></div>
-        <div class="col-md-2"><label asp-for="NewItem.QuantityReceived" class="form-label"></label><input asp-for="NewItem.QuantityReceived" class="form-control" /></div>
-        <div class="col-md-2"><label asp-for="NewItem.UnitCost" class="form-label"></label><input asp-for="NewItem.UnitCost" class="form-control" /></div>
-        <div class="col-md-2"><label asp-for="NewItem.ExpiryDate" class="form-label"></label><input asp-for="NewItem.ExpiryDate" type="date" class="form-control" /></div>
-        <div class="col-md-2"><label asp-for="NewItem.Notes" class="form-label"></label><input asp-for="NewItem.Notes" class="form-control" /></div>
-        <div class="col-12"><button class="btn btn-primary">Add Item</button></div>
-    </form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }
-
-@section Scripts { <partial name="_ValidationScriptsPartial" /> }
