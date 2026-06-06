@@ -13071,3 +13071,167 @@ html {
     white-space: normal;
   }
 }
+
+/* Live visual QA corrections: prevent responsive layouts from reserving empty
+   desktop columns on phones and keep dense operating grids usable. */
+@media (max-width: 991.98px) {
+  .vpms-luxury-command .vpms-refined-grid,
+  .vpms-density-command .vpms-refined-grid,
+  .vpms-refined-grid {
+    display: block;
+  }
+
+  .vpms-refined-main,
+  .vpms-refined-side,
+  .vpms-dashboard-detail-stack {
+    display: grid;
+    gap: 0.78rem;
+    width: 100%;
+  }
+
+  .vpms-refined-side,
+  .vpms-dashboard-detail-stack {
+    margin-top: 0.78rem;
+  }
+
+  .vpms-luxury-command .vpms-refined-card:first-child {
+    min-height: 0;
+  }
+
+  .vpms-dashboard-detail-panel,
+  .vpms-dashboard-detail-panel[open] {
+    min-height: 0;
+  }
+
+  .vpms-calendar-board-scroll,
+  .vpms-calendar-board-shell,
+  .vpms-calendar-grid-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+  }
+
+  .vpms-calendar-month-row {
+    min-width: max-content;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .vpms-dashboard .vpms-refined-main,
+  .vpms-dashboard .vpms-refined-side {
+    gap: 0.72rem;
+  }
+
+  .vpms-dashboard .vpms-refined-main > .vpms-refined-card,
+  .vpms-dashboard .vpms-refined-side > .vpms-refined-card,
+  .vpms-dashboard .vpms-dashboard-detail-panel,
+  .vpms-filter-bar,
+  .vpms-table-wrapper,
+  .vpms-reservation-board {
+    position: relative !important;
+    inset: auto !important;
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+
+  .vpms-dashboard .vpms-refined-main > .vpms-refined-card + .vpms-refined-card,
+  .vpms-dashboard .vpms-refined-side > .vpms-refined-card + .vpms-refined-card,
+  .vpms-dashboard .vpms-dashboard-detail-panel + .vpms-dashboard-detail-panel {
+    margin-top: 0.72rem;
+  }
+
+  .vpms-density-command .vpms-refined-card,
+  .vpms-refined-card {
+    padding: 0.78rem;
+    border-radius: 16px;
+  }
+
+  .vpms-flow-list {
+    grid-template-columns: 1fr;
+  }
+
+  .vpms-flow-item {
+    min-height: 0;
+  }
+
+  .vpms-status-dock {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-radius: 18px;
+  }
+
+  .vpms-status-dock a {
+    min-width: 0;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .vpms-filter-bar {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .vpms-filter-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vpms-filter-actions .btn {
+    width: 100%;
+  }
+
+  .vpms-reservation-board {
+    display: block;
+    max-width: 100%;
+  }
+
+  .vpms-reservation-board .vpms-table {
+    min-width: 880px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .vpms-density-command .vpms-dashboard-compact-command {
+    gap: 0.68rem;
+  }
+
+  .vpms-dashboard-title-block .page-subtitle {
+    max-width: none;
+  }
+
+  .vpms-dashboard-metric-ribbon article {
+    padding: 0.62rem 0.66rem;
+  }
+
+  .vpms-dashboard-detail-summary {
+    align-items: start;
+  }
+
+  .vpms-dashboard-detail-summary h2 {
+    font-size: 0.92rem;
+  }
+
+  .vpms-dashboard-detail-summary p {
+    -webkit-line-clamp: 1;
+  }
+
+  .vpms-ops-hero {
+    margin-bottom: 0.7rem;
+  }
+
+  .vpms-signal-strip {
+    gap: 0.56rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .vpms-signal-strip > article {
+    min-height: 0;
+    padding: 0.7rem 0.76rem;
+  }
+}
