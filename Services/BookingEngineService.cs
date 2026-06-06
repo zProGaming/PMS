@@ -307,78 +307,82 @@ public class BookingEngineService(
 
     public async Task<BookingConversionResult> ConvertToReservationAsync(int bookingRequestId)
     {
-        await using var transaction = await _context.Database.BeginTransactionAsync();
-
-        var bookingRequest = await _context.BookingRequests
-            .Include(request => request.RoomType)
-            .Include(request => request.PromotionCode)
-            .FirstOrDefaultAsync(request => request.Id == bookingRequestId);
-
-        if (bookingRequest is null)
+        var executionStrategy = _context.Database.CreateExecutionStrategy();
+        return await executionStrategy.ExecuteAsync(async () =>
         {
-            return new BookingConversionResult(false, "Booking request was not found.", null);
-        }
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
-        if (bookingRequest.BookingStatus == BookingRequestStatus.ConvertedToReservation && bookingRequest.ReservationId is not null)
-        {
-            return new BookingConversionResult(true, "Booking request is already converted.", bookingRequest.ReservationId);
-        }
+            var bookingRequest = await _context.BookingRequests
+                .Include(request => request.RoomType)
+                .Include(request => request.PromotionCode)
+                .FirstOrDefaultAsync(request => request.Id == bookingRequestId);
 
-        if (bookingRequest.BookingStatus == BookingRequestStatus.Cancelled)
-        {
-            return new BookingConversionResult(false, "Cancelled booking requests cannot be converted.", null);
-        }
+            if (bookingRequest is null)
+            {
+                return new BookingConversionResult(false, "Booking request was not found.", null);
+            }
 
-        var availabilityErrors = await ValidateAvailabilityAsync(
-            bookingRequest.RoomTypeId,
-            bookingRequest.RatePlanId,
-            bookingRequest.CheckInDate,
-            bookingRequest.CheckOutDate);
+            if (bookingRequest.BookingStatus == BookingRequestStatus.ConvertedToReservation && bookingRequest.ReservationId is not null)
+            {
+                return new BookingConversionResult(true, "Booking request is already converted.", bookingRequest.ReservationId);
+            }
 
-        if (availabilityErrors.Count > 0)
-        {
-            return new BookingConversionResult(false, string.Join(" ", availabilityErrors), null);
-        }
+            if (bookingRequest.BookingStatus == BookingRequestStatus.Cancelled)
+            {
+                return new BookingConversionResult(false, "Cancelled booking requests cannot be converted.", null);
+            }
 
-        var roomType = bookingRequest.RoomType ?? await _context.RoomTypes.FindAsync(bookingRequest.RoomTypeId);
-        if (roomType is null)
-        {
-            return new BookingConversionResult(false, "Room type was not found.", null);
-        }
+            var availabilityErrors = await ValidateAvailabilityAsync(
+                bookingRequest.RoomTypeId,
+                bookingRequest.RatePlanId,
+                bookingRequest.CheckInDate,
+                bookingRequest.CheckOutDate);
 
-        var guest = await FindOrCreateGuestAsync(bookingRequest);
-        var reservation = new Reservation
-        {
-            PropertyId = roomType.PropertyId,
-            GuestId = guest.Id,
-            RoomTypeId = bookingRequest.RoomTypeId,
-            RatePlanId = bookingRequest.RatePlanId,
-            ConfirmationNumber = CreateReservationConfirmationNumber(),
-            ArrivalDate = bookingRequest.CheckInDate.Date,
-            DepartureDate = bookingRequest.CheckOutDate.Date,
-            RateAmount = bookingRequest.RoomRate,
-            Adults = bookingRequest.AdultCount,
-            Children = bookingRequest.ChildCount,
-            Status = ReservationStatus.Reserved,
-            CreatedAtUtc = DateTime.UtcNow
-        };
+            if (availabilityErrors.Count > 0)
+            {
+                return new BookingConversionResult(false, string.Join(" ", availabilityErrors), null);
+            }
 
-        _context.Reservations.Add(reservation);
-        await _context.SaveChangesAsync();
+            var roomType = bookingRequest.RoomType ?? await _context.RoomTypes.FindAsync(bookingRequest.RoomTypeId);
+            if (roomType is null)
+            {
+                return new BookingConversionResult(false, "Room type was not found.", null);
+            }
 
-        bookingRequest.ReservationId = reservation.Id;
-        bookingRequest.BookingStatus = BookingRequestStatus.ConvertedToReservation;
-        bookingRequest.ConfirmedAt ??= DateTime.Now;
+            var guest = await FindOrCreateGuestAsync(bookingRequest);
+            var reservation = new Reservation
+            {
+                PropertyId = roomType.PropertyId,
+                GuestId = guest.Id,
+                RoomTypeId = bookingRequest.RoomTypeId,
+                RatePlanId = bookingRequest.RatePlanId,
+                ConfirmationNumber = CreateReservationConfirmationNumber(),
+                ArrivalDate = bookingRequest.CheckInDate.Date,
+                DepartureDate = bookingRequest.CheckOutDate.Date,
+                RateAmount = bookingRequest.RoomRate,
+                Adults = bookingRequest.AdultCount,
+                Children = bookingRequest.ChildCount,
+                Status = ReservationStatus.Reserved,
+                CreatedAtUtc = DateTime.UtcNow
+            };
 
-        if (bookingRequest.PromotionCode is not null)
-        {
-            bookingRequest.PromotionCode.TimesUsed += 1;
-        }
+            _context.Reservations.Add(reservation);
+            await _context.SaveChangesAsync();
 
-        await _context.SaveChangesAsync();
-        await transaction.CommitAsync();
+            bookingRequest.ReservationId = reservation.Id;
+            bookingRequest.BookingStatus = BookingRequestStatus.ConvertedToReservation;
+            bookingRequest.ConfirmedAt ??= DateTime.Now;
 
-        return new BookingConversionResult(true, "Booking request converted to reservation.", reservation.Id);
+            if (bookingRequest.PromotionCode is not null)
+            {
+                bookingRequest.PromotionCode.TimesUsed += 1;
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return new BookingConversionResult(true, "Booking request converted to reservation.", reservation.Id);
+        });
     }
 
     public async Task<IList<string>> ValidateAvailabilityAsync(int roomTypeId, int? ratePlanId, DateTime checkInDate, DateTime checkOutDate)

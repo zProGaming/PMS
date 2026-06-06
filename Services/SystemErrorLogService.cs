@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.SystemAdministration;
 
@@ -12,6 +13,8 @@ public class SystemErrorLogService(ApplicationDbContext context, IHttpContextAcc
 
     public async Task LogExceptionAsync(Exception exception, CancellationToken cancellationToken = default)
     {
+        DetachPendingBusinessChanges();
+
         var httpContext = _httpContextAccessor.HttpContext;
         _context.SystemErrorLogs.Add(new SystemErrorLog
         {
@@ -26,6 +29,21 @@ public class SystemErrorLogService(ApplicationDbContext context, IHttpContextAcc
         });
 
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    private void DetachPendingBusinessChanges()
+    {
+        foreach (var entry in _context.ChangeTracker.Entries()
+            .Where(entry => entry.Entity is not SystemErrorLog)
+            .ToList())
+        {
+            if (entry.State is EntityState.Detached or EntityState.Unchanged)
+            {
+                continue;
+            }
+
+            entry.State = EntityState.Detached;
+        }
     }
 
     public async Task MarkResolvedAsync(int id, string resolvedBy, string? notes, CancellationToken cancellationToken = default)

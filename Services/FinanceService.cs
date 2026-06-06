@@ -106,31 +106,36 @@ public class FinanceService(ApplicationDbContext context)
             return errors;
         }
 
-        await using var transaction = await _context.Database.BeginTransactionAsync();
-        payment.Status = PaymentStatus.Completed;
-        _context.Payments.Add(payment);
-        await _context.SaveChangesAsync();
-
-        if (shift is not null)
+        var executionStrategy = _context.Database.CreateExecutionStrategy();
+        return await executionStrategy.ExecuteAsync(async () =>
         {
-            _context.CashierTransactions.Add(new CashierTransaction
-            {
-                CashierShiftId = shift.Id,
-                PaymentId = payment.Id,
-                FolioId = payment.FolioId,
-                TransactionDate = payment.PaymentDate,
-                TransactionType = CashierTransactionType.Payment,
-                Amount = payment.Amount,
-                PaymentMethod = MapPaymentMethod(payment.PaymentMethod),
-                ReferenceNumber = payment.ReferenceNumber,
-                Notes = payment.Notes,
-                CreatedBy = createdBy
-            });
-            await _context.SaveChangesAsync();
-        }
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
-        await transaction.CommitAsync();
-        return errors;
+            payment.Status = PaymentStatus.Completed;
+            _context.Payments.Add(payment);
+            await _context.SaveChangesAsync();
+
+            if (shift is not null)
+            {
+                _context.CashierTransactions.Add(new CashierTransaction
+                {
+                    CashierShiftId = shift.Id,
+                    PaymentId = payment.Id,
+                    FolioId = payment.FolioId,
+                    TransactionDate = payment.PaymentDate,
+                    TransactionType = CashierTransactionType.Payment,
+                    Amount = payment.Amount,
+                    PaymentMethod = MapPaymentMethod(payment.PaymentMethod),
+                    ReferenceNumber = payment.ReferenceNumber,
+                    Notes = payment.Notes,
+                    CreatedBy = createdBy
+                });
+                await _context.SaveChangesAsync();
+            }
+
+            await transaction.CommitAsync();
+            return errors;
+        });
     }
 
     public FinancePaymentMethod MapPaymentMethod(string? paymentMethod)
