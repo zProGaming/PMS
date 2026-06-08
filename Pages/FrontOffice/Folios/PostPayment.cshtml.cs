@@ -25,6 +25,14 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
 
     public string GuestName { get; set; } = string.Empty;
 
+    public FolioStatus FolioStatus { get; set; }
+
+    public bool CanPostPayment => FolioStatus == FolioStatus.Open;
+
+    public string FolioControlMessage => CanPostPayment
+        ? "Payments will be posted to the active folio ledger."
+        : $"This folio is {FormatFolioStatus(FolioStatus)} and is read-only for payment posting.";
+
     public string? CurrentCashierShiftNumber { get; set; }
 
     public DateTime? CurrentCashierShiftBusinessDate { get; set; }
@@ -76,11 +84,13 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
 
         FolioId = folio.Id;
         FolioNumber = folio.FolioNumber;
+        FolioStatus = folio.Status;
         await LoadFolioContextAsync(folio.Id);
         var businessDate = await GetBusinessDateAsync();
         var userName = User.Identity?.Name ?? "Cashier";
         await LoadCashierContextAsync(userName);
         Payment.FolioId = folio.Id;
+        ValidateFolioCanPost();
         ValidatePayment();
         ValidatePaymentDate(businessDate);
 
@@ -130,6 +140,7 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
 
         FolioId = folio.Id;
         FolioNumber = folio.FolioNumber;
+        FolioStatus = folio.Status;
         FolioBalance = folio.Balance;
         GuestName = $"{folio.Guest?.FirstName} {folio.Guest?.LastName}".Trim();
         var businessDate = await GetBusinessDateAsync();
@@ -138,11 +149,19 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
         {
             FolioId = folio.Id,
             PaymentDate = businessDate.Date.Add(DateTime.Now.TimeOfDay),
-            Amount = folio.Balance > 0 ? folio.Balance : 0,
+            Amount = folio.Status == FolioStatus.Open && folio.Balance > 0 ? folio.Balance : 0,
             Status = PaymentStatus.Completed
         };
 
         return null;
+    }
+
+    private void ValidateFolioCanPost()
+    {
+        if (!CanPostPayment)
+        {
+            ModelState.AddModelError(string.Empty, "Payments cannot be posted to closed, voided, or transferred folios.");
+        }
     }
 
     private void ValidatePayment()
@@ -185,6 +204,7 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
             .FirstOrDefaultAsync(item => item.Id == folioId);
 
         FolioBalance = folio?.Balance ?? 0;
+        FolioStatus = folio?.Status ?? FolioStatus.Closed;
         GuestName = $"{folio?.Guest?.FirstName} {folio?.Guest?.LastName}".Trim();
     }
 
@@ -229,6 +249,7 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
 
             FolioId = PostedPayment.Folio.Id;
             FolioNumber = PostedPayment.Folio.FolioNumber;
+            FolioStatus = PostedPayment.Folio.Status;
             FolioBalance = balance;
             RemainingBalanceAfterPayment = balance;
             GuestName = $"{PostedPayment.Folio.Guest?.FirstName} {PostedPayment.Folio.Guest?.LastName}".Trim();
@@ -265,6 +286,15 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
         {
             ViewName = "_PostPaymentSuccessNative",
             ViewData = new ViewDataDictionary<PostPaymentModel>(ViewData, this)
+        };
+    }
+
+    private static string FormatFolioStatus(FolioStatus status)
+    {
+        return status switch
+        {
+            FolioStatus.Transferred => "transferred to AR",
+            _ => status.ToString().ToLowerInvariant()
         };
     }
 }

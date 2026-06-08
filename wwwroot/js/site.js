@@ -115,6 +115,30 @@ document.addEventListener("DOMContentLoaded", () => {
     confirmDialog.open(trigger, message);
   });
 
+  const updateCheckoutSubmitState = (scope) => {
+    const root = scope instanceof Element ? scope : document;
+    root.querySelectorAll("[data-vpms-checkout-submit]").forEach((button) => {
+      const form = button.form instanceof HTMLFormElement ? button.form : button.closest("form");
+      const override = form?.querySelector("[data-vpms-checkout-override]");
+      const baseCanSubmit = button.dataset.vpmsBaseCanSubmit === "true";
+      const hasBalance = button.dataset.vpmsHasBalance === "true";
+      const canOverride = button.dataset.vpmsCanOverride === "true";
+      const overrideAccepted = Boolean(override?.checked && canOverride);
+
+      button.disabled = !baseCanSubmit || (hasBalance && !overrideAccepted);
+    });
+  };
+
+  document.addEventListener("change", (event) => {
+    if (!event.target?.matches?.("[data-vpms-checkout-override]")) {
+      return;
+    }
+
+    updateCheckoutSubmitState(event.target.closest("form") || document);
+  });
+
+  updateCheckoutSubmitState(document);
+
   const navIconMap = {
     "dashboard": "home",
     "executive dashboard": "chart",

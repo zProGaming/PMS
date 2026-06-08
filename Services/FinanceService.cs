@@ -82,6 +82,7 @@ public class FinanceService(ApplicationDbContext context)
 
         var folio = await _context.Folios
             .AsNoTracking()
+            .Include(item => item.Reservation)
             .Include(item => item.Items)
             .Include(item => item.Payments)
             .FirstOrDefaultAsync(item => item.Id == payment.FolioId);
@@ -92,6 +93,11 @@ public class FinanceService(ApplicationDbContext context)
         }
         else
         {
+            if (folio.Status != FolioStatus.Open)
+            {
+                errors.Add($"Payments cannot be posted to a {FormatFolioStatus(folio.Status)} folio. Reopen or transfer the folio through an authorized finance workflow before posting.");
+            }
+
             if (payment.Amount > folio.Balance)
             {
                 errors.Add($"Payment cannot exceed the open folio balance of {folio.Balance:C}.");
@@ -180,9 +186,41 @@ public class FinanceService(ApplicationDbContext context)
                 await _context.SaveChangesAsync();
             }
 
+            await CloseSettledCheckedOutFolioAsync(payment.FolioId);
+
             await transaction.CommitAsync();
             return errors;
         });
+    }
+
+    private async Task CloseSettledCheckedOutFolioAsync(int folioId)
+    {
+        var folio = await _context.Folios
+            .Include(item => item.Reservation)
+            .Include(item => item.Items)
+            .Include(item => item.Payments)
+            .FirstOrDefaultAsync(item => item.Id == folioId);
+
+        if (folio is null ||
+            folio.Status != FolioStatus.Open ||
+            folio.Reservation?.Status != Models.FrontOffice.ReservationStatus.CheckedOut ||
+            folio.Balance > 0)
+        {
+            return;
+        }
+
+        folio.Status = FolioStatus.Closed;
+        folio.ClosedAtUtc ??= DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+    }
+
+    private static string FormatFolioStatus(FolioStatus status)
+    {
+        return status switch
+        {
+            FolioStatus.Transferred => "transferred to AR",
+            _ => status.ToString().ToLowerInvariant()
+        };
     }
 
     private static string? BuildPaymentNotes(string? notes, CashierShift? shift, string createdBy)

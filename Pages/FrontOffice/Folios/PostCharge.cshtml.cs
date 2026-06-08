@@ -29,6 +29,14 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
 
     public SelectList ChargeCodeOptions { get; set; } = null!;
 
+    public FolioStatus FolioStatus { get; set; }
+
+    public bool CanPostCharge => FolioStatus == FolioStatus.Open;
+
+    public string FolioControlMessage => CanPostCharge
+        ? "Charges will be posted to the active folio ledger."
+        : $"This folio is {FormatFolioStatus(FolioStatus)} and is read-only for charge posting.";
+
     public async Task<IActionResult> OnGetAsync(int? folioId)
     {
         var loadResult = await LoadChargeFormAsync(folioId);
@@ -71,9 +79,11 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
 
         FolioId = folio.Id;
         FolioNumber = folio.FolioNumber;
+        FolioStatus = folio.Status;
         FolioBalance = folio.Balance;
         GuestName = $"{folio.Guest?.FirstName} {folio.Guest?.LastName}".Trim();
         var businessDate = await GetBusinessDateAsync();
+        ValidateFolioCanPost();
         ValidateCharge();
         ValidatePostingDate(businessDate);
 
@@ -143,6 +153,7 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
 
         FolioId = folio.Id;
         FolioNumber = folio.FolioNumber;
+        FolioStatus = folio.Status;
         FolioBalance = folio.Balance;
         GuestName = $"{folio.Guest?.FirstName} {folio.Guest?.LastName}".Trim();
         var businessDate = await GetBusinessDateAsync();
@@ -156,6 +167,14 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
 
         await LoadChargeCodesAsync();
         return null;
+    }
+
+    private void ValidateFolioCanPost()
+    {
+        if (!CanPostCharge)
+        {
+            ModelState.AddModelError(string.Empty, "Charges cannot be posted to closed, voided, or transferred folios.");
+        }
     }
 
     private void ValidateCharge()
@@ -213,6 +232,15 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
             .ToListAsync();
 
         ChargeCodeOptions = new SelectList(chargeCodes, "Id", "Name", Charge.ChargeCodeId);
+    }
+
+    private static string FormatFolioStatus(FolioStatus status)
+    {
+        return status switch
+        {
+            FolioStatus.Transferred => "transferred to AR",
+            _ => status.ToString().ToLowerInvariant()
+        };
     }
 
     private IActionResult NativePartialOrPage()

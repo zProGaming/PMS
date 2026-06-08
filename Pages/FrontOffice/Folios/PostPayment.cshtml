@@ -27,6 +27,10 @@ else
     <p class="text-muted">Folio @Model.FolioNumber</p>
 }
 
+<div class="alert @(Model.CanPostPayment ? "alert-info" : "alert-warning")">
+    @Model.FolioControlMessage
+</div>
+
 <form method="post" class="@(isNativeWorkflow ? "vpms-native-workflow-form vpms-native-ledger-form" : "mt-3")">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -97,7 +101,7 @@ else
 
     <div class="vpms-native-action-row">
         <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@Model.FolioId">Cancel</a>
-        <button type="submit" class="btn btn-primary">Post Payment</button>
+        <button type="submit" class="btn btn-primary" disabled="@(!Model.CanPostPayment)">Post Payment</button>
     </div>
 </form>
 

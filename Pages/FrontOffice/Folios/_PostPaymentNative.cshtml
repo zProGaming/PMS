@@ -16,6 +16,10 @@
     </div>
 </section>
 
+<div class="alert @(Model.CanPostPayment ? "alert-info" : "alert-warning")">
+    @Model.FolioControlMessage
+</div>
+
 <div class="vpms-native-workflow-summary mb-3">
     <div>
         <span>Cashier Trace</span>
@@ -89,6 +93,6 @@
 
     <div class="vpms-native-action-row">
         <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@Model.FolioId" data-vpms-dialog-close>Cancel</a>
-        <button type="submit" class="btn btn-primary">Post Payment</button>
+        <button type="submit" class="btn btn-primary" disabled="@(!Model.CanPostPayment)">Post Payment</button>
     </div>
 </form>

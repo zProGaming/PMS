@@ -8,6 +8,17 @@
     var chargeCount = Model.Folio.Items.Count;
     var paymentCount = Model.Folio.Payments.Count;
     var settlementLabel = Model.Folio.Balance == 0 ? "Settlement clear" : Model.Folio.Balance > 0 ? "Collect before checkout" : "Review credit balance";
+    var isFolioOpen = Model.Folio.Status == Vantage.PMS.Models.Finance.FolioStatus.Open;
+    var reservationStatus = Model.Folio.Reservation?.Status.ToString() ?? "Unlinked";
+    var folioStage = Model.Folio.Status switch
+    {
+        Vantage.PMS.Models.Finance.FolioStatus.Open when Model.Folio.Reservation?.Status == Vantage.PMS.Models.FrontOffice.ReservationStatus.CheckedIn => "In-House Ledger",
+        Vantage.PMS.Models.Finance.FolioStatus.Open when Model.Folio.Reservation?.Status == Vantage.PMS.Models.FrontOffice.ReservationStatus.CheckedOut => "Open After Checkout",
+        Vantage.PMS.Models.Finance.FolioStatus.Closed => "Closed Ledger",
+        Vantage.PMS.Models.Finance.FolioStatus.Transferred => "AR Transferred",
+        Vantage.PMS.Models.Finance.FolioStatus.Voided => "Voided Ledger",
+        _ => "Open Ledger"
+    };
 }
 
 <div class="vpms-dialog-control-page vpms-folio-detail-control">
@@ -21,19 +32,35 @@
         </p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-status-badge status-@statusClass">@Model.Folio.Status</span>
+            <span class="vpms-mini-chip">@folioStage</span>
+            <span class="vpms-mini-chip">Reservation: @reservationStatus</span>
             <span class="vpms-mini-chip">@chargeCount charge@(chargeCount == 1 ? "" : "s")</span>
             <span class="vpms-mini-chip">@paymentCount payment@(paymentCount == 1 ? "" : "s")</span>
         </div>
     </div>
     <div class="vpms-hero-actions">
-        <a class="btn vpms-btn-primary" asp-page="./PostCharge" asp-route-folioId="@Model.Folio.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Post Folio Charge">Post Charge</a>
-        <a class="btn vpms-btn-secondary" asp-page="./PostPayment" asp-route-folioId="@Model.Folio.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Post Folio Payment">Post Payment</a>
+        @if (isFolioOpen)
+        {
+            <a class="btn vpms-btn-primary" asp-page="./PostCharge" asp-route-folioId="@Model.Folio.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Post Folio Charge">Post Charge</a>
+            <a class="btn vpms-btn-secondary" asp-page="./PostPayment" asp-route-folioId="@Model.Folio.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Post Folio Payment">Post Payment</a>
+        }
         @if (Model.Folio.Reservation?.Status == Vantage.PMS.Models.FrontOffice.ReservationStatus.CheckedIn)
         {
             <a class="btn btn-warning" asp-page="/FrontOffice/Reservations/CheckOut" asp-route-id="@Model.Folio.ReservationId" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Guest Check Out">Check Out</a>
         }
     </div>
 </section>
+
+@if (!isFolioOpen)
+{
+    <div class="alert alert-warning vpms-control-alert">
+        This folio is @folioStage.ToLowerInvariant(). Posting actions are locked to preserve the checkout and finance audit trail.
+        @if (Model.Folio.ClosedAtUtc is not null)
+        {
+            <span>Closed @Model.Folio.ClosedAtUtc.Value.ToLocalTime().ToString("g").</span>
+        }
+    </div>
+}
 
 <section class="vpms-control-strip vpms-finance-strip">
     <article>
@@ -64,8 +91,8 @@
         <strong>@settlementLabel</strong>
     </article>
     <article>
-        <span>Posting Trace</span>
-        <strong>@chargeCount charge@(chargeCount == 1 ? "" : "s") reviewed</strong>
+        <span>Ledger State</span>
+        <strong>@folioStage</strong>
     </article>
     <article>
         <span>Cashier Trace</span>
@@ -124,7 +151,10 @@
             <h2>Charges</h2>
             <p>Posted folio items, void flags, and posting responsibility.</p>
         </div>
-        <a class="btn vpms-btn-secondary" asp-page="./PostCharge" asp-route-folioId="@Model.Folio.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Post Folio Charge">Post Charge</a>
+        @if (isFolioOpen)
+        {
+            <a class="btn vpms-btn-secondary" asp-page="./PostCharge" asp-route-folioId="@Model.Folio.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Post Folio Charge">Post Charge</a>
+        }
     </div>
 
     @if (chargeCount == 0)
@@ -176,7 +206,10 @@
             <h2>Payments</h2>
             <p>Collected payments, cashier traceability, and settlement references.</p>
         </div>
-        <a class="btn vpms-btn-secondary" asp-page="./PostPayment" asp-route-folioId="@Model.Folio.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Post Folio Payment">Post Payment</a>
+        @if (isFolioOpen)
+        {
+            <a class="btn vpms-btn-secondary" asp-page="./PostPayment" asp-route-folioId="@Model.Folio.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Post Folio Payment">Post Payment</a>
+        }
     </div>
 
     @if (paymentCount == 0)
