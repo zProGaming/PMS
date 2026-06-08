@@ -20,6 +20,7 @@
     </div>
     <div class="d-flex gap-2">
         <a asp-page="/Finance/CashierShifts/Index" class="btn btn-primary">Cashier Shifts</a>
+        <a asp-page="/Finance/PaymentIntegrity/Index" class="btn btn-outline-primary">Payment Integrity</a>
         <a asp-page="/Finance/Reports/Index" class="btn btn-outline-primary">Finance Reports</a>
     </div>
 </div>
@@ -34,7 +35,7 @@
         <a asp-page="/Finance/CashierShifts/Index"><span>01</span><strong>Control cashiers</strong><small>Open shifts, payments, refunds, and voids.</small></a>
         <a asp-page="/AccountsReceivable/Aging/Index"><span>02</span><strong>Collect city ledger</strong><small>Aging, overdue accounts, and follow-up risk.</small></a>
         <a asp-page="/Groups/Folios/Index"><span>03</span><strong>Review group folios</strong><small>Master folios, deposits, and outstanding balances.</small></a>
-        <a asp-page="/Reports/Center"><span>04</span><strong>Prepare reports</strong><small>Print, browser PDF, and CSV-ready report center.</small></a>
+        <a asp-page="/Finance/PaymentIntegrity/Index"><span>04</span><strong>Audit payments</strong><small>Cashier trace and duplicate receipt controls.</small></a>
     </div>
 </section>
 
@@ -43,6 +44,8 @@
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Cash Payments</div><div class="kpi-value">@Model.CashPaymentsToday.ToString("C")</div><div class="kpi-note">Cash collected today</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Card / E-wallet</div><div class="kpi-value">@Model.CardEWalletPaymentsToday.ToString("C")</div><div class="kpi-note">Non-cash payments</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Open Shifts</div><div class="kpi-value">@Model.OpenCashierShifts</div><div class="kpi-note">Cashier control</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Payment Integrity</div><div class="kpi-value">@Model.PaymentIntegrity.TotalIssues</div><div class="kpi-note">@Model.PaymentIntegrity.HighRiskIssues high-risk signal(s)</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Missing Cashier Trace</div><div class="kpi-value">@Model.PaymentIntegrity.MissingCashierTrace</div><div class="kpi-note">Payments without shift link</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Refund Approvals</div><div class="kpi-value">@Model.RefundsPendingApproval</div><div class="kpi-note">Pending review</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Void Requests</div><div class="kpi-value">@Model.VoidRequestsPendingApproval</div><div class="kpi-note">Pending review</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Discounts Pending</div><div class="kpi-value">@Model.DiscountsPendingApproval</div><div class="kpi-note">Approval queue</div></div></div>
@@ -144,6 +147,7 @@
 <div class="quick-action-grid mt-4">
     <a asp-page="/Finance/ChargeCodes/Index" class="quick-action-card"><strong>Charge Codes</strong><small>Configure posting categories</small></a>
     <a asp-page="/Finance/CashierShifts/Index" class="quick-action-card"><strong>Cashier Shifts</strong><small>Open, close, and audit shifts</small></a>
+    <a asp-page="/Finance/PaymentIntegrity/Index" class="quick-action-card"><strong>Payment Integrity</strong><small>Review duplicate receipts and cashier trace</small></a>
     <a asp-page="/Finance/Documents/Index" class="quick-action-card"><strong>Finance Documents</strong><small>Invoices, receipts, and statements</small></a>
     <a asp-page="/Finance/Reports/Index" class="quick-action-card"><strong>Finance Reports</strong><small>Cashier and AR reporting</small></a>
     <a asp-page="/AccountsReceivable/Aging/Index" class="quick-action-card"><strong>AR Aging</strong><small>Monitor overdue balances</small></a>

@@ -139,6 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "finance dashboard": "finance",
     "folios": "ledger",
     "payments": "cash",
+    "payment integrity": "audit",
     "night audit": "moon",
     "cashier shifts": "cash",
     "finance documents": "document",

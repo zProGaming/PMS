@@ -137,6 +137,7 @@ public class DataValidationService(ApplicationDbContext context)
     private async Task<int> ScanFoliosAsync()
     {
         var count = 0;
+        var today = DateTime.Today;
         var folioIssues = await _context.Folios
             .AsNoTracking()
             .Where(folio =>
@@ -175,6 +176,119 @@ public class DataValidationService(ApplicationDbContext context)
         foreach (var id in paymentIssues)
         {
             count += await AddIssueAsync("Finance", nameof(Payment), id, DataValidationIssueType.OrphanRecord, SystemSeverity.High, "Payment has no valid folio.", "Link the payment to a valid folio or void it through finance controls.");
+        }
+
+        var paymentsWithoutCashierTrace = await _context.Payments
+            .AsNoTracking()
+            .Where(payment => payment.Status == PaymentStatus.Completed && !payment.CashierTransactions.Any())
+            .Select(payment => new { payment.Id, payment.Notes })
+            .ToListAsync();
+        foreach (var payment in paymentsWithoutCashierTrace)
+        {
+            var managementPosted = payment.Notes?.Contains("Management-posted without open cashier shift", StringComparison.OrdinalIgnoreCase) == true;
+            count += await AddIssueAsync(
+                "Finance",
+                nameof(Payment),
+                payment.Id,
+                DataValidationIssueType.MissingRequiredData,
+                managementPosted ? SystemSeverity.Medium : SystemSeverity.High,
+                managementPosted
+                    ? "Payment was management-posted without cashier shift trace."
+                    : "Completed payment has no linked cashier transaction.",
+                managementPosted
+                    ? "Review management-posted payments during cashier audit."
+                    : "Review receipt and cashier shift history; void and repost if the payment was not authorized.");
+        }
+
+        var referencePayments = await _context.Payments
+            .AsNoTracking()
+            .Where(payment =>
+                payment.Status != PaymentStatus.Voided &&
+                payment.Status != PaymentStatus.Failed &&
+                payment.ReferenceNumber != null &&
+                payment.ReferenceNumber != "")
+            .Select(payment => new
+            {
+                payment.Id,
+                payment.FolioId,
+                payment.ReferenceNumber
+            })
+            .ToListAsync();
+        var duplicateReferencePayments = referencePayments
+            .GroupBy(payment => new
+            {
+                payment.FolioId,
+                Reference = payment.ReferenceNumber!.Trim().ToUpperInvariant()
+            })
+            .Where(group => !string.IsNullOrWhiteSpace(group.Key.Reference) && group.Count() > 1)
+            .SelectMany(group => group)
+            .ToList();
+        foreach (var payment in duplicateReferencePayments)
+        {
+            count += await AddIssueAsync("Finance", nameof(Payment), payment.Id, DataValidationIssueType.DuplicateRecord, SystemSeverity.High, "Payment reference is duplicated on the same folio.", "Confirm whether this is a duplicate receipt, processor retry, or valid split settlement.");
+        }
+
+        var recentCutoff = today.AddDays(-14);
+        var recentPayments = await _context.Payments
+            .AsNoTracking()
+            .Where(payment =>
+                payment.Status != PaymentStatus.Voided &&
+                payment.Status != PaymentStatus.Failed &&
+                payment.PaymentDate >= recentCutoff)
+            .Select(payment => new
+            {
+                payment.Id,
+                payment.FolioId,
+                payment.Amount,
+                payment.PaymentMethod,
+                payment.PaymentDate
+            })
+            .ToListAsync();
+        var repeatSubmissionPayments = recentPayments
+            .GroupBy(payment => new
+            {
+                payment.FolioId,
+                payment.Amount,
+                Method = NormalizePaymentMethodForValidation(payment.PaymentMethod),
+                Minute = new DateTime(payment.PaymentDate.Year, payment.PaymentDate.Month, payment.PaymentDate.Day, payment.PaymentDate.Hour, payment.PaymentDate.Minute, 0)
+            })
+            .Where(group => group.Count() > 1)
+            .SelectMany(group => group)
+            .ToList();
+        foreach (var payment in repeatSubmissionPayments)
+        {
+            count += await AddIssueAsync("Finance", nameof(Payment), payment.Id, DataValidationIssueType.DuplicateRecord, SystemSeverity.High, "Similar payment was posted to the same folio within the same minute.", "Review the receipts before accepting further settlement on this folio.");
+        }
+
+        var paymentsAfterFolioClose = (await _context.Payments
+                .AsNoTracking()
+                .Where(payment =>
+                    payment.Status == PaymentStatus.Completed &&
+                    payment.Folio != null &&
+                    payment.Folio.ClosedAtUtc != null)
+                .Select(payment => new
+                {
+                    payment.Id,
+                    payment.PaymentDate,
+                    payment.Folio!.ClosedAtUtc
+                })
+                .ToListAsync())
+            .Where(payment => payment.ClosedAtUtc is not null && payment.PaymentDate.ToUniversalTime() > payment.ClosedAtUtc.Value)
+            .Select(payment => payment.Id)
+            .ToList();
+        foreach (var id in paymentsAfterFolioClose)
+        {
+            count += await AddIssueAsync("Finance", nameof(Payment), id, DataValidationIssueType.InvalidStatus, SystemSeverity.Medium, "Payment was posted after the folio closed.", "Confirm whether this was an approved post-checkout collection or should be handled through AR/city ledger controls.");
+        }
+
+        var invalidPaymentAmounts = await _context.Payments
+            .AsNoTracking()
+            .Where(payment => payment.Amount <= 0 && payment.Status != PaymentStatus.Voided && payment.Status != PaymentStatus.Failed)
+            .Select(payment => payment.Id)
+            .ToListAsync();
+        foreach (var id in invalidPaymentAmounts)
+        {
+            count += await AddIssueAsync("Finance", nameof(Payment), id, DataValidationIssueType.InconsistentBalance, SystemSeverity.High, "Payment amount is zero or negative.", "Review and void the payment if it was not posted through an approved adjustment workflow.");
         }
 
         var invalidFolioItems = await _context.FolioItems
@@ -1070,6 +1184,13 @@ public class DataValidationService(ApplicationDbContext context)
         });
 
         return 1;
+    }
+
+    private static string NormalizePaymentMethodForValidation(string? paymentMethod)
+    {
+        return string.IsNullOrWhiteSpace(paymentMethod)
+            ? string.Empty
+            : paymentMethod.Replace("-", string.Empty).Replace(" ", string.Empty).Trim().ToUpperInvariant();
     }
 
     private async Task<int> ScanExecutiveReportingAsync()

@@ -1,0 +1,57 @@
+@model Vantage.PMS.Pages.FrontOffice.Folios.PostPaymentModel
+
+@{
+    var payment = Model.PostedPayment ?? Model.Payment;
+    var receiptNumber = payment.ReferenceNumber ?? $"PAY-{payment.Id:000000}";
+    var shiftNumber = Model.CurrentCashierShiftNumber ?? payment.CashierTransactions
+        .OrderByDescending(transaction => transaction.TransactionDate)
+        .Select(transaction => transaction.CashierShift?.ShiftNumber)
+        .FirstOrDefault(number => !string.IsNullOrWhiteSpace(number)) ?? "Management-posted";
+}
+
+<section class="vpms-native-workflow-complete vpms-native-payment-success" role="status" aria-live="polite">
+    <span class="vpms-native-workflow-complete-mark" aria-hidden="true"></span>
+    <strong>Payment Posted</strong>
+    <p>@receiptNumber has been recorded against @Model.FolioNumber.</p>
+</section>
+
+<div class="vpms-native-workflow-summary mb-3">
+    <div>
+        <span>Amount</span>
+        <strong>@payment.Amount.ToString("C")</strong>
+    </div>
+    <div>
+        <span>Remaining Balance</span>
+        <strong>@Model.RemainingBalanceAfterPayment.ToString("C")</strong>
+    </div>
+    <div>
+        <span>Cashier Trace</span>
+        <strong>@shiftNumber</strong>
+    </div>
+</div>
+
+<section class="vpms-native-workflow-card">
+    <div class="vpms-native-workflow-kicker">Receipt Control</div>
+    <h2>@(string.IsNullOrWhiteSpace(Model.GuestName) ? "Guest folio" : Model.GuestName)</h2>
+    <dl class="vpms-definition-list">
+        <dt>Payment Date</dt>
+        <dd>@payment.PaymentDate.ToString("MMM d, yyyy h:mm tt")</dd>
+        <dt>Method</dt>
+        <dd>@payment.PaymentMethod</dd>
+        <dt>Reference</dt>
+        <dd>@receiptNumber</dd>
+    </dl>
+</section>
+
+<div class="vpms-native-action-row">
+    <a class="btn vpms-btn-secondary"
+       asp-page="/Documents/Print"
+       asp-route-template="payment-receipt"
+       asp-route-id="@payment.Id"
+       target="_blank"
+       rel="noopener">Print Receipt</a>
+    <a class="btn vpms-btn-secondary"
+       asp-page="./Details"
+       asp-route-id="@Model.FolioId"
+       data-vpms-dialog-close>Return to Folio</a>
+</div>

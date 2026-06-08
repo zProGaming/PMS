@@ -2,10 +2,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Finance;
+using Vantage.PMS.Services;
 
 namespace Vantage.PMS.Pages.Finance.Payments;
 
-public class IndexModel(ApplicationDbContext context) : PageModel
+public class IndexModel(ApplicationDbContext context, PaymentIntegrityService paymentIntegrityService) : PageModel
 {
     public IList<Payment> Payments { get; private set; } = [];
 
@@ -14,6 +15,8 @@ public class IndexModel(ApplicationDbContext context) : PageModel
     public decimal MonthToDatePayments { get; private set; }
 
     public int PendingPayments { get; private set; }
+
+    public PaymentIntegritySummary IntegritySummary { get; private set; } = new(0, 0, 0, 0, 0, 0);
 
     public async Task OnGetAsync()
     {
@@ -36,5 +39,6 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             .Where(payment => payment.Status == PaymentStatus.Completed && payment.PaymentDate >= monthStart && payment.PaymentDate < tomorrow)
             .Sum(payment => payment.Amount);
         PendingPayments = Payments.Count(payment => payment.Status is PaymentStatus.Pending or PaymentStatus.Authorized);
+        IntegritySummary = await paymentIntegrityService.GetSummaryAsync();
     }
 }

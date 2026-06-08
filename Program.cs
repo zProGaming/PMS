@@ -23,6 +23,7 @@ builder.Services.AddScoped<BookingNotificationService>();
 builder.Services.AddScoped<GuestPortalNotificationService>();
 builder.Services.AddScoped<GuestPortalService>();
 builder.Services.AddScoped<FinanceService>();
+builder.Services.AddScoped<PaymentIntegrityService>();
 builder.Services.AddScoped<ARCollectionReportService>();
 builder.Services.AddScoped<AccountingPostingService>();
 builder.Services.AddScoped<AccountingReportService>();

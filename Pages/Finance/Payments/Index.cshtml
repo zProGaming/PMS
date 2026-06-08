@@ -21,31 +21,39 @@
     </div>
     <div class="d-flex flex-wrap gap-2">
         <a class="btn vpms-btn-primary" asp-page="/FrontOffice/Folios/Index">Folios</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Finance/PaymentIntegrity/Index">Payment Integrity</a>
         <a class="btn vpms-btn-secondary" asp-page="/Finance/CashierShifts/Index">Cashier Shifts</a>
     </div>
 </div>
 
 <div class="row g-3 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-6 col-xl-3">
         <div class="kpi-card">
             <div class="kpi-label">Today</div>
             <div class="kpi-value">@Model.TodayPayments.ToString("C")</div>
             <div class="kpi-note">Completed payments</div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6 col-xl-3">
         <div class="kpi-card">
             <div class="kpi-label">Month to Date</div>
             <div class="kpi-value">@Model.MonthToDatePayments.ToString("C")</div>
             <div class="kpi-note">Completed payments this month</div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6 col-xl-3">
         <div class="kpi-card">
             <div class="kpi-label">Pending Review</div>
             <div class="kpi-value">@Model.PendingPayments</div>
             <div class="kpi-note">Pending or authorized</div>
         </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <a class="kpi-card text-decoration-none d-block h-100" asp-page="/Finance/PaymentIntegrity/Index">
+            <div class="kpi-label">Integrity Signals</div>
+            <div class="kpi-value">@Model.IntegritySummary.TotalIssues</div>
+            <div class="kpi-note">@Model.IntegritySummary.HighRiskIssues high-risk payment signal(s)</div>
+        </a>
     </div>
 </div>
 

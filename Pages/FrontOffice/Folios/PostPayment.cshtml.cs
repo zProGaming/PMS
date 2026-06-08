@@ -25,6 +25,20 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
 
     public string GuestName { get; set; } = string.Empty;
 
+    public string? CurrentCashierShiftNumber { get; set; }
+
+    public DateTime? CurrentCashierShiftBusinessDate { get; set; }
+
+    public bool HasOpenCashierShift { get; set; }
+
+    public bool CanPostWithoutOpenShift { get; set; }
+
+    public string CashierShiftMessage { get; set; } = string.Empty;
+
+    public Payment? PostedPayment { get; set; }
+
+    public decimal RemainingBalanceAfterPayment { get; set; }
+
     public async Task<IActionResult> OnGetAsync(int? folioId)
     {
         var loadResult = await LoadPaymentFormAsync(folioId);
@@ -64,6 +78,8 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
         FolioNumber = folio.FolioNumber;
         await LoadFolioContextAsync(folio.Id);
         var businessDate = await GetBusinessDateAsync();
+        var userName = User.Identity?.Name ?? "Cashier";
+        await LoadCashierContextAsync(userName);
         Payment.FolioId = folio.Id;
         ValidatePayment();
         ValidatePaymentDate(businessDate);
@@ -73,12 +89,7 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
             return NativePartialOrPage();
         }
 
-        var userName = User.Identity?.Name ?? "Cashier";
-        var allowWithoutOpenShift = User.IsInRole(PmsRoles.FinanceManager) ||
-            User.IsInRole(PmsRoles.GeneralManager) ||
-            User.IsInRole(PmsRoles.SystemAdmin);
-
-        var errors = await _financeService.PostFolioPaymentAsync(Payment, userName, allowWithoutOpenShift);
+        var errors = await _financeService.PostFolioPaymentAsync(Payment, userName, CanPostWithoutOpenShift);
         if (errors.Count > 0)
         {
             foreach (var error in errors)
@@ -87,6 +98,12 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
             }
 
             return NativePartialOrPage();
+        }
+
+        if (IsNativeWorkflowRequest())
+        {
+            await LoadPostedPaymentAsync(Payment.Id);
+            return SuccessNativePartial();
         }
 
         return RedirectToPage("./Details", new { id = folio.Id });
@@ -116,10 +133,12 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
         FolioBalance = folio.Balance;
         GuestName = $"{folio.Guest?.FirstName} {folio.Guest?.LastName}".Trim();
         var businessDate = await GetBusinessDateAsync();
+        await LoadCashierContextAsync(User.Identity?.Name ?? "Cashier");
         Payment = new Payment
         {
             FolioId = folio.Id,
             PaymentDate = businessDate.Date.Add(DateTime.Now.TimeOfDay),
+            Amount = folio.Balance > 0 ? folio.Balance : 0,
             Status = PaymentStatus.Completed
         };
 
@@ -169,6 +188,57 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
         GuestName = $"{folio?.Guest?.FirstName} {folio?.Guest?.LastName}".Trim();
     }
 
+    private async Task LoadCashierContextAsync(string userName)
+    {
+        CanPostWithoutOpenShift = User.IsInRole(PmsRoles.FinanceManager) ||
+            User.IsInRole(PmsRoles.GeneralManager) ||
+            User.IsInRole(PmsRoles.SystemAdmin);
+
+        var shift = await _financeService.GetOpenShiftForUserAsync(userName);
+        HasOpenCashierShift = shift is not null;
+        CurrentCashierShiftNumber = shift?.ShiftNumber;
+        CurrentCashierShiftBusinessDate = shift?.BusinessDate;
+        CashierShiftMessage = shift is not null
+            ? $"Posting will be traced to cashier shift {shift.ShiftNumber}."
+            : CanPostWithoutOpenShift
+                ? "No cashier shift is open. This payment will be marked as management-posted without shift trace."
+                : "Open a cashier shift before posting this payment.";
+    }
+
+    private async Task LoadPostedPaymentAsync(int paymentId)
+    {
+        PostedPayment = await _context.Payments
+            .AsNoTracking()
+            .Include(payment => payment.Folio).ThenInclude(folio => folio!.Guest)
+            .Include(payment => payment.CashierTransactions).ThenInclude(transaction => transaction.CashierShift)
+            .FirstOrDefaultAsync(payment => payment.Id == paymentId);
+
+        if (PostedPayment?.Folio is not null)
+        {
+            var balance = await _context.Folios
+                .AsNoTracking()
+                .Where(folio => folio.Id == PostedPayment.Folio.Id)
+                .Select(folio =>
+                    (_context.FolioItems
+                        .Where(item => item.FolioId == folio.Id && !item.IsVoided)
+                        .Sum(item => (decimal?)item.Amount) ?? 0) -
+                    (_context.Payments
+                        .Where(payment => payment.FolioId == folio.Id && payment.Status == PaymentStatus.Completed)
+                        .Sum(payment => (decimal?)payment.Amount) ?? 0))
+                .FirstOrDefaultAsync();
+
+            FolioId = PostedPayment.Folio.Id;
+            FolioNumber = PostedPayment.Folio.FolioNumber;
+            FolioBalance = balance;
+            RemainingBalanceAfterPayment = balance;
+            GuestName = $"{PostedPayment.Folio.Guest?.FirstName} {PostedPayment.Folio.Guest?.LastName}".Trim();
+            CurrentCashierShiftNumber = PostedPayment.CashierTransactions
+                .OrderByDescending(transaction => transaction.TransactionDate)
+                .Select(transaction => transaction.CashierShift?.ShiftNumber)
+                .FirstOrDefault(number => !string.IsNullOrWhiteSpace(number));
+        }
+    }
+
     private IActionResult NativePartialOrPage()
     {
         return IsNativeWorkflowRequest() ? NativePartial() : Page();
@@ -185,6 +255,15 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
         return new PartialViewResult
         {
             ViewName = "_PostPaymentNative",
+            ViewData = new ViewDataDictionary<PostPaymentModel>(ViewData, this)
+        };
+    }
+
+    private PartialViewResult SuccessNativePartial()
+    {
+        return new PartialViewResult
+        {
+            ViewName = "_PostPaymentSuccessNative",
             ViewData = new ViewDataDictionary<PostPaymentModel>(ViewData, this)
         };
     }

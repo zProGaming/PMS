@@ -16,6 +16,35 @@
     </div>
 </section>
 
+<div class="vpms-native-workflow-summary mb-3">
+    <div>
+        <span>Cashier Trace</span>
+        <strong>@(Model.HasOpenCashierShift ? Model.CurrentCashierShiftNumber : "No open shift")</strong>
+    </div>
+    <div>
+        <span>Business Date</span>
+        <strong>@(Model.CurrentCashierShiftBusinessDate?.ToString("MMM d, yyyy") ?? Model.Payment.PaymentDate.ToString("MMM d, yyyy"))</strong>
+    </div>
+    <div>
+        <span>Posting Control</span>
+        <strong>@(Model.HasOpenCashierShift ? "Shift-traced" : Model.CanPostWithoutOpenShift ? "Management override" : "Shift required")</strong>
+    </div>
+</div>
+
+@if (!Model.HasOpenCashierShift)
+{
+    <div class="alert @(Model.CanPostWithoutOpenShift ? "alert-warning" : "alert-danger")">
+        @Model.CashierShiftMessage
+        @if (!Model.CanPostWithoutOpenShift)
+        {
+            <a asp-page="/Finance/CashierShifts/Index"
+               asp-page-handler="OpenNative"
+               data-vpms-native-dialog
+               data-vpms-native-dialog-title="Open Cashier Shift">Open cashier shift</a>
+        }
+    </div>
+}
+
 <form method="post"
       asp-page="./PostPayment"
       asp-route-folioId="@Model.FolioId"
@@ -25,7 +54,7 @@
     <div class="vpms-native-payment-preview">
         <span>Balance after this payment</span>
         <strong>@remainingAfterPayment.ToString("C")</strong>
-        <small>Calculated from the amount currently entered. Validate before posting.</small>
+        <small>Duplicate references and repeat submissions are blocked before posting.</small>
     </div>
 
     <div class="row g-3">

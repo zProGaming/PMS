@@ -9,10 +9,14 @@ using Vantage.PMS.Services;
 
 namespace Vantage.PMS.Pages.Finance;
 
-public class IndexModel(ApplicationDbContext context, ARCollectionReportService arCollectionReportService) : PageModel
+public class IndexModel(
+    ApplicationDbContext context,
+    ARCollectionReportService arCollectionReportService,
+    PaymentIntegrityService paymentIntegrityService) : PageModel
 {
     private readonly ApplicationDbContext _context = context;
     private readonly ARCollectionReportService _arCollectionReportService = arCollectionReportService;
+    private readonly PaymentIntegrityService _paymentIntegrityService = paymentIntegrityService;
 
     public decimal TotalPaymentsToday { get; set; }
     public decimal CashPaymentsToday { get; set; }
@@ -51,6 +55,7 @@ public class IndexModel(ApplicationDbContext context, ARCollectionReportService 
     public int OpenGroupFolios { get; set; }
     public decimal GroupDepositsReceived { get; set; }
     public decimal GroupOutstandingBalances { get; set; }
+    public PaymentIntegritySummary PaymentIntegrity { get; set; } = new(0, 0, 0, 0, 0, 0);
 
     public async Task OnGetAsync()
     {
@@ -182,5 +187,7 @@ public class IndexModel(ApplicationDbContext context, ARCollectionReportService 
                     .Where(payment => payment.FolioId == groupFolio.FolioId && payment.Status != PaymentStatus.Voided && payment.Status != PaymentStatus.Failed)
                     .Sum(payment => (decimal?)payment.Amount) ?? 0))
             .SumAsync();
+
+        PaymentIntegrity = await _paymentIntegrityService.GetSummaryAsync();
     }
 }

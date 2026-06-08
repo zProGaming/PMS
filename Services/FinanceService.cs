@@ -90,9 +90,53 @@ public class FinanceService(ApplicationDbContext context)
         {
             errors.Add("Folio was not found.");
         }
-        else if (payment.Amount > folio.Balance)
+        else
         {
-            errors.Add($"Payment cannot exceed the open folio balance of {folio.Balance:C}.");
+            if (payment.Amount > folio.Balance)
+            {
+                errors.Add($"Payment cannot exceed the open folio balance of {folio.Balance:C}.");
+            }
+
+            var normalizedPaymentMethod = NormalizePaymentMethod(payment.PaymentMethod);
+            var normalizedReference = NormalizeReference(payment.ReferenceNumber);
+            if (!string.IsNullOrWhiteSpace(normalizedReference))
+            {
+                var duplicateReferenceExists = await _context.Payments
+                    .AsNoTracking()
+                    .AnyAsync(existing =>
+                        existing.FolioId == payment.FolioId &&
+                        existing.Status != PaymentStatus.Voided &&
+                        existing.Status != PaymentStatus.Failed &&
+                        existing.ReferenceNumber != null &&
+                        existing.ReferenceNumber.Trim().ToUpper() == normalizedReference);
+
+                if (duplicateReferenceExists)
+                {
+                    errors.Add("A payment with the same reference number already exists on this folio. Review the existing receipt before posting again.");
+                }
+            }
+
+            var duplicateWindowStart = payment.PaymentDate.AddMinutes(-10);
+            var duplicateWindowEnd = payment.PaymentDate.AddMinutes(10);
+            var recentCandidates = await _context.Payments
+                .AsNoTracking()
+                .Where(existing =>
+                    existing.FolioId == payment.FolioId &&
+                    existing.Status != PaymentStatus.Voided &&
+                    existing.Status != PaymentStatus.Failed &&
+                    existing.Amount == payment.Amount &&
+                    existing.PaymentDate >= duplicateWindowStart &&
+                    existing.PaymentDate <= duplicateWindowEnd)
+                .Select(existing => new { existing.PaymentMethod, existing.ReferenceNumber })
+                .ToListAsync();
+
+            if (recentCandidates.Any(existing =>
+                    NormalizePaymentMethod(existing.PaymentMethod) == normalizedPaymentMethod &&
+                    (string.IsNullOrWhiteSpace(normalizedReference) ||
+                        NormalizeReference(existing.ReferenceNumber) == normalizedReference)))
+            {
+                errors.Add("A similar payment was already posted recently. Review the folio before retrying to avoid duplicate settlement.");
+            }
         }
 
         var shift = await GetOpenShiftForUserAsync(createdBy);
@@ -112,6 +156,9 @@ public class FinanceService(ApplicationDbContext context)
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             payment.Status = PaymentStatus.Completed;
+            payment.PaymentMethod = payment.PaymentMethod.Trim();
+            payment.ReferenceNumber = string.IsNullOrWhiteSpace(payment.ReferenceNumber) ? null : payment.ReferenceNumber.Trim();
+            payment.Notes = BuildPaymentNotes(payment.Notes, shift, createdBy);
             _context.Payments.Add(payment);
             await _context.SaveChangesAsync();
 
@@ -136,6 +183,33 @@ public class FinanceService(ApplicationDbContext context)
             await transaction.CommitAsync();
             return errors;
         });
+    }
+
+    private static string? BuildPaymentNotes(string? notes, CashierShift? shift, string createdBy)
+    {
+        if (shift is not null)
+        {
+            return string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
+        }
+
+        var managementNote = $"Management-posted without open cashier shift by {createdBy}.";
+        return string.IsNullOrWhiteSpace(notes)
+            ? managementNote
+            : $"{notes.Trim()} {managementNote}";
+    }
+
+    private static string NormalizePaymentMethod(string? paymentMethod)
+    {
+        return string.IsNullOrWhiteSpace(paymentMethod)
+            ? string.Empty
+            : paymentMethod.Replace("-", string.Empty).Replace(" ", string.Empty).Trim().ToUpperInvariant();
+    }
+
+    private static string NormalizeReference(string? referenceNumber)
+    {
+        return string.IsNullOrWhiteSpace(referenceNumber)
+            ? string.Empty
+            : referenceNumber.Trim().ToUpperInvariant();
     }
 
     public FinancePaymentMethod MapPaymentMethod(string? paymentMethod)

@@ -1,0 +1,176 @@
+@page
+@using Vantage.PMS.Models.SystemAdministration
+@model Vantage.PMS.Pages.Finance.PaymentIntegrity.IndexModel
+
+@{
+    ViewData["Title"] = "Payment Integrity";
+    var issueTypes = Model.Issues.Select(row => row.IssueType)
+        .Concat(new[] { "Missing cashier trace", "Duplicate reference", "Repeat submission", "After close", "Invalid amount", "Credit balance" })
+        .Distinct()
+        .OrderBy(item => item)
+        .ToList();
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/Finance/Index">Finance</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Payment Integrity</li>
+    </ol>
+</nav>
+
+<section class="vpms-page-header">
+    <div>
+        <div class="page-kicker">Finance Control</div>
+        <h1 class="vpms-page-title">Payment Integrity</h1>
+        <p class="vpms-page-subtitle">Cashier trace, duplicate receipt, post-close collection, and credit-balance review.</p>
+        <div class="vpms-hero-chip-row">
+            <span class="vpms-mini-chip">@Model.Summary.TotalIssues open signal(s)</span>
+            <span class="vpms-mini-chip">@Model.Summary.HighRiskIssues high-risk</span>
+            <span class="vpms-mini-chip">@Model.Summary.MissingCashierTrace missing cashier trace</span>
+        </div>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-primary" asp-page="/Finance/Payments/Index">Payment Register</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Finance/CashierShifts/Index">Cashier Shifts</a>
+        <a class="btn vpms-btn-secondary" asp-page="/System/HealthCheck/Index">System Health</a>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Integrity Signals</span>
+            <strong>@Model.Summary.TotalIssues</strong>
+            <small>Current payment and folio exceptions.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Duplicate References</span>
+            <strong>@Model.Summary.DuplicateReferences</strong>
+            <small>Same folio and reference combination.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Repeat Submissions</span>
+            <strong>@Model.Summary.RepeatSubmissions</strong>
+            <small>Same amount and method within the same minute.</small>
+        </article>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <article class="vpms-stat-card h-100">
+            <span class="vpms-stat-label">Credit Balances</span>
+            <strong>@Model.Summary.CreditBalanceFolios</strong>
+            <small>Folios with payments above charges.</small>
+        </article>
+    </div>
+</section>
+
+<section class="vpms-card mb-4">
+    <form method="get" class="vpms-report-filters">
+        <div>
+            <label class="form-label" for="IssueType">Signal</label>
+            <select class="form-select" id="IssueType" name="IssueType">
+                <option value="">All signals</option>
+                @foreach (var type in issueTypes)
+                {
+                    <option value="@type" selected="@(string.Equals(Model.IssueType, type, StringComparison.OrdinalIgnoreCase))">@type</option>
+                }
+            </select>
+        </div>
+        <div class="align-self-end d-flex gap-2">
+            <button class="btn vpms-btn-primary" type="submit">Apply</button>
+            <a class="btn vpms-btn-secondary" asp-page="./Index">Reset</a>
+        </div>
+    </form>
+</section>
+
+<section class="vpms-card">
+    @if (!Model.Issues.Any())
+    {
+        <div class="vpms-empty-state">
+            <strong>No payment integrity signals found.</strong>
+            <span>Payment trace, duplicate reference, and credit-balance checks are clear for the current view.</span>
+        </div>
+    }
+    else
+    {
+        <div class="vpms-table-wrapper">
+            <table class="table vpms-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Signal</th>
+                        <th>Folio / Guest</th>
+                        <th>Payment</th>
+                        <th>Cashier Trace</th>
+                        <th>Review</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var issue in Model.Issues)
+                {
+                    <tr>
+                        <td>
+                            <span class="badge bg-@SeverityClass(issue.Severity)">@issue.Severity</span>
+                            <div class="fw-semibold mt-1">@issue.IssueType</div>
+                        </td>
+                        <td>
+                            <strong>@issue.FolioNumber</strong>
+                            <div class="small text-muted">@(!string.IsNullOrWhiteSpace(issue.GuestName) ? issue.GuestName : "Guest not linked")</div>
+                            <div class="small text-muted">Room @(issue.RoomNumber ?? "unassigned")</div>
+                        </td>
+                        <td>
+                            @if (issue.PaymentDate is not null)
+                            {
+                                <div>@issue.PaymentDate.Value.ToString("MMM d, yyyy h:mm tt")</div>
+                            }
+                            <div class="fw-semibold">@issue.Amount.ToString("C")</div>
+                            <div class="small text-muted">@((issue.PaymentMethod ?? "Method not set")) | @(issue.ReferenceNumber ?? "No reference")</div>
+                        </td>
+                        <td>@(issue.CashierShiftNumber ?? "No shift trace")</td>
+                        <td>
+                            <div>@issue.Description</div>
+                            <div class="small text-muted">@issue.RecommendedAction</div>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-inline-flex flex-wrap justify-content-end gap-2">
+                                @if (issue.FolioId is not null)
+                                {
+                                    <a class="btn btn-sm vpms-btn-secondary"
+                                       asp-page="/FrontOffice/Folios/Details"
+                                       asp-route-id="@issue.FolioId"
+                                       data-vpms-dialog
+                                       data-vpms-dialog-title="Folio Control">Folio</a>
+                                }
+                                @if (issue.PaymentId is not null)
+                                {
+                                    <a class="btn btn-sm vpms-btn-secondary"
+                                       asp-page="/Documents/Print"
+                                       asp-route-template="payment-receipt"
+                                       asp-route-id="@issue.PaymentId"
+                                       target="_blank"
+                                       rel="noopener">Receipt</a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@functions {
+    private static string SeverityClass(SystemSeverity severity) => severity switch
+    {
+        SystemSeverity.Critical => "danger",
+        SystemSeverity.High => "warning text-dark",
+        SystemSeverity.Medium => "primary",
+        SystemSeverity.Low => "info text-dark",
+        _ => "secondary"
+    };
+}
