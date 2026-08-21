@@ -1077,6 +1077,24 @@ namespace Vantage.PMS.Data
                 .HasForeignKey(folioItem => folioItem.ChargeCodeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<FolioItem>()
+                .HasIndex(folioItem => new
+                {
+                    folioItem.FolioId,
+                    folioItem.NightAuditBusinessDate,
+                    folioItem.NightAuditChargeCode
+                })
+                .IsUnique()
+                .HasFilter("[NightAuditBusinessDate] IS NOT NULL AND [NightAuditChargeCode] IS NOT NULL");
+
+            builder.Entity<FolioItem>()
+                .Property(folioItem => folioItem.NightAuditChargeCode)
+                .HasMaxLength(32);
+
+            builder.Entity<NightAudit>()
+                .HasIndex(audit => audit.BusinessDate)
+                .IsUnique();
+
             builder.Entity<Payment>()
                 .HasOne(payment => payment.Folio)
                 .WithMany(folio => folio.Payments)

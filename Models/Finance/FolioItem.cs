@@ -24,6 +24,13 @@ public class FolioItem
 
     public DateTime PostingDate { get; set; } = DateTime.Now;
 
+    // Set only for automated night-audit charges. It provides a durable,
+    // database-enforced idempotency key without restricting normal same-day
+    // restaurant, banquet, or manual folio charges.
+    public DateTime? NightAuditBusinessDate { get; set; }
+
+    public string? NightAuditChargeCode { get; set; }
+
     public string PostedBy { get; set; } = string.Empty;
 
     public bool IsVoided { get; set; }

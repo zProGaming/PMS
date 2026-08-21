@@ -93,7 +93,7 @@ public class LoginModel(
         var result = await signInManager.CheckPasswordSignInAsync(
             user,
             Input.Password,
-            lockoutOnFailure: false);
+            lockoutOnFailure: true);
 
         if (result.RequiresTwoFactor)
         {

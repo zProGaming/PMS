@@ -559,6 +559,16 @@ public class ReportExportService(
     private static string Escape(string? value)
     {
         value ??= string.Empty;
+
+        // Spreadsheet applications may evaluate CSV values that begin with a
+        // formula marker. Prefix those cells so exported guest, supplier, and
+        // reference data remains text when a workbook is opened.
+        var trimmedValue = value.TrimStart();
+        if (trimmedValue.Length > 0 && trimmedValue[0] is '=' or '+' or '-' or '@')
+        {
+            value = $"'{value}";
+        }
+
         return value.Contains('"') || value.Contains(',') || value.Contains('\n') || value.Contains('\r')
             ? $"\"{value.Replace("\"", "\"\"", StringComparison.Ordinal)}\""
             : value;

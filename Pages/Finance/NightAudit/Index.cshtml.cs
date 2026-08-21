@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
 using Vantage.PMS.Models.Accounting;
@@ -72,7 +73,18 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         }
 
         var startedAt = DateTime.Now;
-        var roomChargesPosted = await PostNightlyRoomChargesAsync(BusinessDate);
+        int roomChargesPosted;
+        try
+        {
+            roomChargesPosted = await PostNightlyRoomChargesAsync(BusinessDate);
+        }
+        catch (DbUpdateException exception) when (IsUniqueConstraintViolation(exception))
+        {
+            _context.ChangeTracker.Clear();
+            await LoadPageAsync();
+            ModelState.AddModelError(string.Empty, "Night audit was started by another user. Refresh the checklist before trying again.");
+            return Page();
+        }
 
         await LoadChecklistAsync(BusinessDate);
         if (HasFinanceBlockingIssues)
@@ -102,7 +114,17 @@ public class IndexModel(ApplicationDbContext context) : PageModel
         setting.CurrentBusinessDate = BusinessDate.AddDays(1);
         setting.UpdatedAtUtc = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException exception) when (IsUniqueConstraintViolation(exception))
+        {
+            _context.ChangeTracker.Clear();
+            await LoadPageAsync();
+            ModelState.AddModelError(string.Empty, "Night audit has already completed for this business date. Refresh the page to continue.");
+            return Page();
+        }
 
         TempData["NightAuditMessage"] = $"Night audit completed for {BusinessDate:d}. Posted {roomChargesPosted} nightly room/tax/service-charge line(s). Business date advanced to {setting.CurrentBusinessDate:d}.";
 
@@ -434,6 +456,8 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             UnitPrice = amount,
             Amount = amount,
             PostingDate = businessDate.Date,
+            NightAuditBusinessDate = businessDate.Date,
+            NightAuditChargeCode = fallbackCode,
             PostedBy = postedBy,
             IsLocked = false
         });
@@ -500,6 +524,9 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             ? summary
             : $"{summary}{Environment.NewLine}Notes: {notes}";
     }
+
+    private static bool IsUniqueConstraintViolation(DbUpdateException exception) =>
+        exception.InnerException is SqlException { Number: 2601 or 2627 };
 
     public record ChecklistItem(string Name, int Count, string Description);
 

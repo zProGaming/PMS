@@ -270,19 +270,32 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const commandIconMap = {
-    "support": "request",
-    "alerts": "request",
+    "alerts": "alert",
     "reports": "report",
+    "revenue calendar": "chart",
     "room calendar": "calendar",
-    "reservation": "plus",
-    "in-house": "people",
-    "quick desk": "desk",
-    "rack": "rooms",
+    "new reservation": "plus",
+    "front desk": "desk",
+    "reservations": "calendar",
     "room readiness": "rooms",
-    "front cash": "cash",
+    "cashier shifts": "cash",
     "pos": "receipt",
-    "management ai": "spark",
-    "system health": "pulse"
+  };
+
+  const sidebarGroupIconMap = {
+    "command-center": "home",
+    "front-office": "desk",
+    "rooms-operations": "rooms",
+    "finance-control": "finance",
+    "accounting-reports": "report",
+    "food-beverage": "food",
+    "sales-banquet": "sales",
+    "revenue-distribution": "chart",
+    "inventory-purchasing": "box",
+    "labor-hr-costing": "people",
+    "multi-property": "building",
+    "demo-documents": "document",
+    "system-administration": "gear"
   };
 
   const normalizeLabel = (value) => (value || "").replace(/\s+/g, " ").trim().toLowerCase();
@@ -339,6 +352,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const renderIcon = (name) => `<span class="vpms-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false">${iconPath(name)}</svg></span>`;
   const sidebarNav = document.querySelector("[data-vpms-sidebar-nav]");
+
+  document.querySelectorAll("[data-vpms-sidebar-group] .vpms-sidebar-group-icon").forEach((icon) => {
+    const groupId = icon.closest("[data-vpms-sidebar-group]")?.dataset.groupId;
+    icon.innerHTML = `<svg viewBox="0 0 24 24" focusable="false">${iconPath(sidebarGroupIconMap[groupId] || "document")}</svg>`;
+  });
+
   const sidebarLinks = Array.from((sidebarNav || document).querySelectorAll("[data-sidebar-link]"));
 
   sidebarLinks.forEach((link) => {

@@ -1,5 +1,8 @@
 using System.Globalization;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Authorization;
 using Vantage.PMS.Data;
@@ -17,7 +20,26 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString, sqlOptions => sqlOptions.EnableRetryOnFailure()));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+}
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ApplicationDbContext>("database", tags: ["ready"]);
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("web", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 90,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+});
 builder.Services.AddScoped<BookingEngineService>();
 builder.Services.AddScoped<BookingNotificationService>();
 builder.Services.AddScoped<GuestPortalNotificationService>();
@@ -49,7 +71,13 @@ builder.Services.AddScoped<SystemNotificationService>();
 builder.Services.AddScoped<DataValidationService>();
 builder.Services.AddScoped<DemoDataSeederService>();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = true;
+        options.Lockout.AllowedForNewUsers = true;
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -87,12 +115,30 @@ builder.Services.AddAuthorization(options =>
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    options.SlidingExpiration = true;
+});
+
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+});
+
+builder.Services.AddHsts(options =>
+{
+    options.MaxAge = TimeSpan.FromDays(180);
 });
 
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizePage("/Index");
     options.Conventions.AuthorizePage("/Privacy");
+    options.Conventions.AuthorizeAreaPage("Identity", "/Account/Register");
     options.Conventions.AuthorizeFolder("/Admin", PmsPolicies.AdminSetup);
     options.Conventions.AuthorizeFolder("/FrontOffice", PmsPolicies.FrontOffice);
     options.Conventions.AuthorizeFolder("/Housekeeping", PmsPolicies.Housekeeping);
@@ -139,8 +185,13 @@ builder.Services.AddRazorPages(options =>
 
 var app = builder.Build();
 
-await using (var scope = app.Services.CreateAsyncScope())
+var runIdentitySeed = app.Environment.IsDevelopment()
+    || app.Configuration.GetValue("Startup:RunIdentitySeed", false)
+    || args.Contains("--seed-identity", StringComparer.OrdinalIgnoreCase);
+
+if (runIdentitySeed)
 {
+    await using var scope = app.Services.CreateAsyncScope();
     try
     {
         await IdentitySeedData.SeedAsync(scope.ServiceProvider, app.Configuration);
@@ -161,6 +212,11 @@ await using (var scope = app.Services.CreateAsyncScope())
 
         logger.LogError(ex, "Startup data seeding failed, but the application will continue because Startup:RequireIdentitySeed is disabled for this environment. Verify database connectivity and run setup seeding after startup.");
     }
+}
+
+if (args.Contains("--seed-identity", StringComparer.OrdinalIgnoreCase))
+{
+    return;
 }
 
 if (args.Contains("--seed-full-demo", StringComparer.OrdinalIgnoreCase))
@@ -194,13 +250,51 @@ app.UseExceptionHandler("/Error");
 app.UseHttpsRedirection();
 
 app.UseRouting();
+app.UseRateLimiter();
+
+app.Use(async (context, next) =>
+{
+    context.Response.OnStarting(() =>
+    {
+        context.Response.Headers.TryAdd("X-Content-Type-Options", "nosniff");
+        context.Response.Headers.TryAdd("Referrer-Policy", "strict-origin-when-cross-origin");
+        context.Response.Headers.TryAdd("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
+        return Task.CompletedTask;
+    });
+
+    await next();
+});
+
+// Staff accounts are provisioned only by a System Administrator. The Identity
+// UI package includes a public registration page by default, so block that
+// route explicitly instead of relying on page conventions that can be
+// overridden by the package's AllowAnonymous metadata.
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.Value?.StartsWith("/Identity/Account/Register", StringComparison.OrdinalIgnoreCase) == true)
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+
+    await next();
+});
 
 app.UseAuthentication();
 app.UseMiddleware<SystemErrorLoggingMiddleware>();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false
+}).AllowAnonymous();
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+}).RequireAuthorization(PmsPolicies.SystemManagement);
 app.MapRazorPages()
+   .RequireRateLimiting("web")
    .WithStaticAssets();
 
 app.Run();

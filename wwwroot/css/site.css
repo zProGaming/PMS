@@ -7772,6 +7772,16 @@ body {
   border-color: rgba(20, 184, 166, 0.2);
 }
 
+.vpms-sidebar-group-icon svg {
+  width: 0.88rem;
+  height: 0.88rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
 .vpms-sidebar .vpms-sidebar-group-body,
 .vpms-sidebar-group-body {
   padding: 0.18rem 0 0.34rem 0.32rem;
