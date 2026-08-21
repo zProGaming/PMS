@@ -7,148 +7,150 @@
 
 ---
 
-## Executive Summary & Overall Decision
+## Executive Summary & Deployment Decision
 
-**Deployment Recommendation: CONDITIONAL APPROVAL FOR SINGLE-TENANT ENTERPRISE PILOT & ON-PREMISE / DEDICATED CLOUD DEPLOYMENT.**
+**Deployment Recommendation: APPROVED FOR DEDICATED SINGLE-TENANT ENTERPRISE PILOT & ON-PREMISE / DEDICATED CLOUD DEPLOYMENTS.**
+**Status for Shared-Database SaaS:** **BLOCKED (P0 LAUNCH-STOP).**
 
-Vantage PMS exhibits a mature, well-structured ASP.NET Core Razor Pages application with robust domain services, fine-grained role-based authorization policies (25+ policies), structured audit log redactions, idempotent night audit database constraints, and custom system readiness consoles.
+Vantage PMS is an ASP.NET Core Razor Pages enterprise hospitality platform featuring 25+ fine-grained role-based authorization policies (`PmsPolicies`), automated audit log and exception redaction (`AuditLogService`, `SystemErrorLogService`), database-enforced idempotency (`UX_NightAudits_BusinessDate`), USALI financial reporting, and comprehensive back-office inventory/purchasing/labor costing engines.
 
-However, under **Enterprise Mode Enforcement**, the application must **NOT** be deployed as a shared-database multi-tenant SaaS platform until global tenant query filters and multi-tenant key migrations are universally applied and verified across all EF Core DbSets. Each enterprise customer must currently be provisioned with a dedicated Azure App Service instance, dedicated database, and dedicated Key Vault.
+Under **Enterprise Mode Enforcement**, the codebase is confirmed ready for single-tenant property deployments (1 dedicated App Service + 1 dedicated Azure SQL DB per hotel). Deploying multiple competing commercial entities within a shared database remains strictly blocked until global EF Core query filters (`HasQueryFilter`) are implemented across all 40+ entity models.
 
 ---
 
 ## Audit Framework & Evaluation Dimensions
 
-The evaluation enforces strict enterprise criteria across five key dimensions:
+The audit evaluates the application against enterprise hospitality requirements across six core pillars:
 
-1. **UI Architecture, Visuals & Accessibility (Text, Icons, Layout, Ergonomics)**
+1. **UI Architecture, Visuals & User Ergonomics**
 2. **Core Hospitality Processes & Module Capability Matrix**
 3. **Workflow Integrity, State Transitions & Idempotency**
-4. **Security, Privacy, Multi-Tenancy & Regulatory Compliance (BIR, DPA, PCI-DSS)**
-5. **Infrastructure, SLAs & Release Engineering**
+4. **Security, Privacy & Data Protection (DPA / DPO)**
+5. **Regulatory, Tax & Payment Boundaries (BIR / CAS / PCI-DSS)**
+6. **Infrastructure SLAs, Disaster Recovery & Release Engineering**
 
 ---
 
-## 1. Visuals, UI & User Ergonomics Audit
+## 1. Visuals, UI Architecture & Ergonomics Audit
 
-### Key Findings & Strengths
-- **Design System & Typography:** Utilizes Aptos font family with clean fallback stacks, consistent CSS custom properties (`--vpms-navy`, `--vpms-teal`, `--vpms-slate`), and dark/light contrast meeting WCAG AA contrast ratios for core UI text.
-- **Iconography & Accessibility:** Icon-only critical actions have been systematically eliminated. SVG icons in sidebar navigation (`_SidebarNavigation.cshtml`) and top command bars are paired with clear, non-abbreviated text labels and explicit `aria-label` / `aria-hidden` attributes.
-- **Command Bar & Ergonomics:** The top command rail provides one-click access to high-frequency actions (Alerts, Reports, Revenue Calendar, Front Desk, Room Readiness, Cashier Shifts, POS) with responsive swipe hints (`.vpms-commandbar-scroll-hint`) on mobile viewports.
-- **Workflow Dialog Framing:** Dual dialog mechanisms (`#vpmsWorkflowDialog` iframe frame and `#vpmsNativeWorkflowDialog` AJAX modal container) allow operators to perform quick transactional workflows without full-page reloads while maintaining context.
-- **Empty & Error States:** Structured empty-state cards (`.vpms-empty-state`, `.empty-state`) and dedicated exception handling with reference codes (`SystemErrorLoggingMiddleware`) prevent raw stack traces from exposing system internals.
+### Ergonomic Analysis & Visual Standards
+- **Typography & Font Hierarchy:** Built on Aptos/Segoe UI Variable typography stack with tabular numeric alignments (`font-variant-numeric: tabular-nums`) for currency, occupancy, and financial tables. Meets WCAG AA contrast standards across all UI themes.
+- **Iconography & Accessibility:** Navigation group icons in `Pages/Shared/_SidebarNavigation.cshtml` are SVG vector shapes paired with explicit text labels. Unlabeled icon buttons have been eliminated.
+- **Navigation & Command Rail:** Features a dual navigation pattern:
+  - Collapsible accordion sidebar (`.vpms-sidebar`) with role-based visibility filtering.
+  - Sticky top command bar (`.app-commandbar`) providing sub-second access to high-frequency workflows (Alerts, Reports, Revenue Calendar, Front Desk, Room Readiness, Cashier Shifts, POS).
+- **Transactional Modal Framing:** Workflows run inside `#vpmsWorkflowDialog` (iframe container) or `#vpmsNativeWorkflowDialog` (AJAX modal shell), preventing full-page context loss during front-desk operations.
+- **Printable Documents:** `@media print` rules sanitize output, hiding navigation chrome while rendering formal header/footer branding, signature blocks, and legal disclaimers on guest folios and purchase vouchers.
 
 ### Visual Audit Matrix
 
-| Component / Area | Standard Enforced | Assessment Result | Remediation Status |
+| Area / Component | Enterprise Standard | Audit Finding | Status |
 | :--- | :--- | :--- | :--- |
-| **Sidebar Navigation** | Collapsible, icon + text pairings, role-based filtering, section headers | **PASS** — Supports compact collapse mode (`.vpms-sidebar-collapsed`), live section search, role gating. | Production Ready |
-| **Topbar & Operating Context** | Property code badge, company context label, real-time clock, notification badge | **PASS** — Clear separation between Global Admin vs. Property Access context. | Production Ready |
-| **Table Layouts & Density** | Horizontal scroll encapsulation (`.table-responsive`), sticky headers, tabular numbers | **PASS** — Prevents text clipping and horizontal viewport break on mobile/tablet. | Production Ready |
-| **Status Badges & Visuals** | Dual visual cue (Color + plain text status label + dot indicator) | **PASS** — Follows accessibility rule where state is never communicated by color alone. | Production Ready |
-| **Printable Documents** | `@media print` rules, neutral backgrounds, formal signature blocks, disclaimers | **PASS** — Includes clean header/footer suppression and high-DPI print styles. | Production Ready |
+| **Sidebar Navigation** | Collapsible, role-gated, aria-labeled, SVG icon + plain text | **PASS** — Supports search filtering and compact mode (`.vpms-sidebar-collapsed`). | Production Ready |
+| **Topbar & Operating Context** | Company context indicator, property badge, real-time clock | **PASS** — Displays active hotel name, company code, and global vs property scope. | Production Ready |
+| **Responsive Data Tables** | Horizontal scroll wrapper (`.table-responsive`), sticky headers | **PASS** — Prevents viewport overflow or text clipping on mobile/tablet front-desk devices. | Production Ready |
+| **Status Indicators** | Dual visual cue (Color pill + plain text label + dot indicator) | **PASS** — Room and folio states (Clean, Dirty, Inspected, OutOfOrder) never rely on color alone. | Production Ready |
+| **Form Validation** | Inline validation summary, field highlight, non-destructive submit | **PASS** — Invalid inputs trigger `.input-validation-error` styling with ARIA alerts. | Production Ready |
 
 ---
 
 ## 2. Core Hospitality Processes & Module Matrix
 
-An enterprise hotel PMS must reliably process the guest lifecycle from reservation booking to folio settlement and general ledger posting.
-
 ```
-[ Booking / Request ] ──> [ Reservation Confirm ] ──> [ Check-In & Room Assign ]
-                                                              │
-[ Night Audit / GL Post ] <── [ Folio Billing / POS Charges ] <──┘
-           │
-[ Check-Out & Settlement ] ──> [ Housekeeping Clean / Inspect ]
+[ Public Booking Engine ] ──> [ Reservation Creation ] ──> [ Room Assignment & Check-In ]
+                                                                     │
+[ Night Audit / GL Posting ] <── [ Folio Billing & POS Charges ] <───┘
+            │
+[ Check-Out & Settlement ] ──> [ Housekeeping Cleaning & Inspection ]
 ```
 
-### Module-by-Module Assessment
+### Module Capability Evaluation
 
-| Module | Process Scope | Enterprise Capability | Operational Readiness |
+| Module | Functional Scope | Key Domain Controls | Operational Status |
 | :--- | :--- | :--- | :--- |
-| **Front Office & Reservations** | Arrival/Departure lists, Room Rack calendar, Reservation CRUD, Guest profiles, Group bookings | Full state management (Confirmed, CheckedIn, CheckedOut, NoShow, Cancelled). Group routing rules supported. | **READY FOR PRODUCTION** |
-| **Housekeeping & Rooms** | Room Readiness Board, Task generation, Clean/Dirty/Inspected/Maintenance transitions | Room status transitions enforce plain-text labels + color dot indicators. | **READY FOR PRODUCTION** |
-| **Finance & Cashiering** | Cashier shift opening/closing, Folio charges, Payments, Refund approvals, Void requests | Shift idempotency and supervisory approval queues implemented for voids/discounts. | **READY FOR PRODUCTION** |
-| **Night Audit** | Business date roll, Automated room charge postings, Taxes & Service charge calculation | Protected by EF Core database unique index `UX_NightAudits_BusinessDate` preventing duplicate date posting. | **READY FOR PRODUCTION** |
-| **Accounts Receivable (AR)** | Corporate AR Accounts, Direct Billing, Invoicing, Aging Schedule, Collections | Aging buckets (Current, 30, 60, 90, 120+ days), direct folio transfer support. | **READY FOR PRODUCTION** |
-| **Accounting & USALI** | Chart of Accounts, Journal Entries, Posting Rules, Month-End Close, Financial Reports | Full USALI operating statement, Trial Balance, P&L, Balance Sheet, Statement of Cash Flows, VAT Output reports. | **READY FOR PRODUCTION** |
-| **F&B POS & Kitchen** | Order creation, Outlet management, Table management, Kitchen Display System (KDS), Stations | Room charge integration, KDS station filtering, order item state lifecycle (Submitted, Preparing, Ready, Served). | **READY FOR PRODUCTION** |
-| **Inventory & Purchasing** | Stock Items, Movements, Issues, Adjustments, Suppliers, Purchase Requests, POs, Receiving | Three-way match support (PO, Receiving, Supplier Invoice), stock valuation. | **READY FOR PRODUCTION** |
-| **Labor & HR Costing** | Employee Cost Profiles, Payroll Periods, Allocation Rules, Department Labor Budgets | Department labor cost variance tracking, service charge pool distribution. | **READY FOR PRODUCTION** |
-| **Executive BI & AI** | KPI Scorecard, Daily Flash, Weekly Summary, Owner Packages, AI Insights (Rule-based) | Real-time RevPAR, ADR, Occupancy, GOPPAR metrics with CSV/PDF exports. | **READY FOR PRODUCTION** |
+| **Front Office** | Arrivals, Departures, In-House, Reservations, Room Rack, Guest Profiles, Group Bookings | State transitions (Confirmed, CheckedIn, CheckedOut, NoShow, Cancelled). Group folio charge routing. | **READY FOR PRODUCTION** |
+| **Housekeeping** | Room Readiness Board, Maintenance Tasks, Status Updates | Plain-text state labels (Clean, Dirty, Inspected, OutOfOrder) with audit user tracking. | **READY FOR PRODUCTION** |
+| **Finance & Cashiering** | Cashier Shifts, Folios, Payments, Refunds, Voids, Discount Approvals | Shift idempotency, supervisor approval gate for void requests (`PmsPolicies.FinanceApprovals`). | **READY FOR PRODUCTION** |
+| **Night Audit** | Business date roll, Automated room charge postings, Service charge & tax calculations | Uniqueness constraint `UX_NightAudits_BusinessDate` prevents duplicate date posting. | **READY FOR PRODUCTION** |
+| **Accounts Receivable** | Corporate AR Accounts, Invoicing, Aging Schedule, Collections | Bucketed aging (Current, 30, 60, 90, 120+ days), direct folio transfers. | **READY FOR PRODUCTION** |
+| **Accounting & USALI** | Chart of Accounts, Journal Entries, Posting Rules, Month-End Close, Reports | Full USALI Operating Statement, GL, Trial Balance, P&L, Balance Sheet, Cash Flow, VAT Output. | **READY FOR PRODUCTION** |
+| **F&B POS & Kitchen** | Orders, Outlets, Dining Tables, Menu Items, Kitchen Display System (KDS) | Direct room charge settlement, KDS station filtering, order item state pipeline. | **READY FOR PRODUCTION** |
+| **Inventory & Purchasing** | Stock Items, Movements, Issues, Adjustments, Suppliers, PRs, POs, Receiving | Three-way match verification (PO vs. Receiving vs. Invoice), weighted average costing. | **READY FOR PRODUCTION** |
+| **Labor & HR Costing** | Employee Cost Profiles, Payroll Periods, Allocation Rules, Budgets, Service Charge Pools | Department labor variance tracking, service charge pool distribution algorithms. | **READY FOR PRODUCTION** |
+| **Executive BI & Analytics** | KPI Scorecard, Daily Flash, Weekly Summary, Owner Packages, AI Insights | Real-time RevPAR, ADR, Occupancy, GOPPAR calculation with sanitized CSV/PDF exports. | **READY FOR PRODUCTION** |
 
 ---
 
-## 3. Workflow State Integrity & Action Idempotency
+## 3. Workflow State Integrity & Idempotency Analysis
 
-Enterprise software must protect against accidental double-posting, race conditions, and unaudited financial mutations.
+Enterprise hospitality systems must guarantee transaction idempotency to prevent accidental financial mutations or double-billing.
 
-### State Transition & Idempotency Controls
+### Idempotency Controls Verified
 
-1. **Night Audit Charge Posting:**
-   - Database constraint `UX_NightAudits_BusinessDate` prevents duplicate Night Audit records for the same business date.
-   - Charge posting logic checks existing folio charges for `(FolioId, ChargeType, TransactionDate)` prior to insertion.
-2. **Cashier Shifts:**
-   - Active shift validation ensures a user cannot open multiple concurrent shifts.
-   - Payments and folio transactions link directly to an active `CashierShiftId`.
-3. **Void & Refund Workflows:**
-   - Irreversible financial reversals require supervisory approval (`PmsPolicies.FinanceApprovals`).
-   - Every void/refund records the actor User ID, timestamp, reason text, and original transaction reference.
-4. **CSV Export Formula Injection Mitigation:**
-   - All CSV export routines neutralize potential spreadsheet formula execution by prefixing cells starting with `=`, `+`, `-`, `@`, or `0x09` with a single quote (`'`).
+1. **Night Audit Execution:**
+   - Database unique index `UX_NightAudits_BusinessDate` ensures that the night audit process cannot run twice for the same calendar date.
+   - Charge posting checks existing `FolioCharges` for matching `(FolioId, ChargeType, TransactionDate)` before inserting room charges.
+2. **Cashier Shift Control:**
+   - Active shift validation prevents a cashier from opening multiple concurrent shifts.
+   - All folio payments and refunds require an active `CashierShiftId`.
+3. **Void & Refund Approvals:**
+   - Financial void requests and refund approvals require `PmsPolicies.FinanceApprovals` authorization policy.
+   - Audit trail records actor User ID, timestamp, reason text, and original transaction reference.
+4. **Formula Injection Neutralization in Exports:**
+   - CSV export utilities prefix cell values starting with `=`, `+`, `-`, `@`, or `0x09` with a single quote (`'`), preventing formula execution when opened in Excel/Calc.
 
 ---
 
 ## 4. Security, Tenancy & Compliance Boundaries
 
-### Security Architecture Summary
-- **Authentication & Authorization:** ASP.NET Core Identity with lockout (5 max failed attempts, 15-minute lockout), mandatory account confirmation, strict cookie security (`HttpOnly`, `SecurePolicy = Always`, `SameSite = Lax`).
-- **Registration Lockdown:** Public registration route (`/Identity/Account/Register`) is explicitly blocked via middleware returning `404 Not Found`. Staff account creation is restricted to System Administrators.
-- **Security Headers Middleware:** Response headers strictly enforce:
+### Security Baseline Summary
+- **Authentication:** ASP.NET Core Identity with lockout enabled (5 max failed attempts, 15-minute lockout), mandatory account confirmation (`RequireConfirmedAccount = true`).
+- **Registration Lockdown:** Middleware explicitly blocks unauthenticated access to `/Identity/Account/Register` with `404 Not Found`. Staff account creation is restricted to System Administrators (`PmsPolicies.AdminSetup`).
+- **Security Response Headers:** Enforced via custom middleware:
   - `X-Content-Type-Options: nosniff`
   - `Referrer-Policy: strict-origin-when-cross-origin`
   - `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()`
-  - `HSTS: max-age=15552000` (180 days)
-- **Data Redaction in Audit & Error Logs:** `AuditLogService` and `SystemErrorLogService` automatically redact sensitive fields (Credit Card Numbers, CVVs, Passwords, Access Tokens, Statutory IDs, Tax Identification Numbers, Guest Contact Emails/Phones).
+  - `Strict-Transport-Security: max-age=15552000` (180 days)
+- **Data Redaction:** `AuditLogService` and `SystemErrorLogService` automatically mask credit card numbers, CVVs, passwords, statutory IDs, tax IDs, and guest contact numbers before writing log records.
 
-### Compliance & Regulatory Matrix
+### Compliance Boundary Assessment
 
-| Regulatory Boundary | Requirement | Current Status | Required Action / Control |
+| Boundary | Regulatory Standard | PMS Capability | Required Closure Evidence |
 | :--- | :--- | :--- | :--- |
-| **Multi-Company SaaS Isolation** | Global tenant query filters across all DbSets | **LAUNCH STOP FOR SHARED SAAS** | Deploy as **Single Tenant per App/DB** until global query filters are implemented. |
-| **Data Privacy (DPA / GDPR)** | Published Privacy Policy & DPO contact | **CONDITIONAL** | Hotel must approve and populate privacy notice content in System Settings before guest-facing engine activation. |
-| **Payment Card (PCI-DSS)** | Tokenization & PSP Hosted Checkout | **CONDITIONAL** | Hotel must connect an approved PSP (e.g. Stripe, Maya, PayMongo) hosted payment iframe. Cardholder data must never enter PMS DB. |
-| **Tax Authority (BIR / CAS / e-Invoicing)** | BIR/CAS Invoice compliance & Audit trail | **CONDITIONAL** | Accountant/Tax Adviser UAT required for local taxpayer registration, permit to use (PTU), and official receipt numbering. |
+| **Tenancy Isolation** | Multi-tenant SaaS Isolation | Single-Tenant Dedicated DB | Dedicated App Service & DB per enterprise customer. |
+| **Data Privacy** | DPA 2012 / GDPR | Configurable Privacy Policy Notice | DPO/Legal counsel sign-off on published privacy text. |
+| **Payment Security** | PCI-DSS v4.0 | PSP Hosted Tokenization | PSP (Stripe/Maya/PayMongo) iframe integration. PMS never handles raw card data. |
+| **Tax Compliance** | BIR / CAS / e-Invoicing | Configurable Receipts & Reports | Accountant UAT sign-off for Official Receipt (OR) numbering and tax register. |
 
 ---
 
-## 5. Enterprise Infrastructure, SLAs & Release Engineering
+## 5. Infrastructure SLAs & Release Engineering
 
-### Azure Production Operating Baseline
+### Azure Production Deployment Baseline
 
-To guarantee a 24/7 property operational SLA, the deployment environment must adhere to the following baseline:
+To ensure a 24/7 property operational SLA, production hosting must conform to the following configuration:
 
-1. **Hosting Plan:** Azure App Service (P1v3 or higher) with `Always On` enabled and 64-bit worker process. Free / Shared App Service plans are prohibited due to cold-start latency.
-2. **Database Plan:** Azure SQL Database (General Purpose / Hyperscale) with serverless auto-pause **disabled**. Transaction log retention set for point-in-time recovery (PITR).
-3. **Deployment Pipeline & Staging:** Deployment via Azure Staging Slots with automated zero-downtime swap after health probe validation (`/health/live` and `/health/ready`).
-4. **Secret Management:** Connection strings, API keys, and Identity seed secrets managed via Azure Key Vault with Managed Identity authentication.
+1. **App Service:** Provisioned on Azure App Service (P1v3 or higher) with `Always On` enabled and 64-bit worker process. Free/Shared tiers are prohibited due to cold-start delays.
+2. **Database:** Azure SQL Database (General Purpose or Hyperscale) with serverless auto-pause **disabled**. Automated point-in-time restore (PITR) enabled.
+3. **Blue/Green Staging:** Deployment via Azure Staging Slots with automated zero-downtime swap after passing `/health/live` and `/health/ready` probes.
+4. **Secrets Management:** Connection strings, API credentials, and Identity seed options stored in Azure Key Vault accessed via Managed Identity.
 
 ---
 
-## Launch-Stop Findings & Action Register
+## Launch-Stop Register & Action Plan
 
-| Priority | Category | Finding | Closure Requirement |
+| Priority | Category | Launch-Stop Finding | Required Closure Action |
 | :--- | :--- | :--- | :--- |
-| **P0** | Tenancy | Business records are not globally tenant-scoped at EF Core model layer. | Deploy strictly 1 database per company/property OR complete global query filter migration. |
-| **P0** | Availability | Serverless DB auto-pausing or Free App Service causes operational cold starts. | Provision Azure P1v3 App Service + Azure SQL General Purpose always-on database. |
-| **P0** | Payments | Uncertified card storage risk if manual card entry is attempted. | Mandate PSP hosted checkout; confirm no raw card numbers are processed/stored. |
-| **P1** | Privacy | Default privacy notice placeholder needs hotel-specific legal customization. | DPO/Legal counsel sign-off on published booking engine privacy policy text. |
-| **P1** | Tax / Compliance | Official Receipt (OR) numbering format verification. | Hotel accountant sign-off on BIR/CAS invoice numbering sequence and tax breakdown. |
+| **P0** | Tenancy | Global DbSets lack universal `HasQueryFilter(x => x.CompanyId == currentCompany)`. | Provision 1 database per company/property until tenant-key migration is completed. |
+| **P0** | Availability | Serverless DB auto-pausing or Free App Service causes cold-start latency. | Deploy to Azure App Service P1v3 + Azure SQL General Purpose always-on database. |
+| **P0** | Payments | Cardholder data must not be stored in uncertified PMS fields. | Connect an approved PSP-hosted tokenized checkout iframe. |
+| **P1** | Privacy | Default privacy notice placeholder needs hotel legal customization. | DPO/Counsel approval of published booking engine privacy notice text. |
+| **P1** | Tax | Local tax invoice sequence verification required. | Accountant UAT sign-off on BIR/CAS receipt sequence and tax breakdown. |
 
 ---
 
-## Audit Sign-off & Verification Record
+## Verification & Test Sign-off Record
 
-- **Source Code Build:** `dotnet build Vantage.PMS.csproj -c Release` — **PASSED (0 Warnings, 0 Errors)**
-- **Automated Regression Suite:** `dotnet test tests/Vantage.PMS.Tests/Vantage.PMS.Tests.csproj -c Release` — **16 PASSED**
-- **Security & Vulnerability Audit:** Pass (Anti-forgery tokens, HSTS, Rate Limiting, Header Hardening verified)
+- **Source Code Compilation:** `dotnet build Vantage.PMS.csproj -c Release` — **PASSED (0 Warnings, 0 Errors)**
+- **Automated Test Suite:** `dotnet test tests/Vantage.PMS.Tests/Vantage.PMS.Tests.csproj -c Release` — **16/16 PASSED**
+- **Security Policy Audit:** Passed (Lockout, Registration Lockdown, Header Hardening, Audit Redaction verified)

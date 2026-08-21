@@ -14,9 +14,12 @@
 
 <section class="vpms-page-header">
     <div>
-        <div class="page-kicker">Management control register</div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="page-kicker">Management control register</span>
+            <span class="vpms-enterprise-badge">Enterprise Mode Enforced</span>
+        </div>
         <h1 class="vpms-page-title">Compliance Control Register</h1>
-        <p class="vpms-page-subtitle">Evidence-led review of privacy, access, finance, payment, and release controls. This is a management tool—not a legal, tax, payroll, or PCI certification.</p>
+        <p class="vpms-page-subtitle">Evidence-led review of privacy, multi-tenant isolation, finance, payment, and release controls. Enforces strict Enterprise Mode deployment standards for 24/7 hotel operations.</p>
     </div>
     <div class="vpms-actions">
         <a class="btn vpms-btn-secondary" asp-page="/System/AuditLogs/Index">Review audit logs</a>
@@ -26,9 +29,9 @@
 
 <section class="vpms-card border-danger-subtle mb-4" aria-labelledby="launch-stop-title">
     <div class="card-body">
-        <div class="page-kicker text-danger">Launch stop conditions</div>
-        <h2 class="h5" id="launch-stop-title">Do not treat evidence as compliance approval</h2>
-        <p class="mb-0">Any <strong>Action required</strong> control needs a named owner and recorded evidence before the related process is used with live guest, employee, card, tax, or payroll data.</p>
+        <div class="page-kicker text-danger">Launch stop conditions &amp; Enterprise Boundary</div>
+        <h2 class="h5" id="launch-stop-title">Do not treat technical evidence as compliance approval</h2>
+        <p class="mb-0">Any <strong>Action required</strong> control needs a named owner and recorded evidence before the related process is used with live guest, employee, card, tax, or payroll data. Independent companies must be provisioned with dedicated App Services and databases.</p>
     </div>
 </section>
 
