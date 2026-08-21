@@ -13636,3 +13636,18 @@ html {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+.vpms-legal-page {
+  max-width: 920px;
+  padding: 2rem 1rem 3rem;
+}
+
+.vpms-legal-card {
+  border-color: var(--bs-border-color);
+}
+
+.vpms-legal-copy {
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}

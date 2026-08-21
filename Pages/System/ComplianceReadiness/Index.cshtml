@@ -1,0 +1,77 @@
+@page
+@model Vantage.PMS.Pages.System.ComplianceReadiness.IndexModel
+@{
+    ViewData["Title"] = "Compliance Control Register";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
+        <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">System Health</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Compliance Control Register</li>
+    </ol>
+</nav>
+
+<section class="vpms-page-header">
+    <div>
+        <div class="page-kicker">Management control register</div>
+        <h1 class="vpms-page-title">Compliance Control Register</h1>
+        <p class="vpms-page-subtitle">Evidence-led review of privacy, access, finance, payment, and release controls. This is a management tool—not a legal, tax, payroll, or PCI certification.</p>
+    </div>
+    <div class="vpms-actions">
+        <a class="btn vpms-btn-secondary" asp-page="/System/AuditLogs/Index">Review audit logs</a>
+        <a class="btn vpms-btn-primary" asp-page="/System/WorkflowReadiness/Index">Review workflows</a>
+    </div>
+</section>
+
+<section class="vpms-card border-danger-subtle mb-4" aria-labelledby="launch-stop-title">
+    <div class="card-body">
+        <div class="page-kicker text-danger">Launch stop conditions</div>
+        <h2 class="h5" id="launch-stop-title">Do not treat evidence as compliance approval</h2>
+        <p class="mb-0">Any <strong>Action required</strong> control needs a named owner and recorded evidence before the related process is used with live guest, employee, card, tax, or payroll data.</p>
+    </div>
+</section>
+
+<section class="row g-3 mb-4" aria-label="Control summary">
+    <div class="col-md-4">
+        <article class="vpms-stat-card h-100"><span class="vpms-stat-label">Controls reviewed</span><strong>@Model.Summary.Total</strong><small>Current technical and process signals.</small></article>
+    </div>
+    <div class="col-md-4">
+        <article class="vpms-stat-card h-100"><span class="vpms-stat-label">Evidence found</span><strong>@Model.Summary.EvidenceFound</strong><small>Evidence exists; management review is still required.</small></article>
+    </div>
+    <div class="col-md-4">
+        <article class="vpms-stat-card h-100"><span class="vpms-stat-label">Action required</span><strong>@Model.Summary.ActionRequired</strong><small>Owner and documented closure are required.</small></article>
+    </div>
+</section>
+
+@foreach (var group in Model.Groups)
+{
+    <section class="vpms-card mb-4">
+        <div class="card-body">
+            <div class="page-kicker">@group.Name</div>
+            <div class="vpms-table-wrapper mt-3">
+                <table class="table vpms-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Control</th>
+                            <th>Status</th>
+                            <th>Current evidence</th>
+                            <th>Required next action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var control in group.Controls)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@control.Name</td>
+                            <td><span class="@IndexModel.StatusClass(control.Status)">@control.Status</span></td>
+                            <td>@control.Evidence</td>
+                            <td>@control.NextAction</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+}

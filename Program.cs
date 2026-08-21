@@ -137,7 +137,7 @@ builder.Services.AddHsts(options =>
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizePage("/Index");
-    options.Conventions.AuthorizePage("/Privacy");
+    options.Conventions.AllowAnonymousToPage("/Privacy");
     options.Conventions.AuthorizeAreaPage("Identity", "/Account/Register");
     options.Conventions.AuthorizeFolder("/Admin", PmsPolicies.AdminSetup);
     options.Conventions.AuthorizeFolder("/FrontOffice", PmsPolicies.FrontOffice);
@@ -168,6 +168,7 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/System/Notifications", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/Settings", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/HealthCheck", PmsPolicies.SystemManagement);
+    options.Conventions.AuthorizeFolder("/System/ComplianceReadiness", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/RouteReadiness", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/WorkflowReadiness", PmsPolicies.SystemManagement);
     options.Conventions.AuthorizeFolder("/System/RoleAccessReadiness", PmsPolicies.SystemManagement);

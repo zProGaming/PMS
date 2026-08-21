@@ -33,6 +33,7 @@ public class DataValidationService(ApplicationDbContext context)
         issueCount += await ScanPhilippineReportControlsAsync();
         issueCount += await ScanLaborCostingAsync();
         issueCount += await ScanGuestPortalPrivacyAsync();
+        issueCount += await ScanBookingEnginePrivacyAsync();
         issueCount += await ScanExecutiveReportingAsync();
         issueCount += await ScanRevenueAndBookingAsync();
         issueCount += await ScanGroupManagementAsync();
@@ -1080,6 +1081,23 @@ public class DataValidationService(ApplicationDbContext context)
         foreach (var id in employeeProfilesMissingMapping)
         {
             count += await AddIssueAsync("Labor Costing", nameof(EmployeeCostProfile), id, DataValidationIssueType.MissingRequiredData, SystemSeverity.Medium, "Active employee cost profile is missing department or GL mapping.", "Complete the employee cost profile mapping before payroll posting.");
+        }
+
+        return count;
+    }
+
+    private async Task<int> ScanBookingEnginePrivacyAsync()
+    {
+        var count = 0;
+        var settingsWithoutPrivacyNotice = await _context.BookingEngineSettings
+            .AsNoTracking()
+            .Where(setting => setting.IsBookingEngineEnabled && (setting.PrivacyPolicy == null || setting.PrivacyPolicy == ""))
+            .Select(setting => setting.Id)
+            .ToListAsync();
+
+        foreach (var id in settingsWithoutPrivacyNotice)
+        {
+            count += await AddIssueAsync("Booking Engine", nameof(BookingEngineSetting), id, DataValidationIssueType.MissingRequiredData, SystemSeverity.High, "Public booking is enabled without a privacy notice.", "Publish a hotel-reviewed privacy notice and data-protection contact before accepting guest details through public booking.");
         }
 
         return count;

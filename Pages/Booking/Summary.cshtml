@@ -108,9 +108,10 @@
                     {
                         <div class="small text-muted mb-3">@Model.QuoteResult.Quote.Setting.TermsAndConditions</div>
                     }
+                    <p class="small text-muted mb-3">Review the <a asp-page="/Privacy" target="_blank" rel="noopener">hotel privacy notice</a> before submitting your request.</p>
                     <div class="form-check mb-3">
                         <input asp-for="SummaryAcceptedTerms" class="form-check-input" />
-                        <label asp-for="SummaryAcceptedTerms" class="form-check-label">I confirm and accept the terms and conditions.</label>
+                        <label asp-for="SummaryAcceptedTerms" class="form-check-label">I confirm and accept the terms and conditions and acknowledge the privacy notice.</label>
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Submit Booking Request</button>
                 </div>

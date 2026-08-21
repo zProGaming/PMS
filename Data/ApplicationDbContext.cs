@@ -415,14 +415,14 @@ namespace Vantage.PMS.Data
                 switch (entry.State)
                 {
                     case EntityState.Added:
-                        auditEntry.NewValues[propertyName] = SafeAuditValue(propertyName, property.CurrentValue);
+                        auditEntry.NewValues[propertyName] = AuditDataRedaction.RedactAuditValue(propertyName, property.CurrentValue);
                         break;
                     case EntityState.Deleted:
-                        auditEntry.OldValues[propertyName] = SafeAuditValue(propertyName, property.OriginalValue);
+                        auditEntry.OldValues[propertyName] = AuditDataRedaction.RedactAuditValue(propertyName, property.OriginalValue);
                         break;
                     case EntityState.Modified when property.IsModified:
-                        auditEntry.OldValues[propertyName] = SafeAuditValue(propertyName, property.OriginalValue);
-                        auditEntry.NewValues[propertyName] = SafeAuditValue(propertyName, property.CurrentValue);
+                        auditEntry.OldValues[propertyName] = AuditDataRedaction.RedactAuditValue(propertyName, property.OriginalValue);
+                        auditEntry.NewValues[propertyName] = AuditDataRedaction.RedactAuditValue(propertyName, property.CurrentValue);
                         break;
                 }
             }
@@ -466,22 +466,6 @@ namespace Vantage.PMS.Data
                 "Posted" or "Completed" or "Processed" or "Closed" or "Issued" or "CheckedIn" or "CheckedOut" => AuditActionType.Post,
                 _ => AuditActionType.Update
             };
-        }
-
-        private static object? SafeAuditValue(string propertyName, object? value)
-        {
-            if (value is null)
-            {
-                return null;
-            }
-
-            var normalized = propertyName.ToUpperInvariant();
-            if (normalized.Contains("PASSWORD") || normalized.Contains("APIKEY") || normalized.Contains("SECRET") || normalized.Contains("TOKEN"))
-            {
-                return "***";
-            }
-
-            return value;
         }
 
         private static string InferModule(Type entityType)

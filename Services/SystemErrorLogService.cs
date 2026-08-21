@@ -22,8 +22,8 @@ public class SystemErrorLogService(ApplicationDbContext context, IHttpContextAcc
             UserId = httpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier),
             UserName = httpContext?.User.Identity?.Name,
             Path = httpContext?.Request.Path.Value,
-            ErrorMessage = exception.Message,
-            StackTrace = exception.ToString(),
+            ErrorMessage = AuditDataRedaction.RedactErrorText(exception.Message) ?? "An unexpected system error occurred.",
+            StackTrace = AuditDataRedaction.RedactErrorText(exception.ToString()),
             Source = exception.Source,
             IsResolved = false
         });
