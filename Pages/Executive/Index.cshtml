@@ -37,12 +37,12 @@
 
 <form method="get" class="vpms-filter-bar vpms-no-print">
     <div>
-        <label class="form-label">From</label>
-        <input class="form-control" type="date" name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+        <label class="form-label" for="executive-start-date">From</label>
+        <input id="executive-start-date" class="form-control" type="date" name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
     </div>
     <div>
-        <label class="form-label">To</label>
-        <input class="form-control" type="date" name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+        <label class="form-label" for="executive-end-date">To</label>
+        <input id="executive-end-date" class="form-control" type="date" name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
     </div>
     <div class="vpms-filter-actions">
         <button class="btn vpms-btn-primary">Refresh View</button>
@@ -194,10 +194,12 @@
                     <div class="vpms-alert-list">
                         @foreach (var alert in Model.Dashboard.Alerts)
                         {
-                            <div>
-                                <strong>@alert.Title</strong>
-                                <span>@alert.Module</span>
-                                <small>@alert.Severity</small>
+                            <div class="vpms-executive-alert">
+                                <div class="vpms-executive-alert-copy">
+                                    <strong>@alert.Title</strong>
+                                    <span>@alert.Module</span>
+                                </div>
+                                <small class="vpms-executive-alert-severity">@alert.Severity</small>
                             </div>
                         }
                     </div>

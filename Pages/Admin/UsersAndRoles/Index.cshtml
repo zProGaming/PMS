@@ -85,7 +85,7 @@
             }
             else
             {
-                <div class="table-responsive">
+                <div class="table-responsive d-none d-md-block">
                     <table class="table vpms-table align-middle">
                         <thead>
                             <tr>
@@ -106,8 +106,9 @@
                                         <div class="text-muted small">@user.UserName</div>
                                     </td>
                                     <td>
-                                        <form method="post" asp-page-handler="SetRole" asp-route-id="@user.Id" class="d-flex gap-2">
-                                            <select name="roleName" class="form-select form-select-sm" asp-items="Model.RoleOptions">
+                                        <form method="post" asp-page-handler="SetRole" asp-route-id="@user.Id" class="d-flex gap-2 vpms-user-role-form">
+                                            <label class="visually-hidden" for="user-role-@user.Id">Role for @user.Email</label>
+                                            <select id="user-role-@user.Id" name="roleName" class="form-select form-select-sm" asp-items="Model.RoleOptions">
                                                 <option selected>@primaryRole</option>
                                             </select>
                                             <button class="btn btn-sm btn-outline-secondary" type="submit">Update</button>
@@ -141,6 +142,51 @@
                             }
                         </tbody>
                     </table>
+                </div>
+
+                <div class="vpms-user-list d-md-none">
+                    @foreach (var user in Model.Users)
+                    {
+                        var primaryRole = user.Roles.FirstOrDefault() ?? "No role";
+                        <article class="vpms-user-card">
+                            <div class="vpms-user-card-header">
+                                <div>
+                                    <strong>@user.Email</strong>
+                                    <small>@user.UserName</small>
+                                </div>
+                                <span class="status-badge @(user.IsLockedOut ? "status-cancelled" : "status-open")">
+                                    @(user.IsLockedOut ? "Inactive" : "Active")
+                                </span>
+                            </div>
+                            <div class="vpms-user-card-meta">
+                                <span>Company access</span>
+                                <strong>@user.CompanyAccessCount code@(user.CompanyAccessCount == 1 ? string.Empty : "s")</strong>
+                            </div>
+                            <form method="post" asp-page-handler="SetRole" asp-route-id="@user.Id" class="vpms-user-role-form">
+                                <label class="form-label" for="mobile-user-role-@user.Id">Role</label>
+                                <div>
+                                    <select id="mobile-user-role-@user.Id" name="roleName" class="form-select" asp-items="Model.RoleOptions">
+                                        <option selected>@primaryRole</option>
+                                    </select>
+                                    <button class="btn vpms-btn-secondary" type="submit">Update role</button>
+                                </div>
+                            </form>
+                            <div class="vpms-user-card-actions">
+                                @if (user.IsLockedOut)
+                                {
+                                    <form method="post" asp-page-handler="Reactivate" asp-route-id="@user.Id">
+                                        <button class="btn btn-outline-success" type="submit">Reactivate</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form method="post" asp-page-handler="Deactivate" asp-route-id="@user.Id">
+                                        <button class="btn btn-outline-danger" type="submit">Deactivate</button>
+                                    </form>
+                                }
+                            </div>
+                        </article>
+                    }
                 </div>
             }
         </section>

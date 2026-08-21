@@ -13235,3 +13235,394 @@ html {
     padding: 0.7rem 0.76rem;
   }
 }
+
+/* Accessibility and responsive remediation: August 2026. */
+.kpi-label,
+.kpi-value,
+.kpi-note,
+.vpms-stat-card > span,
+.vpms-stat-card > strong {
+  display: block;
+}
+
+.kpi-value,
+.vpms-stat-card > strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.vpms-finance-grid small,
+.vpms-revenue-mix small,
+.vpms-alert-list small,
+.vpms-report-category-header p,
+.vpms-document-section-header p {
+  color: #5f6f82;
+}
+
+.vpms-disclosure {
+  overflow: clip;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 18px;
+  box-shadow: var(--vpms-soft-shadow);
+}
+
+.vpms-disclosure > summary,
+.vpms-report-category > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  min-height: 48px;
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.vpms-disclosure > summary::-webkit-details-marker,
+.vpms-report-category > summary::-webkit-details-marker {
+  display: none;
+}
+
+.vpms-document-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.vpms-disclosure > summary::after,
+.vpms-report-category > summary::after,
+.vpms-document-disclosure > summary::after {
+  flex: 0 0 auto;
+  width: 1.65rem;
+  height: 1.65rem;
+  display: grid;
+  place-items: center;
+  color: #0f766e;
+  font-size: 1.1rem;
+  font-weight: 800;
+  content: "+";
+  background: #ecfdf5;
+  border: 1px solid rgba(20, 184, 166, 0.25);
+  border-radius: 999px;
+}
+
+.vpms-disclosure[open] > summary::after,
+.vpms-report-category[open] > summary::after,
+.vpms-document-disclosure[open] > summary::after {
+  content: "−";
+}
+
+.vpms-disclosure > summary > span {
+  color: #0f766e;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.vpms-disclosure > summary > strong {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--vpms-navy);
+  font-size: 0.9rem;
+  font-weight: 720;
+}
+
+.vpms-disclosure-body {
+  padding: 0 1rem 1rem;
+}
+
+.vpms-report-category {
+  padding: 0;
+}
+
+.vpms-report-category > summary {
+  margin: 0;
+}
+
+.vpms-document-disclosure {
+  padding: 0;
+}
+
+.vpms-document-disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  min-height: 48px;
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.vpms-document-disclosure > summary > span {
+  flex: 0 0 auto;
+}
+
+.vpms-document-disclosure-body {
+  padding: 0 1rem 1rem;
+}
+
+.vpms-report-category > summary .vpms-report-category-meter {
+  margin-left: auto;
+}
+
+.vpms-report-category:not([open]) > summary {
+  border-bottom: 0;
+}
+
+.vpms-report-category-body {
+  padding: 0 1rem 1rem;
+}
+
+.vpms-executive-alert {
+  display: flex !important;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.vpms-executive-alert-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.16rem;
+}
+
+.vpms-executive-alert-copy strong,
+.vpms-executive-alert-copy span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.vpms-executive-alert-severity {
+  flex: 0 0 auto;
+  max-width: 8rem;
+  padding: 0.22rem 0.46rem;
+  color: #475569;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  text-align: right;
+  background: #eef2f7;
+  border-radius: 999px;
+}
+
+.vpms-stay-bar span {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.vpms-user-list {
+  display: grid;
+  gap: 0.78rem;
+}
+
+.vpms-user-card {
+  display: grid;
+  gap: 0.72rem;
+  padding: 0.9rem;
+  background: #fff;
+  border: 1px solid rgba(226, 232, 240, 0.94);
+  border-radius: 16px;
+}
+
+.vpms-user-card-header,
+.vpms-user-card-meta,
+.vpms-user-card-actions,
+.vpms-user-role-form > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.vpms-user-card-header > div {
+  min-width: 0;
+}
+
+.vpms-user-card-header strong,
+.vpms-user-card-header small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.vpms-user-card-header small,
+.vpms-user-card-meta span {
+  color: #5f6f82;
+  font-size: 0.78rem;
+}
+
+.vpms-user-role-form .form-select {
+  min-width: 0;
+}
+
+.vpms-user-role-form > div .form-select {
+  flex: 1 1 auto;
+}
+
+.vpms-user-card-actions form,
+.vpms-user-card-actions .btn {
+  width: 100%;
+}
+
+.vpms-commandbar-scroll-hint {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  .vpms-stay-bar small {
+    display: none;
+  }
+
+  .vpms-report-category > summary,
+  .vpms-disclosure > summary {
+    align-items: flex-start;
+  }
+
+  .vpms-report-category > summary .vpms-report-category-meter {
+    min-width: 4.4rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .vpms-topbar {
+    min-height: 64px;
+  }
+
+  .app-menu-button,
+  .vpms-back-button,
+  .vpms-logout-button,
+  .vpms-notification-link {
+    min-height: 44px;
+  }
+
+  .vpms-notification-link {
+    width: 44px;
+    height: 44px;
+  }
+
+  .vpms-user-avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .app-commandbar {
+    top: 64px;
+    min-height: 58px;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+  }
+
+  .app-commandbar::-webkit-scrollbar {
+    display: block;
+    height: 5px;
+  }
+
+  .app-commandbar::-webkit-scrollbar-thumb {
+    background: rgba(15, 118, 110, 0.45);
+    border-radius: 999px;
+  }
+
+  .vpms-commandbar-label {
+    min-width: 108px;
+  }
+
+  .vpms-commandbar-label-copy {
+    display: none;
+  }
+
+  .vpms-commandbar-scroll-hint {
+    display: block;
+    margin-top: 0.08rem;
+    color: #5f6f82;
+    font-size: 0.66rem;
+    font-weight: 700;
+  }
+
+  .vpms-finance-disclosure > summary > strong {
+    line-height: 1.3;
+  }
+
+  .vpms-disclosure-body,
+  .vpms-report-category-body,
+  .vpms-document-disclosure-body {
+    padding-right: 0.78rem;
+    padding-left: 0.78rem;
+  }
+
+  .vpms-executive-alert-severity {
+    max-width: 6.4rem;
+  }
+
+  .vpms-executive-board .vpms-finance-grid,
+  .vpms-executive-board .vpms-revenue-mix,
+  .vpms-executive-board .vpms-kpi-watchlist {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vpms-executive-board .vpms-finance-grid > div,
+  .vpms-executive-board .vpms-revenue-mix > div,
+  .vpms-executive-board .vpms-kpi-watchlist > div {
+    padding: 0.65rem;
+  }
+}
+
+/* Desktop workstation refinement: prioritize usable page space and readable data blocks. */
+@media (min-width: 1200px) {
+  .vpms-topbar,
+  .app-topbar {
+    min-height: 64px;
+    padding-top: 0.34rem;
+    padding-bottom: 0.34rem;
+  }
+
+  .vpms-commandbar.app-commandbar,
+  .app-commandbar {
+    top: 64px;
+    min-height: 48px;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .vpms-commandbar-label {
+    min-width: 116px;
+    padding-top: 0.18rem;
+    padding-bottom: 0.18rem;
+  }
+
+  .app-commandbar a,
+  .app-commandbar .vpms-command-item,
+  .app-commandbar .commandbar-status {
+    min-height: 36px;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .vpms-report-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .vpms-report-card {
+    min-height: 196px;
+    padding: 1.05rem;
+  }
+
+  .vpms-report-card h3 {
+    line-height: 1.32;
+  }
+
+  .vpms-report-card p {
+    line-height: 1.45;
+  }
+
+  .vpms-stay-bar {
+    height: 30px;
+    padding-right: 0.58rem;
+    padding-left: 0.58rem;
+  }
+
+  .vpms-stay-bar.is-short-stay {
+    justify-content: flex-start;
+  }
+}
+
+@media (min-width: 1600px) {
+  .vpms-report-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

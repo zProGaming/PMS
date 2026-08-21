@@ -50,6 +50,15 @@
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Void Requests</div><div class="kpi-value">@Model.VoidRequestsPendingApproval</div><div class="kpi-note">Pending review</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Discounts Pending</div><div class="kpi-value">@Model.DiscountsPendingApproval</div><div class="kpi-note">Approval queue</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Balance</div><div class="kpi-value">@Model.ARBalanceTotal.ToString("C")</div><div class="kpi-note">Open city ledger</div></div></div>
+</div>
+
+<details class="vpms-disclosure vpms-finance-disclosure mt-3">
+    <summary>
+        <span>Additional finance controls</span>
+        <strong>Collections, accounting, AP, labor, and group indicators</strong>
+    </summary>
+    <div class="vpms-disclosure-body">
+        <div class="row g-3 vpms-dashboard-kpi-grid vpms-finance-kpi-grid">
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Overdue AR</div><div class="kpi-value">@Model.OverdueARTotal.ToString("C")</div><div class="kpi-note">Past due balance</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Due in 7 Days</div><div class="kpi-value">@Model.ARInvoicesDueWithin7Days</div><div class="kpi-note">Upcoming collections</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Collections Today</div><div class="kpi-value">@Model.ARCollectionsToday.ToString("C")</div><div class="kpi-note">Allocated AR payments</div></div></div>
@@ -76,6 +85,8 @@
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Group Deposits</div><div class="kpi-value">@Model.GroupDepositsReceived.ToString("C")</div><div class="kpi-note">Received deposits</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Group Outstanding</div><div class="kpi-value">@Model.GroupOutstandingBalances.ToString("C")</div><div class="kpi-note">Linked master folios</div></div></div>
 </div>
+    </div>
+</details>
 
 <div class="row g-4 mt-2">
     <div class="col-lg-6">
@@ -144,7 +155,13 @@
     </div>
 </div>
 
-<div class="quick-action-grid mt-4">
+<details class="vpms-disclosure vpms-finance-disclosure mt-4">
+    <summary>
+        <span>Finance workspaces</span>
+        <strong>Open accounting, AR, AP, labor, group, and executive tools</strong>
+    </summary>
+    <div class="vpms-disclosure-body">
+        <div class="quick-action-grid">
     <a asp-page="/Finance/ChargeCodes/Index" class="quick-action-card"><strong>Charge Codes</strong><small>Configure posting categories</small></a>
     <a asp-page="/Finance/CashierShifts/Index" class="quick-action-card"><strong>Cashier Shifts</strong><small>Open, close, and audit shifts</small></a>
     <a asp-page="/Finance/PaymentIntegrity/Index" class="quick-action-card"><strong>Payment Integrity</strong><small>Review duplicate receipts and cashier trace</small></a>
@@ -168,4 +185,6 @@
     <a asp-page="/Executive/KPIScorecard" class="quick-action-card"><strong>KPI Scorecard</strong><small>Targets, variance, and status</small></a>
     <a asp-page="/Executive/DepartmentPerformance" class="quick-action-card"><strong>Department Performance</strong><small>USALI-style department view</small></a>
     <a asp-page="/Executive/FinanceControl" class="quick-action-card"><strong>Finance Control Intelligence</strong><small>Controls, risks, and close readiness</small></a>
-</div>
+        </div>
+    </div>
+</details>

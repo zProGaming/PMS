@@ -29,18 +29,21 @@
 </section>
 
 <div class="vpms-document-grid">
-    @foreach (var documentSection in Model.Sections)
+    @for (var sectionIndex = 0; sectionIndex < Model.Sections.Count; sectionIndex++)
     {
+        var documentSection = Model.Sections[sectionIndex];
         var availableInSection = documentSection.Links.Count(link => link.IsAvailable);
-        <section class="vpms-document-section">
-            <div class="vpms-document-section-header">
+        var isExpanded = sectionIndex < 3;
+        <details class="vpms-document-section vpms-document-disclosure" open="@isExpanded">
+            <summary class="vpms-document-section-header">
                 <div>
                     <h2>@documentSection.Title</h2>
                     <p>@availableInSection of @documentSection.Links.Count available.</p>
                 </div>
                 <span>@availableInSection/@documentSection.Links.Count</span>
-            </div>
-            <div class="vpms-document-list">
+            </summary>
+            <div class="vpms-document-disclosure-body">
+                <div class="vpms-document-list">
                 @foreach (var link in documentSection.Links)
                 {
                     <article class="vpms-document-item @(link.IsAvailable ? "is-ready" : "is-pending")">
@@ -48,11 +51,11 @@
                             <strong>@link.Title</strong>
                             @if (link.IsAvailable)
                             {
-                                <p>Available for review and print.</p>
+                                <p>Ready to review and print.</p>
                             }
                             else
                             {
-                                <p>Source record required.</p>
+                                <p>Select a source record to continue.</p>
                             }
                         </div>
                         @if (link.IsAvailable)
@@ -72,7 +75,8 @@
                         }
                     </article>
                 }
+                </div>
             </div>
-        </section>
+        </details>
     }
 </div>

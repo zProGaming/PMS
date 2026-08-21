@@ -13,6 +13,7 @@
     var availableCount = Model.Reports.Count(report => report.IsAvailable);
     var printCount = Model.Reports.Count(report => report.SupportsPrint);
     var csvCount = Model.Reports.Count(report => report.SupportsCsvExport);
+    var hasActiveFilter = Model.Category is not null || !string.IsNullOrWhiteSpace(Model.Search);
 }
 
 @functions {
@@ -37,7 +38,7 @@
     <div>
         <div class="page-kicker">Reporting Command</div>
         <h1 class="vpms-page-title">Report Center</h1>
-        <p class="vpms-page-subtitle">A curated reporting library for hotel operations, ownership review, finance control, browser print, and safe CSV export.</p>
+        <p class="vpms-page-subtitle">A curated reporting library for hotel operations, ownership review, finance control, browser print, and CSV export.</p>
         <div class="vpms-hero-chip-row">
             <span class="vpms-mini-chip">@Model.Reports.Count report@(Model.Reports.Count == 1 ? "" : "s") visible</span>
             <span class="vpms-mini-chip">@availableCount available now</span>
@@ -69,7 +70,7 @@
     <article>
         <span>Data Export</span>
         <strong>@csvCount CSV export@(csvCount == 1 ? "" : "s")</strong>
-        <p>CSV is surfaced only where simple table exports are supported safely.</p>
+        <p>CSV is surfaced only where simple table exports are supported.</p>
     </article>
 </section>
 
@@ -102,11 +103,13 @@
 else
 {
     <div class="vpms-report-center vpms-report-center-premium">
-        @foreach (var category in categories)
+        @for (var categoryIndex = 0; categoryIndex < categories.Count; categoryIndex++)
         {
+            var category = categories[categoryIndex];
             var availableInCategory = category.Count(report => report.IsAvailable);
-            <section class="vpms-section-card vpms-report-category">
-                <div class="vpms-report-category-header">
+            var isExpanded = hasActiveFilter || categories.Count <= 3 || categoryIndex < 2;
+            <details class="vpms-section-card vpms-report-category" open="@isExpanded">
+                <summary class="vpms-report-category-header">
                     <div>
                         <div class="vpms-report-card-kicker">@ReportCatalogService.FormatCategory(category.Key)</div>
                         <h2>@ReportCatalogService.FormatCategory(category.Key)</h2>
@@ -116,46 +119,48 @@ else
                         <strong>@availableInCategory / @category.Count()</strong>
                         <span>available now</span>
                     </div>
-                </div>
-                <div class="vpms-report-card-grid">
-                    @foreach (var report in category)
-                    {
+                </summary>
+                <div class="vpms-report-category-body">
+                    <div class="vpms-report-card-grid">
+                        @foreach (var report in category)
+                        {
                         var placeholderUrl = Url.Page("/Reports/Placeholder", new { reportName = report.ReportName, category = ReportCatalogService.FormatCategory(report.ReportCategory) });
                         var openUrl = report.IsAvailable ? report.RoutePath : placeholderUrl;
                         var csvUrl = report.SupportsCsvExport
                             ? Url.Page("/Reports/Export", "Csv", new { reportKey = report.ReportKey })
                             : null;
-                        <article class="vpms-report-card @(report.IsAvailable ? "is-available" : "is-unavailable")">
-                            <div class="vpms-report-card-body">
-                                <div class="vpms-report-card-kicker">@(report.IsAvailable ? "Ready for review" : "Controlled status")</div>
-                                <h3>@report.ReportName</h3>
-                                <p>@report.Description</p>
-                            </div>
-                            <div class="vpms-report-capabilities" aria-label="Report capabilities">
-                                <span class="@(report.SupportsPrint ? "is-on" : "is-muted")">Print</span>
-                                <span class="@(report.SupportsPdfViaBrowserPrint ? "is-on" : "is-muted")">Browser PDF</span>
-                                <span class="@(report.SupportsCsvExport ? "is-on" : "is-muted")">CSV</span>
-                                <span class="@(report.SupportsHtmlExport ? "is-on" : "is-muted")">HTML</span>
-                            </div>
-                            <div class="vpms-report-card-actions">
-                                <a class="btn vpms-btn-primary btn-sm" href="@openUrl">@(report.IsAvailable ? "Open Report" : "View Status")</a>
-                                @if (!string.IsNullOrWhiteSpace(csvUrl))
+                            <article class="vpms-report-card @(report.IsAvailable ? "is-available" : "is-unavailable")">
+                                <div class="vpms-report-card-body">
+                                    <div class="vpms-report-card-kicker">@(report.IsAvailable ? "Ready for review" : "Controlled status")</div>
+                                    <h3>@report.ReportName</h3>
+                                    <p>@report.Description</p>
+                                </div>
+                                <div class="vpms-report-capabilities" aria-label="Report capabilities">
+                                    <span class="@(report.SupportsPrint ? "is-on" : "is-muted")">Print</span>
+                                    <span class="@(report.SupportsPdfViaBrowserPrint ? "is-on" : "is-muted")">Browser PDF</span>
+                                    <span class="@(report.SupportsCsvExport ? "is-on" : "is-muted")">CSV</span>
+                                    <span class="@(report.SupportsHtmlExport ? "is-on" : "is-muted")">HTML</span>
+                                </div>
+                                <div class="vpms-report-card-actions">
+                                    <a class="btn vpms-btn-primary btn-sm" href="@openUrl">@(report.IsAvailable ? "Open Report" : "View Status")</a>
+                                    @if (!string.IsNullOrWhiteSpace(csvUrl))
+                                    {
+                                        <a class="btn vpms-btn-secondary btn-sm" href="@csvUrl">CSV</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="btn vpms-btn-secondary btn-sm disabled">CSV unavailable</span>
+                                    }
+                                </div>
+                                @if (!report.IsAvailable)
                                 {
-                                    <a class="btn vpms-btn-secondary btn-sm" href="@csvUrl">CSV</a>
+                                    <div class="vpms-report-unavailable">Capability is visible for planning, with no broken route exposed.</div>
                                 }
-                                else
-                                {
-                                    <span class="btn vpms-btn-secondary btn-sm disabled">CSV unavailable</span>
-                                }
-                            </div>
-                            @if (!report.IsAvailable)
-                            {
-                                <div class="vpms-report-unavailable">Capability is visible for planning, with no broken route exposed.</div>
-                            }
-                        </article>
-                    }
+                            </article>
+                        }
+                    </div>
                 </div>
-            </section>
+            </details>
         }
     </div>
 }

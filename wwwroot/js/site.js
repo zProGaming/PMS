@@ -1310,7 +1310,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  if (!prefersReducedMotion) {
+  const shouldAnimateReveals = !prefersReducedMotion && window.matchMedia("(min-width: 768px)").matches;
+
+  if (shouldAnimateReveals) {
     const revealTargets = Array.from(document.querySelectorAll([
       ".vpms-content > section",
       ".vpms-content > div",
