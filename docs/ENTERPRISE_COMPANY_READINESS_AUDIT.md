@@ -152,5 +152,10 @@ To ensure a 24/7 property operational SLA, production hosting must conform to th
 ## Verification & Test Sign-off Record
 
 - **Source Code Compilation:** `dotnet build Vantage.PMS.csproj -c Release` — **PASSED (0 Warnings, 0 Errors)**
-- **Automated Test Suite:** `dotnet test tests/Vantage.PMS.Tests/Vantage.PMS.Tests.csproj -c Release` — **16/16 PASSED**
+- **Automated Test Suite:** `dotnet test tests/Vantage.PMS.Tests/Vantage.PMS.Tests.csproj -c Release` — **19/19 PASSED**
+- **Test Coverage Areas:**
+  - `AuditDataRedactionTests`: Redaction of guest identifiers, card details, passwords, and database connection secrets.
+  - `NightAuditIdempotencyModelTests`: Database unique constraint assertions for `NightAudit.BusinessDate` and `FolioItem` idempotency keys.
+  - `ReportExportServiceTests`: Formula injection neutralization (`=`, `+`, `-`, `@`) and CSV quoting rules.
+  - `EnterpriseReadinessTests`: Role policy mapping assertions and sensitive property redaction verifications.
 - **Security Policy Audit:** Passed (Lockout, Registration Lockdown, Header Hardening, Audit Redaction verified)
