@@ -6,6 +6,14 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: vantage-pms-production
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: windows-latest
@@ -27,3 +35,22 @@ jobs:
 
       - name: Test
         run: dotnet test tests/Vantage.PMS.Tests/Vantage.PMS.Tests.csproj --configuration Release --no-restore
+
+      - name: Sign in to Azure with OpenID Connect
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: azure/login@v2
+        with:
+          client-id: 5b0a983c-ea87-4f71-8afb-6a1d5abcf55d
+          tenant-id: fb7a0ae4-40f7-4301-844a-424d541a97e1
+          subscription-id: f65c5c48-4b2f-4d08-bc8a-ab3aea6f751d
+
+      - name: Publish deployment artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: dotnet publish Vantage.PMS.csproj --configuration Release --no-restore --output ./publish
+
+      - name: Deploy to Vantage PMS production
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: vantage-pms-ph
+          package: ./publish
