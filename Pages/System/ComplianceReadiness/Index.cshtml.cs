@@ -54,8 +54,10 @@ public class IndexModel(ApplicationDbContext context, UserManager<IdentityUser> 
                 Control("Single-Tenant Dedicated Deployment Boundary", ComplianceStatus.EvidenceFound,
                     "Application deployment baseline enforces 1 property/company per dedicated App Service & Database instance.",
                     "Do not host independent companies in a shared database until global EF Core query filters and peer-reviewed tenant-key migrations are completed."),
-                Control("Night Audit Database Idempotency Control", nightAuditRecordsExist ? ComplianceStatus.EvidenceFound : ComplianceStatus.EvidenceFound,
-                    "Database constraint UX_NightAudits_BusinessDate enforces uniqueness on business date roll and charge postings.",
+                Control("Night Audit Database Idempotency Control", nightAuditRecordsExist ? ComplianceStatus.EvidenceFound : ComplianceStatus.ActionRequired,
+                    nightAuditRecordsExist
+                        ? "Night audit business date records confirmed. Database constraint UX_NightAudits_BusinessDate enforces uniqueness on business date roll and charge postings."
+                        : "Database constraint UX_NightAudits_BusinessDate enforces uniqueness on business date roll, but no night audit records have been posted yet.",
                     "Maintain night audit idempotency tests in regression suite prior to production releases.")
             ]),
             Group("Privacy & Personal Data Protection", [
