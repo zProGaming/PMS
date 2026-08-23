@@ -12,8 +12,6 @@ public class IndexModel(ApplicationDbContext context, UserManager<IdentityUser> 
 
     public ComplianceSummary Summary { get; private set; } = new(0, 0, 0, 0);
 
-    public bool IsEnterpriseModeEnforced { get; private set; } = true;
-
     public async Task OnGetAsync()
     {
         var users = await userManager.Users.AsNoTracking().ToListAsync();
@@ -46,15 +44,13 @@ public class IndexModel(ApplicationDbContext context, UserManager<IdentityUser> 
             .AnyAsync(setting => setting.IsGuestPortalEnabled && !string.IsNullOrWhiteSpace(setting.PrivacyPolicy));
         var privacyNoticeIsConfigured = bookingNoticeIsPublished || guestPortalNoticeIsPublished;
 
-        var nightAuditRecordsExist = await context.NightAudits.AsNoTracking().AnyAsync();
-
         Groups =
         [
             Group("Enterprise Architecture & Tenancy Isolation", [
-                Control("Single-Tenant Dedicated Deployment Boundary", ComplianceStatus.EvidenceFound,
-                    "Application deployment baseline enforces 1 property/company per dedicated App Service & Database instance.",
+                Control("Single-company deployment boundary", ComplianceStatus.EvidenceFound,
+                    "The supported runbook boundary is one company/property per dedicated App Service and database; the data model does not globally enforce tenant isolation.",
                     "Do not host independent companies in a shared database until global EF Core query filters and peer-reviewed tenant-key migrations are completed."),
-                Control("Night Audit Database Idempotency Control", nightAuditRecordsExist ? ComplianceStatus.EvidenceFound : ComplianceStatus.EvidenceFound,
+                Control("Night Audit database idempotency", ComplianceStatus.EvidenceFound,
                     "Database constraint UX_NightAudits_BusinessDate enforces uniqueness on business date roll and charge postings.",
                     "Maintain night audit idempotency tests in regression suite prior to production releases.")
             ]),
@@ -65,7 +61,7 @@ public class IndexModel(ApplicationDbContext context, UserManager<IdentityUser> 
                         : "No enabled public booking or guest-portal setting has a published privacy notice.",
                     "Have the hotel DPO/counsel approve a guest-and-employee privacy notice, retention schedule, and data-subject request procedure."),
                 Control("Data minimisation in new audit & error logs", ComplianceStatus.EvidenceFound,
-                    "AuditLogService and SystemErrorLogService automatically redact guest contacts, identity, credit cards, CVVs, and API secrets.",
+                    "Application audit capture and SystemErrorLogService redact common guest contacts, identity, payment, and secret fields in new records.",
                     "Review historic audit entries for legacy unredacted personal data prior to client data migration."),
                 Control("Breach and security-incident response", ComplianceStatus.ActionRequired,
                     unresolvedErrors == 0
@@ -98,11 +94,11 @@ public class IndexModel(ApplicationDbContext context, UserManager<IdentityUser> 
                     "Run supervised end-to-end UAT with a finance owner and retain signed reconciliation evidence before live cash operations.")
             ]),
             Group("Release & Enterprise Operational Assurance", [
-                Control("CI/CD Change Control & Security Headers", ComplianceStatus.EvidenceFound,
-                    "Source code build clean with 0 warnings; automated test suite passes 16/16 tests. Security headers (nosniff, Referrer-Policy, HSTS) strictly enforced.",
+                Control("CI/CD change control & security headers", ComplianceStatus.EvidenceFound,
+                    "Source is versioned, CI runs the build and regression suite, and the application applies HSTS, nosniff, Referrer-Policy, and Permissions-Policy headers.",
                     "Require an approved release ticket, backup verification, rollback owner, and post-release evidence for every production change."),
                 Control("24/7 Availability, Staging & Recovery SLA", ComplianceStatus.ActionRequired,
-                    "The production environment must run on Azure App Service P1v3 with Always On enabled and Azure SQL General Purpose database.",
+                    "No deployment evidence is recorded here for always-on hosting, staging, monitoring, recovery rehearsal, or an operational SLA.",
                     "Complete the Azure production baseline and staging slot rollback rehearsal before 24/7 hotel operations.")
             ])
         ];
