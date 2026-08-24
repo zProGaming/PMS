@@ -43,4 +43,12 @@ public class EnterpriseReadinessTests
         Assert.DoesNotContain("SuperSecretKey123!", redacted);
         Assert.Contains("Password=[REDACTED]", redacted);
     }
+
+    [Fact]
+    public void SecurityHeaders_IncludeContentSecurityPolicyAndFrameOptions()
+    {
+        var cspHeader = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self';";
+        Assert.Contains("default-src 'self'", cspHeader);
+        Assert.Contains("frame-ancestors 'self'", cspHeader);
+    }
 }
