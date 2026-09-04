@@ -2635,8 +2635,13 @@ a {
   border-color: var(--vpms-soft-border);
 }
 
-.vpms-content .table-sm {
-  min-width: 620px;
+aside .vpms-table,
+aside .vpms-content .table,
+aside .table,
+.vpms-table.table-sm,
+.vpms-content .table-sm,
+.table-sm {
+  min-width: 100% !important;
 }
 
 .vpms-table thead th,

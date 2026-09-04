@@ -258,6 +258,7 @@ app.Use(async (context, next) =>
     context.Response.OnStarting(() =>
     {
         context.Response.Headers.TryAdd("X-Content-Type-Options", "nosniff");
+        context.Response.Headers.TryAdd("X-Frame-Options", "SAMEORIGIN");
         context.Response.Headers.TryAdd("Referrer-Policy", "strict-origin-when-cross-origin");
         context.Response.Headers.TryAdd("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
         return Task.CompletedTask;

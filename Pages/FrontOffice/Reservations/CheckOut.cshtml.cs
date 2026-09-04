@@ -95,6 +95,30 @@ public class CheckOutModel(ApplicationDbContext context) : PageModel
             folio.ClosedAtUtc = DateTime.UtcNow;
         }
 
+        // Create one turnover task for the room. The normal checkout guard prevents
+        // repeat submissions after the state changes; this lookup also protects a
+        // retried request before the operator leaves the screen.
+        if (Reservation.RoomId.HasValue)
+        {
+            var turnoverNote = $"Automatically created after checkout (reservation {Reservation.Id}).";
+            var turnoverTaskAlreadyOpen = await _context.HousekeepingTasks.AnyAsync(task =>
+                task.RoomId == Reservation.RoomId.Value &&
+                task.TaskStatus == Vantage.PMS.Models.Housekeeping.HousekeepingTaskStatus.Open &&
+                task.Notes == turnoverNote);
+
+            if (!turnoverTaskAlreadyOpen)
+            {
+                _context.HousekeepingTasks.Add(new Vantage.PMS.Models.Housekeeping.HousekeepingTask
+                {
+                    RoomId = Reservation.RoomId.Value,
+                    Priority = Vantage.PMS.Models.Housekeeping.HousekeepingTaskPriority.High,
+                    TaskStatus = Vantage.PMS.Models.Housekeeping.HousekeepingTaskStatus.Open,
+                    AssignedTo = "Housekeeping Queue",
+                    Notes = turnoverNote
+                });
+            }
+        }
+
         await _context.SaveChangesAsync();
 
         return RedirectToPage("./Details", new { id = Reservation.Id });
