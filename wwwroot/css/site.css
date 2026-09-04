@@ -2071,6 +2071,54 @@ a {
   border-color: #fde68a;
 }
 
+/* Night-Shift Dark Theme Overrides */
+[data-vpms-theme="dark"] {
+  --vpms-bg: #0f172a;
+  --vpms-surface: #1e293b;
+  --vpms-navy: #f8fafc;
+  --vpms-slate: #cbd5e1;
+  --vpms-text: #f1f5f9;
+  --vpms-muted: #94a3b8;
+  --vpms-border: #334155;
+  --vpms-soft-border: #1e293b;
+  --vantage-bg: #0f172a;
+  --vantage-surface: #1e293b;
+  --vantage-text: #f1f5f9;
+  --vantage-border: #334155;
+}
+
+[data-vpms-theme="dark"] body,
+[data-vpms-theme="dark"] .vpms-shell,
+[data-vpms-theme="dark"] .app-main {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+[data-vpms-theme="dark"] .app-sidebar,
+[data-vpms-theme="dark"] .app-topbar,
+[data-vpms-theme="dark"] .app-commandbar,
+[data-vpms-theme="dark"] .card,
+[data-vpms-theme="dark"] .vpms-card,
+[data-vpms-theme="dark"] .vpms-operational-panel,
+[data-vpms-theme="dark"] .vpms-refined-card,
+[data-vpms-theme="dark"] .vpms-table-wrapper,
+[data-vpms-theme="dark"] .table {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
+}
+
+[data-vpms-theme="dark"] .table th {
+  background: #0f172a !important;
+  color: #cbd5e1 !important;
+}
+
+[data-vpms-theme="dark"] .vpms-current-time,
+[data-vpms-theme="dark"] .vpms-card-header h2,
+[data-vpms-theme="dark"] .page-title {
+  color: #f8fafc !important;
+}
+
 .status-maintenance {
   color: #9a3412;
   background: #ffedd5;

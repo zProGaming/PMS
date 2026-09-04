@@ -407,6 +407,19 @@ document.addEventListener("DOMContentLoaded", () => {
   updateCurrentTime();
   setInterval(updateCurrentTime, 1000);
 
+  const themeStorageKey = "vpms.theme";
+  const savedTheme = localStorage.getItem(themeStorageKey);
+  if (savedTheme) {
+    document.documentElement.setAttribute("data-vpms-theme", savedTheme);
+  }
+
+  window.vpmsToggleTheme = () => {
+    const currentTheme = document.documentElement.getAttribute("data-vpms-theme");
+    const nextTheme = currentTheme === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-vpms-theme", nextTheme);
+    localStorage.setItem(themeStorageKey, nextTheme);
+  };
+
   const currentPath = window.location.pathname.toLowerCase().replace(/\/$/, "") || "/";
   const navLinks = sidebarLinks;
   const lastClickedLinkStorageKey = "vpms.sidebar.lastClickedLink";

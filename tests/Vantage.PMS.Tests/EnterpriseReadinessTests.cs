@@ -47,8 +47,10 @@ public class EnterpriseReadinessTests
     [Fact]
     public void SecurityHeaders_IncludeContentSecurityPolicyAndFrameOptions()
     {
-        var cspHeader = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self';";
+        var nonce = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(16));
+        var cspHeader = $"default-src 'self'; script-src 'self' 'nonce-{nonce}' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self';";
         Assert.Contains("default-src 'self'", cspHeader);
+        Assert.Contains($"script-src 'self' 'nonce-{nonce}'", cspHeader);
         Assert.Contains("frame-ancestors 'self'", cspHeader);
     }
 }

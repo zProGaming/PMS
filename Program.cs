@@ -260,6 +260,9 @@ app.UseOutputCache();
 
 app.Use(async (context, next) =>
 {
+    var nonce = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(16));
+    context.Items["CSP-Nonce"] = nonce;
+
     context.Response.OnStarting(() =>
     {
         context.Response.Headers.TryAdd("X-Content-Type-Options", "nosniff");
@@ -267,7 +270,7 @@ app.Use(async (context, next) =>
         context.Response.Headers.TryAdd("Referrer-Policy", "strict-origin-when-cross-origin");
         context.Response.Headers.TryAdd("Cross-Origin-Opener-Policy", "same-origin");
         context.Response.Headers.TryAdd("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
-        context.Response.Headers.TryAdd("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self';");
+        context.Response.Headers.TryAdd("Content-Security-Policy", $"default-src 'self'; script-src 'self' 'nonce-{nonce}' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self';");
         return Task.CompletedTask;
     });
 

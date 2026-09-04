@@ -95,6 +95,19 @@ public class CheckOutModel(ApplicationDbContext context) : PageModel
             folio.ClosedAtUtc = DateTime.UtcNow;
         }
 
+        // Auto-dispatch housekeeping task for the vacant dirty room
+        if (Reservation.RoomId.HasValue)
+        {
+            _context.HousekeepingTasks.Add(new Vantage.PMS.Models.Housekeeping.HousekeepingTask
+            {
+                RoomId = Reservation.RoomId.Value,
+                Priority = Vantage.PMS.Models.Housekeeping.HousekeepingTaskPriority.High,
+                TaskStatus = Vantage.PMS.Models.Housekeeping.HousekeepingTaskStatus.Open,
+                AssignedTo = "Housekeeping Queue",
+                Notes = $"Automated turnover clean created upon checkout of reservation {Reservation.Id} ({Reservation.Guest?.LastName})."
+            });
+        }
+
         await _context.SaveChangesAsync();
 
         return RedirectToPage("./Details", new { id = Reservation.Id });
