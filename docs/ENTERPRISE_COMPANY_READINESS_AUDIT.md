@@ -52,6 +52,12 @@ The audit evaluates the application against enterprise hospitality requirements 
 | **Status Indicators** | Dual visual cue (Color pill + plain text label + dot indicator) | **PASS** — Room and folio states (Clean, Dirty, Inspected, OutOfOrder) never rely on color alone. | Production Ready |
 | **Form Validation** | Inline validation summary, field highlight, non-destructive submit | **PASS** — Invalid inputs trigger `.input-validation-error` styling with ARIA alerts. | Production Ready |
 
+### UI & Visual Enhancements Implemented
+1. **Typography Normalization:** Standardized font-family stack across all body & heading elements: `"Aptos", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif`. Numerical tabular alignment enabled for currency, occupancy, and RevPAR indicators (`font-variant-numeric: tabular-nums`).
+2. **Button & Input Sizing:** Normalized minimum button height to `38px` (`.btn`), small action buttons to `32px` (`.btn-sm`), and form controls to `42px` (`.form-control`, `.form-select`).
+3. **Card & Table Overflow Controls:** Table width constraints (`min-width: 100% !important;`) applied for compact card asides and `.table-sm` containers to prevent horizontal clipping.
+4. **Interactive Card Transitions:** Added subtle hover lifts (`transform: translateY(-2px); box-shadow: var(--vpms-luxury-shadow-soft);`) for clickable cards and stat blocks.
+
 ---
 
 ## 2. Core Hospitality Processes & Module Matrix
