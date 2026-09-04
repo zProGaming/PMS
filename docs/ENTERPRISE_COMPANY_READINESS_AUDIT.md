@@ -158,4 +158,29 @@ To ensure a 24/7 property operational SLA, production hosting must conform to th
   - `NightAuditIdempotencyModelTests`: Database unique constraint assertions for `NightAudit.BusinessDate` and `FolioItem` idempotency keys.
   - `ReportExportServiceTests`: Formula injection neutralization (`=`, `+`, `-`, `@`) and CSV quoting rules.
   - `EnterpriseReadinessTests`: Role policy mapping assertions and sensitive property redaction verifications.
+  - `FunctionalModuleTests`: POS order totals, service charge/tax calculation, cashier shift float arithmetic, and finance document balance recalculations.
+  - `ExtendedDomainServiceTests`: Service charge eligibility rules, position evaluation, and readiness label generation.
 - **Security Policy Audit:** Passed (Lockout, Registration Lockdown, Header Hardening, Audit Redaction verified)
+
+---
+
+## 6. Guest Check-In to Check-Out Lifecycle Audit
+
+The complete operational lifecycle from guest pre-arrival through check-out settlement has been audited across all domain models, page handlers, and financial services:
+
+```
+[ Pre-Arrival / Booking ] ──> [ Room Assignment & Readiness Check ] ──> [ Check-In & Folio Creation ]
+                                                                                   │
+[ Check-Out & Room -> Dirty ] <── [ Folio Balance Settlement (0.00) ] <── [ Charge & Payment Postings ]
+```
+
+### Lifecycle Stage Breakdown & Business Rule Enforcements
+
+| Lifecycle Phase | Component / Page Handler | Business Rules & Domain Validation | Audit Status |
+| :--- | :--- | :--- | :--- |
+| **1. Reservation Creation** | `Pages/FrontOffice/Reservations/Create.cshtml.cs` | Validates stay dates, room type rate plans, deposit requirements, and guest profile creation. | **PASS** |
+| **2. Room Assignment & Readiness Check** | `Pages/FrontOffice/Reservations/CheckIn.cshtml.cs` | Validates assigned room status. Blocks check-in if room is `Occupied`, `Dirty`, `Maintenance`, or `OutOfOrder`. Enforces room uniqueness check to prevent double-booking active in-house reservations. | **PASS** |
+| **3. Check-In & Folio Generation** | `Pages/FrontOffice/Reservations/CheckIn.cshtml.cs` | Updates reservation status to `CheckedIn`, room status to `Occupied`, sets `ActualCheckInDate`, and automatically generates open guest folio `FOL-{ReservationId}`. | **PASS** |
+| **4. Incidentals & Charge Postings** | `Pages/FrontOffice/Folios/PostCharge.cshtml.cs` | Enforces posting date lock (`PostingDate >= CurrentBusinessDate`). Supports dynamic charge routing rules for corporate/group master folios. | **PASS** |
+| **5. Folio Payments & Cashier Traceability** | `Pages/FrontOffice/Folios/PostPayment.cshtml.cs` | Requires an open cashier shift for payment posting unless overridden by `FinanceManager`, `GeneralManager`, or `SystemAdmin`. Enforces duplicate payment reference blocking within a 10-minute window. | **PASS** |
+| **6. Check-Out & Balance Settlement** | `Pages/FrontOffice/Reservations/CheckOut.cshtml.cs` | Enforces zero-balance checkout (`FolioBalance == 0`). Non-zero balances block checkout unless an authorized manager override is submitted by `SystemAdmin`, `GeneralManager`, `FrontOfficeManager`, or `FinanceManager`. Upon check-out, room status automatically transitions to `Dirty` for Housekeeping, and zero-balance folios are closed (`FolioStatus.Closed`). | **PASS** |
