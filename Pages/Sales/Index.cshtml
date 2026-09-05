@@ -5,7 +5,7 @@
     ViewData["Title"] = "Sales Dashboard";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item active" aria-current="page">Sales</li>
@@ -55,14 +55,14 @@
     </div>
     <div class="col-md-4 col-xl">
         <div class="kpi-card">
-            <div class="kpi-label">Upcoming Follow-ups</div>
+            <div class="kpi-label">Upcoming Follow-Ups</div>
             <div class="kpi-value">@Model.UpcomingFollowUps</div>
             <div class="kpi-note">Scheduled next steps</div>
         </div>
     </div>
     <div class="col-md-4 col-xl">
         <div class="kpi-card">
-            <div class="kpi-label">Overdue Follow-ups</div>
+            <div class="kpi-label">Overdue Follow-Ups</div>
             <div class="kpi-value">@Model.OverdueFollowUps</div>
             <div class="kpi-note">Needs attention</div>
         </div>
@@ -122,7 +122,7 @@
                     <tr>
                         <td><a asp-page="/Sales/Leads/Edit" asp-route-id="@lead.Id">@lead.LeadName</a></td>
                         <td>@lead.SalesAccount?.AccountName</td>
-                        <td><span class="status-badge status-@leadStatusClass">@lead.Status</span></td>
+                        <td><span class="status-badge status-@leadStatusClass">@UiText.Display(lead.Status)</span></td>
                         <td class="text-end">@lead.EstimatedValue.ToString("C")</td>
                     </tr>
                 }

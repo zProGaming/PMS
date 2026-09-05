@@ -30,7 +30,7 @@
                 <td>@table.Outlet?.Name</td>
                 <td>@table.TableName</td>
                 <td class="text-end">@table.SeatingCapacity</td>
-                <td>@table.Status</td>
+                <td>@UiText.Display(table.Status)</td>
                 <td class="text-end">
                     <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@table.Id">Edit</a>
                     <a class="btn btn-sm btn-outline-danger" asp-page="./Delete" asp-route-id="@table.Id">Delete</a>

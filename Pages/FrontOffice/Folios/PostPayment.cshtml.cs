@@ -17,6 +17,11 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
     [BindProperty]
     public Payment Payment { get; set; } = new();
 
+    public virtual bool IsSettlementWorkspace => false;
+    public string PaymentPage => IsSettlementWorkspace ? "/Finance/Settlement/PostPayment" : "/FrontOffice/Folios/PostPayment";
+    public string ReturnPage => IsSettlementWorkspace ? "/Finance/Settlement/Index" : "/FrontOffice/Folios/Details";
+    public bool CanSubmit => CanPostPayment && FolioBalance > 0 && (HasOpenCashierShift || CanPostWithoutOpenShift);
+
     public int FolioId { get; set; }
 
     public string FolioNumber { get; set; } = string.Empty;
@@ -99,6 +104,11 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
             return NativePartialOrPage();
         }
 
+        Payment = new Payment
+        {
+            FolioId = folio.Id, Amount = Payment.Amount, PaymentDate = Payment.PaymentDate,
+            PaymentMethod = Payment.PaymentMethod, ReferenceNumber = Payment.ReferenceNumber, Notes = Payment.Notes
+        };
         var errors = await _financeService.PostFolioPaymentAsync(Payment, userName, CanPostWithoutOpenShift);
         if (errors.Count > 0)
         {
@@ -116,7 +126,8 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
             return SuccessNativePartial();
         }
 
-        return RedirectToPage("./Details", new { id = folio.Id });
+        TempData["SuccessMessage"] = "Payment recorded. Review receipts for the payment history.";
+        return RedirectToPage(ReturnPage, IsSettlementWorkspace ? new { folioId = folio.Id } : (object)new { id = folio.Id });
     }
 
     private async Task<IActionResult?> LoadPaymentFormAsync(int? folioId)
@@ -275,7 +286,7 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
     {
         return new PartialViewResult
         {
-            ViewName = "_PostPaymentNative",
+            ViewName = "/Pages/FrontOffice/Folios/_PostPaymentNative.cshtml",
             ViewData = new ViewDataDictionary<PostPaymentModel>(ViewData, this)
         };
     }
@@ -284,7 +295,7 @@ public class PostPaymentModel(ApplicationDbContext context, FinanceService finan
     {
         return new PartialViewResult
         {
-            ViewName = "_PostPaymentSuccessNative",
+            ViewName = "/Pages/FrontOffice/Folios/_PostPaymentSuccessNative.cshtml",
             ViewData = new ViewDataDictionary<PostPaymentModel>(ViewData, this)
         };
     }

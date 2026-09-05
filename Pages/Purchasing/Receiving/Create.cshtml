@@ -9,8 +9,8 @@
 <form method="post" class="row g-3">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="col-md-4"><label asp-for="ReceivingRecord.ReceivingNumber" class="form-label"></label><input asp-for="ReceivingRecord.ReceivingNumber" class="form-control" readonly /></div>
-    <div class="col-md-4"><label asp-for="ReceivingRecord.PurchaseOrderId" class="form-label">Purchase Order</label><select asp-for="ReceivingRecord.PurchaseOrderId" asp-items="Model.PurchaseOrderOptions" class="form-select"><option value="">Manual receiving</option></select></div>
-    <div class="col-md-4"><label asp-for="ReceivingRecord.SupplierId" class="form-label">Supplier</label><select asp-for="ReceivingRecord.SupplierId" asp-items="Model.SupplierOptions" class="form-select"><option value="">No supplier</option></select></div>
+    <div class="col-md-4"><label asp-for="ReceivingRecord.PurchaseOrderId" class="form-label">Purchase Order</label><select asp-for="ReceivingRecord.PurchaseOrderId" asp-items="Model.PurchaseOrderOptions" class="form-select"><option value="">Manual Receiving</option></select></div>
+    <div class="col-md-4"><label asp-for="ReceivingRecord.SupplierId" class="form-label">Supplier</label><select asp-for="ReceivingRecord.SupplierId" asp-items="Model.SupplierOptions" class="form-select"><option value="">No Supplier</option></select></div>
     <div class="col-md-4"><label asp-for="ReceivingRecord.ReceivedDate" class="form-label"></label><input asp-for="ReceivingRecord.ReceivedDate" type="date" class="form-control" /></div>
     <div class="col-md-4"><label asp-for="ReceivingRecord.ReceivedBy" class="form-label"></label><input asp-for="ReceivingRecord.ReceivedBy" class="form-control" /></div>
     <div class="col-12"><label asp-for="ReceivingRecord.Notes" class="form-label"></label><textarea asp-for="ReceivingRecord.Notes" class="form-control"></textarea></div>

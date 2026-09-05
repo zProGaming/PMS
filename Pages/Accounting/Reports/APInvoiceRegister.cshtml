@@ -8,6 +8,6 @@
 <div class="vpms-table-wrapper"><table class="table vpms-table align-middle"><thead><tr><th>Date</th><th>Invoice</th><th>Supplier</th><th>Status</th><th class="text-end">Subtotal</th><th class="text-end">Tax</th><th class="text-end">WHT</th><th class="text-end">Total</th><th class="text-end">Balance</th></tr></thead><tbody>
 @foreach (var invoice in Model.Invoices)
 {
-    <tr><td>@invoice.InvoiceDate.ToString("yyyy-MM-dd")</td><td>@invoice.InvoiceNumber</td><td>@invoice.Supplier?.SupplierName</td><td><span class="status-badge">@invoice.Status</span></td><td class="text-end">@invoice.SubTotal.ToString("C")</td><td class="text-end">@invoice.TaxAmount.ToString("C")</td><td class="text-end">@invoice.WithholdingTaxAmount.ToString("C")</td><td class="text-end">@invoice.TotalAmount.ToString("C")</td><td class="text-end">@invoice.Balance.ToString("C")</td></tr>
+    <tr><td>@invoice.InvoiceDate.ToString("yyyy-MM-dd")</td><td>@invoice.InvoiceNumber</td><td>@invoice.Supplier?.SupplierName</td><td><span class="status-badge">@UiText.Display(invoice.Status)</span></td><td class="text-end">@invoice.SubTotal.ToString("C")</td><td class="text-end">@invoice.TaxAmount.ToString("C")</td><td class="text-end">@invoice.WithholdingTaxAmount.ToString("C")</td><td class="text-end">@invoice.TotalAmount.ToString("C")</td><td class="text-end">@invoice.Balance.ToString("C")</td></tr>
 }
 </tbody></table></div>

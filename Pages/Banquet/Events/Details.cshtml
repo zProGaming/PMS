@@ -17,7 +17,7 @@
         </p>
     </div>
     <div class="vpms-actions d-flex flex-wrap gap-2">
-        <span class="vpms-status-badge status-@statusClass">@Model.BanquetEvent.EventStatus</span>
+        <span class="vpms-status-badge status-@statusClass">@UiText.Display(Model.BanquetEvent.EventStatus)</span>
         <a class="btn btn-primary" asp-page="/Banquet/BEOs/Details" asp-route-eventId="@Model.BanquetEvent.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Banquet Event Order">@(Model.BanquetEvent.BanquetEventOrder is null ? "Create BEO" : "View BEO")</a>
         <a class="btn btn-outline-primary" asp-page="/Banquet/Charges/Index" asp-page-handler="AddNative" asp-route-eventId="@Model.BanquetEvent.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Add Banquet Charge">Add Charge</a>
         <a class="btn btn-outline-secondary" asp-page="/Banquet/Charges/Index" asp-route-eventId="@Model.BanquetEvent.Id">View Charges</a>
@@ -28,7 +28,7 @@
 <div class="vpms-detail-grid mb-4">
     <div class="vpms-stat-card border rounded p-3">
             <div class="text-muted small">Status</div>
-            <span class="vpms-status-badge status-@statusClass">@Model.BanquetEvent.EventStatus</span>
+            <span class="vpms-status-badge status-@statusClass">@UiText.Display(Model.BanquetEvent.EventStatus)</span>
     </div>
     <div class="vpms-stat-card border rounded p-3">
             <div class="text-muted small">Type</div>
@@ -102,5 +102,5 @@
 </div>
 
 <div class="vpms-actions">
-    <a class="btn btn-outline-secondary" asp-page="./Index">Back to Events</a>
+    <a class="btn btn-outline-secondary" asp-page="./Index">Back To Events</a>
 </div>

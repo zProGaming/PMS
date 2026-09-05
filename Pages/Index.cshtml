@@ -1,39 +1,39 @@
 @page
 @model Vantage.PMS.Pages.IndexModel
-@{ ViewData["Title"] = "Daily work"; }
+@{ ViewData["Title"] = "Daily Work"; }
 <div class="daily-work">
     <header class="work-heading">
-        <div><p class="work-eyebrow">Your working day</p><h1>Daily work</h1><p>See what needs attention and open the next step.</p></div>
+        <div><p class="work-eyebrow">Your Working Day</p><h1>Daily Work</h1><p>See what needs attention and open the next step.</p></div>
         @if (Model.Workspaces.Count > 0)
-        { <div class="work-date"><span>Business date</span><strong>@Model.BusinessDate.ToString("ddd, dd MMM yyyy")</strong><a asp-page="/Index" asp-route-workspace="@Model.Workspace">Refresh queues</a></div> }
+        { <div class="work-date"><span>Business Date</span><strong>@Model.BusinessDate.ToString("ddd, dd MMM yyyy")</strong><a asp-page="/Index" asp-route-workspace="@Model.Workspace">Refresh Queues</a></div> }
     </header>
     @if (Model.Workspaces.Count > 0)
     {
-        <nav class="work-tabs" aria-label="Daily work areas">
+        <nav class="work-tabs" aria-label="Daily Work Areas">
             @foreach (var area in Model.Workspaces)
-            { <a asp-page="/Index" asp-route-workspace="@area.Id" aria-current="@(area.Id == Model.Workspace ? "page" : null)">@area.Label</a> }
+            { <a asp-page="/Index" asp-route-workspace="@area.Id" aria-current="@(area.Id == Model.Workspace ? "page" : null)">@UiText.Label(area.Label)</a> }
         </nav>
-        <div class="work-section-heading"><h2>@Model.WorkspaceLabel work queues</h2>
-            @if (Model.Workspace == "manager") { <a asp-page="/Overview">Open management overview</a> }
-            @if (Model.Workspace == "front-desk") { <a asp-page="/FrontOffice/Reservations/Create">New reservation</a> }
-            @if (Model.Workspace == "cashier") { <a asp-page="/Finance/CashierShifts/Index">Manage cashier shifts</a> }
+        <div class="work-section-heading"><h2>@UiText.Label(Model.WorkspaceLabel) Work Queues</h2>
+            @if (Model.Workspace == "manager") { <a asp-page="/Overview">Open Management Overview</a> }
+            @if (Model.Workspace == "front-desk") { <a asp-page="/FrontOffice/Reservations/Create">New Reservation</a> }
+            @if (Model.Workspace == "cashier") { <a asp-page="/Finance/CashierShifts/Index">Manage Cashier Shifts</a> }
         </div>
         @foreach (var queue in Model.Queues.OrderBy(q => q.Total == 0))
         {
             var showAmounts = queue.Items.Any(item => item.Amount is not null);
             <section class="work-panel">
-                <header class="work-queue-heading"><div><h3>@queue.Title <span class="work-count">@queue.Total</span></h3><p>@queue.Description</p></div><a asp-page="@queue.AllPage">Open module</a></header>
+                <header class="work-queue-heading"><div><h3>@UiText.Label(queue.Title) <span class="work-count">@queue.Total</span></h3><p>@queue.Description</p></div><a asp-page="@queue.AllPage">Open Module</a></header>
                 @if (queue.Total == 0)
                 { <div class="work-empty"><p>No items currently waiting. Open the module to review history or start new work.</p></div> }
                 else
                 {
                     <div class="table-responsive"><table class="table work-table">
-                        <caption class="visually-hidden">@queue.Title — showing @queue.Items.Count of @queue.Total</caption>
-                        <thead><tr><th scope="col">Reference</th><th scope="col">Details</th><th scope="col">Needs attention</th>@if (showAmounts) { <th scope="col" class="text-end">Amount</th> }<th scope="col">Next step</th></tr></thead>
+                        <caption class="visually-hidden">@UiText.Label(queue.Title) — showing @queue.Items.Count of @queue.Total</caption>
+                        <thead><tr><th scope="col">Reference</th><th scope="col">Details</th><th scope="col">Needs Attention</th>@if (showAmounts) { <th scope="col" class="text-end">Amount</th> }<th scope="col">Next Step</th></tr></thead>
                         <tbody>
                         @foreach (var item in queue.Items)
                         {
-                            <tr><th scope="row">@item.Reference</th><td>@item.Detail</td><td><span class="work-status">@item.Status</span></td>@if (showAmounts) { <td class="text-end work-money">@(item.Amount?.ToString("C") ?? "—")</td> }<td class="work-next"><a asp-page="@item.Page" asp-all-route-data="@item.Route" asp-fragment="@item.Fragment">@item.Action<span class="visually-hidden"> for @item.Reference</span></a></td></tr>
+                            <tr><th scope="row">@item.Reference</th><td>@item.Detail</td><td><span class="work-status">@UiText.Label(item.Status)</span></td>@if (showAmounts) { <td class="text-end work-money">@(item.Amount?.ToString("C") ?? "—")</td> }<td class="work-next"><a asp-page="@item.Page" asp-all-route-data="@item.Route" asp-fragment="@item.Fragment">@UiText.Label(item.Action)<span class="visually-hidden"> for @item.Reference</span></a></td></tr>
                         }
                         </tbody>
                     </table></div>
@@ -44,6 +44,6 @@
     }
     else
     {
-        <section class="work-panel"><div class="work-empty"><h2>Open your department</h2><p>Your assigned modules are in the left navigation. These daily queues are available to Front Desk, Cashier, Housekeeping and management roles.</p><p>If an expected module is missing, ask your administrator to review your role access.</p></div></section>
+        <section class="work-panel"><div class="work-empty"><h2>Open Your Department</h2><p>Your assigned modules are in the left navigation. These daily queues are available to Front Desk, Cashier, Housekeeping and management roles.</p><p>If an expected module is missing, ask your administrator to review your role access.</p></div></section>
     }
 </div>

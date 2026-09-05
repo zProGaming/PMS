@@ -38,7 +38,7 @@
                         <td>@record.Supplier?.SupplierName</td>
                         <td>@record.ReceivedDate.ToString("d")</td>
                         <td>@record.ReceivedBy</td>
-                        <td><span class="badge text-bg-secondary">@record.Status</span></td>
+                        <td><span class="badge text-bg-secondary">@UiText.Display(record.Status)</span></td>
                         <td class="text-end">@record.Items.Sum(item => item.Amount).ToString("C")</td>
                         <td class="text-end"><a asp-page="Details" asp-route-id="@record.Id" class="btn btn-sm btn-outline-primary" data-vpms-dialog data-vpms-dialog-title="Receiving Control">Open</a></td>
                     </tr>

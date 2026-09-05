@@ -17,8 +17,8 @@
             <h1 class="page-title">@Model.Order.OrderNumber</h1>
             <p class="page-subtitle">@Model.Order.Outlet?.Name | @Model.Order.OrderType | @Model.Order.OrderDate.ToString("g")</p>
             <div class="vpms-hero-chip-row">
-                <span class="vpms-status-badge status-@orderStatusClass">@Model.Order.OrderStatus</span>
-                <span class="vpms-status-badge status-@paymentStatusClass">@Model.Order.PaymentStatus</span>
+                <span class="vpms-status-badge status-@orderStatusClass">@UiText.Display(Model.Order.OrderStatus)</span>
+                <span class="vpms-status-badge status-@paymentStatusClass">@UiText.Display(Model.Order.PaymentStatus)</span>
                 <span class="vpms-mini-chip">@activeItemCount active item@(activeItemCount == 1 ? "" : "s")</span>
             </div>
         </div>
@@ -29,7 +29,7 @@
                 @if (Model.Order.OrderStatus == Vantage.PMS.Models.FoodBeverage.POSOrderStatus.Open)
                 {
                     <form method="post" asp-page-handler="SendToKitchen" asp-route-id="@Model.Order.Id">
-                        <button type="submit" class="btn vpms-btn-secondary" data-vpms-confirm="Send this order to the kitchen display?">Send to Kitchen</button>
+                        <button type="submit" class="btn vpms-btn-secondary" data-vpms-confirm="Send this order to the kitchen display?">Send To Kitchen</button>
                     </form>
                 }
                 <a class="btn btn-success" asp-page="./Close" asp-route-id="@Model.Order.Id" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Close POS Order">Close Order</a>
@@ -38,7 +38,7 @@
         </div>
     </section>
 
-    <section class="vpms-control-strip vpms-pos-order-strip" aria-label="POS order pulse">
+    <section class="vpms-control-strip vpms-pos-order-strip" aria-label="POS Order Pulse">
         <article>
             <span>Table</span>
             <strong>@(Model.Order.DiningTable?.TableName ?? "-")</strong>
@@ -57,7 +57,7 @@
         <article class="positive">
             <span>Total Due</span>
             <strong>@Model.Order.TotalAmount.ToString("C")</strong>
-            <small>inclusive of taxes and service</small>
+            <small>Inclusive Of Taxes And Service</small>
         </article>
     </section>
 
@@ -110,7 +110,7 @@
                                         }
                                     </td>
                                     <td>
-                                        <span class="vpms-status-badge status-@itemStatusClass">@item.ItemStatus</span>
+                                        <span class="vpms-status-badge status-@itemStatusClass">@UiText.Display(item.ItemStatus)</span>
                                         <div class="vpms-kitchen-trace">
                                             <span>@(item.MenuItem?.KitchenStation?.Name ?? "Unassigned Station")</span>
                                             <small>Sent: @(item.SentToKitchenAt?.ToString("g") ?? "-")</small>

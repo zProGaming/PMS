@@ -54,7 +54,7 @@
                         <td>@invoice.ARAccount?.AccountName</td>
                         <td>@invoice.InvoiceDate.ToString("d")</td>
                         <td>@invoice.DueDate.ToString("d")</td>
-                        <td><span class="badge text-bg-secondary">@invoice.Status</span></td>
+                        <td><span class="badge text-bg-secondary">@UiText.Display(invoice.Status)</span></td>
                         <td class="text-end">@invoice.OriginalAmount.ToString("C")</td>
                         <td class="text-end">@invoice.AmountPaid.ToString("C")</td>
                         <td class="text-end">@invoice.Balance.ToString("C")</td>

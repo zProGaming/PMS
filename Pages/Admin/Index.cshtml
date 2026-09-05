@@ -10,7 +10,7 @@
         new { Number = "03", Title = "Departments", Description = "Set front office, rooms, finance, F&B, and operating departments.", Count = Model.Departments, IndexPage = "/Admin/Departments/Index", CreatePage = "/Admin/Departments/Create", Action = "Create Department" },
         new { Number = "04", Title = "Room Types", Description = "Build sellable categories before loading physical room inventory.", Count = Model.RoomTypes, IndexPage = "/Admin/RoomTypes/Index", CreatePage = "/Admin/RoomTypes/Create", Action = "Create Room Type" },
         new { Number = "05", Title = "Rooms", Description = "Create physical rooms that power the room calendar and housekeeping board.", Count = Model.Rooms, IndexPage = "/Admin/Rooms/Index", CreatePage = "/Admin/Rooms/Create", Action = "Create Room" },
-        new { Number = "06", Title = "Users and Roles", Description = "Grant staff access after the operating structure is ready.", Count = Model.Roles, IndexPage = "/Admin/UsersAndRoles/Index", CreatePage = "/Admin/UsersAndRoles/Index", Action = "Manage Access" }
+        new { Number = "06", Title = "Users And Roles", Description = "Grant staff access after the operating structure is ready.", Count = Model.Roles, IndexPage = "/Admin/UsersAndRoles/Index", CreatePage = "/Admin/UsersAndRoles/Index", Action = "Manage Access" }
     };
     var completedSteps = setupSteps.Count(step => step.Count > 0);
     var setupPercent = Math.Round(completedSteps * 100m / setupSteps.Length, 0);
@@ -18,7 +18,7 @@
     var setupComplete = completedSteps == setupSteps.Length;
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item active" aria-current="page">Admin</li>
@@ -34,11 +34,11 @@
     <div class="d-flex flex-wrap gap-2">
         <button class="btn vpms-btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#adminSetupGuide">Setup Sequence</button>
         <a class="btn vpms-btn-primary" asp-page="/Admin/Properties/Index">Properties</a>
-        <a class="btn vpms-btn-secondary" asp-page="/Admin/UsersAndRoles/Index">Users and Roles</a>
+        <a class="btn vpms-btn-secondary" asp-page="/Admin/UsersAndRoles/Index">Users And Roles</a>
     </div>
 </div>
 
-<section class="vpms-admin-setup-command" aria-label="Global admin setup guide">
+<section class="vpms-admin-setup-command" aria-label="Global Admin Setup Guide">
     <div class="vpms-admin-setup-summary">
         <span>Trial Readiness Setup</span>
         <strong>@setupPercent.ToString("N0")%</strong>
@@ -126,7 +126,7 @@
     <div class="row g-3">
         <div class="col-md-6 col-xl-4">
             <a class="quick-action-card h-100" asp-page="/Admin/Hotels/Index">
-                <strong>Hotels and Organizations</strong>
+                <strong>Hotels And Organizations</strong>
                 <small>Brand, hotel, and ownership setup.</small>
             </a>
         </div>
@@ -156,7 +156,7 @@
         </div>
         <div class="col-md-6 col-xl-4">
             <a class="quick-action-card h-100" asp-page="/Admin/UsersAndRoles/Index">
-                <strong>Users and Roles</strong>
+                <strong>Users And Roles</strong>
                 <small>Staff access and role assignment.</small>
             </a>
         </div>
@@ -176,7 +176,7 @@
             <div class="modal-body">
                 <div class="vpms-setup-guidance-callout">
                     <div>
-                        <span>Guided sequence</span>
+                        <span>Guided Sequence</span>
                         <strong>@(setupComplete ? "Core property setup is populated" : $"Continue with {nextSetupStep.Title}")</strong>
                     </div>
                     <a class="btn vpms-btn-primary"

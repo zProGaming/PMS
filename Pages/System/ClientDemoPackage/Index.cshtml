@@ -10,32 +10,32 @@
         <h1 class="vpms-page-title">Client Review Package</h1>
         <p class="vpms-page-subtitle">A curated package that frames Vantage PMS as a complete Philippine hospitality operating platform.</p>
         <div class="vpms-hero-chip-row">
-            <span class="vpms-mini-chip">Owner-ready</span>
-            <span class="vpms-mini-chip">Pilot discussion aid</span>
-            <span class="vpms-mini-chip">Browser print / Save as PDF</span>
+            <span class="vpms-mini-chip">Owner-Ready</span>
+            <span class="vpms-mini-chip">Pilot Discussion Aid</span>
+            <span class="vpms-mini-chip">Browser Print / Save As PDF</span>
         </div>
     </div>
     <div class="vpms-actions">
         <a class="btn vpms-btn-secondary" asp-page="/System/DemoWorkflowLauncher/Index">Workflow Launcher</a>
-        <button class="btn vpms-btn-primary" type="button" onclick="window.print()">Print / Save as PDF</button>
+        <button class="btn vpms-btn-primary" type="button" onclick="window.print()">Print / Save As PDF</button>
     </div>
 </div>
 
 <section class="vpms-product-proof-strip vpms-no-print">
-    <article><span>Coverage</span><strong>Rooms to finance</strong><p>Front office, folios, POS, banquet, inventory, AR, reports, and management controls in one story.</p></article>
-    <article><span>Market fit</span><strong>Philippine full-service</strong><p>Designed to speak to hotels, resorts, condotels, serviced apartments, restaurants, and event venues.</p></article>
-    <article><span>Package control</span><strong>Curated surfaces</strong></article>
+    <article><span>Coverage</span><strong>Rooms To Finance</strong><p>Front office, folios, POS, banquet, inventory, AR, reports, and management controls in one story.</p></article>
+    <article><span>Market Fit</span><strong>Philippine Full-Service</strong><p>Designed to speak to hotels, resorts, condotels, serviced apartments, restaurants, and event venues.</p></article>
+    <article><span>Package Control</span><strong>Curated Surfaces</strong></article>
 </section>
 
 <div class="row g-4 vpms-no-print mb-4">
     <div class="col-lg-4">
         <form method="post" class="vpms-form-card">
             <h2 class="h5">Create Package</h2>
-            <div class="mb-3"><label class="form-label" asp-for="Input.PackageName">Package name</label><input class="form-control" asp-for="Input.PackageName" /></div>
-            <div class="mb-3"><label class="form-label" asp-for="Input.ClientName">Client name</label><input class="form-control" asp-for="Input.ClientName" /></div>
-            <div class="mb-3"><label class="form-label" asp-for="Input.HotelName">Hotel name</label><input class="form-control" asp-for="Input.HotelName" /></div>
-            <div class="mb-3"><label class="form-label" asp-for="Input.PreparedBy">Prepared by</label><input class="form-control" asp-for="Input.PreparedBy" /></div>
-            <div class="mb-3"><label class="form-label" asp-for="Input.PreparedDate">Prepared date</label><input class="form-control" type="date" asp-for="Input.PreparedDate" /></div>
+            <div class="mb-3"><label class="form-label" asp-for="Input.PackageName">Package Name</label><input class="form-control" asp-for="Input.PackageName" /></div>
+            <div class="mb-3"><label class="form-label" asp-for="Input.ClientName">Client Name</label><input class="form-control" asp-for="Input.ClientName" /></div>
+            <div class="mb-3"><label class="form-label" asp-for="Input.HotelName">Hotel Name</label><input class="form-control" asp-for="Input.HotelName" /></div>
+            <div class="mb-3"><label class="form-label" asp-for="Input.PreparedBy">Prepared By</label><input class="form-control" asp-for="Input.PreparedBy" /></div>
+            <div class="mb-3"><label class="form-label" asp-for="Input.PreparedDate">Prepared Date</label><input class="form-control" type="date" asp-for="Input.PreparedDate" /></div>
             <div class="mb-3"><label class="form-label" asp-for="Input.Notes">Notes</label><textarea class="form-control" asp-for="Input.Notes" rows="2"></textarea></div>
             <button class="btn vpms-btn-primary w-100" asp-page-handler="Create">Create Package</button>
         </form>

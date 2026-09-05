@@ -1,8 +1,8 @@
 @model Vantage.PMS.Pages.Finance.Documents.DetailsModel
 
 <div class="vpms-native-workflow-card">
-    <div class="vpms-native-workflow-kicker">City ledger control</div>
-    <h2>Convert to AR invoice</h2>
+    <div class="vpms-native-workflow-kicker">City Ledger Control</div>
+    <h2>Convert To AR Invoice</h2>
     <p>Create an Accounts Receivable invoice from this issued document.</p>
 
     <div class="vpms-native-workflow-summary">
@@ -21,14 +21,14 @@
             <div class="row g-3">
                 <div class="col-md-8">
                     <label asp-for="ARAccountId" class="form-label">AR Account</label>
-                    <select asp-for="ARAccountId" asp-items="Model.ARAccountOptions" class="form-select"><option value="">Select AR account</option></select>
+                    <select asp-for="ARAccountId" asp-items="Model.ARAccountOptions" class="form-select"><option value="">Select AR Account</option></select>
                     <span asp-validation-for="ARAccountId" class="text-danger"></span>
                 </div>
             </div>
         </section>
         <div class="vpms-native-workflow-note">The existing service prevents duplicate AR invoices for the same finance document.</div>
         <div class="vpms-native-workflow-actions">
-            <button class="btn vpms-btn-primary">Convert to AR Invoice</button>
+            <button class="btn vpms-btn-primary">Convert To AR Invoice</button>
             <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Cancel</a>
         </div>
     </form>

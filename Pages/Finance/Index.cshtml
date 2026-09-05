@@ -5,7 +5,7 @@
     string Percent(decimal? value) => value is null ? "N/A" : value.Value.ToString("N1") + "%";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item active" aria-current="page">Finance</li>
@@ -32,17 +32,17 @@
         <p>Designed for Philippine hotel finance teams that need city ledger visibility, cashier controls, paymaster balances, print-ready reports, and audit review in one command surface.</p>
     </div>
     <div class="vpms-role-command-grid">
-        <a asp-page="/Finance/CashierShifts/Index"><span>01</span><strong>Control cashiers</strong><small>Open shifts, payments, refunds, and voids.</small></a>
-        <a asp-page="/AccountsReceivable/Aging/Index"><span>02</span><strong>Collect city ledger</strong><small>Aging, overdue accounts, and follow-up risk.</small></a>
-        <a asp-page="/Groups/Folios/Index"><span>03</span><strong>Review group folios</strong><small>Master folios, deposits, and outstanding balances.</small></a>
-        <a asp-page="/Finance/PaymentIntegrity/Index"><span>04</span><strong>Audit payments</strong><small>Cashier trace and duplicate receipt controls.</small></a>
+        <a asp-page="/Finance/CashierShifts/Index"><span>01</span><strong>Control Cashiers</strong><small>Open shifts, payments, refunds, and voids.</small></a>
+        <a asp-page="/AccountsReceivable/Aging/Index"><span>02</span><strong>Collect City Ledger</strong><small>Aging, overdue accounts, and follow-up risk.</small></a>
+        <a asp-page="/Groups/Folios/Index"><span>03</span><strong>Review Group Folios</strong><small>Master folios, deposits, and outstanding balances.</small></a>
+        <a asp-page="/Finance/PaymentIntegrity/Index"><span>04</span><strong>Audit Payments</strong><small>Cashier trace and duplicate receipt controls.</small></a>
     </div>
 </section>
 
 <div class="row g-3 vpms-dashboard-kpi-grid vpms-finance-kpi-grid">
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Payments Today</div><div class="kpi-value">@Model.TotalPaymentsToday.ToString("C")</div><div class="kpi-note">Completed folio payments</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Cash Payments</div><div class="kpi-value">@Model.CashPaymentsToday.ToString("C")</div><div class="kpi-note">Cash collected today</div></div></div>
-    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Card / E-wallet</div><div class="kpi-value">@Model.CardEWalletPaymentsToday.ToString("C")</div><div class="kpi-note">Non-cash payments</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Card / E-Wallet</div><div class="kpi-value">@Model.CardEWalletPaymentsToday.ToString("C")</div><div class="kpi-note">Non-cash payments</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Open Shifts</div><div class="kpi-value">@Model.OpenCashierShifts</div><div class="kpi-note">Cashier control</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Payment Integrity</div><div class="kpi-value">@Model.PaymentIntegrity.TotalIssues</div><div class="kpi-note">@Model.PaymentIntegrity.HighRiskIssues high-risk signal(s)</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Missing Cashier Trace</div><div class="kpi-value">@Model.PaymentIntegrity.MissingCashierTrace</div><div class="kpi-note">Payments without shift link</div></div></div>
@@ -54,25 +54,25 @@
 
 <details class="vpms-disclosure vpms-finance-disclosure mt-3">
     <summary>
-        <span>Additional finance controls</span>
-        <strong>Collections, accounting, AP, labor, and group indicators</strong>
+        <span>Additional Finance Controls</span>
+        <strong>Collections, Accounting, AP, Labor, And Group Indicators</strong>
     </summary>
     <div class="vpms-disclosure-body">
         <div class="row g-3 vpms-dashboard-kpi-grid vpms-finance-kpi-grid">
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Overdue AR</div><div class="kpi-value">@Model.OverdueARTotal.ToString("C")</div><div class="kpi-note">Past due balance</div></div></div>
-    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Due in 7 Days</div><div class="kpi-value">@Model.ARInvoicesDueWithin7Days</div><div class="kpi-note">Upcoming collections</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Due In 7 Days</div><div class="kpi-value">@Model.ARInvoicesDueWithin7Days</div><div class="kpi-note">Upcoming collections</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Collections Today</div><div class="kpi-value">@Model.ARCollectionsToday.ToString("C")</div><div class="kpi-note">Allocated AR payments</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Collections Week</div><div class="kpi-value">@Model.ARCollectionsThisWeek.ToString("C")</div><div class="kpi-note">Week-to-date collections</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AR Collections Month</div><div class="kpi-value">@Model.ARCollectionsThisMonth.ToString("C")</div><div class="kpi-note">Month-to-date collections</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Collection Rate</div><div class="kpi-value">@Percent(Model.ARCollectionRateThisMonth)</div><div class="kpi-note">Collections / opening AR plus billings</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Unposted Transactions</div><div class="kpi-value">@Model.UnpostedTransactions</div><div class="kpi-note">Accounting posting readiness</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Journal Entries Today</div><div class="kpi-value">@Model.JournalEntriesToday</div><div class="kpi-note">GL activity</div></div></div>
-    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Trial Balance</div><div class="kpi-value">@Model.TrialBalanceStatus</div><div class="kpi-note">Posted journal status</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Trial Balance</div><div class="kpi-value">@UiText.Display(Model.TrialBalanceStatus)</div><div class="kpi-note">Posted journal status</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Open Accounting Period</div><div class="kpi-value">@Model.OpenAccountingPeriod</div><div class="kpi-note">Latest posted batch: @Model.LatestPostedBatch</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">AP Balance</div><div class="kpi-value">@Model.APBalance.ToString("C")</div><div class="kpi-note">Supplier liability</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Overdue AP</div><div class="kpi-value">@Model.APOverdue.ToString("C")</div><div class="kpi-note">Past due suppliers</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Voucher Approvals</div><div class="kpi-value">@Model.PaymentVouchersPendingApproval</div><div class="kpi-note">Pending review</div></div></div>
-    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Vouchers for Release</div><div class="kpi-value">@Model.PaymentVouchersForRelease</div><div class="kpi-note">Approved payments</div></div></div>
+    <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Vouchers For Release</div><div class="kpi-value">@Model.PaymentVouchersForRelease</div><div class="kpi-note">Approved payments</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Bank Recons Pending</div><div class="kpi-value">@Model.BankReconciliationsPending</div><div class="kpi-note">Open banking controls</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Month-End Progress</div><div class="kpi-value">@Model.MonthEndChecklistProgress%</div><div class="kpi-note">Checklist completion</div></div></div>
     <div class="col-md-3"><div class="kpi-card"><div class="kpi-label">Labor Cost This Month</div><div class="kpi-value">@Model.LaborCostThisMonth.ToString("C")</div><div class="kpi-note">Payroll employer cost</div></div></div>
@@ -126,7 +126,7 @@
             <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
                 <div>
                     <div class="page-kicker">Follow-Up Queue</div>
-                    <h2 class="h5 mb-0">No Payment in 30 Days</h2>
+                    <h2 class="h5 mb-0">No Payment In 30 Days</h2>
                 </div>
                 <a asp-page="/AccountsReceivable/Collections/Index" asp-route-period="monthly" class="btn vpms-btn-secondary btn-sm">Open Collections</a>
             </div>
@@ -157,34 +157,34 @@
 
 <details class="vpms-disclosure vpms-finance-disclosure mt-4">
     <summary>
-        <span>Finance workspaces</span>
-        <strong>Open accounting, AR, AP, labor, group, and executive tools</strong>
+        <span>Finance Workspaces</span>
+        <strong>Open Accounting, AR, AP, Labor, Group, And Executive Tools</strong>
     </summary>
     <div class="vpms-disclosure-body">
         <div class="quick-action-grid">
-    <a asp-page="/Finance/ChargeCodes/Index" class="quick-action-card"><strong>Charge Codes</strong><small>Configure posting categories</small></a>
-    <a asp-page="/Finance/CashierShifts/Index" class="quick-action-card"><strong>Cashier Shifts</strong><small>Open, close, and audit shifts</small></a>
-    <a asp-page="/Finance/PaymentIntegrity/Index" class="quick-action-card"><strong>Payment Integrity</strong><small>Review duplicate receipts and cashier trace</small></a>
-    <a asp-page="/Finance/Documents/Index" class="quick-action-card"><strong>Finance Documents</strong><small>Invoices, receipts, and statements</small></a>
-    <a asp-page="/Finance/Reports/Index" class="quick-action-card"><strong>Finance Reports</strong><small>Cashier and AR reporting</small></a>
-    <a asp-page="/AccountsReceivable/Aging/Index" class="quick-action-card"><strong>AR Aging</strong><small>Monitor overdue balances</small></a>
-    <a asp-page="/AccountsReceivable/Collections/Index" asp-route-period="daily" class="quick-action-card"><strong>AR Collections</strong><small>Daily, weekly, monthly, and custom AR collection reports</small></a>
-    <a asp-page="/Accounting/Index" class="quick-action-card"><strong>Accounting</strong><small>GL dashboard and posting control</small></a>
-    <a asp-page="/Accounting/Reports/USALI" class="quick-action-card"><strong>USALI-style Statement</strong><small>Hotel management operating view</small></a>
-    <a asp-page="/Accounting/Reports/VATOutput" class="quick-action-card"><strong>Philippine Reports</strong><small>VAT and statutory readiness</small></a>
-    <a asp-page="/Accounting/AccountsPayable/Index" class="quick-action-card"><strong>Accounts Payable</strong><small>Supplier invoices and vouchers</small></a>
-    <a asp-page="/Accounting/Banking/BankReconciliations/Index" class="quick-action-card"><strong>Bank Reconciliation</strong><small>Clear bank transactions</small></a>
-    <a asp-page="/Accounting/MonthEnd/Close/Index" class="quick-action-card"><strong>Month-End Close</strong><small>Checklist and period closing</small></a>
-    <a asp-page="/Accounting/Reports/APAging" class="quick-action-card"><strong>AP Aging</strong><small>Monitor supplier payables</small></a>
-    <a asp-page="/Groups/Folios/Index" class="quick-action-card"><strong>Group Folios</strong><small>Master folios, paymasters, and balances</small></a>
-    <a asp-page="/Groups/Reports/Index" class="quick-action-card"><strong>Group Collections</strong><small>Deposits, allocations, and pickup reports</small></a>
-    <a asp-page="/Labor/Index" class="quick-action-card"><strong>Labor Costing</strong><small>Payroll cost and service charge controls</small></a>
-    <a asp-page="/Labor/Reports/Index" class="quick-action-card"><strong>Labor Reports</strong><small>Budget, productivity, and payroll journal reports</small></a>
-    <a asp-page="/Executive/DailyFlash" class="quick-action-card"><strong>Daily Flash Report</strong><small>Owner and GM daily finance briefing</small></a>
-    <a asp-page="/Executive/MonthlyOwnerReport" class="quick-action-card"><strong>Monthly Owner Report</strong><small>Executive-ready performance summary</small></a>
-    <a asp-page="/Executive/KPIScorecard" class="quick-action-card"><strong>KPI Scorecard</strong><small>Targets, variance, and status</small></a>
-    <a asp-page="/Executive/DepartmentPerformance" class="quick-action-card"><strong>Department Performance</strong><small>USALI-style department view</small></a>
-    <a asp-page="/Executive/FinanceControl" class="quick-action-card"><strong>Finance Control Intelligence</strong><small>Controls, risks, and close readiness</small></a>
+    <a asp-page="/Finance/ChargeCodes/Index" class="quick-action-card"><strong>Charge Codes</strong><small>Configure Posting Categories</small></a>
+    <a asp-page="/Finance/CashierShifts/Index" class="quick-action-card"><strong>Cashier Shifts</strong><small>Open, Close, And Audit Shifts</small></a>
+    <a asp-page="/Finance/PaymentIntegrity/Index" class="quick-action-card"><strong>Payment Integrity</strong><small>Review Duplicate Receipts And Cashier Trace</small></a>
+    <a asp-page="/Finance/Documents/Index" class="quick-action-card"><strong>Finance Documents</strong><small>Invoices, Receipts, And Statements</small></a>
+    <a asp-page="/Finance/Reports/Index" class="quick-action-card"><strong>Finance Reports</strong><small>Cashier And AR Reporting</small></a>
+    <a asp-page="/AccountsReceivable/Aging/Index" class="quick-action-card"><strong>AR Aging</strong><small>Monitor Overdue Balances</small></a>
+    <a asp-page="/AccountsReceivable/Collections/Index" asp-route-period="daily" class="quick-action-card"><strong>AR Collections</strong><small>Daily, Weekly, Monthly, And Custom AR Collection Reports</small></a>
+    <a asp-page="/Accounting/Index" class="quick-action-card"><strong>Accounting</strong><small>GL Dashboard And Posting Control</small></a>
+    <a asp-page="/Accounting/Reports/USALI" class="quick-action-card"><strong>USALI-Style Statement</strong><small>Hotel Management Operating View</small></a>
+    <a asp-page="/Accounting/Reports/VATOutput" class="quick-action-card"><strong>Philippine Reports</strong><small>VAT And Statutory Readiness</small></a>
+    <a asp-page="/Accounting/AccountsPayable/Index" class="quick-action-card"><strong>Accounts Payable</strong><small>Supplier Invoices And Vouchers</small></a>
+    <a asp-page="/Accounting/Banking/BankReconciliations/Index" class="quick-action-card"><strong>Bank Reconciliation</strong><small>Clear Bank Transactions</small></a>
+    <a asp-page="/Accounting/MonthEnd/Close/Index" class="quick-action-card"><strong>Month-End Close</strong><small>Checklist And Period Closing</small></a>
+    <a asp-page="/Accounting/Reports/APAging" class="quick-action-card"><strong>AP Aging</strong><small>Monitor Supplier Payables</small></a>
+    <a asp-page="/Groups/Folios/Index" class="quick-action-card"><strong>Group Folios</strong><small>Master Folios, Paymasters, And Balances</small></a>
+    <a asp-page="/Groups/Reports/Index" class="quick-action-card"><strong>Group Collections</strong><small>Deposits, Allocations, And Pickup Reports</small></a>
+    <a asp-page="/Labor/Index" class="quick-action-card"><strong>Labor Costing</strong><small>Payroll Cost And Service Charge Controls</small></a>
+    <a asp-page="/Labor/Reports/Index" class="quick-action-card"><strong>Labor Reports</strong><small>Budget, Productivity, And Payroll Journal Reports</small></a>
+    <a asp-page="/Executive/DailyFlash" class="quick-action-card"><strong>Daily Flash Report</strong><small>Owner And GM Daily Finance Briefing</small></a>
+    <a asp-page="/Executive/MonthlyOwnerReport" class="quick-action-card"><strong>Monthly Owner Report</strong><small>Executive-Ready Performance Summary</small></a>
+    <a asp-page="/Executive/KPIScorecard" class="quick-action-card"><strong>KPI Scorecard</strong><small>Targets, Variance, And Status</small></a>
+    <a asp-page="/Executive/DepartmentPerformance" class="quick-action-card"><strong>Department Performance</strong><small>USALI-Style Department View</small></a>
+    <a asp-page="/Executive/FinanceControl" class="quick-action-card"><strong>Finance Control Intelligence</strong><small>Controls, Risks, And Close Readiness</small></a>
         </div>
     </div>
 </details>

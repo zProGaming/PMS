@@ -36,7 +36,7 @@
                 <div class="row g-3">
                     <div class="col-12"><label asp-for="EditInput.PseudoRoomCode" class="form-label">Code</label><input asp-for="EditInput.PseudoRoomCode" class="form-control" /></div>
                     <div class="col-12"><label asp-for="EditInput.PseudoRoomName" class="form-label">Name</label><input asp-for="EditInput.PseudoRoomName" class="form-control" /></div>
-                    <div class="col-12"><label asp-for="EditInput.PseudoRoomType" class="form-label">Type</label><select asp-for="EditInput.PseudoRoomType" asp-items="Html.GetEnumSelectList<PseudoRoomType>()" class="form-select"></select></div>
+                    <div class="col-12"><label asp-for="EditInput.PseudoRoomType" class="form-label">Type</label><select asp-for="EditInput.PseudoRoomType" asp-items="Html.GetUiEnumSelectList<PseudoRoomType>()" class="form-select"></select></div>
                     <div class="col-12"><label asp-for="EditInput.LinkedSalesAccountId" class="form-label">Sales Account</label><select asp-for="EditInput.LinkedSalesAccountId" asp-items="Model.SalesAccountOptions" class="form-select"><option value="">None</option></select></div>
                     <div class="col-12"><label asp-for="EditInput.LinkedBanquetEventId" class="form-label">Banquet Event</label><select asp-for="EditInput.LinkedBanquetEventId" asp-items="Model.BanquetEventOptions" class="form-select"><option value="">None</option></select></div>
                     <div class="col-12"><label asp-for="EditInput.LinkedGroupBookingId" class="form-label">Group Booking</label><select asp-for="EditInput.LinkedGroupBookingId" asp-items="Model.GroupBookingOptions" class="form-select"><option value="">None</option></select></div>
@@ -94,7 +94,7 @@
                                 </td>
                                 <td>@folio.GroupBooking?.GroupName</td>
                                 <td>@folio.BillingName</td>
-                                <td><span class="status-badge">@folio.Status</span></td>
+                                <td><span class="status-badge">@UiText.Display(folio.Status)</span></td>
                                 <td class="text-end">@charges.ToString("C")</td>
                                 <td class="text-end">@payments.ToString("C")</td>
                                 <td class="text-end fw-semibold">@((charges - payments).ToString("C"))</td>

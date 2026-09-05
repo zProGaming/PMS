@@ -30,7 +30,7 @@
                 <td>@room.RoomNumber</td>
                 <td>@room.RoomType?.Name</td>
                 <td>@room.Floor</td>
-                <td>@room.Status</td>
+                <td>@UiText.Display(room.Status)</td>
                 <td>@(room.IsActive ? "Yes" : "No")</td>
                 <td class="text-end">
                     <a class="btn btn-sm btn-outline-primary" asp-page="./Edit" asp-route-id="@room.Id">Edit</a>

@@ -61,7 +61,7 @@
     <div class="row g-4">
         <div class="col-lg-6">
             <section class="vpms-card vpms-print-section mb-4">
-                <h2 class="h5">Payroll Cost by Department</h2>
+                <h2 class="h5">Payroll Cost By Department</h2>
                 <table class="table vpms-table vpms-print-table">
                     <thead><tr><th>Department</th><th class="text-end">Labor Cost</th><th class="text-end">Hours</th><th class="text-end">Gross</th><th class="text-end">Net</th></tr></thead>
                     <tbody>
@@ -75,7 +75,7 @@
         </div>
         <div class="col-lg-6">
             <section class="vpms-card vpms-print-section mb-4">
-                <h2 class="h5">Payroll Cost by USALI Department</h2>
+                <h2 class="h5">Payroll Cost By USALI Department</h2>
                 <table class="table vpms-table vpms-print-table">
                     <thead><tr><th>USALI Department</th><th class="text-end">Labor Cost</th><th class="text-end">Hours</th><th class="text-end">Service Charge</th></tr></thead>
                     <tbody>
@@ -90,7 +90,7 @@
     </div>
 
     <section class="vpms-card vpms-print-section mb-4">
-        <h2 class="h5">Labor Budget vs Actual</h2>
+        <h2 class="h5">Labor Budget Vs Actual</h2>
         <table class="table vpms-table vpms-print-table">
             <thead><tr><th>Department</th><th>Period</th><th class="text-end">Budget Cost</th><th class="text-end">Actual Cost</th><th class="text-end">Variance</th><th class="text-end">Budget Hours</th><th class="text-end">Actual Hours</th><th class="text-end">Hours Var.</th></tr></thead>
             <tbody>
@@ -126,7 +126,7 @@
             <tbody>
             @foreach (var journal in Model.PayrollJournals)
             {
-                <tr><td>@journal.JournalDate.ToString("yyyy-MM-dd")</td><td>@journal.JournalNumber</td><td>@journal.SourceTransactionType</td><td>@journal.Description</td><td>@journal.Status</td><td class="text-end">@journal.Lines.Sum(line => line.DebitAmount).ToString("C")</td><td class="text-end">@journal.Lines.Sum(line => line.CreditAmount).ToString("C")</td></tr>
+                <tr><td>@journal.JournalDate.ToString("yyyy-MM-dd")</td><td>@journal.JournalNumber</td><td>@journal.SourceTransactionType</td><td>@journal.Description</td><td>@UiText.Display(journal.Status)</td><td class="text-end">@journal.Lines.Sum(line => line.DebitAmount).ToString("C")</td><td class="text-end">@journal.Lines.Sum(line => line.CreditAmount).ToString("C")</td></tr>
             }
             </tbody>
         </table>

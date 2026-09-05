@@ -1,27 +1,25 @@
 @model Vantage.PMS.Pages.Finance.VoidRequests.IndexModel
 
 <div class="vpms-native-workflow-card">
-    <div class="vpms-native-workflow-kicker">Void request</div>
-    <h2>New void request</h2>
+    <div class="vpms-native-workflow-kicker">Void Request</div>
+    <h2>New Void Request</h2>
     <p>Finance approval required.</p>
 
     <form method="post" asp-page="./Index" asp-page-handler="Create" class="vpms-native-workflow-form">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div asp-validation-summary="All" class="text-danger"></div>
         <section class="vpms-form-section">
             <div class="vpms-form-section-heading">
                 <div>
                     <h2>Source Reference</h2>
-                    <p>Identify the transaction or document to be voided.</p>
+                    <p>Select a folio charge or payment receipt. POS orders and issued documents need reconciliation in their own module.</p>
                 </div>
             </div>
             <div class="row g-3">
                 <div class="col-md-4">
                     <label asp-for="VoidRequest.ReferenceType" class="form-label"></label>
                     <select asp-for="VoidRequest.ReferenceType" class="form-select">
-                        <option>FolioItem</option>
-                        <option>Payment</option>
-                        <option>POSOrder</option>
-                        <option>FinanceDocument</option>
+                        <option value="FolioItem">Folio Charge</option>
+                        <option value="Payment">Payment Receipt</option>
                     </select>
                     <span asp-validation-for="VoidRequest.ReferenceType" class="text-danger"></span>
                 </div>
@@ -32,7 +30,7 @@
                 </div>
                 <div class="col-md-4">
                     <label asp-for="VoidRequest.RequestedBy" class="form-label"></label>
-                    <input asp-for="VoidRequest.RequestedBy" class="form-control" />
+                    <input asp-for="VoidRequest.RequestedBy" class="form-control" readonly />
                 </div>
                 <div class="col-12">
                     <label asp-for="VoidRequest.Reason" class="form-label"></label>

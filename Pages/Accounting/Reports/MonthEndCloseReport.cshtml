@@ -7,6 +7,6 @@
 <div class="vpms-table-wrapper"><table class="table vpms-table align-middle"><thead><tr><th>Module</th><th>Checklist Item</th><th>Status</th><th>Completed By</th><th>Completed At</th><th>Notes</th></tr></thead><tbody>
 @foreach (var item in Model.Checklist)
 {
-    <tr><td>@item.Module</td><td>@item.ChecklistItem</td><td><span class="status-badge">@item.Status</span></td><td>@item.CompletedBy</td><td>@item.CompletedAt?.ToString("yyyy-MM-dd HH:mm")</td><td>@item.Notes</td></tr>
+    <tr><td>@item.Module</td><td>@item.ChecklistItem</td><td><span class="status-badge">@UiText.Display(item.Status)</span></td><td>@item.CompletedBy</td><td>@item.CompletedAt?.ToString("yyyy-MM-dd HH:mm")</td><td>@item.Notes</td></tr>
 }
 </tbody></table></div>

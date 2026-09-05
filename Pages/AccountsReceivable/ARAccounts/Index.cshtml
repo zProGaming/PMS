@@ -11,7 +11,7 @@
     <input type="hidden" asp-for="Account.Id" />
     <input type="hidden" asp-for="Account.CurrentBalance" />
     <div class="col-md-3"><label asp-for="Account.AccountName" class="form-label"></label><input asp-for="Account.AccountName" class="form-control" /></div>
-    <div class="col-md-3"><label asp-for="Account.AccountType" class="form-label"></label><select asp-for="Account.AccountType" asp-items="Html.GetEnumSelectList<ARAccountType>()" class="form-select"></select></div>
+    <div class="col-md-3"><label asp-for="Account.AccountType" class="form-label"></label><select asp-for="Account.AccountType" asp-items="Html.GetUiEnumSelectList<ARAccountType>()" class="form-select"></select></div>
     <div class="col-md-3"><label asp-for="Account.SalesAccountId" class="form-label">Sales Account</label><select asp-for="Account.SalesAccountId" asp-items="Model.SalesAccountOptions" class="form-select"><option value="">None</option></select></div>
     <div class="col-md-3"><label asp-for="Account.CreditLimit" class="form-label"></label><input asp-for="Account.CreditLimit" class="form-control" /></div>
     <div class="col-md-3"><label asp-for="Account.ContactPerson" class="form-label"></label><input asp-for="Account.ContactPerson" class="form-control" /></div>
@@ -39,7 +39,7 @@
                 <td>
                     @if (account.CreditLimit > 0 && account.CurrentBalance > account.CreditLimit)
                     {
-                        <span class="badge text-bg-warning">Over credit limit</span>
+                        <span class="badge text-bg-warning">Over Credit Limit</span>
                     }
                 </td>
                 <td class="text-end"><a asp-page="Index" asp-route-id="@account.Id" class="btn btn-sm btn-outline-secondary">Edit</a></td>

@@ -726,7 +726,7 @@ document.addEventListener("DOMContentLoaded", () => {
       compactToggle.setAttribute("aria-pressed", isCompact ? "true" : "false");
       const label = compactToggle.querySelector(".vpms-sidebar-compact-text");
       if (label) {
-        label.textContent = isCompact ? "Expand sidebar" : "Collapse sidebar";
+        label.textContent = isCompact ? "Expand Sidebar" : "Collapse Sidebar";
       }
     }
   };

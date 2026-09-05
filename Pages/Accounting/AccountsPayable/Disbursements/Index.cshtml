@@ -19,9 +19,9 @@
                 <td>@disbursement.PaymentVoucher?.VoucherNumber</td>
                 <td>@disbursement.Supplier?.SupplierName</td>
                 <td>@disbursement.DisbursementDate.ToString("yyyy-MM-dd")</td>
-                <td>@disbursement.PaymentMethod</td>
+                <td>@UiText.Display(disbursement.PaymentMethod)</td>
                 <td>@disbursement.ReferenceNumber</td>
-                <td><span class="status-badge">@disbursement.Status</span></td>
+                <td><span class="status-badge">@UiText.Display(disbursement.Status)</span></td>
                 <td class="text-end">@disbursement.Amount.ToString("C")</td>
             </tr>
         }

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Document Template Settings";
 }
 
-<nav aria-label="breadcrumb" class="vpms-no-print">
+<nav aria-label="Breadcrumb" class="vpms-no-print">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/System/Settings/Index">System</a></li>
@@ -35,44 +35,44 @@
             <h2 class="h5 mb-3">@(Model.Input.Id > 0 ? "Edit Template" : "Add Template")</h2>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="mb-3">
-                <label class="form-label" asp-for="Input.TemplateName">Template name</label>
+                <label class="form-label" asp-for="Input.TemplateName">Template Name</label>
                 <input class="form-control" asp-for="Input.TemplateName" required />
             </div>
             <div class="mb-3">
-                <label class="form-label" asp-for="Input.DocumentType">Document type</label>
+                <label class="form-label" asp-for="Input.DocumentType">Document Type</label>
                 <input class="form-control" asp-for="Input.DocumentType" required />
             </div>
             <div class="mb-3">
-                <label class="form-label" asp-for="Input.HeaderTitle">Header title</label>
+                <label class="form-label" asp-for="Input.HeaderTitle">Header Title</label>
                 <input class="form-control" asp-for="Input.HeaderTitle" required />
             </div>
             <div class="mb-3">
-                <label class="form-label" asp-for="Input.FooterText">Footer text</label>
+                <label class="form-label" asp-for="Input.FooterText">Footer Text</label>
                 <textarea class="form-control" asp-for="Input.FooterText" rows="3"></textarea>
             </div>
             <div class="row g-2 mb-3">
                 <div class="col-6">
                     <div class="form-check">
                         <input class="form-check-input" asp-for="Input.ShowLogo" />
-                        <label class="form-check-label" asp-for="Input.ShowLogo">Show logo</label>
+                        <label class="form-check-label" asp-for="Input.ShowLogo">Show Logo</label>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="form-check">
                         <input class="form-check-input" asp-for="Input.ShowPreparedBy" />
-                        <label class="form-check-label" asp-for="Input.ShowPreparedBy">Prepared by</label>
+                        <label class="form-check-label" asp-for="Input.ShowPreparedBy">Prepared By</label>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="form-check">
                         <input class="form-check-input" asp-for="Input.ShowApprovedBy" />
-                        <label class="form-check-label" asp-for="Input.ShowApprovedBy">Approved by</label>
+                        <label class="form-check-label" asp-for="Input.ShowApprovedBy">Approved By</label>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="form-check">
                         <input class="form-check-input" asp-for="Input.ShowPrintedDate" />
-                        <label class="form-check-label" asp-for="Input.ShowPrintedDate">Printed date</label>
+                        <label class="form-check-label" asp-for="Input.ShowPrintedDate">Printed Date</label>
                     </div>
                 </div>
                 <div class="col-6">

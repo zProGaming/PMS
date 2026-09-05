@@ -37,7 +37,7 @@
         <dt>Payment Date</dt>
         <dd>@payment.PaymentDate.ToString("MMM d, yyyy h:mm tt")</dd>
         <dt>Method</dt>
-        <dd>@payment.PaymentMethod</dd>
+        <dd>@UiText.Display(payment.PaymentMethod)</dd>
         <dt>Reference</dt>
         <dd>@receiptNumber</dd>
     </dl>
@@ -51,7 +51,7 @@
        target="_blank"
        rel="noopener">Print Receipt</a>
     <a class="btn vpms-btn-secondary"
-       asp-page="./Details"
-       asp-route-id="@Model.FolioId"
-       data-vpms-dialog-close>Return to Folio</a>
+       asp-page="@Model.ReturnPage"
+       asp-route-id="@(Model.IsSettlementWorkspace ? (int?)null : Model.FolioId)" asp-route-folioId="@(Model.IsSettlementWorkspace ? Model.FolioId : (int?)null)"
+       data-vpms-dialog-close>Return To Workspace</a>
 </div>

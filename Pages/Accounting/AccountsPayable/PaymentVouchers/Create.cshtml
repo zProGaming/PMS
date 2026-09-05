@@ -14,9 +14,9 @@
     <div class="row g-3">
         <div class="col-md-3"><label asp-for="Input.VoucherNumber" class="form-label">Voucher Number</label><input asp-for="Input.VoucherNumber" class="form-control" /></div>
         <div class="col-md-3"><label asp-for="Input.VoucherDate" class="form-label">Voucher Date</label><input asp-for="Input.VoucherDate" type="date" class="form-control" /></div>
-        <div class="col-md-6"><label asp-for="Input.APInvoiceId" class="form-label">AP Invoice</label><select asp-for="Input.APInvoiceId" asp-items="Model.APInvoiceOptions" class="form-select"><option value="">Manual supplier payment</option></select></div>
-        <div class="col-md-4"><label asp-for="Input.SupplierId" class="form-label">Supplier</label><select asp-for="Input.SupplierId" asp-items="Model.SupplierOptions" class="form-select"><option value="">Select supplier</option></select></div>
-        <div class="col-md-2"><label asp-for="Input.PaymentMethod" class="form-label">Method</label><select asp-for="Input.PaymentMethod" asp-items="Html.GetEnumSelectList<FinancePaymentMethod>()" class="form-select"></select></div>
+        <div class="col-md-6"><label asp-for="Input.APInvoiceId" class="form-label">AP Invoice</label><select asp-for="Input.APInvoiceId" asp-items="Model.APInvoiceOptions" class="form-select"><option value="">Manual Supplier Payment</option></select></div>
+        <div class="col-md-4"><label asp-for="Input.SupplierId" class="form-label">Supplier</label><select asp-for="Input.SupplierId" asp-items="Model.SupplierOptions" class="form-select"><option value="">Select Supplier</option></select></div>
+        <div class="col-md-2"><label asp-for="Input.PaymentMethod" class="form-label">Method</label><select asp-for="Input.PaymentMethod" asp-items="Html.GetUiEnumSelectList<FinancePaymentMethod>()" class="form-select"></select></div>
         <div class="col-md-2"><label asp-for="Input.Amount" class="form-label">Gross Amount</label><input asp-for="Input.Amount" class="form-control" /></div>
         <div class="col-md-2"><label asp-for="Input.WithholdingTaxAmount" class="form-label">WHT</label><input asp-for="Input.WithholdingTaxAmount" class="form-control" /></div>
         <div class="col-md-2"><label asp-for="Input.NetPaymentAmount" class="form-label">Net Payment</label><input asp-for="Input.NetPaymentAmount" class="form-control" /></div>

@@ -21,10 +21,10 @@
 }
 
 <div class="row g-3 mb-4">
-    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Status</span><strong class="kpi-value">@Model.Reconciliation.Status</strong><span class="kpi-meta">Approval control</span></div></div>
-    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Statement</span><strong class="kpi-value">@Model.Reconciliation.StatementEndingBalance.ToString("C")</strong><span class="kpi-meta">Bank statement</span></div></div>
-    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Book</span><strong class="kpi-value">@Model.Reconciliation.BookEndingBalance.ToString("C")</strong><span class="kpi-meta">Cleared book balance</span></div></div>
-    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Difference</span><strong class="kpi-value @(Model.Reconciliation.Difference == 0 ? "text-success" : "text-danger")">@Model.Reconciliation.Difference.ToString("C")</strong><span class="kpi-meta">Must be zero to approve</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Status</span><strong class="kpi-value">@UiText.Display(Model.Reconciliation.Status)</strong><span class="kpi-meta">Approval Control</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Statement</span><strong class="kpi-value">@Model.Reconciliation.StatementEndingBalance.ToString("C")</strong><span class="kpi-meta">Bank Statement</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Book</span><strong class="kpi-value">@Model.Reconciliation.BookEndingBalance.ToString("C")</strong><span class="kpi-meta">Cleared Book Balance</span></div></div>
+    <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Difference</span><strong class="kpi-value @(Model.Reconciliation.Difference == 0 ? "text-success" : "text-danger")">@Model.Reconciliation.Difference.ToString("C")</strong><span class="kpi-meta">Must Be Zero To Approve</span></div></div>
 </div>
 
 @if (Model.Reconciliation.Status != BankReconciliationStatus.Approved)
@@ -36,7 +36,7 @@
         </div>
         <div class="row g-3 align-items-end">
             <div class="col-md-4"><label asp-for="Adjustment.Description" class="form-label">Description</label><input asp-for="Adjustment.Description" class="form-control" /></div>
-            <div class="col-md-2"><label asp-for="Adjustment.ItemType" class="form-label">Type</label><select asp-for="Adjustment.ItemType" asp-items="Html.GetEnumSelectList<BankReconciliationItemType>()" class="form-select"></select></div>
+            <div class="col-md-2"><label asp-for="Adjustment.ItemType" class="form-label">Type</label><select asp-for="Adjustment.ItemType" asp-items="Html.GetUiEnumSelectList<BankReconciliationItemType>()" class="form-select"></select></div>
             <div class="col-md-2"><label asp-for="Adjustment.Amount" class="form-label">Amount</label><input asp-for="Adjustment.Amount" class="form-control" /></div>
             <div class="col-md-3"><label asp-for="Adjustment.Notes" class="form-label">Notes</label><input asp-for="Adjustment.Notes" class="form-control" /></div>
             <div class="col-md-1"><button class="btn vpms-btn-secondary w-100" type="submit">Add</button></div>

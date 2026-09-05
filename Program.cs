@@ -46,6 +46,9 @@ builder.Services.AddScoped<GuestPortalNotificationService>();
 builder.Services.AddScoped<GuestPortalService>();
 builder.Services.AddScoped<FinanceService>();
 builder.Services.AddScoped<CheckoutService>();
+builder.Services.AddScoped<FinanceAdjustmentService>();
+builder.Services.AddScoped<CashierControlService>();
+builder.Services.AddScoped<HousekeepingWorkflowService>();
 builder.Services.AddScoped<PaymentIntegrityService>();
 builder.Services.AddScoped<ARCollectionReportService>();
 builder.Services.AddScoped<AccountingPostingService>();
@@ -185,6 +188,9 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AuthorizeFolder("/System/DemoWorkflowLauncher", PmsPolicies.ClientDemo);
     options.Conventions.AuthorizeFolder("/Documents", PmsPolicies.PrintableDocuments);
 });
+
+builder.Services.Configure<Microsoft.AspNetCore.Mvc.MvcOptions>(options =>
+    options.ModelMetadataDetailsProviders.Add(new Vantage.PMS.Presentation.UiLabelMetadataProvider()));
 
 var app = builder.Build();
 

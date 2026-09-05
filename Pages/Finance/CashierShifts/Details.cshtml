@@ -17,7 +17,7 @@
 <div class="row g-3 mb-4">
     <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Business Date</div><strong>@Model.CashierShift.BusinessDate.ToString("d")</strong></div></div>
     <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Opened By</div><strong>@Model.CashierShift.OpenedBy</strong></div></div>
-    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Status</div><span class="badge text-bg-secondary">@Model.CashierShift.Status</span></div></div>
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Status</div><span class="badge text-bg-secondary">@UiText.Display(Model.CashierShift.Status)</span></div></div>
     <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Expected Cash</div><strong>@Model.ExpectedCash.ToString("C")</strong></div></div>
 </div>
 
@@ -28,7 +28,7 @@
         <a asp-page="./Details" asp-page-handler="CloseNative" asp-route-id="@Model.CashierShift.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Close Cashier Shift">Close Shift</a>
     </div>
     <details class="vpms-refined-card vpms-inline-create-panel mb-4">
-        <summary>Manual cashier controls</summary>
+        <summary>Manual Cashier Controls</summary>
         <div class="row g-3 mt-3">
             <div class="col-md-6">
                 <form method="post" asp-page-handler="CashDrop" class="row g-3">
@@ -57,7 +57,7 @@
             <tr>
                 <td>@transaction.TransactionDate.ToString("g")</td>
                 <td>@transaction.TransactionType</td>
-                <td>@transaction.PaymentMethod</td>
+                <td>@UiText.Display(transaction.PaymentMethod)</td>
                 <td>@transaction.ReferenceNumber</td>
                 <td class="text-end">@transaction.Amount.ToString("C")</td>
                 <td>@transaction.Notes</td>

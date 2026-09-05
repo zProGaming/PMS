@@ -14,7 +14,7 @@
             <h1 class="page-title">@Model.FinanceDocument.DocumentNumber</h1>
             <p class="page-subtitle">@Model.FinanceDocument.DocumentType | @Model.FinanceDocument.BillingName</p>
             <div class="vpms-hero-chip-row">
-                <span class="vpms-status-badge status-@statusClass">@Model.FinanceDocument.Status</span>
+                <span class="vpms-status-badge status-@statusClass">@UiText.Display(Model.FinanceDocument.Status)</span>
                 <span class="vpms-mini-chip">@lineCount line@(lineCount == 1 ? "" : "s")</span>
                 <span class="vpms-mini-chip">Due @(Model.FinanceDocument.DueDate?.ToString("MMM d, yyyy") ?? "not set")</span>
             </div>
@@ -27,7 +27,7 @@
             @if (Model.FinanceDocument.Status is Vantage.PMS.Models.Finance.FinanceDocumentStatus.Issued or Vantage.PMS.Models.Finance.FinanceDocumentStatus.PartiallyPaid)
             {
                 <a asp-page="./Details" asp-page-handler="RecordPaymentNative" asp-route-id="@Model.FinanceDocument.Id" class="btn vpms-btn-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Record Document Payment">Record Payment</a>
-                <a asp-page="./Details" asp-page-handler="ConvertToARNative" asp-route-id="@Model.FinanceDocument.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Convert to AR Invoice">Convert to AR</a>
+                <a asp-page="./Details" asp-page-handler="ConvertToARNative" asp-route-id="@Model.FinanceDocument.Id" class="btn btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Convert To AR Invoice">Convert To AR</a>
             }
             @if (Model.FinanceDocument.Status is Vantage.PMS.Models.Finance.FinanceDocumentStatus.Draft or Vantage.PMS.Models.Finance.FinanceDocumentStatus.Issued)
             {
@@ -42,7 +42,7 @@
         <div class="alert alert-danger vpms-alert">@error</div>
     }
 
-    <section class="vpms-control-strip vpms-document-strip" aria-label="Finance document pulse">
+    <section class="vpms-control-strip vpms-document-strip" aria-label="Finance Document Pulse">
         <article>
             <span>Document Type</span>
             <strong>@Model.FinanceDocument.DocumentType</strong>
@@ -56,12 +56,12 @@
         <article class="@balanceTone">
             <span>Balance</span>
             <strong>@Model.FinanceDocument.Balance.ToString("C")</strong>
-            <small>@Model.FinanceDocument.Status</small>
+            <small>@UiText.Display(Model.FinanceDocument.Status)</small>
         </article>
         <article class="positive">
             <span>Total</span>
             <strong>@Model.FinanceDocument.TotalAmount.ToString("C")</strong>
-            <small>including tax and service</small>
+            <small>Including Tax And Service</small>
         </article>
     </section>
 

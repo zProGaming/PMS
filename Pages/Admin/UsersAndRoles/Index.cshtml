@@ -1,10 +1,10 @@
 @page
 @model Vantage.PMS.Pages.Admin.UsersAndRoles.IndexModel
 @{
-    ViewData["Title"] = "Users and Roles";
+    ViewData["Title"] = "Users And Roles";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/Admin/Index">Admin</a></li>
@@ -15,7 +15,7 @@
 <div class="page-header">
     <div>
         <div class="page-kicker">Global Administration</div>
-        <h1 class="page-title">Users and Roles</h1>
+        <h1 class="page-title">Users And Roles</h1>
         <p class="page-subtitle">Staff accounts, operational roles, and company-code access.</p>
     </div>
     <div class="d-flex flex-wrap gap-2">
@@ -159,7 +159,7 @@
                                 </span>
                             </div>
                             <div class="vpms-user-card-meta">
-                                <span>Company access</span>
+                                <span>Company Access</span>
                                 <strong>@user.CompanyAccessCount code@(user.CompanyAccessCount == 1 ? string.Empty : "s")</strong>
                             </div>
                             <form method="post" asp-page-handler="SetRole" asp-route-id="@user.Id" class="vpms-user-role-form">
@@ -168,7 +168,7 @@
                                     <select id="mobile-user-role-@user.Id" name="roleName" class="form-select" asp-items="Model.RoleOptions">
                                         <option selected>@primaryRole</option>
                                     </select>
-                                    <button class="btn vpms-btn-secondary" type="submit">Update role</button>
+                                    <button class="btn vpms-btn-secondary" type="submit">Update Role</button>
                                 </div>
                             </form>
                             <div class="vpms-user-card-actions">

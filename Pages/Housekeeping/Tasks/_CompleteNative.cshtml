@@ -20,13 +20,14 @@
     <dt class="col-sm-4">Assigned To</dt>
     <dd class="col-sm-8">@task.AssignedTo</dd>
     <dt class="col-sm-4">Priority</dt>
-    <dd class="col-sm-8">@task.Priority</dd>
+    <dd class="col-sm-8">@UiText.Display(task.Priority)</dd>
     <dt class="col-sm-4">Current Status</dt>
-    <dd class="col-sm-8">@task.TaskStatus</dd>
+    <dd class="col-sm-8">@UiText.Display(task.TaskStatus)</dd>
     <dt class="col-sm-4">Notes</dt>
     <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(task.Notes) ? "No notes recorded." : task.Notes)</dd>
 </dl>
 
+<p class="text-muted">Completing the last task for a vacant dirty room marks it Clean, not Available. Supervisor inspection and release follow.</p>
 <form method="post" asp-page-handler="Complete" asp-route-id="@task.Id" class="vpms-native-workflow-form">
     <div class="vpms-native-action-row">
         <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>

@@ -56,7 +56,7 @@
     </div>
 </section>
 
-<section class="vpms-report-proof-strip" aria-label="Report center readiness">
+<section class="vpms-report-proof-strip" aria-label="Report Center Readiness">
     <article>
         <span>Curated Library</span>
         <strong>@availableCount live report@(availableCount == 1 ? "" : "s")</strong>
@@ -78,12 +78,12 @@
     <form method="get">
         <div>
             <label class="form-label" for="search">Search</label>
-            <input class="form-control" id="search" name="search" value="@Model.Search" placeholder="Search reports, categories, or descriptions" />
+            <input class="form-control" id="search" name="search" value="@Model.Search" placeholder="Search Reports, Categories, Or Descriptions" />
         </div>
         <div>
             <label class="form-label" for="category">Category</label>
-            <select class="form-select" id="category" asp-for="Category" asp-items="Html.GetEnumSelectList<ReportCategory>()">
-                <option value="">All categories</option>
+            <select class="form-select" id="category" asp-for="Category" asp-items="Html.GetUiEnumSelectList<ReportCategory>()">
+                <option value="">All Categories</option>
             </select>
         </div>
         <div class="vpms-filter-actions">
@@ -117,7 +117,7 @@ else
                     </div>
                     <div class="vpms-report-category-meter">
                         <strong>@availableInCategory / @category.Count()</strong>
-                        <span>available now</span>
+                        <span>Available Now</span>
                     </div>
                 </summary>
                 <div class="vpms-report-category-body">
@@ -135,7 +135,7 @@ else
                                     <h3>@report.ReportName</h3>
                                     <p>@report.Description</p>
                                 </div>
-                                <div class="vpms-report-capabilities" aria-label="Report capabilities">
+                                <div class="vpms-report-capabilities" aria-label="Report Capabilities">
                                     <span class="@(report.SupportsPrint ? "is-on" : "is-muted")">Print</span>
                                     <span class="@(report.SupportsPdfViaBrowserPrint ? "is-on" : "is-muted")">Browser PDF</span>
                                     <span class="@(report.SupportsCsvExport ? "is-on" : "is-muted")">CSV</span>
@@ -149,7 +149,7 @@ else
                                     }
                                     else
                                     {
-                                        <span class="btn vpms-btn-secondary btn-sm disabled">CSV unavailable</span>
+                                        <span class="btn vpms-btn-secondary btn-sm disabled">CSV Unavailable</span>
                                     }
                                 </div>
                                 @if (!report.IsAvailable)

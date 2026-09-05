@@ -4,7 +4,7 @@
     ViewData["Title"] = "AI Management Dashboard";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item active" aria-current="page">Management AI</li>
@@ -15,7 +15,7 @@
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
         <div>
             <div class="page-kicker">Management AI</div>
-            <h1 class="display-6 fw-bold mb-2">Executive hotel intelligence</h1>
+            <h1 class="display-6 fw-bold mb-2">Executive Hotel Intelligence</h1>
             <p class="mb-0 text-muted">Reviewable rule-based recommendations. External AI integration is disabled.</p>
         </div>
         <div class="d-flex align-items-start gap-2">
@@ -32,7 +32,7 @@
 <div class="page-header">
     <div>
         <div class="page-kicker">Daily Snapshot</div>
-        <h2 class="h4 page-title">Rule-based Summary</h2>
+        <h2 class="h4 page-title">Rule-Based Summary</h2>
     </div>
 </div>
 
@@ -78,9 +78,9 @@ else
                     <div class="row text-center g-2">
                         <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">Arrivals</div><strong>@Model.Summary.ArrivalsToday</strong></div></div>
                         <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">Departures</div><strong>@Model.Summary.DeparturesToday</strong></div></div>
-                        <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">In-house</div><strong>@Model.Summary.InHouseGuests</strong></div></div>
+                        <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">In-House</div><strong>@Model.Summary.InHouseGuests</strong></div></div>
                         <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">Dirty</div><strong>@Model.Summary.DirtyRooms</strong></div></div>
-                        <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">Out of order</div><strong>@Model.Summary.OutOfOrderRooms</strong></div></div>
+                        <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">Out Of Order</div><strong>@Model.Summary.OutOfOrderRooms</strong></div></div>
                         <div class="col-4"><div class="border rounded p-2"><div class="text-muted small">Available</div><strong>@Model.Summary.AvailableRooms</strong></div></div>
                     </div>
                 </div>
@@ -91,10 +91,10 @@ else
                 <div class="card-header">Work Queues</div>
                 <div class="card-body">
                     <div class="row text-center g-2">
-                        <div class="col-6"><div class="border rounded p-2"><div class="text-muted small">Open service requests</div><strong>@Model.Summary.OpenServiceRequests</strong></div></div>
-                        <div class="col-6"><div class="border rounded p-2"><div class="text-muted small">Housekeeping tasks</div><strong>@Model.Summary.PendingHousekeepingTasks</strong></div></div>
-                        <div class="col-6"><div class="border rounded p-2"><div class="text-muted small">Low stock items</div><strong>@Model.Summary.LowStockItems</strong></div></div>
-                        <div class="col-6"><div class="border rounded p-2"><div class="text-muted small">Pending approvals</div><strong>@Model.Summary.PendingApprovals</strong></div></div>
+                        <div class="col-6"><div class="border rounded p-2"><div class="text-muted small">Open Service Requests</div><strong>@Model.Summary.OpenServiceRequests</strong></div></div>
+                        <div class="col-6"><div class="border rounded p-2"><div class="text-muted small">Housekeeping Tasks</div><strong>@Model.Summary.PendingHousekeepingTasks</strong></div></div>
+                        <div class="col-6"><div class="border rounded p-2"><div class="text-muted small">Low Stock Items</div><strong>@Model.Summary.LowStockItems</strong></div></div>
+                        <div class="col-6"><div class="border rounded p-2"><div class="text-muted small">Pending Approvals</div><strong>@Model.Summary.PendingApprovals</strong></div></div>
                     </div>
                 </div>
             </div>

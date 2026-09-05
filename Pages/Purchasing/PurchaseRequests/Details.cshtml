@@ -18,7 +18,7 @@
 <div class="row g-3 mb-4">
     <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Department</div><strong>@(Model.PurchaseRequest.Department?.Name ?? "General")</strong></div></div>
     <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Requested By</div><strong>@Model.PurchaseRequest.RequestedBy</strong></div></div>
-    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Status</div><span class="badge text-bg-secondary">@Model.PurchaseRequest.Status</span></div></div>
+    <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Status</div><span class="badge text-bg-secondary">@UiText.Display(Model.PurchaseRequest.Status)</span></div></div>
     <div class="col-md-3"><div class="border rounded p-3"><div class="text-muted">Estimated Total</div><strong>@total.ToString("C")</strong></div></div>
 </div>
 
@@ -35,8 +35,8 @@
     @if (Model.PurchaseRequest.Status == Vantage.PMS.Models.Inventory.PurchaseRequestStatus.Approved)
     {
         <form method="post" asp-page-handler="ConvertToPO" class="d-flex gap-2">
-            <select asp-for="SupplierId" asp-items="Model.SupplierOptions" class="form-select"><option value="">Select supplier</option></select>
-            <button class="btn btn-success">Convert to PO</button>
+            <select asp-for="SupplierId" asp-items="Model.SupplierOptions" class="form-select"><option value="">Select Supplier</option></select>
+            <button class="btn btn-success">Convert To PO</button>
         </form>
     }
     @if (Model.PurchaseRequest.Status is not Vantage.PMS.Models.Inventory.PurchaseRequestStatus.ConvertedToPO and not Vantage.PMS.Models.Inventory.PurchaseRequestStatus.Cancelled)

@@ -15,6 +15,8 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
     public int CleanRooms { get; set; }
 
+    public int AvailableRooms { get; set; }
+
     public int InspectedRooms { get; set; }
 
     public int OutOfOrderRooms { get; set; }
@@ -42,6 +44,8 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
         CleanRooms = await _context.Rooms.CountAsync(room =>
             room.IsActive && room.Status == RoomStatus.Clean);
+
+        AvailableRooms = await _context.Rooms.CountAsync(room => room.IsActive && room.Status == RoomStatus.Available && !checkedInRoomIds.Contains(room.Id));
 
         InspectedRooms = await _context.Rooms.CountAsync(room =>
             room.IsActive && room.Status == RoomStatus.Inspected);

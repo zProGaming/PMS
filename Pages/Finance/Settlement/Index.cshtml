@@ -1,0 +1,46 @@
+@page
+@model Vantage.PMS.Pages.Finance.Settlement.IndexModel
+@{ ViewData["Title"] = "Cashier Settlement"; }
+<div class="daily-work">
+    <header class="work-heading">
+        <div><p class="work-eyebrow">Finance</p><h1>Cashier Settlement</h1><p>Collect outstanding balances and route guest credits for refund review. Departed guests appear first.</p></div>
+        <a class="btn btn-outline-secondary" asp-page="/Finance/CashierShifts/Index">Manage Cashier Shifts</a>
+    </header>
+    @if (TempData["SuccessMessage"] is string success) { <div class="alert alert-success" role="status">@success</div> }
+    <section class="work-panel p-3 mb-3">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-8"><label asp-for="Search" class="form-label">Guest, Folio, Or Reservation</label><input asp-for="Search" class="form-control" maxlength="120" /></div>
+            <div class="col-md-4 d-flex gap-2"><button class="btn btn-primary">Search</button><a asp-page="./Index" class="btn btn-outline-secondary">Clear Filters</a></div>
+        </form>
+    </section>
+    <section class="work-panel">
+        <header class="work-queue-heading"><div><h2>Open Balances <span class="work-count">@Model.Total</span></h2><p>Use Collect Payment for money owed. Guest credit must be reviewed against its original receipt.</p></div><a asp-page="/Finance/Payments/Index">All Receipts</a></header>
+        @if (Model.Rows.Count == 0)
+        { <div class="work-empty"><h3>No Matching Open Balances</h3><p>The folio may be settled, closed, or outside your search. Review receipts for the transaction history.</p></div> }
+        else
+        {
+            <div class="table-responsive"><table class="table work-table">
+                <caption class="visually-hidden">Open Folios Requiring Settlement</caption>
+                <thead><tr><th scope="col">Folio</th><th scope="col">Guest</th><th scope="col">Stay</th><th scope="col" class="text-end">Balance</th><th scope="col">Next Step</th></tr></thead>
+                <tbody>@foreach (var row in Model.Rows)
+                {
+                    <tr><th scope="row">@row.FolioNumber</th><td>@row.GuestName</td><td>@row.ReservationNumber<br /><span class="work-status">@(row.Departed ? "Departed" : "Active Stay")</span></td>
+                        <td class="text-end work-money">@Math.Abs(row.Balance).ToString("C")<br /><small>@(row.Balance > 0 ? "Amount Due" : "Guest Credit")</small></td>
+                        <td class="work-next">
+                            @if (row.Balance > 0) { <a class="btn btn-sm btn-primary" asp-page="./PostPayment" asp-route-folioId="@row.Id">Collect Payment</a> }
+                            else { <a asp-page="/Finance/Refunds/Index">Review Refunds</a> }
+                            <a asp-page="/Finance/Payments/Index" asp-route-folioId="@row.Id">Review Receipts</a>
+                        </td>
+                    </tr>
+                }</tbody>
+            </table></div>
+            <footer class="work-queue-footer d-flex justify-content-between gap-3">
+                <span>Page @Model.PageNumber · @Model.Total Open Folios</span>
+                <nav aria-label="Settlement Pages" class="d-flex gap-3">
+                    @if (Model.PageNumber > 1) { <a asp-route-PageNumber="@(Model.PageNumber - 1)" asp-route-Search="@Model.Search" asp-route-FolioId="@Model.FolioId">Previous</a> }
+                    @if (Model.PageNumber * IndexModel.PageSize < Model.Total) { <a asp-route-PageNumber="@(Model.PageNumber + 1)" asp-route-Search="@Model.Search" asp-route-FolioId="@Model.FolioId">Next</a> }
+                </nav>
+            </footer>
+        }
+    </section>
+</div>

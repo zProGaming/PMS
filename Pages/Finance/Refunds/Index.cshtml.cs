@@ -10,10 +10,10 @@ using Vantage.PMS.Services;
 
 namespace Vantage.PMS.Pages.Finance.Refunds;
 
-public class IndexModel(ApplicationDbContext context, FinanceService financeService) : PageModel
+public class IndexModel(ApplicationDbContext context, FinanceAdjustmentService adjustments) : PageModel
 {
     private readonly ApplicationDbContext _context = context;
-    private readonly FinanceService _financeService = financeService;
+    private readonly FinanceAdjustmentService _adjustments = adjustments;
 
     public IList<RefundTransaction> Refunds { get; set; } = new List<RefundTransaction>();
 
@@ -33,14 +33,14 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
 
     public async Task OnGetAsync()
     {
-        Refund.RefundNumber = await _financeService.GenerateSimpleNumberAsync("REF");
+        Refund.RefundNumber = "Assigned On Save";
         Refund.RequestedBy = User.Identity?.Name ?? string.Empty;
         await LoadAsync();
     }
 
     public async Task<IActionResult> OnGetCreateNativeAsync()
     {
-        Refund.RefundNumber = await _financeService.GenerateSimpleNumberAsync("REF");
+        Refund.RefundNumber = "Assigned On Save";
         Refund.RequestedBy = User.Identity?.Name ?? string.Empty;
         Refund.RefundDate = DateTime.Today;
         await LoadAsync();
@@ -72,10 +72,10 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
             id,
             "Process",
             "Process refund",
-            "Process this approved refund and record the negative payment/cashier transaction where applicable.",
+            "Record this approved refund against its source receipt and your open cashier shift. This records the payout; it does not send money through a payment gateway.",
             "Process Refund",
             "vpms-btn-primary",
-            "The existing finance validation will prevent over-refunding a source payment.");
+            "Refunding a settled charge can reopen a balance due. Confirm the approved amount and payout evidence before processing.");
 
     public Task<IActionResult> OnGetCancelNativeAsync(int id) =>
         NativeConfirmAsync(
@@ -89,148 +89,38 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
 
     public async Task<IActionResult> OnPostCreateAsync()
     {
-        if (Refund.Amount <= 0)
-        {
-            ModelState.AddModelError(nameof(Refund.Amount), "Refund amount must be greater than zero.");
-        }
-
-        if (string.IsNullOrWhiteSpace(Refund.RefundNumber))
-        {
-            Refund.RefundNumber = await _financeService.GenerateSimpleNumberAsync("REF");
-        }
-
+        if (ModelState.IsValid)
+            foreach (var error in await _adjustments.CreateRefundAsync(Refund, User))
+                ModelState.AddModelError(string.Empty, error);
         if (!ModelState.IsValid)
         {
             await LoadAsync();
             return IsNativeWorkflowRequest() ? NativeCreatePartial() : Page();
         }
-
-        Refund.Status = RefundStatus.Requested;
-        _context.RefundTransactions.Add(Refund);
-        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "Refund request created. A different manager must approve it.";
         return RedirectToPage();
     }
 
-    public async Task<IActionResult> OnPostApproveAsync(int id)
+    public Task<IActionResult> OnPostApproveAsync(int id) => DecideAsync(id, "Approve");
+    public Task<IActionResult> OnPostRejectAsync(int id) => DecideAsync(id, "Reject");
+    public Task<IActionResult> OnPostProcessAsync(int id) => DecideAsync(id, "Process");
+    public Task<IActionResult> OnPostCancelAsync(int id) => DecideAsync(id, "Cancel");
+
+    private async Task<IActionResult> DecideAsync(int id, string action)
     {
-        if (!CanApprove())
-        {
-            return Forbid();
-        }
-
-        var refund = await _context.RefundTransactions.FindAsync(id);
-        if (refund is null) return NotFound();
-        if (refund.Status is RefundStatus.Requested or RefundStatus.ForApproval)
-        {
-            refund.Status = RefundStatus.Approved;
-            refund.ApprovedBy = User.Identity?.Name ?? "System";
-            refund.ApprovedAt = DateTime.Now;
-        }
-        await _context.SaveChangesAsync();
+        if (action is "Approve" or "Reject" && !CanApprove()) return Forbid();
+        var errors = await _adjustments.DecideRefundAsync(id, action, User);
+        TempData[errors.Count > 0 ? "ErrorMessage" : "SuccessMessage"] =
+            errors.Count > 0 ? string.Join(" ", errors) : "Refund decision recorded. Review the current status below.";
         return RedirectToPage();
     }
 
-    public async Task<IActionResult> OnPostRejectAsync(int id)
-    {
-        if (!CanApprove())
-        {
-            return Forbid();
-        }
-
-        var refund = await _context.RefundTransactions.FindAsync(id);
-        if (refund is null) return NotFound();
-        if (refund.Status is RefundStatus.Requested or RefundStatus.ForApproval)
-        {
-            refund.Status = RefundStatus.Rejected;
-        }
-        await _context.SaveChangesAsync();
-        return RedirectToPage();
-    }
-
-    public async Task<IActionResult> OnPostProcessAsync(int id)
-    {
-        var refund = await _context.RefundTransactions.FindAsync(id);
-        if (refund is null) return NotFound();
-        if (refund.Status != RefundStatus.Approved)
-        {
-            TempData["ErrorMessage"] = "Only approved refunds can be processed.";
-            return RedirectToPage();
-        }
-
-        Payment? sourcePayment = null;
-        if (refund.PaymentId is not null)
-        {
-            sourcePayment = await _context.Payments.FindAsync(refund.PaymentId);
-            if (sourcePayment is null)
-            {
-                TempData["ErrorMessage"] = "Source payment was not found.";
-                return RedirectToPage();
-            }
-
-            var alreadyRefunded = await _context.RefundTransactions
-                .Where(item => item.PaymentId == refund.PaymentId && item.Status == RefundStatus.Processed)
-                .SumAsync(item => item.Amount);
-            if (alreadyRefunded + refund.Amount > sourcePayment.Amount)
-            {
-                TempData["ErrorMessage"] = "Refund amount exceeds available refundable amount.";
-                return RedirectToPage();
-            }
-        }
-
-        var folioId = refund.FolioId ?? sourcePayment?.FolioId;
-        if (folioId is not null)
-        {
-            var refundPayment = new Payment
-            {
-                FolioId = folioId.Value,
-                Amount = -refund.Amount,
-                PaymentMethod = $"Refund - {refund.RefundMethod}",
-                PaymentDate = DateTime.Now,
-                ReferenceNumber = refund.RefundNumber,
-                Notes = refund.Reason,
-                Status = PaymentStatus.Completed
-            };
-            _context.Payments.Add(refundPayment);
-        }
-
-        var shift = await _financeService.GetOpenShiftForUserAsync(User.Identity?.Name ?? "Cashier");
-        if (shift is not null)
-        {
-            _context.CashierTransactions.Add(new CashierTransaction
-            {
-                CashierShiftId = shift.Id,
-                FolioId = folioId,
-                PaymentId = sourcePayment?.Id,
-                TransactionDate = DateTime.Now,
-                TransactionType = CashierTransactionType.Refund,
-                Amount = refund.Amount,
-                PaymentMethod = refund.RefundMethod,
-                ReferenceNumber = refund.RefundNumber,
-                Notes = refund.Reason,
-                CreatedBy = User.Identity?.Name ?? "System"
-            });
-        }
-
-        if (sourcePayment is not null && sourcePayment.Amount == refund.Amount)
-        {
-            sourcePayment.Status = PaymentStatus.Refunded;
-        }
-
-        refund.Status = RefundStatus.Processed;
-        refund.ProcessedBy = User.Identity?.Name ?? "System";
-        refund.ProcessedAt = DateTime.Now;
-        await _context.SaveChangesAsync();
-        return RedirectToPage();
-    }
-
-    public async Task<IActionResult> OnPostCancelAsync(int id)
-    {
-        var refund = await _context.RefundTransactions.FindAsync(id);
-        if (refund is null) return NotFound();
-        if (refund.Status != RefundStatus.Processed) refund.Status = RefundStatus.Cancelled;
-        await _context.SaveChangesAsync();
-        return RedirectToPage();
-    }
+    public bool CanReview(RefundTransaction refund) => CanApprove() &&
+        !FinanceAdjustmentService.SameActor(refund.RequestedBy, User.Identity?.Name);
+    public bool CanProcess(RefundTransaction refund) =>
+        !FinanceAdjustmentService.SameActor(refund.ApprovedBy, User.Identity?.Name);
+    public bool CanCancel(RefundTransaction refund) => CanApprove() ||
+        FinanceAdjustmentService.SameActor(refund.RequestedBy, User.Identity?.Name);
 
     private async Task LoadAsync()
     {
@@ -243,7 +133,7 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
             .ToListAsync();
 
         var folios = await _context.Folios.AsNoTracking().OrderByDescending(folio => folio.Id).Select(folio => new { folio.Id, folio.FolioNumber }).ToListAsync();
-        var payments = await _context.Payments.AsNoTracking().Where(payment => payment.Amount > 0 && payment.Status == PaymentStatus.Completed).OrderByDescending(payment => payment.PaymentDate).Select(payment => new { payment.Id, Name = "#" + payment.Id + " - " + payment.Amount }).ToListAsync();
+        var payments = await _context.Payments.AsNoTracking().Where(payment => payment.Amount > 0 && payment.Status == PaymentStatus.Completed).OrderByDescending(payment => payment.PaymentDate).Select(payment => new { payment.Id, Name = "#" + payment.Id + " | " + payment.Folio!.FolioNumber + " | " + payment.Amount }).ToListAsync();
         FolioOptions = new SelectList(folios, "Id", "FolioNumber", Refund.FolioId);
         PaymentOptions = new SelectList(payments, "Id", "Name", Refund.PaymentId);
     }

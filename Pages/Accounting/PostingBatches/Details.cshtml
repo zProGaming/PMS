@@ -21,7 +21,7 @@
 {
     <section class="vpms-card mb-4">
         <div class="row g-3">
-            <div class="col-md-3"><strong>Status</strong><div><span class="status-badge">@Model.Batch.Status</span></div></div>
+            <div class="col-md-3"><strong>Status</strong><div><span class="status-badge">@UiText.Display(Model.Batch.Status)</span></div></div>
             <div class="col-md-3"><strong>Batch Date</strong><div>@Model.Batch.BatchDate.ToString("yyyy-MM-dd")</div></div>
             <div class="col-md-3"><strong>Created By</strong><div>@Model.Batch.CreatedBy</div></div>
             <div class="col-md-3"><strong>Posted By</strong><div>@Model.Batch.PostedBy</div></div>
@@ -36,7 +36,7 @@
                 <tr>
                     <td>@item.SourceTransactionType</td>
                     <td>@item.SourceReferenceNumber</td>
-                    <td><span class="status-badge">@item.Status</span></td>
+                    <td><span class="status-badge">@UiText.Display(item.Status)</span></td>
                     <td>@item.ErrorMessage</td>
                     <td>@if (item.JournalEntryId is not null) { <a asp-page="/Accounting/JournalEntries/Details" asp-route-id="@item.JournalEntryId">View Journal</a> }</td>
                 </tr>

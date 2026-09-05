@@ -56,7 +56,7 @@ public class DesktopWorkflowTests(CheckoutDatabase database)
             {
                 await browserContext.SetExtraHTTPHeadersAsync(new Dictionary<string, string> { ["X-Test-Role"] = role });
                 Assert.Equal(200, (await page.GotoAsync("/"))!.Status);
-                await Assertions.Expect(page.Locator(".daily-work h1")).ToHaveTextAsync("Daily work");
+                await Assertions.Expect(page.Locator(".daily-work h1")).ToHaveTextAsync("Daily Work");
                 Assert.Equal(0, await page.Locator(".daily-work a:not([href])").CountAsync());
                 if (size.Item1 == 1366)
                 {
@@ -142,7 +142,7 @@ public class DesktopWorkflowTests(CheckoutDatabase database)
         Assert.Equal(ReservationStatus.CheckedIn, (await verify.Reservations.FindAsync(id))!.Status);
     }
 
-    private static async Task AssertNoPageOverflow(IPage page)
+    internal static async Task AssertNoPageOverflow(IPage page)
     {
         var overflowDetails = await page.EvaluateAsync<string>("""
             () => JSON.stringify([...document.querySelectorAll('body *')]
@@ -206,7 +206,8 @@ internal sealed class DesktopTestAuthentication(IOptionsMonitor<AuthenticationSc
     {
         var role = Request.Headers["X-Test-Role"].ToString();
         return Task.FromResult(PmsRoles.All.Contains(role)
-            ? AuthenticateResult.Success(new AuthenticationTicket(CheckoutReviewTests.User(role), Scheme.Name))
+            ? AuthenticateResult.Success(new AuthenticationTicket(Request.Headers.TryGetValue("X-Test-Actor", out var actor)
+                ? FinanceAdjustmentTests.Actor(role, actor.ToString()) : CheckoutReviewTests.User(role), Scheme.Name))
             : AuthenticateResult.NoResult());
     }
 }

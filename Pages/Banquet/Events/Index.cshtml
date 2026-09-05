@@ -7,7 +7,7 @@
 
 <div class="page-header">
     <div>
-        <div class="page-kicker">Sales and Banquet Control</div>
+        <div class="page-kicker">Sales And Banquet Control</div>
         <h1 class="page-title">Banquet Events</h1>
         <p class="page-subtitle">Event bookings, function room assignments, BEOs, charges, and group billing controls.</p>
     </div>
@@ -55,7 +55,7 @@
                         </td>
                         <td>@banquetEvent.ClientName</td>
                         <td>@banquetEvent.FunctionRoom?.Name</td>
-                        <td>@banquetEvent.EventStatus</td>
+                        <td>@UiText.Display(banquetEvent.EventStatus)</td>
                         <td class="text-end">@banquetEvent.ExpectedPax / @banquetEvent.GuaranteedPax</td>
                         <td class="text-end">
                             <div class="vpms-row-actions">

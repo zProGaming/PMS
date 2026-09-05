@@ -7,7 +7,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3">Booking Request @Model.BookingRequest.BookingReference</h1>
-    <a asp-page="Index" class="btn btn-outline-secondary">Back to Requests</a>
+    <a asp-page="Index" class="btn btn-outline-secondary">Back To Requests</a>
 </div>
 
 @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
@@ -76,7 +76,7 @@
         <div class="card mb-3">
             <div class="card-header">Status</div>
             <div class="card-body">
-                <div class="mb-3"><span class="badge bg-secondary fs-6">@Model.BookingRequest.BookingStatus</span></div>
+                <div class="mb-3"><span class="badge bg-secondary fs-6">@UiText.Display(Model.BookingRequest.BookingStatus)</span></div>
                 <div class="d-grid gap-2">
                     <form method="post" asp-page-handler="Confirm" asp-route-id="@Model.BookingRequest.Id">
                         <button class="btn btn-success w-100" type="submit" disabled="@(Model.BookingRequest.BookingStatus == BookingRequestStatus.ConvertedToReservation || Model.BookingRequest.BookingStatus == BookingRequestStatus.Cancelled)">Confirm Booking Request</button>
@@ -85,7 +85,7 @@
                         <button class="btn btn-outline-danger w-100" type="submit" disabled="@(Model.BookingRequest.BookingStatus == BookingRequestStatus.ConvertedToReservation || Model.BookingRequest.BookingStatus == BookingRequestStatus.Cancelled)">Cancel Booking Request</button>
                     </form>
                     <form method="post" asp-page-handler="Convert" asp-route-id="@Model.BookingRequest.Id">
-                        <button class="btn btn-primary w-100" type="submit" disabled="@(Model.BookingRequest.BookingStatus == BookingRequestStatus.ConvertedToReservation || Model.BookingRequest.BookingStatus == BookingRequestStatus.Cancelled)">Convert to Reservation</button>
+                        <button class="btn btn-primary w-100" type="submit" disabled="@(Model.BookingRequest.BookingStatus == BookingRequestStatus.ConvertedToReservation || Model.BookingRequest.BookingStatus == BookingRequestStatus.Cancelled)">Convert To Reservation</button>
                     </form>
                 </div>
             </div>

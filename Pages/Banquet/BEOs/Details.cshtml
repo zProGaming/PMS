@@ -18,13 +18,13 @@
         </p>
     </div>
     <div class="vpms-actions d-flex flex-wrap gap-2">
-        <span class="vpms-status-badge status-@beoStatusClass">@Model.BanquetEventOrder.Status</span>
+        <span class="vpms-status-badge status-@beoStatusClass">@UiText.Display(Model.BanquetEventOrder.Status)</span>
         <a asp-page="./Details" asp-page-handler="SetStatusNative" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.ForApproval" class="btn btn-outline-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Mark BEO For Approval">Mark BEO For Approval</a>
         <a asp-page="./Details" asp-page-handler="SetStatusNative" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.Approved" class="btn btn-outline-success" data-vpms-native-dialog data-vpms-native-dialog-title="Approve BEO">Approve BEO</a>
         <a asp-page="./Details" asp-page-handler="SetStatusNative" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.Distributed" class="btn btn-outline-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Mark BEO Distributed">Mark BEO Distributed</a>
         <a asp-page="./Details" asp-page-handler="SetStatusNative" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Vantage.PMS.Models.Banquet.BanquetEventOrderStatus.Revised" class="btn btn-outline-warning" data-vpms-native-dialog data-vpms-native-dialog-title="Revise BEO">Revise BEO</a>
         <a class="btn btn-outline-secondary" asp-page="/Banquet/Charges/Index" asp-route-eventId="@Model.BanquetEvent.Id">Charges</a>
-        <a class="btn btn-outline-secondary" asp-page="./Index">BEOs</a>
+        <a class="btn btn-outline-secondary" asp-page="./Index">Beos</a>
     </div>
 </div>
 
@@ -41,7 +41,7 @@
     </div>
     <div class="vpms-stat-card border rounded p-3">
             <div class="text-muted small">Event Status</div>
-            <span class="vpms-status-badge status-@eventStatusClass">@Model.BanquetEvent.EventStatus</span>
+            <span class="vpms-status-badge status-@eventStatusClass">@UiText.Display(Model.BanquetEvent.EventStatus)</span>
     </div>
     <div class="vpms-stat-card border rounded p-3">
             <div class="text-muted small">Charges</div>
@@ -108,7 +108,7 @@
     </div>
 
     <button type="submit" class="btn btn-primary">Save BEO</button>
-    <a class="btn btn-outline-secondary" asp-page="/Banquet/Events/Details" asp-route-id="@Model.BanquetEvent.Id">Back to Event</a>
+    <a class="btn btn-outline-secondary" asp-page="/Banquet/Events/Details" asp-route-id="@Model.BanquetEvent.Id">Back To Event</a>
 </form>
 
 @section Scripts {

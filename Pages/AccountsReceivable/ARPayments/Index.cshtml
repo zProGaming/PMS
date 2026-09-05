@@ -21,12 +21,12 @@
 </div>
 
 <details class="vpms-refined-card vpms-inline-create-panel mb-4">
-    <summary>Manual AR payment entry</summary>
+    <summary>Manual AR Payment Entry</summary>
 <form method="post" asp-page-handler="Create" class="row g-3 mt-3">
     <div class="col-md-3"><label asp-for="Payment.ARAccountId" class="form-label">AR Account</label><select asp-for="Payment.ARAccountId" asp-items="Model.ARAccountOptions" class="form-select"></select></div>
     <div class="col-md-2"><label asp-for="Payment.PaymentDate" class="form-label"></label><input asp-for="Payment.PaymentDate" type="date" class="form-control" /></div>
     <div class="col-md-2"><label asp-for="Payment.Amount" class="form-label"></label><input asp-for="Payment.Amount" class="form-control" /></div>
-    <div class="col-md-2"><label asp-for="Payment.PaymentMethod" class="form-label"></label><select asp-for="Payment.PaymentMethod" asp-items="Html.GetEnumSelectList<FinancePaymentMethod>()" class="form-select"></select></div>
+    <div class="col-md-2"><label asp-for="Payment.PaymentMethod" class="form-label"></label><select asp-for="Payment.PaymentMethod" asp-items="Html.GetUiEnumSelectList<FinancePaymentMethod>()" class="form-select"></select></div>
     <div class="col-md-3"><label asp-for="Payment.ReferenceNumber" class="form-label"></label><input asp-for="Payment.ReferenceNumber" class="form-control" /></div>
     <div class="col-md-3"><label asp-for="Payment.ReceivedBy" class="form-label"></label><input asp-for="Payment.ReceivedBy" class="form-control" /></div>
     <div class="col-md-9"><label asp-for="Payment.Notes" class="form-label"></label><input asp-for="Payment.Notes" class="form-control" /></div>
@@ -56,7 +56,7 @@
                     <tr>
                         <td>@payment.PaymentDate.ToString("d")</td>
                         <td>@payment.ARAccount?.AccountName</td>
-                        <td>@payment.PaymentMethod</td>
+                        <td>@UiText.Display(payment.PaymentMethod)</td>
                         <td>@payment.ReferenceNumber</td>
                         <td class="text-end">@payment.Amount.ToString("C")</td>
                         <td class="text-end">@payment.Allocations.Sum(allocation => allocation.AllocatedAmount).ToString("C")</td>

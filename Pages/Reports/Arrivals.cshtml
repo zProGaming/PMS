@@ -19,7 +19,7 @@
             <th>Business Date</th>
             <th>Guest</th>
             <th>Room</th>
-            <th>Check-in Date</th>
+            <th>Check-In Date</th>
             <th>Status</th>
         </tr>
     </thead>
@@ -37,7 +37,7 @@
                 <td>@arrival.GuestName</td>
                 <td>@arrival.RoomNumber</td>
                 <td>@arrival.CheckInDate.ToString("d")</td>
-                <td>@arrival.Status</td>
+                <td>@UiText.Display(arrival.Status)</td>
             </tr>
         }
     </tbody>

@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
+using Vantage.PMS.Services;
 using Vantage.PMS.Models.Housekeeping;
 
 namespace Vantage.PMS.Pages.Housekeeping.Tasks;
 
-public class IndexModel(ApplicationDbContext context) : PageModel
+public class IndexModel(ApplicationDbContext context, HousekeepingWorkflowService workflow) : PageModel
 {
     private readonly ApplicationDbContext _context = context;
 
@@ -56,21 +57,10 @@ public class IndexModel(ApplicationDbContext context) : PageModel
             return NotFound();
         }
 
-        var task = await _context.HousekeepingTasks.FindAsync(id);
-        if (task is null)
-        {
-            return NotFound();
-        }
-
-        task.TaskStatus = HousekeepingTaskStatus.Completed;
-        task.CompletedAt = DateTime.Now;
-
-        if (task.StartedAt is null)
-        {
-            task.StartedAt = task.CompletedAt;
-        }
-
-        await _context.SaveChangesAsync();
+        var errors = await workflow.CompleteTaskAsync(id.Value, User);
+        TempData[errors.Count > 0 ? "ErrorMessage" : "SuccessMessage"] = errors.Count > 0
+            ? string.Join(" ", errors)
+            : "Task completed. A vacant dirty room becomes Clean once all tasks are done. Supervisor inspection and release are still required.";
 
         return RedirectToPage("./Index");
     }

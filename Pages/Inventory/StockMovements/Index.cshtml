@@ -8,8 +8,8 @@
 <h1 class="h3 mb-3">Stock Movements</h1>
 
 <form method="get" class="row g-3 mb-4">
-    <div class="col-md-3"><label asp-for="InventoryItemId" class="form-label">Item</label><select asp-for="InventoryItemId" asp-items="Model.InventoryItemOptions" class="form-select"><option value="">All items</option></select></div>
-    <div class="col-md-2"><label asp-for="MovementType" class="form-label">Type</label><select asp-for="MovementType" asp-items="Html.GetEnumSelectList<StockMovementType>()" class="form-select"><option value="">All types</option></select></div>
+    <div class="col-md-3"><label asp-for="InventoryItemId" class="form-label">Item</label><select asp-for="InventoryItemId" asp-items="Model.InventoryItemOptions" class="form-select"><option value="">All Items</option></select></div>
+    <div class="col-md-2"><label asp-for="MovementType" class="form-label">Type</label><select asp-for="MovementType" asp-items="Html.GetUiEnumSelectList<StockMovementType>()" class="form-select"><option value="">All Types</option></select></div>
     <div class="col-md-2"><label asp-for="FromDate" class="form-label">From</label><input asp-for="FromDate" type="date" class="form-control" /></div>
     <div class="col-md-2"><label asp-for="ToDate" class="form-label">To</label><input asp-for="ToDate" type="date" class="form-control" /></div>
     <div class="col-md-2"><label asp-for="DepartmentId" class="form-label">Department</label><select asp-for="DepartmentId" asp-items="Model.DepartmentOptions" class="form-select"><option value="">All</option></select></div>

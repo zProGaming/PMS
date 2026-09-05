@@ -8,7 +8,7 @@
 <div class="alert alert-warning">These mappings support internal review only. Validate report treatment and official formats with a Philippine CPA/accountant before filing or submission.</div>
 <form method="post" class="vpms-form-card mb-4">
     <div class="row g-3">
-        <div class="col-md-3"><label asp-for="Input.ReportType" class="form-label">Report</label><select asp-for="Input.ReportType" asp-items="Html.GetEnumSelectList<PhilippineReportType>()" class="form-select"></select></div>
+        <div class="col-md-3"><label asp-for="Input.ReportType" class="form-label">Report</label><select asp-for="Input.ReportType" asp-items="Html.GetUiEnumSelectList<PhilippineReportType>()" class="form-select"></select></div>
         <div class="col-md-2"><label asp-for="Input.LineCode" class="form-label">Line Code</label><input asp-for="Input.LineCode" class="form-control" required /></div>
         <div class="col-md-3"><label asp-for="Input.LineName" class="form-label">Line Name</label><input asp-for="Input.LineName" class="form-control" required /></div>
         <div class="col-md-3"><label asp-for="Input.GLAccountId" class="form-label">GL Account</label><select asp-for="Input.GLAccountId" asp-items="Model.AccountOptions" class="form-select"><option value="">None</option></select></div>

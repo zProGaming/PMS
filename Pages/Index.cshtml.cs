@@ -85,17 +85,17 @@ public class IndexModel(ApplicationDbContext context) : PageModel
                 Departed = f.Reservation!.Status == ReservationStatus.CheckedOut
             }).Where(f => f.Balance != f.Paid);
         var folioRows = await folios.OrderByDescending(f => f.Departed).ThenBy(f => f.Id).Take(QueueLimit).ToListAsync();
-        Queues.Add(new("Collection and guest-credit follow-up", "Departed guests appear first. Front Desk posts folio payments; Finance reviews receipts and refunds.", await folios.CountAsync(), "/Finance/Payments/Index",
+        Queues.Add(new("Collection and guest-credit follow-up", "Departed guests appear first. Collect payments here or review source receipts for guest-credit refunds.", await folios.CountAsync(), "/Finance/Settlement/Index",
             folioRows.Select(f => new WorkItem(f.FolioNumber, f.GuestName,
                 f.Balance < f.Paid ? "Guest credit" : f.Departed ? "Departed · unpaid" : "In-house · unpaid",
-                "Review receipts", "/Finance/Payments/Index", Id(f.Id, "folioId"), f.Balance - f.Paid)).ToList()));
+                f.Balance > f.Paid ? "Collect Payment" : "Review Receipts", f.Balance > f.Paid ? "/Finance/Settlement/PostPayment" : "/Finance/Payments/Index", Id(f.Id, "folioId"), f.Balance - f.Paid)).ToList()));
     }
 
     private async Task LoadHousekeepingAsync()
     {
         var tasks = context.HousekeepingTasks.AsNoTracking().Where(t => t.TaskStatus == HousekeepingTaskStatus.Open || t.TaskStatus == HousekeepingTaskStatus.InProgress);
         var rows = await tasks.Include(t => t.Room).OrderByDescending(t => t.Priority).ThenBy(t => t.Id).Take(QueueLimit).ToListAsync();
-        Queues.Add(new("Team turnover tasks", "Highest priority first. Complete the task, then update the room's cleaning or inspection status.", await tasks.CountAsync(), "/Housekeeping/Tasks/Index",
+        Queues.Add(new("Team turnover tasks", "Highest priority first. Completing the final cleaning task marks a vacant dirty room Clean. A supervisor inspects and releases it.", await tasks.CountAsync(), "/Housekeeping/Tasks/Index",
             rows.Select(t => new WorkItem($"Room {t.Room?.RoomNumber}", string.IsNullOrWhiteSpace(t.AssignedTo) ? "Awaiting assignment" : t.AssignedTo,
                 $"{t.Priority} · {(t.TaskStatus == HousekeepingTaskStatus.InProgress ? "In progress" : "To do")}", "Review task", "/Housekeeping/Tasks/Index", Id(t.Id, "taskId"))).ToList()));
         var rooms = context.Rooms.AsNoTracking().Where(r => r.IsActive && (r.Status == RoomStatus.Dirty || r.Status == RoomStatus.Clean));

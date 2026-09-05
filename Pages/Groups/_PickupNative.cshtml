@@ -34,7 +34,7 @@
             <div class="col-md-6">
                 <label asp-for="PickupInput.RoomId" class="form-label">Assign Room</label>
                 <select asp-for="PickupInput.RoomId" asp-items="Model.RoomOptions" class="form-select">
-                    <option value="">Assign later</option>
+                    <option value="">Assign Later</option>
                 </select>
                 <span asp-validation-for="PickupInput.RoomId" class="text-danger"></span>
             </div>
@@ -44,7 +44,7 @@
             </div>
             <div class="col-md-3">
                 <label asp-for="PickupInput.BillingRoutingType" class="form-label">Routing</label>
-                <select asp-for="PickupInput.BillingRoutingType" asp-items="Html.GetEnumSelectList<BillingRoutingType>()" class="form-select"></select>
+                <select asp-for="PickupInput.BillingRoutingType" asp-items="Html.GetUiEnumSelectList<BillingRoutingType>()" class="form-select"></select>
             </div>
             <div class="col-md-3">
                 <label asp-for="PickupInput.Adults" class="form-label">Adults</label>
@@ -58,7 +58,7 @@
             <div class="col-md-6 d-flex align-items-end">
                 <div class="form-check">
                     <input asp-for="PickupInput.IsPrimaryGuest" class="form-check-input" />
-                    <label asp-for="PickupInput.IsPrimaryGuest" class="form-check-label">Primary guest</label>
+                    <label asp-for="PickupInput.IsPrimaryGuest" class="form-check-label">Primary Guest</label>
                 </div>
             </div>
             <div class="col-12">

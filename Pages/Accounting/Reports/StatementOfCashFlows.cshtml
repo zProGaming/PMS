@@ -3,7 +3,7 @@
 @using Vantage.PMS.Models.Accounting
 @using Vantage.PMS.ViewModels.Reports
 @{
-    ViewData["Title"] = "Statement of Cash Flows";
+    ViewData["Title"] = "Statement Of Cash Flows";
     string SectionTitle(CashFlowSection section) => section switch
     {
         CashFlowSection.Operating => "Operating Activities",
@@ -24,7 +24,7 @@
 <div class="page-header vpms-no-print">
     <div>
         <div class="page-kicker">Accounting Reports</div>
-        <h1 class="page-title">Statement of Cash Flows</h1>
+        <h1 class="page-title">Statement Of Cash Flows</h1>
         <p class="page-subtitle">Direct-method cash movement from posted journal entries and configured cash flow mappings.</p>
     </div>
 </div>
@@ -47,14 +47,14 @@
         <div class="col-md-3">
             <label class="form-label">Accounting Period</label>
             <select asp-for="AccountingPeriodId" asp-items="Model.PeriodOptions" class="form-select">
-                <option value="">Custom date range</option>
+                <option value="">Custom Date Range</option>
             </select>
         </div>
         <div class="col-md-2">
             <label class="form-label">Method</label>
             <select asp-for="Method" class="form-select">
                 <option value="@CashFlowMethod.Direct">Direct</option>
-                <option value="@CashFlowMethod.Indirect" disabled>Indirect - not enabled</option>
+                <option value="@CashFlowMethod.Indirect" disabled>Indirect - Not Enabled</option>
             </select>
         </div>
         <div class="col-md-1">
@@ -96,7 +96,7 @@
     @if (Model.Method == CashFlowMethod.Indirect)
     {
         <div class="vpms-empty-state">
-            <h2>Indirect method is not enabled</h2>
+            <h2>Indirect Method Is Not Enabled</h2>
             <p>Direct method is currently available for generated cash flow reporting.</p>
         </div>
     }
@@ -115,7 +115,7 @@
             <table class="table vpms-table vpms-report-table">
                 <thead>
                     <tr>
-                        <th>Cash flow line</th>
+                        <th>Cash Flow Line</th>
                         <th class="text-end">Amount</th>
                     </tr>
                 </thead>
@@ -138,9 +138,9 @@
         </div>
 
         <div class="vpms-report-totals">
-            <div><span>Beginning Cash and Cash Equivalents</span><strong>@Model.Result.BeginningCashBalance.ToString("C")</strong></div>
-            <div><span>Net Increase / Decrease in Cash</span><strong>@Model.Result.NetIncreaseDecreaseInCash.ToString("C")</strong></div>
-            <div><span>Ending Cash and Cash Equivalents</span><strong>@Model.Result.EndingCashBalance.ToString("C")</strong></div>
+            <div><span>Beginning Cash And Cash Equivalents</span><strong>@Model.Result.BeginningCashBalance.ToString("C")</strong></div>
+            <div><span>Net Increase / Decrease In Cash</span><strong>@Model.Result.NetIncreaseDecreaseInCash.ToString("C")</strong></div>
+            <div><span>Ending Cash And Cash Equivalents</span><strong>@Model.Result.EndingCashBalance.ToString("C")</strong></div>
             <div><span>Reconciliation Difference</span><strong>@Model.Result.ReconciliationDifference.ToString("C")</strong></div>
         </div>
     }

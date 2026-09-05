@@ -35,8 +35,8 @@
                     <td>@request.Guest?.FirstName @request.Guest?.LastName</td>
                     <td>@request.Room?.RoomNumber</td>
                     <td>@request.RequestType</td>
-                    <td>@request.Priority</td>
-                    <td><span class="badge bg-secondary">@request.Status</span></td>
+                    <td>@UiText.Display(request.Priority)</td>
+                    <td><span class="badge bg-secondary">@UiText.Display(request.Status)</span></td>
                     <td>@request.Description</td>
                     <td>@request.AssignedTo</td>
                     <td class="text-end">

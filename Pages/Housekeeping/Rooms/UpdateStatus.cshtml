@@ -33,19 +33,20 @@ else
     <dd class="col-sm-9">@Model.Room.RoomNumber</dd>
 
     <dt class="col-sm-3">Current Status</dt>
-    <dd class="col-sm-9">@Model.Room.Status</dd>
+    <dd class="col-sm-9">@UiText.Display(Model.Room.Status)</dd>
 </dl>
 
 <form method="post" class="@(isNativeWorkflow ? "vpms-native-workflow-form vpms-native-housekeeping-form" : "mt-3")">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="Room.Id" />
+    <input type="hidden" asp-for="ExpectedStatus" />
+    <p class="text-muted">Complete all tasks before marking the room Clean. A supervisor must inspect and release the room. Maintenance recovery returns through Dirty, Clean, and Inspected.</p>
 
     @if (isNativeWorkflow)
     {
-        <div class="vpms-native-step-grid compact" aria-label="Room status path">
-            <span><strong>Dirty</strong><small>Clean next</small></span>
-            <span><strong>Clean</strong><small>Inspect next</small></span>
-            <span><strong>Inspected</strong><small>Release next</small></span>
+        <div class="vpms-native-step-grid compact" aria-label="Room Status Path">
+            <span><strong>Dirty</strong><small>Clean Next</small></span>
+            <span><strong>Clean</strong><small>Inspect Next</small></span>
+            <span><strong>Inspected</strong><small>Release Next</small></span>
         </div>
     }
 
@@ -63,7 +64,7 @@ else
 
     <div class="vpms-native-action-row">
         <a class="btn btn-outline-secondary" asp-page="/Housekeeping/Index">Cancel</a>
-        <button type="submit" class="btn btn-primary">Update Status</button>
+        <button type="submit" class="btn btn-primary" disabled="@(!Model.StatusOptions.Any())">Update Status</button>
     </div>
 </form>
 

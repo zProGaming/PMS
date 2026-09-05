@@ -15,11 +15,11 @@
 <div class="alert alert-info">Document templates are configurable and must be validated for local compliance before official use.</div>
 
 <details class="vpms-refined-card vpms-inline-create-panel mb-4">
-    <summary>Manual document entry</summary>
+    <summary>Manual Document Entry</summary>
 <form method="post" asp-page-handler="Create" class="row g-3 mt-3">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="col-md-3"><label asp-for="FinanceDocument.DocumentNumber" class="form-label"></label><input asp-for="FinanceDocument.DocumentNumber" class="form-control" placeholder="Auto-generated" readonly /></div>
-    <div class="col-md-3"><label asp-for="FinanceDocument.DocumentType" class="form-label"></label><select asp-for="FinanceDocument.DocumentType" asp-items="Html.GetEnumSelectList<FinanceDocumentType>()" class="form-select"></select></div>
+    <div class="col-md-3"><label asp-for="FinanceDocument.DocumentNumber" class="form-label"></label><input asp-for="FinanceDocument.DocumentNumber" class="form-control" placeholder="Auto-Generated" readonly /></div>
+    <div class="col-md-3"><label asp-for="FinanceDocument.DocumentType" class="form-label"></label><select asp-for="FinanceDocument.DocumentType" asp-items="Html.GetUiEnumSelectList<FinanceDocumentType>()" class="form-select"></select></div>
     <div class="col-md-3"><label asp-for="FinanceDocument.DocumentDate" class="form-label"></label><input asp-for="FinanceDocument.DocumentDate" type="date" class="form-control" /></div>
     <div class="col-md-3"><label asp-for="FinanceDocument.DueDate" class="form-label"></label><input asp-for="FinanceDocument.DueDate" type="date" class="form-control" /></div>
     <div class="col-md-4"><label asp-for="FinanceDocument.BillingName" class="form-label"></label><input asp-for="FinanceDocument.BillingName" class="form-control" /></div>
@@ -58,7 +58,7 @@
                         <td>@document.DocumentType</td>
                         <td>@document.DocumentDate.ToString("d")</td>
                         <td>@document.BillingName</td>
-                        <td><span class="badge text-bg-secondary">@document.Status</span></td>
+                        <td><span class="badge text-bg-secondary">@UiText.Display(document.Status)</span></td>
                         <td class="text-end">@document.TotalAmount.ToString("C")</td>
                         <td class="text-end">@document.Balance.ToString("C")</td>
                         <td class="text-end">

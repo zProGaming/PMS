@@ -5,7 +5,7 @@
     ViewData["Title"] = "Front Office";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item active" aria-current="page">Front Office</li>
@@ -31,10 +31,10 @@
         <p>Built for the front desk to move quickly without losing visibility on room status, group blocks, pseudo room folios, and guest-facing actions.</p>
     </div>
     <div class="vpms-role-command-grid">
-        <a asp-page="/FrontOffice/Reservations/Index"><span>01</span><strong>Work arrivals</strong><small>Search, check in, and manage reservations.</small></a>
-        <a asp-page="/FrontOffice/RoomRack/Index"><span>02</span><strong>Review room calendar</strong><small>Confirm stay blocks and readiness before assignment.</small></a>
-        <a asp-page="/Groups/Index"><span>03</span><strong>Review groups</strong><small>Blocks, pickup, rooming list, and master folios.</small></a>
-        <a asp-page="/Documents/Index"><span>04</span><strong>Print documents</strong><small>Registration cards, confirmations, and folios.</small></a>
+        <a asp-page="/FrontOffice/Reservations/Index"><span>01</span><strong>Work Arrivals</strong><small>Search, check in, and manage reservations.</small></a>
+        <a asp-page="/FrontOffice/RoomRack/Index"><span>02</span><strong>Review Room Calendar</strong><small>Confirm stay blocks and readiness before assignment.</small></a>
+        <a asp-page="/Groups/Index"><span>03</span><strong>Review Groups</strong><small>Blocks, pickup, rooming list, and master folios.</small></a>
+        <a asp-page="/Documents/Index"><span>04</span><strong>Print Documents</strong><small>Registration cards, confirmations, and folios.</small></a>
     </div>
 </section>
 
@@ -83,7 +83,7 @@
     </div>
     <div class="col-md-4">
         <div class="kpi-card">
-            <div class="kpi-label">In-house Guests</div>
+            <div class="kpi-label">In-House Guests</div>
             <div class="kpi-value">@Model.InHouseGuests</div>
             <div class="kpi-note">Checked in now</div>
         </div>
@@ -119,8 +119,8 @@
 </div>
 
 <div class="quick-action-grid mt-4">
-    <a class="quick-action-card" asp-page="/FrontOffice/Reservations/Index"><strong>Manage Reservations</strong><small>Search, check in, check out, and folios</small></a>
-    <a class="quick-action-card" asp-page="/Groups/Index"><strong>Group Bookings</strong><small>Blocks, rooming lists, and master folios</small></a>
-    <a class="quick-action-card" asp-page="/FrontOffice/Guests/Index"><strong>Manage Guests</strong><small>Guest profiles and contact details</small></a>
-    <a class="quick-action-card" asp-page="/FrontOffice/RoomRack/Index"><strong>Room Calendar</strong><small>Physical rooms, stays, status, and housekeeping links</small></a>
+    <a class="quick-action-card" asp-page="/FrontOffice/Reservations/Index"><strong>Manage Reservations</strong><small>Search, Check In, Check Out, And Folios</small></a>
+    <a class="quick-action-card" asp-page="/Groups/Index"><strong>Group Bookings</strong><small>Blocks, Rooming Lists, And Master Folios</small></a>
+    <a class="quick-action-card" asp-page="/FrontOffice/Guests/Index"><strong>Manage Guests</strong><small>Guest Profiles And Contact Details</small></a>
+    <a class="quick-action-card" asp-page="/FrontOffice/RoomRack/Index"><strong>Room Calendar</strong><small>Physical Rooms, Stays, Status, And Housekeeping Links</small></a>
 </div>

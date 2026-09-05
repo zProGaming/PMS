@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
+using Vantage.PMS.Services;
 using Vantage.PMS.Models.Housekeeping;
 
 namespace Vantage.PMS.Pages.Housekeeping.Tasks;
 
-public class CreateModel(ApplicationDbContext context) : PageModel
+public class CreateModel(ApplicationDbContext context, HousekeepingWorkflowService workflow) : PageModel
 {
     private readonly ApplicationDbContext _context = context;
 
@@ -55,12 +56,13 @@ public class CreateModel(ApplicationDbContext context) : PageModel
             return NativePartialOrPage();
         }
 
-        HousekeepingTask.TaskStatus = HousekeepingTaskStatus.Open;
-        HousekeepingTask.StartedAt = null;
-        HousekeepingTask.CompletedAt = null;
-
-        _context.HousekeepingTasks.Add(HousekeepingTask);
-        await _context.SaveChangesAsync();
+        var errors = await workflow.CreateTaskAsync(HousekeepingTask, User);
+        if (errors.Count > 0)
+        {
+            foreach (var error in errors) ModelState.AddModelError(string.Empty, error);
+            await LoadSelectListsAsync(HousekeepingTask.RoomId);
+            return NativePartialOrPage();
+        }
 
         return RedirectToPage("./Index");
     }

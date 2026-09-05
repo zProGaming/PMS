@@ -8,7 +8,7 @@ using Vantage.PMS.Services;
 
 namespace Vantage.PMS.Pages.Finance.CashierShifts;
 
-public class DetailsModel(ApplicationDbContext context, FinanceService financeService) : PageModel
+public class DetailsModel(ApplicationDbContext context, FinanceService financeService, CashierControlService controls) : PageModel
 {
     private readonly ApplicationDbContext _context = context;
     private readonly FinanceService _financeService = financeService;
@@ -47,98 +47,23 @@ public class DetailsModel(ApplicationDbContext context, FinanceService financeSe
         return found ? NativePartial("_CloseNative") : NotFound();
     }
 
-    public async Task<IActionResult> OnPostCloseAsync(int id)
+    public Task<IActionResult> OnPostCloseAsync(int id) => UpdateShiftAsync(id, true);
+    public Task<IActionResult> OnPostCashDropAsync(int id) => UpdateShiftAsync(id, false);
+
+    private async Task<IActionResult> UpdateShiftAsync(int id, bool close)
     {
-        var shift = await _context.CashierShifts
-            .Include(item => item.Transactions)
-            .Include(item => item.CashDrops)
-            .FirstOrDefaultAsync(item => item.Id == id);
-
-        if (shift is null)
-        {
-            return NotFound();
-        }
-
-        if (shift.Status != CashierShiftStatus.Open)
+        if (ModelState.IsValid)
+            foreach (var error in await controls.UpdateAsync(id, User, close ? ClosingCashCount : CashDropAmount, close, CashDropReceivedBy, CashDropNotes))
+                ModelState.AddModelError(string.Empty, error);
+        if (!ModelState.IsValid)
         {
             if (IsNativeWorkflowRequest())
             {
-                ModelState.AddModelError(string.Empty, "Only open cashier shifts can be closed.");
-                await LoadAsync(id);
-                return NativePartial("_CloseNative");
+                if (!await LoadAsync(id)) return NotFound();
+                return NativePartial(close ? "_CloseNative" : "_CashDropNative");
             }
-
-            TempData["ErrorMessage"] = "Only open cashier shifts can be closed.";
-            return RedirectToPage(new { id });
+            TempData["ErrorMessage"] = string.Join(" ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
         }
-
-        var expected = _financeService.CalculateExpectedCash(shift);
-        shift.ClosingCashCount = ClosingCashCount;
-        shift.ExpectedCashAmount = expected;
-        shift.CashOverShort = ClosingCashCount - expected;
-        shift.ClosedBy = User.Identity?.Name ?? "System";
-        shift.ClosedAt = DateTime.Now;
-        shift.Status = CashierShiftStatus.Closed;
-        await _context.SaveChangesAsync();
-        return RedirectToPage(new { id });
-    }
-
-    public async Task<IActionResult> OnPostCashDropAsync(int id)
-    {
-        var shift = await _context.CashierShifts.FindAsync(id);
-        if (shift is null)
-        {
-            return NotFound();
-        }
-
-        if (shift.Status != CashierShiftStatus.Open)
-        {
-            if (IsNativeWorkflowRequest())
-            {
-                ModelState.AddModelError(string.Empty, "Cash drops can be recorded only for open shifts.");
-                await LoadAsync(id);
-                return NativePartial("_CashDropNative");
-            }
-
-            TempData["ErrorMessage"] = "Cash drops can be recorded only for open shifts.";
-            return RedirectToPage(new { id });
-        }
-
-        if (CashDropAmount <= 0)
-        {
-            if (IsNativeWorkflowRequest())
-            {
-                ModelState.AddModelError(nameof(CashDropAmount), "Cash drop amount must be greater than zero.");
-                await LoadAsync(id);
-                return NativePartial("_CashDropNative");
-            }
-
-            TempData["ErrorMessage"] = "Cash drop amount must be greater than zero.";
-            return RedirectToPage(new { id });
-        }
-
-        _context.CashDrops.Add(new CashDrop
-        {
-            CashierShiftId = shift.Id,
-            DropDate = DateTime.Now,
-            Amount = CashDropAmount,
-            DroppedBy = User.Identity?.Name ?? shift.OpenedBy,
-            ReceivedBy = CashDropReceivedBy,
-            Notes = CashDropNotes
-        });
-
-        _context.CashierTransactions.Add(new CashierTransaction
-        {
-            CashierShiftId = shift.Id,
-            TransactionDate = DateTime.Now,
-            TransactionType = CashierTransactionType.CashDrop,
-            Amount = CashDropAmount,
-            PaymentMethod = FinancePaymentMethod.Cash,
-            Notes = CashDropNotes,
-            CreatedBy = User.Identity?.Name ?? "System"
-        });
-
-        await _context.SaveChangesAsync();
         return RedirectToPage(new { id });
     }
 

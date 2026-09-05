@@ -110,3 +110,20 @@
   .work-tabs, .work-actions { display: none; }
   .work-panel { break-inside: avoid; }
 }
+/* Source labels supply Title Case; do not visually force them into all caps. */
+.vpms-shell :is(h1, h2, h3, h4, h5, h6, label, th, dt, button, summary, legend, span, small, a,
+    .page-kicker, .work-eyebrow, .vpms-native-workflow-kicker, .vpms-stat-label) {
+    text-transform: none !important;
+}
+
+.work-next { display: table-cell; }
+.work-next > a + a { display: block; margin-top: .6rem; }
+
+.vpms-shell .vpms-native-workflow-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px 24px;
+}
+.vpms-shell .vpms-native-workflow-summary > div { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.vpms-shell .vpms-native-workflow-summary strong { overflow-wrap: anywhere; }
+.vpms-shell .vpms-property-label { text-transform: none !important; }

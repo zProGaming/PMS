@@ -6,7 +6,7 @@
     var openIssues = Model.Readiness.CriticalIssues + Model.Readiness.HighIssues + Model.Readiness.MediumIssues + Model.Readiness.LowIssues + Model.Readiness.InfoIssues;
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/System/ModuleQA/Index">System</a></li>
@@ -76,12 +76,12 @@
 
 <section class="vpms-product-proof-strip mb-4">
     <article>
-        <span>Finance control</span>
+        <span>Finance Control</span>
         <strong>@(Model.Readiness.OpenCashierShifts == 0 ? "No open cashier shifts" : $"{Model.Readiness.OpenCashierShifts} open cashier shift(s)")</strong>
         <p>Open shifts should be closed or audited before presenting finance close readiness.</p>
     </article>
     <article>
-        <span>Latest issue</span>
+        <span>Latest Issue</span>
         <strong>@(Model.Readiness.LatestIssueDate?.ToString("MMM dd, yyyy h:mm tt") ?? "No open findings")</strong>
         <p>Recent findings indicate where the pilot team should focus validation.</p>
     </article>
@@ -156,7 +156,7 @@
                     <form method="get" class="d-flex align-items-center">
                         <div class="form-check">
                             <input class="form-check-input" asp-for="IncludeResolved" onchange="this.form.submit()" />
-                            <label class="form-check-label" asp-for="IncludeResolved">Include resolved</label>
+                            <label class="form-check-label" asp-for="IncludeResolved">Include Resolved</label>
                         </div>
                     </form>
                 </div>

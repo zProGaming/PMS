@@ -24,7 +24,7 @@
         </div>
     </div>
     <div class="vpms-hero-intelligence vpms-no-print">
-        <span>Ownership posture</span>
+        <span>Ownership Posture</span>
         <strong>@performancePosture</strong>
         <small>@summary.TotalRevenue.ToString("C0") selected-period revenue with @summary.OpenCriticalIssues critical alert@(summary.OpenCriticalIssues == 1 ? "" : "s").</small>
         <div class="vpms-hero-actions">
@@ -50,7 +50,7 @@
 </form>
 
 <section class="vpms-print-document vpms-executive-board">
-    <section class="vpms-board-brief" aria-label="Executive briefing">
+    <section class="vpms-board-brief" aria-label="Executive Briefing">
         <article class="@(summary.OpenCriticalIssues > 0 ? "danger" : "positive")">
             <span>Ownership Posture</span>
             <strong>@performancePosture</strong>
@@ -77,17 +77,17 @@
         <article>
             <span>ADR</span>
             <strong>@summary.ADR.ToString("C0")</strong>
-            <small>Average daily rate</small>
+            <small>Average Daily Rate</small>
         </article>
         <article>
-            <span>RevPAR</span>
+            <span>Revpar</span>
             <strong>@summary.RevPAR.ToString("C0")</strong>
-            <small>Revenue per available room</small>
+            <small>Revenue Per Available Room</small>
         </article>
         <article class="@(summary.OpenCriticalIssues > 0 ? "danger" : "positive")">
             <span>Critical Alerts</span>
             <strong>@summary.OpenCriticalIssues</strong>
-            <small>Unresolved executive risks</small>
+            <small>Unresolved Executive Risks</small>
         </article>
     </section>
 
@@ -101,14 +101,14 @@
                     </div>
                 </div>
                 <div class="vpms-finance-grid">
-                    <div><span>Total Revenue</span><strong>@summary.TotalRevenue.ToString("C")</strong><small>Selected period</small></div>
-                    <div><span>Revenue MTD</span><strong>@summary.TotalRevenueMonthToDate.ToString("C")</strong><small>Month-to-date</small></div>
-                    <div><span>Cash Payments Today</span><strong>@summary.CashPaymentsToday.ToString("C")</strong><small>Completed folio payments</small></div>
-                    <div><span>Net Income</span><strong>@summary.NetIncome.ToString("C")</strong><small>Where mapped</small></div>
-                    <div><span>AR Balance</span><strong>@summary.ARBalance.ToString("C")</strong><small>Open city ledger</small></div>
-                    <div><span>AP Balance</span><strong>@summary.APBalance.ToString("C")</strong><small>Supplier liability</small></div>
+                    <div><span>Total Revenue</span><strong>@summary.TotalRevenue.ToString("C")</strong><small>Selected Period</small></div>
+                    <div><span>Revenue MTD</span><strong>@summary.TotalRevenueMonthToDate.ToString("C")</strong><small>Month-To-Date</small></div>
+                    <div><span>Cash Payments Today</span><strong>@summary.CashPaymentsToday.ToString("C")</strong><small>Completed Folio Payments</small></div>
+                    <div><span>Net Income</span><strong>@summary.NetIncome.ToString("C")</strong><small>Where Mapped</small></div>
+                    <div><span>AR Balance</span><strong>@summary.ARBalance.ToString("C")</strong><small>Open City Ledger</small></div>
+                    <div><span>AP Balance</span><strong>@summary.APBalance.ToString("C")</strong><small>Supplier Liability</small></div>
                     <div><span>Labor MTD</span><strong>@summary.LaborCostMonthToDate.ToString("C")</strong><small>@summary.LaborCostPercentage.ToString("N1")% of revenue</small></div>
-                    <div><span>Guest Rating</span><strong>@(summary.GuestSatisfactionScore?.ToString("N1") ?? "0.0")</strong><small>Average feedback score</small></div>
+                    <div><span>Guest Rating</span><strong>@(summary.GuestSatisfactionScore?.ToString("N1") ?? "0.0")</strong><small>Average Feedback Score</small></div>
                 </div>
             </section>
 
@@ -171,10 +171,10 @@
                     </div>
                 </div>
                 <div class="vpms-risk-list">
-                    <div><span>Pending approvals</span><strong>@summary.PendingApprovals</strong></div>
-                    <div><span>Low stock risk</span><strong>@summary.LowStockRisk</strong></div>
-                    <div><span>High balance folios</span><strong>@summary.HighBalanceFolios</strong></div>
-                    <div><span>Open service requests</span><strong>@summary.OpenServiceRequests</strong></div>
+                    <div><span>Pending Approvals</span><strong>@summary.PendingApprovals</strong></div>
+                    <div><span>Low Stock Risk</span><strong>@summary.LowStockRisk</strong></div>
+                    <div><span>High Balance Folios</span><strong>@summary.HighBalanceFolios</strong></div>
+                    <div><span>Open Service Requests</span><strong>@summary.OpenServiceRequests</strong></div>
                 </div>
             </section>
 
@@ -226,7 +226,7 @@
                             <div>
                                 <span>@kpi.KPIName</span>
                                 <strong>@kpi.ActualValue.ToString("N1")</strong>
-                                <small class="vpms-status-badge status-@kpi.Status.ToString().ToLowerInvariant()">@kpi.Status</small>
+                                <small class="vpms-status-badge status-@kpi.Status.ToString().ToLowerInvariant()">@UiText.Display(kpi.Status)</small>
                             </div>
                         }
                     </div>

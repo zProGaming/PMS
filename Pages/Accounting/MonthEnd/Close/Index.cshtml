@@ -25,8 +25,8 @@
 {
     <div class="row g-3 mb-4">
         <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Period</span><strong class="kpi-value">@Model.SelectedPeriod.PeriodName</strong><span class="kpi-meta">@Model.SelectedPeriod.StartDate.ToString("yyyy-MM-dd") to @Model.SelectedPeriod.EndDate.ToString("yyyy-MM-dd")</span></div></div>
-        <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Status</span><strong class="kpi-value">@Model.SelectedPeriod.Status</strong><span class="kpi-meta">Period control</span></div></div>
-        <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Checklist Progress</span><strong class="kpi-value">@Model.ProgressPercent%</strong><span class="kpi-meta">Completed or N/A</span></div></div>
+        <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Status</span><strong class="kpi-value">@UiText.Display(Model.SelectedPeriod.Status)</strong><span class="kpi-meta">Period Control</span></div></div>
+        <div class="col-md-3"><div class="kpi-card"><span class="kpi-label">Checklist Progress</span><strong class="kpi-value">@Model.ProgressPercent%</strong><span class="kpi-meta">Completed Or N/A</span></div></div>
     </div>
 
     <div class="vpms-table-wrapper mb-4">
@@ -38,7 +38,7 @@
                 <tr>
                     <td>@item.Module</td>
                     <td class="fw-semibold">@item.ChecklistItem</td>
-                    <td><span class="status-badge">@item.Status</span></td>
+                    <td><span class="status-badge">@UiText.Display(item.Status)</span></td>
                     <td>@item.CompletedBy</td>
                     <td>@item.CompletedAt?.ToString("yyyy-MM-dd HH:mm")</td>
                     <td class="text-end">
@@ -66,7 +66,7 @@
         <form method="post" asp-page-handler="Close" asp-route-accountingPeriodId="@Model.SelectedPeriod.Id" class="vpms-card">
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" name="overrideIncomplete" value="true" id="overrideIncomplete" />
-                <label class="form-check-label" for="overrideIncomplete">Finance manager override incomplete checklist</label>
+                <label class="form-check-label" for="overrideIncomplete">Finance Manager Override Incomplete Checklist</label>
             </div>
             <button class="btn vpms-btn-primary" type="submit">Close Accounting Period</button>
         </form>

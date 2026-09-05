@@ -21,7 +21,7 @@
     @if (!Model.Feedbacks.Any())
     {
         <div class="vpms-empty-state">
-            <h2>No guest feedback yet</h2>
+            <h2>No Guest Feedback Yet</h2>
             <p>Feedback from the guest portal will appear here for follow-up and service recovery tracking.</p>
         </div>
     }
@@ -48,7 +48,7 @@
                             <td>@feedback.SubmittedAt.ToString("MMM d, yyyy h:mm tt")</td>
                             <td>
                                 <div class="fw-semibold">@feedback.Guest?.FirstName @feedback.Guest?.LastName</div>
-                                <div class="text-muted small">Guest portal feedback</div>
+                                <div class="text-muted small">Guest Portal Feedback</div>
                             </td>
                             <td>@(feedback.Reservation?.ConfirmationNumber ?? "Unlinked")</td>
                             <td><span class="status-badge">@feedback.Rating / 5</span></td>
@@ -59,7 +59,7 @@
                                 @if (!feedback.IsResolved)
                                 {
                                     <form method="post" class="vpms-inline-action-form" asp-page-handler="Resolve" asp-route-id="@feedback.Id">
-                                        <input name="resolutionNotes" class="form-control form-control-sm" placeholder="Resolution notes" />
+                                        <input name="resolutionNotes" class="form-control form-control-sm" placeholder="Resolution Notes" />
                                         <button class="btn btn-sm vpms-btn-secondary" type="submit">Resolve</button>
                                     </form>
                                 }

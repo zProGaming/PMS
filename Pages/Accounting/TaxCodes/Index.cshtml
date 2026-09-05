@@ -10,7 +10,7 @@
     <div class="row g-3">
         <div class="col-md-2"><label asp-for="Input.Code" class="form-label">Code</label><input asp-for="Input.Code" class="form-control" required /></div>
         <div class="col-md-3"><label asp-for="Input.Name" class="form-label">Name</label><input asp-for="Input.Name" class="form-control" required /></div>
-        <div class="col-md-2"><label asp-for="Input.TaxType" class="form-label">Type</label><select asp-for="Input.TaxType" asp-items="Html.GetEnumSelectList<TaxType>()" class="form-select"></select></div>
+        <div class="col-md-2"><label asp-for="Input.TaxType" class="form-label">Type</label><select asp-for="Input.TaxType" asp-items="Html.GetUiEnumSelectList<TaxType>()" class="form-select"></select></div>
         <div class="col-md-2"><label asp-for="Input.Rate" class="form-label">Rate %</label><input asp-for="Input.Rate" class="form-control" type="number" step="0.01" /></div>
         <div class="col-md-3"><label asp-for="Input.GLAccountId" class="form-label">GL Account</label><select asp-for="Input.GLAccountId" asp-items="Model.AccountOptions" class="form-select"><option value="">None</option></select></div>
     </div>

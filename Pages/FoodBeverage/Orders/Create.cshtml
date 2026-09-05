@@ -27,14 +27,14 @@
         <div class="col-md-6 mb-3">
             <label asp-for="Order.DiningTableId" class="form-label">Dining Table</label>
             <select asp-for="Order.DiningTableId" class="form-select" asp-items="Model.TableOptions">
-                <option value="">Not assigned</option>
+                <option value="">Not Assigned</option>
             </select>
             <span asp-validation-for="Order.DiningTableId" class="text-danger"></span>
         </div>
         <div class="col-md-6 mb-3">
-            <label asp-for="Order.ReservationId" class="form-label">Checked-in Guest / Reservation</label>
+            <label asp-for="Order.ReservationId" class="form-label">Checked-In Guest / Reservation</label>
             <select asp-for="Order.ReservationId" class="form-select" asp-items="Model.ReservationOptions">
-                <option value="">Not assigned</option>
+                <option value="">Not Assigned</option>
             </select>
             <span asp-validation-for="Order.ReservationId" class="text-danger"></span>
         </div>

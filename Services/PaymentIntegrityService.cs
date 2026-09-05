@@ -31,6 +31,7 @@ public class PaymentIntegrityService(ApplicationDbContext context)
         await AddRecentRepeatSubmissionsAsync(rows, limit);
         await AddPaymentsAfterFolioCloseAsync(rows, limit);
         await AddNonPositivePaymentsAsync(rows, limit);
+        await AddLegacyRefundedReceiptsAsync(rows, limit);
         await AddCreditBalanceFoliosAsync(rows, limit);
 
         return rows
@@ -162,7 +163,11 @@ public class PaymentIntegrityService(ApplicationDbContext context)
     private async Task AddNonPositivePaymentsAsync(List<PaymentIntegrityIssueRow> rows, int take)
     {
         var payments = await BasePaymentQuery()
-            .Where(payment => payment.Amount <= 0 && payment.Status != PaymentStatus.Voided && payment.Status != PaymentStatus.Failed)
+            .Where(payment => payment.Amount <= 0 && payment.Status != PaymentStatus.Voided && payment.Status != PaymentStatus.Failed &&
+                !(payment.Amount < 0 && payment.Status == PaymentStatus.Completed &&
+                    payment.CashierTransactions.Any(t => t.TransactionType == CashierTransactionType.Refund && !t.IsVoided && t.Amount == -payment.Amount) &&
+                    _context.RefundTransactions.Any(r => r.Status == RefundStatus.Processed && r.FolioId == payment.FolioId &&
+                        r.RefundNumber == payment.ReferenceNumber && r.Amount == -payment.Amount)))
             .OrderByDescending(payment => payment.PaymentDate)
             .Take(take)
             .ToListAsync();
@@ -176,6 +181,16 @@ public class PaymentIntegrityService(ApplicationDbContext context)
                 "Payment amount is zero or negative.",
                 "Review and void the payment if it was not posted through an approved adjustment workflow."));
         }
+    }
+
+    private async Task AddLegacyRefundedReceiptsAsync(List<PaymentIntegrityIssueRow> rows, int take)
+    {
+        var payments = await BasePaymentQuery().Where(p => p.Status == PaymentStatus.Refunded)
+            .OrderByDescending(p => p.PaymentDate).Take(take).ToListAsync();
+        foreach (var payment in payments)
+            rows.Add(ToPaymentRow(payment, "Legacy refund reconciliation", SystemSeverity.High,
+                "The original receipt is marked Refunded and is excluded from folio totals. A separate negative entry may reverse it twice.",
+                "Finance must reconcile the original receipt, refund evidence, and folio balance before approving a documented correction. Do not refund it again."));
     }
 
     private async Task AddCreditBalanceFoliosAsync(List<PaymentIntegrityIssueRow> rows, int take)

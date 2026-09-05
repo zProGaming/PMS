@@ -29,7 +29,7 @@
                 <td>@memo.CreditMemoDate.ToString("d")</td>
                 <td>@memo.ARAccount?.AccountName</td>
                 <td>@memo.ARInvoice?.InvoiceNumber</td>
-                <td><span class="badge text-bg-secondary">@memo.Status</span></td>
+                <td><span class="badge text-bg-secondary">@UiText.Display(memo.Status)</span></td>
                 <td class="text-end">@memo.Amount.ToString("C")</td>
                 <td>@memo.Reason</td>
                 <td class="text-end">

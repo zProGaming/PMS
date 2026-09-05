@@ -53,7 +53,7 @@
                 <span class="vpms-mini-chip">@riskCount open signal@(riskCount == 1 ? "" : "s")</span>
             </div>
         </div>
-        <div class="vpms-dashboard-metric-ribbon" aria-label="Command center operating metrics">
+        <div class="vpms-dashboard-metric-ribbon" aria-label="Command Center Operating Metrics">
             <article>
                 <span>Occupancy</span>
                 <strong>@Model.OccupancyPercentage.ToString("0.#")%</strong>
@@ -62,12 +62,12 @@
             <article>
                 <span>Revenue</span>
                 <strong>@Model.TotalRevenueToday.ToString("C0")</strong>
-                <small>Posted today</small>
+                <small>Posted Today</small>
             </article>
             <article>
                 <span>Flow</span>
                 <strong>@Model.ArrivalsToday / @Model.DeparturesToday</strong>
-                <small>Arrivals / departures</small>
+                <small>Arrivals / Departures</small>
             </article>
             <article class="@RiskTone(riskCount)">
                 <span>Stability</span>
@@ -117,7 +117,7 @@
                         <small>@Model.ExpectedDeparturePax pax</small>
                     </div>
                     <div class="vpms-flow-item">
-                        <span>End-of-Day</span>
+                        <span>End-Of-Day</span>
                         <strong>@Model.EndOfDayForecast</strong>
                         <small>@Model.EndOfDayForecastPax pax</small>
                     </div>
@@ -127,7 +127,7 @@
             <section class="vpms-refined-card">
                 <div class="vpms-refined-card-header">
                     <div>
-                        <h2>Readiness and Release</h2>
+                        <h2>Readiness And Release</h2>
                         <p>@readinessPercent.ToString("0.#")% of rooms are available or inspected for confident rooming.</p>
                     </div>
                     <a asp-page="/Housekeeping/Index">Housekeeping</a>
@@ -200,13 +200,13 @@
                 </summary>
                 <div class="vpms-dashboard-detail-body">
                     <ul class="vpms-signal-list">
-                        <li><span>High-balance folios</span><strong>@Model.HighBalanceFolios</strong></li>
-                        <li><span>Pending approvals</span><strong>@Model.PendingApprovals</strong></li>
-                        <li><span>Service requests</span><strong>@Model.OpenServiceRequests</strong></li>
-                        <li><span>Low-stock items</span><strong>@Model.LowStockItems</strong></li>
-                        <li><span>High/Critical insights</span><strong>@insightCount</strong></li>
+                        <li><span>High-Balance Folios</span><strong>@Model.HighBalanceFolios</strong></li>
+                        <li><span>Pending Approvals</span><strong>@Model.PendingApprovals</strong></li>
+                        <li><span>Service Requests</span><strong>@Model.OpenServiceRequests</strong></li>
+                        <li><span>Low-Stock Items</span><strong>@Model.LowStockItems</strong></li>
+                        <li><span>High/Critical Insights</span><strong>@insightCount</strong></li>
                     </ul>
-                    <a class="vpms-dashboard-detail-link" asp-page="/ManagementAI/Insights/Index">View management insights</a>
+                    <a class="vpms-dashboard-detail-link" asp-page="/ManagementAI/Insights/Index">View Management Insights</a>
                 </div>
             </details>
 
@@ -232,7 +232,7 @@
             <details class="vpms-refined-card vpms-dashboard-detail-panel">
                 <summary class="vpms-dashboard-detail-summary">
                     <div>
-                        <h2>Cash and Exposure</h2>
+                        <h2>Cash And Exposure</h2>
                         <p>Payments, guest ledger, and room revenue.</p>
                     </div>
                     <span>@Model.TotalPaymentsToday.ToString("C0")</span>
@@ -242,7 +242,7 @@
                         <dt>Payments</dt><dd>@Model.TotalPaymentsToday.ToString("C")</dd>
                         <dt>Guest Balance</dt><dd>@Model.OutstandingGuestBalance.ToString("C")</dd>
                         <dt>ADR</dt><dd>@Model.AdrToday.ToString("C")</dd>
-                        <dt>RevPAR</dt><dd>@Model.RevParToday.ToString("C")</dd>
+                        <dt>Revpar</dt><dd>@Model.RevParToday.ToString("C")</dd>
                     </dl>
                 </div>
             </details>
@@ -279,7 +279,7 @@
                     </article>
                 </div>
 
-                <div class="vpms-modal-action-grid" aria-label="Command review actions">
+                <div class="vpms-modal-action-grid" aria-label="Command Review Actions">
                     <a asp-page="/FrontOffice/RoomRack/Index"><strong>Room Calendar</strong><span>Stays and room readiness.</span></a>
                     <a asp-page="/FrontOffice/Reservations/Index"><strong>Reservations</strong><span>Arrivals, departures, and rooming.</span></a>
                     <a asp-page="/ManagementAI/Insights/Index"><strong>Open Insights</strong><span>Management signals.</span></a>

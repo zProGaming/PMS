@@ -3,7 +3,7 @@
     <div class="col-md-6 mb-3">
         <label class="form-label" for="RateRestriction_RatePlanId">Rate Plan</label>
         <select class="form-select" id="RateRestriction_RatePlanId" name="RateRestriction.RatePlanId">
-            <option value="">All rate plans</option>
+            <option value="">All Rate Plans</option>
             @foreach (var item in Model.RatePlanOptions)
             {
                 <option value="@item.Value" selected="@item.Selected">@item.Text</option>
@@ -13,7 +13,7 @@
     <div class="col-md-6 mb-3">
         <label class="form-label" for="RateRestriction_RoomTypeId">Room Type</label>
         <select class="form-select" id="RateRestriction_RoomTypeId" name="RateRestriction.RoomTypeId">
-            <option value="">All room types</option>
+            <option value="">All Room Types</option>
             @foreach (var item in Model.RoomTypeOptions)
             {
                 <option value="@item.Value" selected="@item.Selected">@item.Text</option>
@@ -36,9 +36,9 @@
     </div>
 </div>
 <div class="d-flex flex-wrap gap-3 mb-3">
-    <div class="form-check"><input name="RateRestriction.ClosedToArrival" type="hidden" value="false" /><input class="form-check-input" id="RateRestriction_ClosedToArrival" name="RateRestriction.ClosedToArrival" type="checkbox" value="true" checked="@Model.RateRestriction.ClosedToArrival" /><label class="form-check-label" for="RateRestriction_ClosedToArrival">Closed to arrival</label></div>
-    <div class="form-check"><input name="RateRestriction.ClosedToDeparture" type="hidden" value="false" /><input class="form-check-input" id="RateRestriction_ClosedToDeparture" name="RateRestriction.ClosedToDeparture" type="checkbox" value="true" checked="@Model.RateRestriction.ClosedToDeparture" /><label class="form-check-label" for="RateRestriction_ClosedToDeparture">Closed to departure</label></div>
-    <div class="form-check"><input name="RateRestriction.StopSell" type="hidden" value="false" /><input class="form-check-input" id="RateRestriction_StopSell" name="RateRestriction.StopSell" type="checkbox" value="true" checked="@Model.RateRestriction.StopSell" /><label class="form-check-label" for="RateRestriction_StopSell">Stop sell</label></div>
+    <div class="form-check"><input name="RateRestriction.ClosedToArrival" type="hidden" value="false" /><input class="form-check-input" id="RateRestriction_ClosedToArrival" name="RateRestriction.ClosedToArrival" type="checkbox" value="true" checked="@Model.RateRestriction.ClosedToArrival" /><label class="form-check-label" for="RateRestriction_ClosedToArrival">Closed To Arrival</label></div>
+    <div class="form-check"><input name="RateRestriction.ClosedToDeparture" type="hidden" value="false" /><input class="form-check-input" id="RateRestriction_ClosedToDeparture" name="RateRestriction.ClosedToDeparture" type="checkbox" value="true" checked="@Model.RateRestriction.ClosedToDeparture" /><label class="form-check-label" for="RateRestriction_ClosedToDeparture">Closed To Departure</label></div>
+    <div class="form-check"><input name="RateRestriction.StopSell" type="hidden" value="false" /><input class="form-check-input" id="RateRestriction_StopSell" name="RateRestriction.StopSell" type="checkbox" value="true" checked="@Model.RateRestriction.StopSell" /><label class="form-check-label" for="RateRestriction_StopSell">Stop Sell</label></div>
 </div>
 <div class="mb-3">
     <label class="form-label" for="RateRestriction_Notes">Notes</label>

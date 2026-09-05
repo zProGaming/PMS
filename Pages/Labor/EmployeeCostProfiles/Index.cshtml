@@ -27,11 +27,11 @@
         <div class="col-md-2"><label class="form-label">Employee Code</label><input asp-for="Input.EmployeeCode" class="form-control" /></div>
         <div class="col-md-3"><label class="form-label">Full Name</label><input asp-for="Input.FullName" class="form-control" required /></div>
         <div class="col-md-2"><label class="form-label">Position</label><input asp-for="Input.Position" class="form-control" /></div>
-        <div class="col-md-2"><label class="form-label">Employment Type</label><select asp-for="Input.EmploymentType" class="form-select" asp-items="Html.GetEnumSelectList<EmploymentType>()"></select></div>
+        <div class="col-md-2"><label class="form-label">Employment Type</label><select asp-for="Input.EmploymentType" class="form-select" asp-items="Html.GetUiEnumSelectList<EmploymentType>()"></select></div>
         <div class="col-md-3"><label class="form-label">Department</label><select asp-for="Input.DepartmentId" class="form-select" asp-items="Model.DepartmentOptions"><option value="">Unassigned</option></select></div>
         <div class="col-md-3"><label class="form-label">USALI Department</label><select asp-for="Input.USALIDepartmentId" class="form-select" asp-items="Model.USALIOptions"><option value="">Unmapped</option></select></div>
-        <div class="col-md-3"><label class="form-label">Labor Expense Account</label><select asp-for="Input.DefaultLaborGLAccountId" class="form-select" asp-items="Model.LaborAccountOptions"><option value="">Use fallback</option></select></div>
-        <div class="col-md-3"><label class="form-label">Payroll Liability Account</label><select asp-for="Input.DefaultPayrollLiabilityGLAccountId" class="form-select" asp-items="Model.LiabilityAccountOptions"><option value="">Use fallback</option></select></div>
+        <div class="col-md-3"><label class="form-label">Labor Expense Account</label><select asp-for="Input.DefaultLaborGLAccountId" class="form-select" asp-items="Model.LaborAccountOptions"><option value="">Use Fallback</option></select></div>
+        <div class="col-md-3"><label class="form-label">Payroll Liability Account</label><select asp-for="Input.DefaultPayrollLiabilityGLAccountId" class="form-select" asp-items="Model.LiabilityAccountOptions"><option value="">Use Fallback</option></select></div>
         <div class="col-md-3"><label class="form-label">Notes</label><input asp-for="Input.Notes" class="form-control" /></div>
         <div class="col-12"><button type="submit" class="btn vpms-btn-primary">Create Profile</button></div>
     </div>
@@ -124,7 +124,7 @@
                         <div class="col-md-1">
                             <label class="form-label">Type</label>
                             <select name="employmentType" class="form-select">
-                                @foreach (var option in Html.GetEnumSelectList<EmploymentType>())
+                                @foreach (var option in Html.GetUiEnumSelectList<EmploymentType>())
                                 {
                                     <option value="@option.Value" selected="@(option.Text == employee.EmploymentType.ToString())">@option.Text</option>
                                 }

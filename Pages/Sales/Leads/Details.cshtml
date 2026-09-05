@@ -27,7 +27,7 @@
     <dd class="col-sm-10">@Model.SalesLead.ExpectedCloseDate?.ToString("d")</dd>
     <dt class="col-sm-2">Assigned To</dt>
     <dd class="col-sm-10">@Model.SalesLead.AssignedTo</dd>
-    <dt class="col-sm-2">Next Follow-up</dt>
+    <dt class="col-sm-2">Next Follow-Up</dt>
     <dd class="col-sm-10">@Model.NextFollowUpDate?.ToString("d")</dd>
     <dt class="col-sm-2">Created</dt>
     <dd class="col-sm-10">@Model.SalesLead.CreatedAt.ToString("g") by @Model.SalesLead.CreatedBy</dd>
@@ -42,7 +42,7 @@
             <th>Date</th>
             <th>Type</th>
             <th>Account</th>
-            <th>Next Follow-up</th>
+            <th>Next Follow-Up</th>
             <th>Created By</th>
             <th>Notes</th>
         </tr>
@@ -62,4 +62,4 @@
     </tbody>
 </table>
 
-<a class="btn btn-outline-secondary" asp-page="./Index">Back to Leads</a>
+<a class="btn btn-outline-secondary" asp-page="./Index">Back To Leads</a>

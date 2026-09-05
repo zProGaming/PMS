@@ -7,7 +7,7 @@
 <div class="page-header vpms-print-hide">
     <div>
         <div class="page-kicker">Group Billing Reports</div>
-        <h1 class="page-title">Group Booking and Pseudo Room Reports</h1>
+        <h1 class="page-title">Group Booking And Pseudo Room Reports</h1>
         <p class="page-subtitle">Group room block, pickup, collection, pseudo room folio, and charge routing readiness.</p>
     </div>
     <div class="page-actions">
@@ -20,7 +20,7 @@
     <header class="vpms-report-header">
         <div>
             <div class="vpms-report-kicker">Vantage PMS</div>
-            <h1 class="vpms-report-title">Group Booking and Pseudo Room Reports</h1>
+            <h1 class="vpms-report-title">Group Booking And Pseudo Room Reports</h1>
             <div class="vpms-report-meta">Generated @DateTime.Now.ToString("MMM d, yyyy h:mm tt")</div>
         </div>
     </header>
@@ -45,7 +45,7 @@
                         <tr>
                             <td><a asp-page="/Groups/Details" asp-route-id="@group.Id">@group.GroupCode - @group.GroupName</a><div class="small text-muted">@group.SalesAccount?.AccountName</div></td>
                             <td>@group.ArrivalDate.ToString("MMM d") - @group.DepartureDate.ToString("MMM d, yyyy")</td>
-                            <td><span class="status-badge">@group.BookingStatus</span></td>
+                            <td><span class="status-badge">@UiText.Display(group.BookingStatus)</span></td>
                             <td class="text-end">@blocked</td>
                             <td class="text-end">@pickedUp</td>
                             <td class="text-end">@summary.OutstandingBalance.ToString("C")</td>
@@ -58,7 +58,7 @@
     </section>
 
     <section class="vpms-card vpms-print-section mb-4">
-        <h2 class="h5">Group Room Block and Pickup Report</h2>
+        <h2 class="h5">Group Room Block And Pickup Report</h2>
         @if (Model.RoomBlocks.Count == 0)
         {
             <div class="vpms-empty-state">No group room blocks found.</div>
@@ -109,7 +109,7 @@
                             <td>@folio.FolioName</td>
                             <td>@folio.GroupBooking?.GroupCode</td>
                             <td>@folio.PseudoRoom?.PseudoRoomCode</td>
-                            <td>@folio.Status</td>
+                            <td>@UiText.Display(folio.Status)</td>
                             <td class="text-end">@charges.ToString("C")</td>
                             <td class="text-end">@payments.ToString("C")</td>
                             <td class="text-end">@((charges - payments).ToString("C"))</td>

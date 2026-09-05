@@ -7,7 +7,7 @@
     var readinessPercent = readinessCount == 0 ? 0 : (int)Math.Round(readyCount * 100m / readinessCount);
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">System</a></li>
@@ -28,12 +28,12 @@
         </div>
     </div>
     <div class="vpms-demo-stage-panel">
-        <span>Demo readiness</span>
+        <span>Demo Readiness</span>
         <strong>@readinessPercent%</strong>
         <p>Based on configured records and module readiness checks.</p>
     </div>
     <div class="vpms-actions">
-        <a class="btn vpms-btn-primary" asp-page="/Index">Start at Dashboard</a>
+        <a class="btn vpms-btn-primary" asp-page="/Index">Start At Dashboard</a>
         <a class="btn vpms-btn-secondary" asp-page="/System/DemoWorkflowLauncher/Index">Workflow Launcher</a>
         @if (User.IsInRole(Vantage.PMS.Authorization.PmsRoles.SystemAdmin))
         {
@@ -50,9 +50,9 @@
 }
 
 <section class="vpms-product-proof-strip">
-    <article><span>Rooms</span><strong>Full-service PMS</strong><p>Reservations, room rack, housekeeping, folios, and guest portal surfaces.</p></article>
-    <article><span>Commercial</span><strong>POS + banquet + revenue</strong><p>F&amp;B service, kitchen display, event operations, rates, and booking flow.</p></article>
-    <article><span>Controls</span><strong>Finance + audit proof</strong><p>AR, reports, documents, Management AI, audit logs, and system health.</p></article>
+    <article><span>Rooms</span><strong>Full-Service PMS</strong><p>Reservations, room rack, housekeeping, folios, and guest portal surfaces.</p></article>
+    <article><span>Commercial</span><strong>POS + Banquet + Revenue</strong><p>F&amp;B service, kitchen display, event operations, rates, and booking flow.</p></article>
+    <article><span>Controls</span><strong>Finance + Audit Proof</strong><p>AR, reports, documents, Management AI, audit logs, and system health.</p></article>
 </section>
 
 <section class="vpms-card mb-4">
@@ -111,7 +111,7 @@
                             {
                                 <tr>
                                     <td>@item.Module</td>
-                                    <td class="text-end"><span class="@IndexModel.BadgeClass(item.Status)">@item.Status</span></td>
+                                    <td class="text-end"><span class="@IndexModel.BadgeClass(item.Status)">@UiText.Display(item.Status)</span></td>
                                 </tr>
                             }
                         </tbody>
@@ -128,7 +128,7 @@
                 <div class="d-grid gap-2">
                     <a class="btn vpms-btn-secondary text-start" asp-page="/Index">Enterprise Dashboard</a>
                     <a class="btn vpms-btn-secondary text-start" asp-page="/FrontOffice/Index">Front Office</a>
-                    <a class="btn vpms-btn-secondary text-start" asp-page="/Housekeeping/Index">Room Rack and Housekeeping</a>
+                    <a class="btn vpms-btn-secondary text-start" asp-page="/Housekeeping/Index">Room Rack And Housekeeping</a>
                     <a class="btn vpms-btn-secondary text-start" asp-page="/Finance/Index">Finance Dashboard</a>
                     <a class="btn vpms-btn-secondary text-start" asp-page="/Executive/Index">Owner / GM Executive Dashboard</a>
                     <a class="btn vpms-btn-secondary text-start" asp-page="/Executive/MonthlyOwnerReport">Monthly Owner Report</a>
@@ -232,7 +232,7 @@
     </div>
     <div class="col-md-6 col-xl-4">
         <div class="vpms-section-card h-100">
-            <h3 class="h6">Inventory and Purchasing Demo Flow</h3>
+            <h3 class="h6">Inventory And Purchasing Demo Flow</h3>
             <p class="text-muted mb-0">Stock on hand, low stock, purchase request, PO approval, receiving, and stock movement history.</p>
         </div>
     </div>

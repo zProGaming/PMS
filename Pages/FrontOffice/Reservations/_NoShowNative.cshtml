@@ -20,7 +20,7 @@
     <dt class="col-sm-4">Room</dt>
     <dd class="col-sm-8">@(Model.Reservation.Room?.RoomNumber ?? "Unassigned")</dd>
     <dt class="col-sm-4">Current Status</dt>
-    <dd class="col-sm-8">@Model.Reservation.Status</dd>
+    <dd class="col-sm-8">@UiText.Display(Model.Reservation.Status)</dd>
 </dl>
 
 <form method="post" asp-page="./Delete" asp-page-handler="NoShow" asp-route-id="@Model.Reservation.Id" class="vpms-native-workflow-form">

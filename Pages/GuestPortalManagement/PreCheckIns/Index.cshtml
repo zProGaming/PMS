@@ -34,7 +34,7 @@
                     <td>@item.Reservation?.ConfirmationNumber</td>
                     <td>@(item.ArrivalTime?.ToString("g") ?? "-")</td>
                     <td>@item.IdType @item.IdNumber</td>
-                    <td><span class="badge bg-secondary">@item.Status</span></td>
+                    <td><span class="badge bg-secondary">@UiText.Display(item.Status)</span></td>
                     <td class="text-end">
                         <form method="post" class="d-inline" asp-page-handler="SetStatus" asp-route-id="@item.Id" asp-route-status="@GuestPreCheckInStatus.Reviewed">
                             <button class="btn btn-sm btn-outline-secondary">Reviewed</button>

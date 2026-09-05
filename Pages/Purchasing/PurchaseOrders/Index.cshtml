@@ -34,7 +34,7 @@
                         <td>@order.PurchaseRequest?.RequestNumber</td>
                         <td>@order.OrderDate.ToString("d")</td>
                         <td>@order.ExpectedDeliveryDate?.ToString("d")</td>
-                        <td><span class="badge text-bg-secondary">@order.Status</span></td>
+                        <td><span class="badge text-bg-secondary">@UiText.Display(order.Status)</span></td>
                         <td class="text-end">@order.TotalAmount.ToString("C")</td>
                         <td class="text-end">
                             <a asp-page="Details"

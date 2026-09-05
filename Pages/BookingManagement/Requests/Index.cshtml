@@ -32,7 +32,7 @@
                     <td>@request.CheckInDate.ToString("yyyy-MM-dd") - @request.CheckOutDate.ToString("yyyy-MM-dd")</td>
                     <td>@(request.RoomType?.Code ?? "Unknown")</td>
                     <td>@request.TotalRoomAmount.ToString("C")</td>
-                    <td><span class="badge bg-secondary">@request.BookingStatus</span></td>
+                    <td><span class="badge bg-secondary">@UiText.Display(request.BookingStatus)</span></td>
                     <td>@request.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
                     <td class="text-end">
                         <a asp-page="Details" asp-route-id="@request.Id" class="btn btn-sm btn-outline-primary">Details</a>

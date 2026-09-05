@@ -1,8 +1,8 @@
 @model Vantage.PMS.Pages.Finance.Documents.DetailsModel
 
 <div class="vpms-native-workflow-card">
-    <div class="vpms-native-workflow-kicker">Finance collection</div>
-    <h2>Record document payment</h2>
+    <div class="vpms-native-workflow-kicker">Finance Collection</div>
+    <h2>Record Document Payment</h2>
     <p>Record a payment against this issued finance document.</p>
 
     <div class="vpms-native-workflow-summary">
@@ -13,7 +13,7 @@
         <span>Balance</span>
         <strong>@Model.FinanceDocument.Balance.ToString("C")</strong>
         <span>Status</span>
-        <strong>@Model.FinanceDocument.Status</strong>
+        <strong>@UiText.Display(Model.FinanceDocument.Status)</strong>
     </div>
 
     <form method="post" asp-page="./Details" asp-page-handler="RecordPayment" asp-route-id="@Model.FinanceDocument.Id" class="vpms-native-workflow-form">

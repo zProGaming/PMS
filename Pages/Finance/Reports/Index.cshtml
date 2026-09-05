@@ -8,7 +8,7 @@
 
 <div class="list-group mb-4">
     <a asp-page="/AccountsReceivable/Aging/Index" class="list-group-item list-group-item-action">AR Aging Report</a>
-    <a asp-page="/AccountsReceivable/Statements/Index" class="list-group-item list-group-item-action">AR Statement of Account</a>
+    <a asp-page="/AccountsReceivable/Statements/Index" class="list-group-item list-group-item-action">AR Statement Of Account</a>
 </div>
 
 <h2 class="h5">Cashier Shift Report</h2>
@@ -17,7 +17,7 @@
     <tbody>
         @foreach (var item in Model.CashierShifts)
         {
-            <tr><td>@item.ShiftNumber</td><td>@item.BusinessDate.ToString("d")</td><td>@item.OpenedBy</td><td>@item.Status</td><td class="text-end">@item.ExpectedCashAmount?.ToString("C")</td><td class="text-end">@item.CashOverShort?.ToString("C")</td></tr>
+            <tr><td>@item.ShiftNumber</td><td>@item.BusinessDate.ToString("d")</td><td>@item.OpenedBy</td><td>@UiText.Display(item.Status)</td><td class="text-end">@item.ExpectedCashAmount?.ToString("C")</td><td class="text-end">@item.CashOverShort?.ToString("C")</td></tr>
         }
     </tbody>
 </table>
@@ -28,7 +28,7 @@
     <tbody>
         @foreach (var item in Model.CashierTransactions)
         {
-            <tr><td>@item.TransactionDate.ToString("g")</td><td>@item.CashierShift?.ShiftNumber</td><td>@item.TransactionType</td><td>@item.PaymentMethod</td><td class="text-end">@item.Amount.ToString("C")</td><td>@item.ReferenceNumber</td></tr>
+            <tr><td>@item.TransactionDate.ToString("g")</td><td>@item.CashierShift?.ShiftNumber</td><td>@item.TransactionType</td><td>@UiText.Display(item.PaymentMethod)</td><td class="text-end">@item.Amount.ToString("C")</td><td>@item.ReferenceNumber</td></tr>
         }
     </tbody>
 </table>
@@ -39,7 +39,7 @@
     <tbody>
         @foreach (var item in Model.Payments)
         {
-            <tr><td>@item.PaymentDate.ToString("g")</td><td>@item.Folio?.FolioNumber</td><td>@item.PaymentMethod</td><td>@item.Status</td><td class="text-end">@item.Amount.ToString("C")</td></tr>
+            <tr><td>@item.PaymentDate.ToString("g")</td><td>@item.Folio?.FolioNumber</td><td>@UiText.Display(item.PaymentMethod)</td><td>@UiText.Display(item.Status)</td><td class="text-end">@item.Amount.ToString("C")</td></tr>
         }
     </tbody>
 </table>
@@ -50,7 +50,7 @@
     <tbody>
         @foreach (var item in Model.Refunds)
         {
-            <tr><td>@item.RefundNumber</td><td>@item.RefundDate.ToString("d")</td><td>@item.Status</td><td>@item.RefundMethod</td><td class="text-end">@item.Amount.ToString("C")</td><td>@item.Reason</td></tr>
+            <tr><td>@item.RefundNumber</td><td>@item.RefundDate.ToString("d")</td><td>@UiText.Display(item.Status)</td><td>@UiText.Display(item.RefundMethod)</td><td class="text-end">@item.Amount.ToString("C")</td><td>@item.Reason</td></tr>
         }
     </tbody>
 </table>
@@ -61,7 +61,7 @@
     <tbody>
         @foreach (var item in Model.VoidRequests)
         {
-            <tr><td>@item.RequestedAt.ToString("g")</td><td>@item.ReferenceType #@item.ReferenceId</td><td>@item.Status</td><td>@item.RequestedBy</td><td>@item.Reason</td></tr>
+            <tr><td>@item.RequestedAt.ToString("g")</td><td>@item.ReferenceType #@item.ReferenceId</td><td>@UiText.Display(item.Status)</td><td>@item.RequestedBy</td><td>@item.Reason</td></tr>
         }
     </tbody>
 </table>
@@ -72,7 +72,7 @@
     <tbody>
         @foreach (var item in Model.DiscountApprovals)
         {
-            <tr><td>@item.RequestedAt.ToString("g")</td><td>@item.Status</td><td>@item.DiscountType</td><td class="text-end">@item.DiscountAmount.ToString("C")</td><td>@item.Reason</td></tr>
+            <tr><td>@item.RequestedAt.ToString("g")</td><td>@UiText.Display(item.Status)</td><td>@item.DiscountType</td><td class="text-end">@item.DiscountAmount.ToString("C")</td><td>@item.Reason</td></tr>
         }
     </tbody>
 </table>
@@ -83,7 +83,7 @@
     <tbody>
         @foreach (var item in Model.CreditMemos)
         {
-            <tr><td>@item.CreditMemoNumber</td><td>@item.CreditMemoDate.ToString("d")</td><td>@item.ARAccount?.AccountName</td><td>@item.Status</td><td class="text-end">@item.Amount.ToString("C")</td></tr>
+            <tr><td>@item.CreditMemoNumber</td><td>@item.CreditMemoDate.ToString("d")</td><td>@item.ARAccount?.AccountName</td><td>@UiText.Display(item.Status)</td><td class="text-end">@item.Amount.ToString("C")</td></tr>
         }
     </tbody>
 </table>
@@ -94,7 +94,7 @@
     <tbody>
         @foreach (var item in Model.DebitMemos)
         {
-            <tr><td>@item.DebitMemoNumber</td><td>@item.DebitMemoDate.ToString("d")</td><td>@item.ARAccount?.AccountName</td><td>@item.Status</td><td class="text-end">@item.Amount.ToString("C")</td></tr>
+            <tr><td>@item.DebitMemoNumber</td><td>@item.DebitMemoDate.ToString("d")</td><td>@item.ARAccount?.AccountName</td><td>@UiText.Display(item.Status)</td><td class="text-end">@item.Amount.ToString("C")</td></tr>
         }
     </tbody>
 </table>

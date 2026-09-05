@@ -1,8 +1,8 @@
 @model Vantage.PMS.Pages.Finance.CashierShifts.DetailsModel
 
 <div class="vpms-native-workflow-card">
-    <div class="vpms-native-workflow-kicker">Cashier control</div>
-    <h2>Record cash drop</h2>
+    <div class="vpms-native-workflow-kicker">Cashier Control</div>
+    <h2>Record Cash Drop</h2>
     <p>Shift @Model.CashierShift.ShiftNumber</p>
 
     <div class="vpms-native-workflow-summary">
@@ -13,7 +13,7 @@
         <span>Cash Drops</span>
         <strong>@Model.CashierShift.CashDrops.Sum(item => item.Amount).ToString("C")</strong>
         <span>Status</span>
-        <strong>@Model.CashierShift.Status</strong>
+        <strong>@UiText.Display(Model.CashierShift.Status)</strong>
     </div>
 
     <form method="post" asp-page="./Details" asp-page-handler="CashDrop" asp-route-id="@Model.CashierShift.Id" class="vpms-native-workflow-form">

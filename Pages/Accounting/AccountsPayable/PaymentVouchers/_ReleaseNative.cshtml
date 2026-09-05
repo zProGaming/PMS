@@ -36,17 +36,17 @@
 <form method="post" asp-page-handler="Release" asp-route-id="@Model.Voucher.Id" class="vpms-native-workflow-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="vpms-native-step-grid compact" aria-label="Treasury release control path">
-        <span><strong>Bank</strong><small>Select cash source</small></span>
-        <span><strong>Post</strong><small>Creates disbursement</small></span>
-        <span><strong>Trace</strong><small>Release audit retained</small></span>
+    <div class="vpms-native-step-grid compact" aria-label="Treasury Release Control Path">
+        <span><strong>Bank</strong><small>Select Cash Source</small></span>
+        <span><strong>Post</strong><small>Creates Disbursement</small></span>
+        <span><strong>Trace</strong><small>Release Audit Retained</small></span>
     </div>
 
     <div class="vpms-modal-form-grid">
         <div class="vpms-modal-field wide">
-            <label asp-for="BankAccountId" class="form-label">Bank Account for bank/check/e-wallet payments</label>
+            <label asp-for="BankAccountId" class="form-label">Bank Account For Bank/Check/E-Wallet Payments</label>
             <select asp-for="BankAccountId" asp-items="Model.BankAccountOptions" class="form-select">
-                <option value="">Cash payment / no bank account</option>
+                <option value="">Cash Payment / No Bank Account</option>
             </select>
             <span asp-validation-for="BankAccountId" class="text-danger"></span>
         </div>
@@ -54,6 +54,6 @@
 
     <div class="vpms-native-action-row">
         <a class="btn btn-outline-secondary" href="#" data-vpms-dialog-close>Cancel</a>
-        <button class="btn vpms-btn-primary" type="submit">Release and Post</button>
+        <button class="btn vpms-btn-primary" type="submit">Release And Post</button>
     </div>
 </form>

@@ -27,7 +27,7 @@
         </div>
         <div class="col-md-2">
             <label class="form-label" asp-for="Severity">Severity</label>
-            <select class="form-select" asp-for="Severity" asp-items="Html.GetEnumSelectList<ManagementInsightSeverity>()">
+            <select class="form-select" asp-for="Severity" asp-items="Html.GetUiEnumSelectList<ManagementInsightSeverity>()">
                 <option value="">All</option>
             </select>
         </div>

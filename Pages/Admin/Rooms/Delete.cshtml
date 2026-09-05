@@ -19,7 +19,7 @@
     <dd class="col-sm-9">@Model.Room.RoomType?.Name</dd>
 
     <dt class="col-sm-3">Status</dt>
-    <dd class="col-sm-9">@Model.Room.Status</dd>
+    <dd class="col-sm-9">@UiText.Display(Model.Room.Status)</dd>
 
     <dt class="col-sm-3">Active</dt>
     <dd class="col-sm-9">@(Model.Room.IsActive ? "Yes" : "No")</dd>

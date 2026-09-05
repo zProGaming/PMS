@@ -38,7 +38,7 @@
             </div>
             <div class="col-md-6">
                 <label asp-for="Input.PseudoRoomType" class="form-label">Type</label>
-                <select asp-for="Input.PseudoRoomType" asp-items="Html.GetEnumSelectList<PseudoRoomType>()" class="form-select"></select>
+                <select asp-for="Input.PseudoRoomType" asp-items="Html.GetUiEnumSelectList<PseudoRoomType>()" class="form-select"></select>
             </div>
             <div class="col-md-6">
                 <label asp-for="Input.LinkedGroupBookingId" class="form-label">Group</label>

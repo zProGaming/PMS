@@ -42,7 +42,7 @@
         <div class="col-md-3">
             <label class="form-label">Method</label>
             <select name="Method" class="form-select">
-                @foreach (var method in Html.GetEnumSelectList<CashFlowMethod>())
+                @foreach (var method in Html.GetUiEnumSelectList<CashFlowMethod>())
                 {
                     <option value="@method.Value">@method.Text</option>
                 }
@@ -61,7 +61,7 @@
             @if (!Model.Snapshots.Any())
             {
                 <div class="vpms-empty-state">
-                    <h2>No snapshots yet</h2>
+                    <h2>No Snapshots Yet</h2>
                     <p>Generate a cash flow snapshot after reviewing mappings.</p>
                 </div>
             }
@@ -85,7 +85,7 @@
         {
             <section class="vpms-card">
                 <div class="vpms-empty-state">
-                    <h2>No cash flow snapshot selected</h2>
+                    <h2>No Cash Flow Snapshot Selected</h2>
                     <p>Generate or select a snapshot to review the saved report lines.</p>
                 </div>
             </section>

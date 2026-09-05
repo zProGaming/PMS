@@ -16,10 +16,10 @@
 <form method="post" asp-page-handler="ReceiveDeposit" asp-route-id="@Model.GroupBooking.Id" class="vpms-native-workflow-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="vpms-native-step-grid compact" aria-label="Group deposit control path">
-        <span><strong>Amount</strong><small>Collection value</small></span>
-        <span><strong>Reference</strong><small>Tender trace</small></span>
-        <span><strong>Allocate</strong><small>Apply later</small></span>
+    <div class="vpms-native-step-grid compact" aria-label="Group Deposit Control Path">
+        <span><strong>Amount</strong><small>Collection Value</small></span>
+        <span><strong>Reference</strong><small>Tender Trace</small></span>
+        <span><strong>Allocate</strong><small>Apply Later</small></span>
     </div>
 
     <section class="vpms-form-section">
@@ -48,12 +48,12 @@
             </div>
             <div class="col-md-6">
                 <label asp-for="DepositInput.Status" class="form-label">Status</label>
-                <select asp-for="DepositInput.Status" asp-items="Html.GetEnumSelectList<GroupDepositStatus>()" class="form-select"></select>
+                <select asp-for="DepositInput.Status" asp-items="Html.GetUiEnumSelectList<GroupDepositStatus>()" class="form-select"></select>
             </div>
             <div class="col-md-6 d-flex align-items-end">
                 <div class="form-check">
                     <input asp-for="DepositInput.IsRefundable" class="form-check-input" />
-                    <label asp-for="DepositInput.IsRefundable" class="form-check-label">Refundable deposit</label>
+                    <label asp-for="DepositInput.IsRefundable" class="form-check-label">Refundable Deposit</label>
                 </div>
             </div>
             <div class="col-12">

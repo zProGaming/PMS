@@ -3,7 +3,7 @@
 
 <section class="checkout-review" aria-labelledby="checkout-title">
     <header class="work-heading">
-        <div><p class="work-eyebrow">Front desk / Departure</p><h1 id="checkout-title">Review checkout</h1>
+        <div><p class="work-eyebrow">Front Desk / Departure</p><h1 id="checkout-title">Review Checkout</h1>
             <p>@Model.Reservation.Guest?.FirstName @Model.Reservation.Guest?.LastName · Room @(Model.Reservation.Room?.RoomNumber ?? "Unassigned")</p></div>
     </header>
     <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
@@ -12,27 +12,27 @@
     <dl class="work-facts">
         <div><dt>Confirmation</dt><dd>@Model.Reservation.ConfirmationNumber</dd></div>
         <div><dt>Departure</dt><dd>@Model.Reservation.DepartureDate.ToString("dd MMM yyyy")</dd></div>
-        <div><dt>Amount to collect</dt><dd class="work-money">@Model.Review.AmountDue.ToString("C")</dd></div>
-        <div><dt>Credit to review</dt><dd class="work-money">@Model.Review.GuestCredit.ToString("C")</dd></div>
+        <div><dt>Amount To Collect</dt><dd class="work-money">@Model.Review.AmountDue.ToString("C")</dd></div>
+        <div><dt>Credit To Review</dt><dd class="work-money">@Model.Review.GuestCredit.ToString("C")</dd></div>
     </dl>
     <section class="work-panel" aria-labelledby="checkout-ledger-title">
-        <header><h2 id="checkout-ledger-title">1. Review every folio</h2><p>Credits and unpaid amounts are kept separate. Transferred balances are handled in Accounts Receivable.</p></header>
+        <header><h2 id="checkout-ledger-title">1. Review Every Folio</h2><p>Credits and unpaid amounts are kept separate. Transferred balances are handled in Accounts Receivable.</p></header>
         <div class="table-responsive">
             <table class="table work-table">
                 <caption class="visually-hidden">Folio settlement review for this reservation</caption>
-                <thead><tr><th scope="col">Folio</th><th scope="col">Status</th><th scope="col" class="text-end">Charges</th><th scope="col" class="text-end">Payments</th><th scope="col" class="text-end">Balance</th><th scope="col">Next action</th></tr></thead>
+                <thead><tr><th scope="col">Folio</th><th scope="col">Status</th><th scope="col" class="text-end">Charges</th><th scope="col" class="text-end">Payments</th><th scope="col" class="text-end">Balance</th><th scope="col">Next Action</th></tr></thead>
                 <tbody>
                 @foreach (var folio in Model.Reservation.Folios.OrderBy(f => f.Id))
                 {
-                    <tr><th scope="row">@folio.FolioNumber</th><td>@folio.Status</td><td class="text-end work-money">@folio.TotalCharges.ToString("C")</td><td class="text-end work-money">@folio.TotalPayments.ToString("C")</td><td class="text-end work-money">@folio.Balance.ToString("C")</td>
+                    <tr><th scope="row">@folio.FolioNumber</th><td>@UiText.Display(folio.Status)</td><td class="text-end work-money">@folio.TotalCharges.ToString("C")</td><td class="text-end work-money">@folio.TotalPayments.ToString("C")</td><td class="text-end work-money">@folio.Balance.ToString("C")</td>
                         <td>
-                        @if (folio.Status == FolioStatus.Transferred) { <span>Collect through AR</span> }
-                        else if (folio.Status == FolioStatus.Voided) { <span>Excluded from settlement</span> }
+                        @if (folio.Status == FolioStatus.Transferred) { <span>Collect Through AR</span> }
+                        else if (folio.Status == FolioStatus.Voided) { <span>Excluded From Settlement</span> }
                         else if (folio.Status == FolioStatus.Open && folio.Balance > 0)
-                        { <a asp-page="/FrontOffice/Folios/PostPayment" asp-route-folioId="@folio.Id">Collect payment</a> }
-                        else if (folio.Balance < 0) { <span>Finance: review credit</span> }
+                        { <a asp-page="/FrontOffice/Folios/PostPayment" asp-route-folioId="@folio.Id">Collect Payment</a> }
+                        else if (folio.Balance < 0) { <span>Finance: Review Credit</span> }
                         else if (folio.Balance == 0) { <span>Settled</span> }
-                        else { <span>Finance: correct ledger status</span> }
+                        else { <span>Finance: Correct Ledger Status</span> }
                         </td></tr>
                 }
                 @if (Model.Reservation.Folios.Count == 0) { <tr><td colspan="6">No folio exists. Resolve the missing ledger before checkout.</td></tr> }
@@ -42,15 +42,15 @@
     </section>
     <form method="post" asp-page="/FrontOffice/Reservations/CheckOut" asp-route-id="@Model.Reservation.Id" class="vpms-native-workflow-form work-panel">
         <input type="hidden" asp-for="ReviewToken" />
-        <header><h2>2. Confirm settlement and room turnover</h2><p>Checkout marks the room dirty and sends one turnover task to Housekeeping. Only zero-balance open folios will close.</p></header>
+        <header><h2>2. Confirm Settlement And Room Turnover</h2><p>Checkout marks the room dirty and sends one turnover task to Housekeeping. Only zero-balance open folios will close.</p></header>
         <div class="work-panel-body">
             @if (Model.Review.AmountDue > 0)
             {
                 <div class="alert alert-warning">@Model.Review.AmountDue.ToString("C") is still due. Collect payment first, or obtain a manager's recorded approval. Unpaid folios stay open for collection.</div>
                 @if (Model.CanUseManagerOverride)
                 {
-                    <div class="form-check mb-3"><input asp-for="ManagerOverrideRequested" class="form-check-input" data-vpms-checkout-override /><label asp-for="ManagerOverrideRequested" class="form-check-label">I authorize checkout with an unpaid balance</label></div>
-                    <label asp-for="OverrideReason" class="form-label">Reason and collection follow-up</label>
+                    <div class="form-check mb-3"><input asp-for="ManagerOverrideRequested" class="form-check-input" data-vpms-checkout-override /><label asp-for="ManagerOverrideRequested" class="form-check-label">I Authorize Checkout With An Unpaid Balance</label></div>
+                    <label asp-for="OverrideReason" class="form-label">Reason And Collection Follow-Up</label>
                     <textarea asp-for="OverrideReason" rows="3" minlength="10" maxlength="500" class="form-control" data-vpms-checkout-reason aria-describedby="override-help"></textarea>
                     <p id="override-help" class="form-text">Required for an override (10–500 characters). Include who will collect and when. Your identity, decision and reason will be recorded. Do not include card or identity-document details.</p>
                 }
@@ -59,18 +59,18 @@
             @if (Model.Review.GuestCredit > 0)
             {
                 <div class="alert alert-info">Guest credit: @Model.Review.GuestCredit.ToString("C"). This is not an unpaid bill. Credit folios remain open; checkout does not refund the guest or offset another folio.</div>
-                <div class="form-check"><input asp-for="CreditsAcknowledged" class="form-check-input" data-vpms-checkout-credit /><label asp-for="CreditsAcknowledged" class="form-check-label">I will refer this credit to Finance for refund review</label></div>
+                <div class="form-check"><input asp-for="CreditsAcknowledged" class="form-check-input" data-vpms-checkout-credit /><label asp-for="CreditsAcknowledged" class="form-check-label">I Will Refer This Credit To Finance For Refund Review</label></div>
             }
             @if (Model.Review.AmountDue == 0 && Model.Review.GuestCredit == 0 && Model.Reservation.Folios.Count > 0)
             { <p class="mb-0">There is no unpaid guest balance or credit to review.</p> }
         </div>
         <footer class="work-actions">
-            <a class="btn btn-outline-secondary" asp-page="/FrontOffice/Reservations/Details" asp-route-id="@Model.Reservation.Id" data-vpms-dialog-close>Back to reservation</a>
+            <a class="btn btn-outline-secondary" asp-page="/FrontOffice/Reservations/Details" asp-route-id="@Model.Reservation.Id" data-vpms-dialog-close>Back To Reservation</a>
             <button type="submit" class="btn btn-primary" disabled="@(!Model.CanCheckOut)" data-vpms-checkout-submit
                     data-vpms-base-can-submit="@((Model.CanSubmitCheckOut && Model.Reservation.Folios.Count > 0 && !Model.Review.RelevantFolios.Any(f => f.Status == FolioStatus.Closed && f.Balance != 0)).ToString().ToLowerInvariant())"
                     data-vpms-has-balance="@((Model.Review.AmountDue > 0).ToString().ToLowerInvariant())"
                     data-vpms-has-credit="@((Model.Review.GuestCredit > 0).ToString().ToLowerInvariant())"
-                    data-vpms-can-override="@Model.CanUseManagerOverride.ToString().ToLowerInvariant()">Confirm checkout</button>
+                    data-vpms-can-override="@Model.CanUseManagerOverride.ToString().ToLowerInvariant()">Confirm Checkout</button>
         </footer>
     </form>
 </section>

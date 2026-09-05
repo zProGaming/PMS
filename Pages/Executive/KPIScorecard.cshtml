@@ -48,7 +48,7 @@
                         <td class="text-end">@(row.TargetValue?.ToString("N2") ?? "-")</td>
                         <td class="text-end">@(row.Variance?.ToString("N2") ?? "-")</td>
                         <td class="text-end">@(row.VariancePercentage?.ToString("N1") ?? "-")</td>
-                        <td><span class="status-badge">@row.Status</span></td>
+                        <td><span class="status-badge">@UiText.Display(row.Status)</span></td>
                     </tr>
                 }
                 </tbody>

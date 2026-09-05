@@ -24,8 +24,8 @@
         </div>
         <div class="col-md-4">
             <label class="form-label" for="category">Category</label>
-            <select class="form-select" id="category" name="category" asp-items="Html.GetEnumSelectList<ReportCategory>()">
-                <option value="">All categories</option>
+            <select class="form-select" id="category" name="category" asp-items="Html.GetUiEnumSelectList<ReportCategory>()">
+                <option value="">All Categories</option>
             </select>
         </div>
         <div class="col-md-2">
@@ -42,11 +42,11 @@
         <table class="table vpms-table align-middle">
             <thead>
             <tr>
-                <th>Run date</th>
+                <th>Run Date</th>
                 <th>Report</th>
                 <th>Category</th>
-                <th>Date range</th>
-                <th>Run by</th>
+                <th>Date Range</th>
+                <th>Run By</th>
                 <th>Notes</th>
             </tr>
             </thead>

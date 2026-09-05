@@ -52,11 +52,11 @@
         <div class="row g-3">
             <div class="col-md-4">
                 <label asp-for="Input.SourceChargeCategory" class="form-label">Charge Category</label>
-                <select asp-for="Input.SourceChargeCategory" asp-items="Html.GetEnumSelectList<ChargeCategory>()" class="form-select"></select>
+                <select asp-for="Input.SourceChargeCategory" asp-items="Html.GetUiEnumSelectList<ChargeCategory>()" class="form-select"></select>
             </div>
             <div class="col-md-4">
                 <label asp-for="Input.RouteToType" class="form-label">Route To</label>
-                <select asp-for="Input.RouteToType" asp-items="Html.GetEnumSelectList<RouteToType>()" class="form-select"></select>
+                <select asp-for="Input.RouteToType" asp-items="Html.GetUiEnumSelectList<RouteToType>()" class="form-select"></select>
             </div>
             <div class="col-md-4">
                 <label asp-for="Input.TargetGroupFolioId" class="form-label">Target Group Folio</label>

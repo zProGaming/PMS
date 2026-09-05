@@ -25,7 +25,7 @@
                 <td>@entry.JournalDate.ToString("yyyy-MM-dd")</td>
                 <td>@entry.SourceModule / @entry.SourceTransactionType</td>
                 <td>@entry.Description</td>
-                <td><span class="status-badge">@entry.Status</span></td>
+                <td><span class="status-badge">@UiText.Display(entry.Status)</span></td>
                 <td class="text-end">@entry.TotalDebits.ToString("C")</td>
                 <td class="text-end">@entry.TotalCredits.ToString("C")</td>
                 <td class="text-end"><a class="btn btn-sm vpms-btn-secondary" asp-page="Details" asp-route-id="@entry.Id">Details</a></td>

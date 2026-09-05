@@ -1,0 +1,7 @@
+@page "{folioId:int}"
+@model Vantage.PMS.Pages.Finance.Settlement.PostPaymentModel
+@{ ViewData["Title"] = "Collect Payment"; }
+<section class="work-panel p-4">
+    <partial name="/Pages/FrontOffice/Folios/_PostPaymentNative.cshtml" model="Model" />
+</section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

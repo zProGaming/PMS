@@ -57,7 +57,7 @@
                             <div>@group.ContactPerson</div>
                             <div class="text-muted small">@group.Email</div>
                         </td>
-                        <td><span class="status-badge">@group.BookingStatus</span></td>
+                        <td><span class="status-badge">@UiText.Display(group.BookingStatus)</span></td>
                         <td class="text-end">@group.RoomBlocks.Sum(item => item.RoomsBlocked)</td>
                         <td class="text-end">@group.RoomBlocks.Sum(item => item.RoomsPickedUp)</td>
                         <td class="text-end">@group.Deposits.Where(item => item.Status != GroupDepositStatus.Cancelled).Sum(item => item.Amount).ToString("C")</td>

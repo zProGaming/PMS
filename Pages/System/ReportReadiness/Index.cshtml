@@ -4,7 +4,7 @@
     ViewData["Title"] = "Report & Print Readiness";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">Pilot Readiness</a></li>
@@ -62,9 +62,9 @@
 </section>
 
 <section class="vpms-product-proof-strip mb-4">
-    <article><span>Print standard</span><strong>Browser print / Save as PDF</strong><p>PDF output remains browser-print based; no paid or heavy PDF engine is required.</p></article>
-    <article><span>Finance caution</span><strong>Configurable reports</strong><p>USALI-style and Philippine finance reports should be reviewed by hotel finance/accounting personnel.</p></article>
-    <article><span>Availability</span><strong>Unavailable reports are separated</strong></article>
+    <article><span>Print Standard</span><strong>Browser Print / Save As PDF</strong><p>PDF output remains browser-print based; no paid or heavy PDF engine is required.</p></article>
+    <article><span>Finance Caution</span><strong>Configurable Reports</strong><p>USALI-style and Philippine finance reports should be reviewed by hotel finance/accounting personnel.</p></article>
+    <article><span>Availability</span><strong>Unavailable Reports Are Separated</strong></article>
 </section>
 
 @foreach (var group in Model.Groups)
@@ -104,7 +104,7 @@
                                 <span class="vpms-mini-chip">CSV @(row.Entry.SupportsCsvExport ? "Yes" : "No")</span>
                             </td>
                             <td>@row.Evidence</td>
-                            <td><span class="@IndexModel.StatusClass(row.Status)">@row.Status</span></td>
+                            <td><span class="@IndexModel.StatusClass(row.Status)">@UiText.Display(row.Status)</span></td>
                             <td class="text-end">
                                 @if (row.Entry.RoutePath is not null)
                                 {

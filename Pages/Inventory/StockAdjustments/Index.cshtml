@@ -35,7 +35,7 @@
                     <tr>
                         <td>@adjustment.AdjustmentNumber</td>
                         <td>@adjustment.AdjustmentDate.ToString("d")</td>
-                        <td><span class="badge text-bg-secondary">@adjustment.Status</span></td>
+                        <td><span class="badge text-bg-secondary">@UiText.Display(adjustment.Status)</span></td>
                         <td>@adjustment.PreparedBy</td>
                         <td>@adjustment.ApprovedBy</td>
                         <td class="text-end">@adjustment.Items.Sum(item => item.VarianceAmount).ToString("C")</td>

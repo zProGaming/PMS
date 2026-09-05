@@ -9,7 +9,7 @@
     </div>
     <div class="vpms-native-balance-pill">
         <span>Status</span>
-        <strong>@Model.EditInput.BookingStatus</strong>
+        <strong>@UiText.Display(Model.EditInput.BookingStatus)</strong>
     </div>
 </section>
 
@@ -28,7 +28,7 @@
             </div>
             <div class="col-md-4">
                 <label asp-for="EditInput.BookingStatus" class="form-label">Status</label>
-                <select asp-for="EditInput.BookingStatus" asp-items="Html.GetEnumSelectList<GroupBookingStatus>()" class="form-select"></select>
+                <select asp-for="EditInput.BookingStatus" asp-items="Html.GetUiEnumSelectList<GroupBookingStatus>()" class="form-select"></select>
             </div>
             <div class="col-md-6">
                 <label asp-for="EditInput.ArrivalDate" class="form-label">Arrival</label>
@@ -70,7 +70,7 @@
             <div class="col-md-4 d-flex align-items-end">
                 <div class="form-check">
                     <input asp-for="EditInput.DepositRequired" class="form-check-input" />
-                    <label asp-for="EditInput.DepositRequired" class="form-check-label">Deposit required</label>
+                    <label asp-for="EditInput.DepositRequired" class="form-check-label">Deposit Required</label>
                 </div>
             </div>
             <div class="col-12">

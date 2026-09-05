@@ -15,10 +15,10 @@
 <form method="post" asp-page="./Index" class="vpms-native-workflow-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="vpms-native-step-grid compact" aria-label="Inventory issue control path">
-        <span><strong>Item</strong><small>Stock source</small></span>
-        <span><strong>Department</strong><small>Cost destination</small></span>
-        <span><strong>Quantity</strong><small>No negative stock</small></span>
+    <div class="vpms-native-step-grid compact" aria-label="Inventory Issue Control Path">
+        <span><strong>Item</strong><small>Stock Source</small></span>
+        <span><strong>Department</strong><small>Cost Destination</small></span>
+        <span><strong>Quantity</strong><small>No Negative Stock</small></span>
     </div>
 
     <section class="vpms-form-section">
@@ -34,7 +34,7 @@
             <div class="col-md-6">
                 <label asp-for="DepartmentId" class="form-label">Department</label>
                 <select asp-for="DepartmentId" asp-items="Model.DepartmentOptions" class="form-select">
-                    <option value="">No department</option>
+                    <option value="">No Department</option>
                 </select>
             </div>
             <div class="col-md-4">

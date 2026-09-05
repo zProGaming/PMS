@@ -2,13 +2,13 @@
 @model Vantage.PMS.Pages.Accounting.ChartOfAccounts.IndexModel
 @using Vantage.PMS.Models.Accounting
 @{
-    ViewData["Title"] = "Chart of Accounts";
+    ViewData["Title"] = "Chart Of Accounts";
 }
 
 <div class="page-header">
     <div>
         <div class="page-kicker">Accounting Setup</div>
-        <h1 class="page-title">Chart of Accounts</h1>
+        <h1 class="page-title">Chart Of Accounts</h1>
         <p class="page-subtitle">Hotel GL accounts with USALI and Philippine report mappings.</p>
     </div>
 </div>
@@ -26,16 +26,16 @@
         </div>
         <div class="col-md-2">
             <label asp-for="Input.AccountType" class="form-label">Type</label>
-            <select asp-for="Input.AccountType" asp-items="Html.GetEnumSelectList<GLAccountType>()" class="form-select"></select>
+            <select asp-for="Input.AccountType" asp-items="Html.GetUiEnumSelectList<GLAccountType>()" class="form-select"></select>
         </div>
         <div class="col-md-2">
             <label asp-for="Input.NormalBalance" class="form-label">Normal</label>
-            <select asp-for="Input.NormalBalance" asp-items="Html.GetEnumSelectList<NormalBalance>()" class="form-select"></select>
+            <select asp-for="Input.NormalBalance" asp-items="Html.GetUiEnumSelectList<NormalBalance>()" class="form-select"></select>
         </div>
         <div class="col-md-2 d-flex align-items-end">
             <div class="form-check">
                 <input asp-for="Input.IsControlAccount" class="form-check-input" />
-                <label asp-for="Input.IsControlAccount" class="form-check-label">Control account</label>
+                <label asp-for="Input.IsControlAccount" class="form-check-label">Control Account</label>
             </div>
         </div>
         <div class="col-md-3">

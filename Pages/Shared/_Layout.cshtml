@@ -24,8 +24,8 @@
     var canAccessPrintableDocuments = Vantage.PMS.Authorization.PmsRoles.PrintableDocuments.Any(role => User.IsInRole(role));
     var canAccessClientDemo = Vantage.PMS.Authorization.PmsRoles.ClientDemo.Any(role => User.IsInRole(role));
     var isAuthenticated = User.Identity?.IsAuthenticated == true;
-    var currentCompanyName = User.FindFirst("Vantage.CompanyName")?.Value ?? "No company selected";
-    var currentCompanyCode = User.FindFirst("Vantage.CompanyCode")?.Value ?? "Setup required";
+    var currentCompanyName = User.FindFirst("Vantage.CompanyName")?.Value ?? "No Company Selected";
+    var currentCompanyCode = User.FindFirst("Vantage.CompanyCode")?.Value ?? "Setup Required";
     var isGlobalAdminCompany = string.Equals(User.FindFirst("Vantage.IsGlobalAdmin")?.Value, "True", StringComparison.OrdinalIgnoreCase);
     var bodyClass = (string?)ViewData["BodyClass"] ?? string.Empty;
     var isLoginScreen = bodyClass.Contains("vpms-login-screen", StringComparison.Ordinal);
@@ -86,13 +86,13 @@
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#appSidebar" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
-                <a class="vpms-brand app-brand" asp-area="" asp-page="/Index" aria-label="Vantage PMS dashboard">
+                <a class="vpms-brand app-brand" asp-area="" asp-page="/Index" aria-label="Vantage PMS Dashboard">
                     <span class="vpms-brand-mark app-brand-mark">
                         <img src="~/images/vantage-pms-logo.png" asp-append-version="true" alt="Vantage PMS" />
                     </span>
                 </a>
 
-                <div class="vpms-property-card property-card" aria-label="Current property">
+                <div class="vpms-property-card property-card" aria-label="Current Property">
                     <div class="vpms-property-mark" aria-hidden="true">@((currentCompanyCode.Length >= 2 ? currentCompanyCode[..2] : "--"))</div>
                     <div>
                         <div class="vpms-property-label property-card-label">Company Context</div>
@@ -103,13 +103,13 @@
                 </div>
 
                 <div class="vpms-sidebar-search sidebar-search">
-                    <label class="visually-hidden" for="sidebarSearch">Search navigation</label>
-                    <input class="form-control" id="sidebarSearch" type="search" placeholder="Search modules" autocomplete="off" />
+                    <label class="visually-hidden" for="sidebarSearch">Search Navigation</label>
+                    <input class="form-control" id="sidebarSearch" type="search" placeholder="Search Modules" autocomplete="off" />
                 </div>
 
                 <partial name="_SidebarNavigation" />
 
-                <nav class="vpms-nav app-nav d-none" aria-label="Legacy primary navigation" hidden>
+                <nav class="vpms-nav app-nav d-none" aria-label="Legacy Primary Navigation" hidden>
                     <div class="vpms-nav-section app-nav-section" data-sidebar-section>
                         <div class="vpms-nav-section-title app-nav-heading">Command</div>
                         <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Index" data-sidebar-link><span>Dashboard</span></a>
@@ -154,6 +154,7 @@
                             {
                                 <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Finance/Index" data-sidebar-link><span>Finance</span></a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Finance/NightAudit/Index" data-sidebar-link>Night Audit</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Finance/Settlement/Index" data-sidebar-link>Cashier Settlement</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Finance/CashierShifts/Index" data-sidebar-link>Cashier Shifts</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Finance/Documents/Index" data-sidebar-link>Documents</a>
                             }
@@ -175,7 +176,7 @@
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Banking/BankReconciliations/Index" data-sidebar-link>Bank Reconciliation</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/MonthEnd/AccrualEntries/Index" data-sidebar-link>Accrual Entries</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/MonthEnd/Close/Index" data-sidebar-link>Month-End Close</a>
-                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/ChartOfAccounts/Index" data-sidebar-link>Chart of Accounts</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/ChartOfAccounts/Index" data-sidebar-link>Chart Of Accounts</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/JournalEntries/Index" data-sidebar-link>Journal Entries</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/JournalEntries/Create" data-sidebar-link>Manual Journal</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/PostingBatches/Index" data-sidebar-link>Posting Batches</a>
@@ -305,8 +306,8 @@
                                 <a class="vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/Reports/GeneralLedger" data-sidebar-link><span>Accounting Reports</span></a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/TrialBalance" data-sidebar-link>Trial Balance</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/BalanceSheet" data-sidebar-link>Balance Sheet</a>
-                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/ProfitAndLoss" data-sidebar-link>Profit and Loss</a>
-                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/StatementOfCashFlows" data-sidebar-link>Statement of Cash Flows</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/ProfitAndLoss" data-sidebar-link>Profit And Loss</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/StatementOfCashFlows" data-sidebar-link>Statement Of Cash Flows</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/CashMovement" data-sidebar-link>Cash Movement Report</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/CashFlowSnapshots" data-sidebar-link>Cash Flow Snapshots</a>
                                 <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Accounting/Reports/UnmappedCashFlowItems" data-sidebar-link>Unmapped Cash Flow Items</a>
@@ -348,7 +349,7 @@
                             }
                             @if (canAccessSystemAdministration)
                             {
-                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Admin/UsersAndRoles/Index" data-sidebar-link>Users and Roles</a>
+                                <a class="vpms-nav-link app-nav-sublink" asp-area="" asp-page="/Admin/UsersAndRoles/Index" data-sidebar-link>Users And Roles</a>
                             }
                             @if (canAccessSystemManagement)
                             {
@@ -379,15 +380,15 @@
                     <button class="btn btn-outline-secondary app-menu-button d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar">
                         Modules
                     </button>
-                    <button class="btn vpms-back-button vpms-no-print" type="button" data-vpms-back-button aria-label="Go back to previous page">
+                    <button class="btn vpms-back-button vpms-no-print" type="button" data-vpms-back-button aria-label="Go Back To Previous Page">
                         Back
                     </button>
-                    <div class="vpms-time-block" aria-label="Current local time">
+                    <div class="vpms-time-block" aria-label="Current Local Time">
                         <div class="vpms-time-label">Current Time</div>
                         <time id="vpmsCurrentTime" class="vpms-current-time" datetime="@DateTime.Now.ToString("O")">@DateTime.Now.ToString("h:mm tt")</time>
                         <div id="vpmsCurrentDate" class="vpms-current-date">@DateTime.Now.ToString("dddd, MMM d, yyyy")</div>
                     </div>
-                    <div class="vpms-topbar-context" aria-label="Current workspace context">
+                    <div class="vpms-topbar-context" aria-label="Current Workspace Context">
                         <span>Operating Context</span>
                         <strong>@currentCompanyName</strong>
                         <small>@currentCompanyCode @(isGlobalAdminCompany ? "- Global Control" : "- Property Access")</small>
@@ -396,11 +397,11 @@
                 <partial name="_LoginPartial" />
             </header>
 
-            <nav class="vpms-commandbar app-commandbar" aria-label="Quick command bar">
+            <nav class="vpms-commandbar app-commandbar" aria-label="Quick Command Bar">
                 <span class="vpms-commandbar-label">
                     <strong>Shortcuts</strong>
-                    <small class="vpms-commandbar-label-copy">Daily controls</small>
-                    <small class="vpms-commandbar-scroll-hint">Swipe for more</small>
+                    <small class="vpms-commandbar-label-copy">Daily Controls</small>
+                    <small class="vpms-commandbar-scroll-hint">Swipe For More</small>
                 </span>
                 @if (canAccessSystemManagement)
                 {
@@ -412,22 +413,22 @@
                 }
                 @if (canAccessRevenue)
                 {
-                    <a class="vpms-command-item" asp-page="/Revenue/Calendar/Index"><span class="vpms-command-icon"></span>Revenue calendar</a>
+                    <a class="vpms-command-item" asp-page="/Revenue/Calendar/Index"><span class="vpms-command-icon"></span>Revenue Calendar</a>
                 }
                 @if (canAccessFrontOffice)
                 {
-                    <a class="vpms-command-item" asp-page="/FrontOffice/Reservations/Create" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Create Reservation"><span class="vpms-command-icon"></span>New reservation</a>
-                    <a class="vpms-command-item" asp-page="/FrontOffice/RoomRack/Index"><span class="vpms-command-icon"></span>Room calendar</a>
-                    <a class="vpms-command-item" asp-page="/FrontOffice/Index"><span class="vpms-command-icon"></span>Front desk</a>
+                    <a class="vpms-command-item" asp-page="/FrontOffice/Reservations/Create" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Create Reservation"><span class="vpms-command-icon"></span>New Reservation</a>
+                    <a class="vpms-command-item" asp-page="/FrontOffice/RoomRack/Index"><span class="vpms-command-icon"></span>Room Calendar</a>
+                    <a class="vpms-command-item" asp-page="/FrontOffice/Index"><span class="vpms-command-icon"></span>Front Desk</a>
                     <a class="vpms-command-item" asp-page="/FrontOffice/Reservations/Index"><span class="vpms-command-icon"></span>Reservations</a>
                 }
                 @if (canAccessHousekeeping)
                 {
-                    <a class="vpms-command-item" asp-page="/Housekeeping/Index"><span class="vpms-command-icon"></span>Room readiness</a>
+                    <a class="vpms-command-item" asp-page="/Housekeeping/Index"><span class="vpms-command-icon"></span>Room Readiness</a>
                 }
                 @if (canAccessFinance)
                 {
-                    <a class="vpms-command-item" asp-page="/Finance/CashierShifts/Index"><span class="vpms-command-icon"></span>Cashier shifts</a>
+                    <a class="vpms-command-item" asp-page="/Finance/CashierShifts/Index"><span class="vpms-command-icon"></span>Cashier Shifts</a>
                 }
                 @if (canAccessFoodBeverageService)
                 {
@@ -461,9 +462,9 @@
                 <div class="modal-body">
                     <div class="vpms-workflow-dialog-loading" id="vpmsWorkflowDialogLoading">
                         <span></span>
-                        <strong>Preparing workflow</strong>
+                        <strong>Preparing Workflow</strong>
                     </div>
-                    <iframe id="vpmsWorkflowDialogFrame" title="Vantage PMS workflow dialog"></iframe>
+                    <iframe id="vpmsWorkflowDialogFrame" title="Vantage PMS Workflow Dialog"></iframe>
                 </div>
             </div>
         </div>
@@ -484,7 +485,7 @@
                 <div class="modal-body">
                     <div class="vpms-workflow-dialog-loading" id="vpmsNativeWorkflowDialogLoading">
                         <span></span>
-                        <strong>Preparing workflow</strong>
+                        <strong>Preparing Workflow</strong>
                     </div>
                     <div class="vpms-native-workflow-content" id="vpmsNativeWorkflowDialogContent" aria-live="polite"></div>
                 </div>

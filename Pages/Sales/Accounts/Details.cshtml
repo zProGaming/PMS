@@ -76,7 +76,7 @@
             <tr>
                 <td><a asp-page="/Sales/Leads/Details" asp-route-id="@lead.Id">@lead.LeadName</a></td>
                 <td>@lead.LeadSource</td>
-                <td>@lead.Status</td>
+                <td>@UiText.Display(lead.Status)</td>
                 <td>@lead.ExpectedCloseDate?.ToString("d")</td>
                 <td class="text-end">@lead.EstimatedValue.ToString("N2")</td>
             </tr>
@@ -91,7 +91,7 @@
             <th>Date</th>
             <th>Type</th>
             <th>Lead</th>
-            <th>Next Follow-up</th>
+            <th>Next Follow-Up</th>
             <th>Created By</th>
         </tr>
     </thead>
@@ -109,4 +109,4 @@
     </tbody>
 </table>
 
-<a class="btn btn-outline-secondary" asp-page="./Index">Back to Accounts</a>
+<a class="btn btn-outline-secondary" asp-page="./Index">Back To Accounts</a>

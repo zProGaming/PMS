@@ -15,7 +15,7 @@
     <div class="row g-3 align-items-end">
         <div class="col-md-3"><label class="form-label">From</label><input name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div>
         <div class="col-md-3"><label class="form-label">To</label><input name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div>
-        <div class="col-md-4"><label class="form-label">Account</label><select name="GLAccountId" asp-items="Model.AccountOptions" class="form-select"><option value="">All accounts</option></select></div>
+        <div class="col-md-4"><label class="form-label">Account</label><select name="GLAccountId" asp-items="Model.AccountOptions" class="form-select"><option value="">All Accounts</option></select></div>
         <div class="col-md-2"><button class="btn vpms-btn-primary w-100" type="submit">Run</button></div>
     </div>
 </form>

@@ -17,8 +17,10 @@
     </div>
 </div>
 
+@if (TempData["ErrorMessage"] is string error) { <div class="alert alert-danger" role="alert">@error</div> }
+@if (TempData["SuccessMessage"] is string success) { <div class="alert alert-success" role="status">@success</div> }
 @if (Model.FilterTaskId is not null)
-{ <div class="alert alert-info">Reviewing task #@Model.FilterTaskId. <a asp-page="./Index">Show all tasks</a>.</div> }
+{ <div class="alert alert-info">Reviewing task #@Model.FilterTaskId. <a asp-page="./Index">Show All Tasks</a>.</div> }
 <section class="vpms-card">
     @if (Model.Tasks.Count == 0)
     {
@@ -49,13 +51,13 @@
                         <tr>
                             <td class="fw-semibold">@task.Room?.RoomNumber</td>
                             <td>@task.AssignedTo</td>
-                            <td><span class="status-badge">@task.TaskStatus</span></td>
-                            <td><span class="status-badge @(task.Priority.ToString().Contains("Urgent") ? "status-warning" : "")">@task.Priority</span></td>
+                            <td><span class="status-badge">@UiText.Display(task.TaskStatus)</span></td>
+                            <td><span class="status-badge @(task.Priority.ToString().Contains("Urgent") ? "status-warning" : "")">@UiText.Display(task.Priority)</span></td>
                             <td>@(task.StartedAt?.ToString("g") ?? "-")</td>
                             <td>@(task.CompletedAt?.ToString("g") ?? "-")</td>
                             <td class="text-muted">@task.Notes</td>
                             <td class="text-end">
-                                @if (task.TaskStatus != Vantage.PMS.Models.Housekeeping.HousekeepingTaskStatus.Completed)
+                                @if (task.TaskStatus is Vantage.PMS.Models.Housekeeping.HousekeepingTaskStatus.Open or Vantage.PMS.Models.Housekeeping.HousekeepingTaskStatus.InProgress)
                                 {
                                     <a class="btn btn-sm vpms-btn-secondary"
                                        asp-page-handler="CompleteNative"

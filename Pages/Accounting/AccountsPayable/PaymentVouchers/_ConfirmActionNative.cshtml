@@ -1,8 +1,8 @@
 @model Vantage.PMS.Pages.Accounting.AccountsPayable.PaymentVouchers.DetailsModel
 
 <div class="vpms-native-workflow-card">
-    <div class="vpms-native-workflow-kicker">Treasury control</div>
-    <h2>@Model.NativeActionTitle</h2>
+    <div class="vpms-native-workflow-kicker">Treasury Control</div>
+    <h2>@UiText.Label(Model.NativeActionTitle)</h2>
     <p>@Model.NativeActionMessage</p>
 
     <div class="vpms-native-workflow-summary">
@@ -11,7 +11,7 @@
         <span>Supplier</span>
         <strong>@(Model.Voucher.Supplier?.SupplierName ?? "Not assigned")</strong>
         <span>Status</span>
-        <strong>@Model.Voucher.Status</strong>
+        <strong>@UiText.Display(Model.Voucher.Status)</strong>
         <span>Net Payment</span>
         <strong>@Model.Voucher.NetPaymentAmount.ToString("C")</strong>
     </div>
@@ -22,7 +22,7 @@
     }
 
     <form method="post" asp-page="./Details" asp-page-handler="@Model.NativeActionHandler" asp-route-id="@Model.Voucher.Id" class="vpms-native-workflow-actions">
-        <button type="submit" class="btn @Model.NativeActionButtonClass">@Model.NativeActionButtonText</button>
+        <button type="submit" class="btn @Model.NativeActionButtonClass">@UiText.Label(Model.NativeActionButtonText)</button>
         <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Reviewing</a>
     </form>
 </div>

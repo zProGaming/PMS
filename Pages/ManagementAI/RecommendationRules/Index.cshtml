@@ -22,7 +22,7 @@
     <h2 class="h5">Create Rule</h2>
     <div class="row g-3">
         <div class="col-md-3">
-            <label class="form-label" asp-for="NewRule.RuleName">Rule name</label>
+            <label class="form-label" asp-for="NewRule.RuleName">Rule Name</label>
             <input class="form-control" asp-for="NewRule.RuleName" />
         </div>
         <div class="col-md-2">
@@ -31,7 +31,7 @@
         </div>
         <div class="col-md-2">
             <label class="form-label" asp-for="NewRule.Severity">Severity</label>
-            <select class="form-select" asp-for="NewRule.Severity" asp-items="Html.GetEnumSelectList<ManagementInsightSeverity>()"></select>
+            <select class="form-select" asp-for="NewRule.Severity" asp-items="Html.GetUiEnumSelectList<ManagementInsightSeverity>()"></select>
         </div>
         <div class="col-md-2 d-flex align-items-end">
             <div class="form-check">
@@ -60,7 +60,7 @@
             <form method="post" asp-page-handler="Update" asp-route-id="@rule.Id">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label">Rule name</label>
+                        <label class="form-label">Rule Name</label>
                         <input class="form-control" name="ruleName" value="@rule.RuleName" />
                     </div>
                     <div class="col-md-3">

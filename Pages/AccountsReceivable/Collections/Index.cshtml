@@ -24,7 +24,7 @@
                data-vpms-dialog
                data-vpms-dialog-title="AR Aging Report">AR Aging</a>
             <button type="button" class="btn vpms-btn-secondary" onclick="window.print()">Print</button>
-            <button type="button" class="btn vpms-btn-secondary" onclick="window.print()">Save as PDF</button>
+            <button type="button" class="btn vpms-btn-secondary" onclick="window.print()">Save As PDF</button>
             <a class="btn vpms-btn-primary"
                asp-page-handler="Csv"
                asp-route-Period="@Model.Period"
@@ -55,13 +55,13 @@
             <div class="col-md-3">
                 <label asp-for="ARAccountId" class="form-label">AR Account</label>
                 <select asp-for="ARAccountId" asp-items="Model.ARAccountOptions" class="form-select">
-                    <option value="">All accounts</option>
+                    <option value="">All Accounts</option>
                 </select>
             </div>
             <div class="col-md-2">
                 <label asp-for="Status" class="form-label">Invoice Status</label>
                 <select asp-for="Status" asp-items="Model.StatusOptions" class="form-select">
-                    <option value="">All statuses</option>
+                    <option value="">All Statuses</option>
                 </select>
             </div>
             <div class="col-md-3 d-flex gap-2">
@@ -169,7 +169,7 @@
             </div>
             <div class="col-lg-6">
                 <section class="vpms-card h-100">
-                    <h3 class="h6 mb-3">Payments by Method</h3>
+                    <h3 class="h6 mb-3">Payments By Method</h3>
                     @if (Model.Report.PaymentsByMethod.Count == 0)
                     {
                         <p class="text-muted mb-0">No AR payments were allocated in this period.</p>
@@ -182,7 +182,7 @@
                                 <tbody>
                                     @foreach (var row in Model.Report.PaymentsByMethod)
                                     {
-                                        <tr><td>@row.PaymentMethod</td><td class="text-end">@row.Amount.ToString("C")</td></tr>
+                                        <tr><td>@UiText.Display(row.PaymentMethod)</td><td class="text-end">@row.Amount.ToString("C")</td></tr>
                                     }
                                 </tbody>
                             </table>
@@ -192,7 +192,7 @@
             </div>
             <div class="col-lg-6">
                 <section class="vpms-card h-100">
-                    <h3 class="h6 mb-3">Accounts With No Payment in 30 Days</h3>
+                    <h3 class="h6 mb-3">Accounts With No Payment In 30 Days</h3>
                     @if (Model.Report.AccountsWithNoRecentPayment.Count == 0)
                     {
                         <p class="text-muted mb-0">No stale collection accounts found for this period.</p>

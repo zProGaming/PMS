@@ -16,7 +16,7 @@
             <h1 class="page-title">Receiving @Model.ReceivingRecord.ReceivingNumber</h1>
             <p class="page-subtitle">@supplierName | @purchaseOrder | @Model.ReceivingRecord.ReceivedDate.ToString("MMM d, yyyy")</p>
             <div class="vpms-hero-chip-row">
-                <span class="vpms-status-badge status-@statusClass">@Model.ReceivingRecord.Status</span>
+                <span class="vpms-status-badge status-@statusClass">@UiText.Display(Model.ReceivingRecord.Status)</span>
                 <span class="vpms-mini-chip">@itemCount item@(itemCount == 1 ? "" : "s")</span>
                 <span class="vpms-mini-chip">Received by @(string.IsNullOrWhiteSpace(Model.ReceivingRecord.ReceivedBy) ? "System" : Model.ReceivingRecord.ReceivedBy)</span>
             </div>
@@ -40,22 +40,22 @@
         <article>
             <span>Received Total</span>
             <strong>@total.ToString("C")</strong>
-            <small>Inventory value captured</small>
+            <small>Inventory Value Captured</small>
         </article>
         <article>
             <span>Line Count</span>
             <strong>@itemCount</strong>
-            <small>Received item lines</small>
+            <small>Received Item Lines</small>
         </article>
         <article class="@(Model.CanEditItems ? "warning" : "positive")">
             <span>Posting State</span>
             <strong>@(Model.CanEditItems ? "Draft review" : "Posted or locked")</strong>
-            <small>Stock movement control</small>
+            <small>Stock Movement Control</small>
         </article>
         <article>
             <span>Purchase Order</span>
             <strong>@purchaseOrder</strong>
-            <small>Supplier receiving trace</small>
+            <small>Supplier Receiving Trace</small>
         </article>
     </section>
 

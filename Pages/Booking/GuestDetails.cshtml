@@ -8,7 +8,7 @@
 <section class="vpms-booking-flow-header">
     <div>
         <div class="vpms-booking-kicker">Guest Details</div>
-        <h1>Complete your booking request</h1>
+        <h1>Complete Your Booking Request</h1>
         <p>Share guest details and arrival preferences for a secure hotel-reviewed confirmation.</p>
     </div>
     <a asp-page="Rooms"
@@ -17,10 +17,10 @@
        asp-route-adultCount="@Model.BookingInput.AdultCount"
        asp-route-childCount="@Model.BookingInput.ChildCount"
        asp-route-promoCode="@Model.BookingInput.PromoCode"
-       class="btn vpms-booking-secondary">Back to Rooms</a>
+       class="btn vpms-booking-secondary">Back To Rooms</a>
 </section>
 
-<section class="vpms-booking-confidence-strip" aria-label="Booking request confidence">
+<section class="vpms-booking-confidence-strip" aria-label="Booking Request Confidence">
     <article>
         <span>Privacy</span>
         <strong>Guest details stay within the hotel review workflow.</strong>
@@ -148,7 +148,7 @@
                 <section class="vpms-booking-form-section compact">
                     <div class="form-check">
                         <input asp-for="GuestAcceptedTerms" class="form-check-input" />
-                        <label asp-for="GuestAcceptedTerms" class="form-check-label">I accept the booking terms and acknowledge the <a asp-page="/Privacy" target="_blank" rel="noopener">privacy notice</a>.</label>
+                        <label asp-for="GuestAcceptedTerms" class="form-check-label">I Accept The Booking Terms And Acknowledge The <a asp-page="/Privacy" target="_blank" rel="noopener">Privacy Notice</a>.</label>
                     </div>
                 </section>
 
@@ -166,18 +166,18 @@
                 <h2>@quote.RoomTypeName</h2>
                 <p>@(string.IsNullOrWhiteSpace(quote.ShortDescription) ? "Selected room type for your stay." : quote.ShortDescription)</p>
                 <div class="vpms-rate-breakdown">
-                    <div><span>Stay dates</span><strong>@quote.CheckInDate.ToString("MMM d") - @quote.CheckOutDate.ToString("MMM d, yyyy")</strong></div>
+                    <div><span>Stay Dates</span><strong>@quote.CheckInDate.ToString("MMM d") - @quote.CheckOutDate.ToString("MMM d, yyyy")</strong></div>
                     <div><span>Nights</span><strong>@quote.Nights</strong></div>
                     <div><span>Guests</span><strong>@quote.AdultCount adult@(quote.AdultCount == 1 ? "" : "s")@if (quote.ChildCount > 0) { <text>, @quote.ChildCount child@(quote.ChildCount == 1 ? "" : "ren")</text> }</strong></div>
                     <div><span>Rate</span><strong>@quote.RoomRate.ToString("C")</strong></div>
                     @if (quote.DiscountAmount > 0)
                     {
-                        <div><span>Promo discount</span><strong>-@quote.DiscountAmount.ToString("C")</strong></div>
+                        <div><span>Promo Discount</span><strong>-@quote.DiscountAmount.ToString("C")</strong></div>
                     }
-                    <div class="total"><span>Estimated total</span><strong>@quote.FinalEstimatedTotal.ToString("C")</strong></div>
+                    <div class="total"><span>Estimated Total</span><strong>@quote.FinalEstimatedTotal.ToString("C")</strong></div>
                     @if (quote.DepositRequired)
                     {
-                        <div><span>Deposit guidance</span><strong>@quote.DepositAmount.ToString("C")</strong></div>
+                        <div><span>Deposit Guidance</span><strong>@quote.DepositAmount.ToString("C")</strong></div>
                     }
                 </div>
             </div>

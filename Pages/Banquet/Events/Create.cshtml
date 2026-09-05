@@ -37,14 +37,14 @@
         <div class="col-md-3 mb-3">
             <label asp-for="BanquetEvent.SalesAccountId" class="form-label">Sales Account</label>
             <select asp-for="BanquetEvent.SalesAccountId" class="form-select" asp-items="Model.SalesAccountOptions">
-                <option value="">No account assigned</option>
+                <option value="">No Account Assigned</option>
             </select>
             <span asp-validation-for="BanquetEvent.SalesAccountId" class="text-danger"></span>
         </div>
         <div class="col-md-3 mb-3">
             <label asp-for="BanquetEvent.SalesLeadId" class="form-label">Sales Lead</label>
             <select asp-for="BanquetEvent.SalesLeadId" class="form-select" asp-items="Model.SalesLeadOptions">
-                <option value="">No lead assigned</option>
+                <option value="">No Lead Assigned</option>
             </select>
             <span asp-validation-for="BanquetEvent.SalesLeadId" class="text-danger"></span>
         </div>
@@ -59,7 +59,7 @@
         <div class="col-md-6 mb-3">
             <label asp-for="BanquetEvent.BanquetPackageId" class="form-label">Banquet Package</label>
             <select asp-for="BanquetEvent.BanquetPackageId" class="form-select" asp-items="Model.BanquetPackageOptions">
-                <option value="">No package assigned</option>
+                <option value="">No Package Assigned</option>
             </select>
             <span asp-validation-for="BanquetEvent.BanquetPackageId" class="text-danger"></span>
         </div>

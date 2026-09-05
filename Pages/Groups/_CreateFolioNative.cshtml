@@ -40,12 +40,12 @@
             <div class="col-md-6">
                 <label asp-for="GroupFolioInput.FolioId" class="form-label">Linked Folio</label>
                 <select asp-for="GroupFolioInput.FolioId" asp-items="Model.FolioOptions" class="form-select">
-                    <option value="">Virtual only</option>
+                    <option value="">Virtual Only</option>
                 </select>
             </div>
             <div class="col-md-6">
                 <label asp-for="GroupFolioInput.Status" class="form-label">Status</label>
-                <select asp-for="GroupFolioInput.Status" asp-items="Html.GetEnumSelectList<GroupFolioStatus>()" class="form-select"></select>
+                <select asp-for="GroupFolioInput.Status" asp-items="Html.GetUiEnumSelectList<GroupFolioStatus>()" class="form-select"></select>
             </div>
             <div class="col-md-6">
                 <label asp-for="GroupFolioInput.Notes" class="form-label">Notes</label>

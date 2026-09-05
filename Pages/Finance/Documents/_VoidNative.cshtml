@@ -1,8 +1,8 @@
 @model Vantage.PMS.Pages.Finance.Documents.DetailsModel
 
 <div class="vpms-native-workflow-card">
-    <div class="vpms-native-workflow-kicker">Finance document control</div>
-    <h2>Void finance document</h2>
+    <div class="vpms-native-workflow-kicker">Finance Document Control</div>
+    <h2>Void Finance Document</h2>
     <p>Void this document while preserving its history and reason for review.</p>
 
     <div class="vpms-native-workflow-summary">
@@ -11,7 +11,7 @@
         <span>Billing Name</span>
         <strong>@Model.FinanceDocument.BillingName</strong>
         <span>Status</span>
-        <strong>@Model.FinanceDocument.Status</strong>
+        <strong>@UiText.Display(Model.FinanceDocument.Status)</strong>
         <span>Balance</span>
         <strong>@Model.FinanceDocument.Balance.ToString("C")</strong>
     </div>

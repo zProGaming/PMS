@@ -16,10 +16,10 @@
 <form method="post" class="vpms-native-workflow-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="vpms-native-step-grid compact" aria-label="AP voucher control path">
-        <span><strong>Supplier</strong><small>Payee context</small></span>
-        <span><strong>Gross / WHT</strong><small>Tax review</small></span>
-        <span><strong>Treasury</strong><small>Release later</small></span>
+    <div class="vpms-native-step-grid compact" aria-label="AP Voucher Control Path">
+        <span><strong>Supplier</strong><small>Payee Context</small></span>
+        <span><strong>Gross / WHT</strong><small>Tax Review</small></span>
+        <span><strong>Treasury</strong><small>Release Later</small></span>
     </div>
 
     <div class="vpms-modal-form-grid">
@@ -36,20 +36,20 @@
         <div class="vpms-modal-field wide">
             <label asp-for="Input.APInvoiceId" class="form-label">AP Invoice</label>
             <select asp-for="Input.APInvoiceId" asp-items="Model.APInvoiceOptions" class="form-select">
-                <option value="">Manual supplier payment</option>
+                <option value="">Manual Supplier Payment</option>
             </select>
             <span asp-validation-for="Input.APInvoiceId" class="text-danger"></span>
         </div>
         <div class="vpms-modal-field">
             <label asp-for="Input.SupplierId" class="form-label">Supplier</label>
             <select asp-for="Input.SupplierId" asp-items="Model.SupplierOptions" class="form-select">
-                <option value="">Select supplier</option>
+                <option value="">Select Supplier</option>
             </select>
             <span asp-validation-for="Input.SupplierId" class="text-danger"></span>
         </div>
         <div class="vpms-modal-field">
             <label asp-for="Input.PaymentMethod" class="form-label">Method</label>
-            <select asp-for="Input.PaymentMethod" asp-items="Html.GetEnumSelectList<FinancePaymentMethod>()" class="form-select"></select>
+            <select asp-for="Input.PaymentMethod" asp-items="Html.GetUiEnumSelectList<FinancePaymentMethod>()" class="form-select"></select>
             <span asp-validation-for="Input.PaymentMethod" class="text-danger"></span>
         </div>
         <div class="vpms-modal-field">

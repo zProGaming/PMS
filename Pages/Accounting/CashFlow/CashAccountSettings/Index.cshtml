@@ -18,13 +18,13 @@
         <div class="col-lg-4">
             <label asp-for="Input.GLAccountId" class="form-label">GL Account</label>
             <select asp-for="Input.GLAccountId" asp-items="Model.AccountOptions" class="form-select">
-                <option value="">Select account</option>
+                <option value="">Select Account</option>
             </select>
             <span asp-validation-for="Input.GLAccountId" class="text-danger"></span>
         </div>
         <div class="col-lg-6">
             <label asp-for="Input.Notes" class="form-label">Notes</label>
-            <input asp-for="Input.Notes" class="form-control" placeholder="Optional classification note" />
+            <input asp-for="Input.Notes" class="form-control" placeholder="Optional Classification Note" />
         </div>
         <div class="col-lg-2">
             <button class="btn vpms-btn-primary w-100" type="submit">Add Account</button>
@@ -32,19 +32,19 @@
         <div class="col-12 d-flex flex-wrap gap-4">
             <div class="form-check">
                 <input asp-for="Input.IsCashOnHand" class="form-check-input" />
-                <label asp-for="Input.IsCashOnHand" class="form-check-label">Cash on hand</label>
+                <label asp-for="Input.IsCashOnHand" class="form-check-label">Cash On Hand</label>
             </div>
             <div class="form-check">
                 <input asp-for="Input.IsCashInBank" class="form-check-input" />
-                <label asp-for="Input.IsCashInBank" class="form-check-label">Cash in bank</label>
+                <label asp-for="Input.IsCashInBank" class="form-check-label">Cash In Bank</label>
             </div>
             <div class="form-check">
                 <input asp-for="Input.IsEWallet" class="form-check-input" />
-                <label asp-for="Input.IsEWallet" class="form-check-label">E-wallet</label>
+                <label asp-for="Input.IsEWallet" class="form-check-label">E-Wallet</label>
             </div>
             <div class="form-check">
                 <input asp-for="Input.IsCashEquivalent" class="form-check-input" />
-                <label asp-for="Input.IsCashEquivalent" class="form-check-label">Cash equivalent</label>
+                <label asp-for="Input.IsCashEquivalent" class="form-check-label">Cash Equivalent</label>
             </div>
         </div>
     </div>
@@ -54,7 +54,7 @@
     @if (!Model.Settings.Any())
     {
         <div class="vpms-empty-state">
-            <h2>No cash accounts configured</h2>
+            <h2>No Cash Accounts Configured</h2>
             <p>Configure GL accounts such as 1000 Cash on Hand, 1010 Cash in Bank, and 1020 E-Wallet Clearing before final cash flow reporting.</p>
         </div>
     }
@@ -81,9 +81,9 @@
                         </td>
                         <td>
                             <div class="d-flex flex-wrap gap-3">
-                                <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="isCashOnHand" value="true" checked="@setting.IsCashOnHand" form="cash-setting-@setting.Id" /> On hand</label>
+                                <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="isCashOnHand" value="true" checked="@setting.IsCashOnHand" form="cash-setting-@setting.Id" /> On Hand</label>
                                 <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="isCashInBank" value="true" checked="@setting.IsCashInBank" form="cash-setting-@setting.Id" /> Bank</label>
-                                <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="isEWallet" value="true" checked="@setting.IsEWallet" form="cash-setting-@setting.Id" /> E-wallet</label>
+                                <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="isEWallet" value="true" checked="@setting.IsEWallet" form="cash-setting-@setting.Id" /> E-Wallet</label>
                                 <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="isCashEquivalent" value="true" checked="@setting.IsCashEquivalent" form="cash-setting-@setting.Id" /> Equivalent</label>
                                 <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="isActive" value="true" checked="@setting.IsActive" form="cash-setting-@setting.Id" /> Active</label>
                             </div>

@@ -5,7 +5,7 @@
     ViewData["Title"] = "Payments";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/Finance/Index">Finance</a></li>
@@ -28,7 +28,7 @@
 </div>
 
 @if (Model.SelectedFolioId is not null)
-{ <div class="alert alert-info">Receipts for folio #@Model.SelectedFolioId. <a asp-page="./Index">Show all payments</a>. Receipt totals apply to this folio; integrity signals cover all payments.</div> }
+{ <div class="alert alert-info">Receipts for folio #@Model.SelectedFolioId. <a asp-page="./Index">Show All Payments</a>. Receipt totals apply to this folio; integrity signals cover all payments.</div> }
 <div class="row g-3 mb-4">
     <div class="col-md-6 col-xl-3">
         <div class="kpi-card">
@@ -39,7 +39,7 @@
     </div>
     <div class="col-md-6 col-xl-3">
         <div class="kpi-card">
-            <div class="kpi-label">Month to Date</div>
+            <div class="kpi-label">Month To Date</div>
             <div class="kpi-value">@Model.MonthToDatePayments.ToString("C")</div>
             <div class="kpi-note">Completed payments this month</div>
         </div>
@@ -95,9 +95,9 @@
                             <div class="small text-muted">@payment.Folio?.FolioNumber</div>
                         </td>
                         <td>@(payment.Folio?.Reservation?.Room?.RoomNumber ?? "Unassigned")</td>
-                        <td>@payment.PaymentMethod</td>
+                        <td>@UiText.Display(payment.PaymentMethod)</td>
                         <td>@(payment.ReferenceNumber ?? "-")</td>
-                        <td><span class="status-badge">@payment.Status</span></td>
+                        <td><span class="status-badge">@UiText.Display(payment.Status)</span></td>
                         <td class="text-end fw-semibold">@payment.Amount.ToString("C")</td>
                         <td class="text-end">
                             @if (payment.FolioId > 0)

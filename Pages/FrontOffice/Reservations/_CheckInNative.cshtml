@@ -8,7 +8,7 @@
     </div>
     <div class="vpms-native-balance-pill">
         <span>Status</span>
-        <strong>@Model.Reservation.Status</strong>
+        <strong>@UiText.Display(Model.Reservation.Status)</strong>
     </div>
 </section>
 
@@ -28,7 +28,7 @@
     <dd class="col-sm-9">@Model.Reservation.ArrivalDate.ToString("d")</dd>
 
     <dt class="col-sm-3">Status</dt>
-    <dd class="col-sm-9">@Model.Reservation.Status</dd>
+    <dd class="col-sm-9">@UiText.Display(Model.Reservation.Status)</dd>
 </dl>
 
 <form method="post" asp-page="./CheckIn" asp-route-id="@Model.Reservation.Id" class="vpms-native-workflow-form">

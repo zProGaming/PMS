@@ -33,7 +33,7 @@
                 <td><a asp-page="./Details" asp-route-id="@lead.Id">@lead.LeadName</a></td>
                 <td>@lead.SalesAccount?.AccountName</td>
                 <td>@lead.LeadSource</td>
-                <td>@lead.Status</td>
+                <td>@UiText.Display(lead.Status)</td>
                 <td>@lead.ExpectedCloseDate?.ToString("d")</td>
                 <td>@lead.AssignedTo</td>
                 <td class="text-end">@lead.EstimatedValue.ToString("N2")</td>

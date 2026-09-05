@@ -30,16 +30,16 @@
 @if (isAuthenticated)
 {
     <div class="vpms-sidebar-compact-row">
-        <button type="button" class="vpms-sidebar-compact-toggle" id="sidebarCompactToggle" aria-label="Toggle compact sidebar" aria-pressed="false">
+        <button type="button" class="vpms-sidebar-compact-toggle" id="sidebarCompactToggle" aria-label="Toggle Compact Sidebar" aria-pressed="false">
             <span aria-hidden="true">|||</span>
-            <span class="vpms-sidebar-compact-text">Collapse sidebar</span>
+            <span class="vpms-sidebar-compact-text">Collapse Sidebar</span>
         </button>
     </div>
 
-    <nav class="vpms-nav app-nav vpms-sidebar-scroll" aria-label="Primary navigation" data-vpms-sidebar-nav>
+    <nav class="vpms-nav app-nav vpms-sidebar-scroll" aria-label="Primary Navigation" data-vpms-sidebar-nav>
         <div class="vpms-sidebar-nav-intro">
             <span>Workspace</span>
-            <strong>Your modules</strong>
+            <strong>Your Modules</strong>
             <small>Access is based on your assigned role.</small>
         </div>
 
@@ -48,11 +48,11 @@
                 <span class="vpms-sidebar-group-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 </span>
-                <span class="vpms-sidebar-group-title">Home &amp; management</span>
+                <span class="vpms-sidebar-group-title">Home &amp; Management</span>
                 <span class="vpms-sidebar-chevron" aria-hidden="true"></span>
             </button>
             <div class="vpms-sidebar-group-body" id="sidebar-command-center" data-vpms-sidebar-body>
-                <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Index" data-sidebar-link><span>Daily work</span></a>
+                <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Index" data-sidebar-link><span>Daily Work</span></a>
                 @if (canAccessExecutiveReporting)
                 {
                     <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Executive/Index" data-sidebar-link><span>Executive Dashboard</span></a>
@@ -123,7 +123,8 @@
                     }
                     @if (canAccessGuestPortalManagement)
                     {
-                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/GuestPortalManagement/ServiceRequests/Index" data-sidebar-link><span>Service Requests</span></a>
+                        @if (canAccessGuestPortalManagement)
+                        { <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/GuestPortalManagement/ServiceRequests/Index" data-sidebar-link><span>Service Requests</span></a> }
                     }
                 </div>
             </section>
@@ -143,9 +144,11 @@
                     @if (canAccessFinance)
                     {
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Finance/Index" data-sidebar-link><span>Finance Dashboard</span></a>
-                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/FrontOffice/Folios/Index" data-sidebar-link><span>Folios</span></a>
+                        @if (canAccessFrontOffice)
+                        { <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/FrontOffice/Folios/Index" data-sidebar-link><span>Folios</span></a> }
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Finance/Payments/Index" data-sidebar-link><span>Payments</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Finance/PaymentIntegrity/Index" data-sidebar-link><span>Payment Integrity</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Finance/Settlement/Index" data-sidebar-link><span>Cashier Settlement</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Finance/CashierShifts/Index" data-sidebar-link><span>Cashier Shifts</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Finance/NightAudit/Index" data-sidebar-link><span>Night Audit</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Finance/Documents/Index" data-sidebar-link><span>Finance Documents</span></a>
@@ -189,14 +192,14 @@
                     @if (canAccessAccounting)
                     {
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/Index" data-sidebar-link><span>Accounting Dashboard</span></a>
-                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/ChartOfAccounts/Index" data-sidebar-link><span>Chart of Accounts</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/ChartOfAccounts/Index" data-sidebar-link><span>Chart Of Accounts</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/JournalEntries/Index" data-sidebar-link><span>Journal Entries</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/PostingBatches/Index" data-sidebar-link><span>Posting Batches</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/Reports/GeneralLedger" data-sidebar-link><span>General Ledger</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/Reports/TrialBalance" data-sidebar-link><span>Trial Balance</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/Reports/BalanceSheet" data-sidebar-link><span>Balance Sheet</span></a>
-                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/Reports/ProfitAndLoss" data-sidebar-link><span>Profit and Loss</span></a>
-                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/Reports/StatementOfCashFlows" data-sidebar-link><span>Statement of Cash Flows</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/Reports/ProfitAndLoss" data-sidebar-link><span>Profit And Loss</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/Reports/StatementOfCashFlows" data-sidebar-link><span>Statement Of Cash Flows</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/Reports/USALI" data-sidebar-link><span>USALI Operating Statement</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Accounting/Reports/VATOutput" data-sidebar-link><span>Philippine Reports</span></a>
                     }
@@ -261,7 +264,7 @@
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Banquet/Calendar/Index" data-sidebar-link><span>Event Calendar</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Banquet/FunctionRooms/Index" data-sidebar-link><span>Function Rooms</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Banquet/Events/Index" data-sidebar-link><span>Banquet Events</span></a>
-                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Banquet/BEOs/Index" data-sidebar-link><span>BEOs</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Banquet/BEOs/Index" data-sidebar-link><span>Beos</span></a>
                     }
                 </div>
             </section>
@@ -415,7 +418,7 @@
                     }
                     @if (canAccessSystemAdministration)
                     {
-                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Admin/UsersAndRoles/Index" data-sidebar-link><span>Users and Roles</span></a>
+                        <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Admin/UsersAndRoles/Index" data-sidebar-link><span>Users And Roles</span></a>
                         <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Admin/CompanyAccess/Index" data-sidebar-link><span>Company Access</span></a>
                     }
                     @if (canAccessSystemManagement)

@@ -22,10 +22,10 @@
       class="vpms-native-workflow-form vpms-native-ledger-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="vpms-native-step-grid compact" aria-label="Charge posting controls">
-        <span><strong>Code</strong><small>Revenue category</small></span>
-        <span><strong>Amount</strong><small>Qty x price</small></span>
-        <span><strong>Trace</strong><small>Posted by user</small></span>
+    <div class="vpms-native-step-grid compact" aria-label="Charge Posting Controls">
+        <span><strong>Code</strong><small>Revenue Category</small></span>
+        <span><strong>Amount</strong><small>Qty X Price</small></span>
+        <span><strong>Trace</strong><small>Posted By User</small></span>
     </div>
 
     <div class="row g-3">
@@ -37,9 +37,9 @@
         <div class="col-md-6 col-lg-3">
             <label asp-for="Charge.ChargeCodeId" class="form-label">Charge Code</label>
             <select asp-for="Charge.ChargeCodeId" asp-items="Model.ChargeCodeOptions" class="form-select">
-                <option value="">Manual code</option>
+                <option value="">Manual Code</option>
             </select>
-            <input asp-for="Charge.ChargeCode" class="form-control mt-2" placeholder="Manual charge code" autocomplete="off" />
+            <input asp-for="Charge.ChargeCode" class="form-control mt-2" placeholder="Manual Charge Code" autocomplete="off" />
             <span asp-validation-for="Charge.ChargeCode" class="text-danger"></span>
         </div>
         <div class="col-md-6 col-lg-3">

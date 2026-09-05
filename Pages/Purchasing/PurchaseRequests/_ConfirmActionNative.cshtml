@@ -5,15 +5,15 @@
 }
 
 <div class="vpms-native-workflow-card">
-    <div class="vpms-native-workflow-kicker">Purchasing control</div>
-    <h2>@Model.NativeActionTitle</h2>
+    <div class="vpms-native-workflow-kicker">Purchasing Control</div>
+    <h2>@UiText.Label(Model.NativeActionTitle)</h2>
     <p>@Model.NativeActionMessage</p>
 
     <div class="vpms-native-workflow-summary">
         <span>Purchase Request</span>
         <strong>@Model.PurchaseRequest.RequestNumber</strong>
         <span>Status</span>
-        <strong>@Model.PurchaseRequest.Status</strong>
+        <strong>@UiText.Display(Model.PurchaseRequest.Status)</strong>
         <span>Department</span>
         <strong>@(Model.PurchaseRequest.Department?.Name ?? "General")</strong>
         <span>Estimated Total</span>
@@ -26,7 +26,7 @@
     }
 
     <form method="post" asp-page="./Details" asp-page-handler="@Model.NativeActionHandler" asp-route-id="@Model.PurchaseRequest.Id" class="vpms-native-workflow-actions">
-        <button type="submit" class="btn @Model.NativeActionButtonClass">@Model.NativeActionButtonText</button>
+        <button type="submit" class="btn @Model.NativeActionButtonClass">@UiText.Label(Model.NativeActionButtonText)</button>
         <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Reviewing</a>
     </form>
 </div>

@@ -14,14 +14,14 @@
         <div class="col-md-6 mb-3">
             <label asp-for="SalesActivity.SalesAccountId" class="form-label">Sales Account</label>
             <select asp-for="SalesActivity.SalesAccountId" class="form-select" asp-items="Model.AccountOptions">
-                <option value="">No account assigned</option>
+                <option value="">No Account Assigned</option>
             </select>
             <span asp-validation-for="SalesActivity.SalesAccountId" class="text-danger"></span>
         </div>
         <div class="col-md-6 mb-3">
             <label asp-for="SalesActivity.SalesLeadId" class="form-label">Sales Lead</label>
             <select asp-for="SalesActivity.SalesLeadId" class="form-select" asp-items="Model.LeadOptions">
-                <option value="">No lead assigned</option>
+                <option value="">No Lead Assigned</option>
             </select>
             <span asp-validation-for="SalesActivity.SalesLeadId" class="text-danger"></span>
         </div>
@@ -39,7 +39,7 @@
             <span asp-validation-for="SalesActivity.ActivityDate" class="text-danger"></span>
         </div>
         <div class="col-md-4 mb-3">
-            <label asp-for="SalesActivity.NextFollowUpDate" class="form-label">Next Follow-up</label>
+            <label asp-for="SalesActivity.NextFollowUpDate" class="form-label">Next Follow-Up</label>
             <input asp-for="SalesActivity.NextFollowUpDate" type="date" class="form-control" />
             <span asp-validation-for="SalesActivity.NextFollowUpDate" class="text-danger"></span>
         </div>

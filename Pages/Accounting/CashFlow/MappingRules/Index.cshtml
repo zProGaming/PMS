@@ -17,40 +17,40 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="row g-3">
         <div class="col-md-4">
-            <label asp-for="Input.RuleName" class="form-label">Rule name</label>
+            <label asp-for="Input.RuleName" class="form-label">Rule Name</label>
             <input asp-for="Input.RuleName" class="form-control" required />
             <span asp-validation-for="Input.RuleName" class="text-danger"></span>
         </div>
         <div class="col-md-4">
-            <label asp-for="Input.CashFlowCategoryId" class="form-label">Cash flow category</label>
+            <label asp-for="Input.CashFlowCategoryId" class="form-label">Cash Flow Category</label>
             <select asp-for="Input.CashFlowCategoryId" asp-items="Model.CategoryOptions" class="form-select">
-                <option value="">Select category</option>
+                <option value="">Select Category</option>
             </select>
             <span asp-validation-for="Input.CashFlowCategoryId" class="text-danger"></span>
         </div>
         <div class="col-md-4">
-            <label asp-for="Input.GLAccountId" class="form-label">Offset GL account</label>
+            <label asp-for="Input.GLAccountId" class="form-label">Offset GL Account</label>
             <select asp-for="Input.GLAccountId" asp-items="Model.AccountOptions" class="form-select">
-                <option value="">Any account</option>
+                <option value="">Any Account</option>
             </select>
             <span asp-validation-for="Input.GLAccountId" class="text-danger"></span>
         </div>
         <div class="col-md-3">
-            <label asp-for="Input.SourceModule" class="form-label">Source module</label>
-            <select asp-for="Input.SourceModule" asp-items="Html.GetEnumSelectList<SourceModule>()" class="form-select">
-                <option value="">Any module</option>
+            <label asp-for="Input.SourceModule" class="form-label">Source Module</label>
+            <select asp-for="Input.SourceModule" asp-items="Html.GetUiEnumSelectList<SourceModule>()" class="form-select">
+                <option value="">Any Module</option>
             </select>
         </div>
         <div class="col-md-3">
-            <label asp-for="Input.SourceTransactionType" class="form-label">Source transaction</label>
-            <select asp-for="Input.SourceTransactionType" asp-items="Html.GetEnumSelectList<SourceTransactionType>()" class="form-select">
-                <option value="">Any transaction</option>
+            <label asp-for="Input.SourceTransactionType" class="form-label">Source Transaction</label>
+            <select asp-for="Input.SourceTransactionType" asp-items="Html.GetUiEnumSelectList<SourceTransactionType>()" class="form-select">
+                <option value="">Any Transaction</option>
             </select>
         </div>
         <div class="col-md-2 d-flex align-items-end">
             <div class="form-check">
                 <input asp-for="Input.IsCashAccountRule" class="form-check-input" />
-                <label asp-for="Input.IsCashAccountRule" class="form-check-label">Cash account rule</label>
+                <label asp-for="Input.IsCashAccountRule" class="form-check-label">Cash Account Rule</label>
             </div>
         </div>
         <div class="col-md-4">
@@ -67,7 +67,7 @@
     @if (!Model.Rules.Any())
     {
         <div class="vpms-empty-state">
-            <h2>No mapping rules configured</h2>
+            <h2>No Mapping Rules Configured</h2>
             <p>Cash movements will default to Other Operating Cash Flows until mapping rules are configured.</p>
         </div>
     }

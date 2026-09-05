@@ -42,7 +42,7 @@ else
         <tbody>
             @foreach (var payment in Model.Folio.Payments.OrderBy(payment => payment.PaymentDate))
             {
-                <tr><td>@payment.PaymentDate.ToString("g")</td><td>@payment.PaymentMethod</td><td class="text-end">@payment.Amount.ToString("N2")</td></tr>
+                <tr><td>@payment.PaymentDate.ToString("g")</td><td>@UiText.Display(payment.PaymentMethod)</td><td class="text-end">@payment.Amount.ToString("N2")</td></tr>
             }
         </tbody>
     </table>

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Workflow SOP Readiness";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">Pilot Readiness</a></li>
@@ -61,9 +61,9 @@
 </section>
 
 <section class="vpms-product-proof-strip mb-4">
-    <article><span>Scope</span><strong>SOP evidence layer</strong></article>
-    <article><span>Coverage</span><strong>Workflow readiness</strong></article>
-    <article><span>Finance note</span><strong>Review with accountant</strong><p>Accounting and Philippine reports remain configurable management outputs and must be validated by finance users.</p></article>
+    <article><span>Scope</span><strong>SOP Evidence Layer</strong></article>
+    <article><span>Coverage</span><strong>Workflow Readiness</strong></article>
+    <article><span>Finance Note</span><strong>Review With Accountant</strong><p>Accounting and Philippine reports remain configurable management outputs and must be validated by finance users.</p></article>
 </section>
 
 @foreach (var group in Model.Groups)
@@ -94,7 +94,7 @@
                             <td class="fw-semibold">@signal.Name</td>
                             <td class="text-end">@signal.Count</td>
                             <td>@signal.Evidence</td>
-                            <td><span class="@IndexModel.StatusClass(signal.Status)">@signal.Status</span></td>
+                            <td><span class="@IndexModel.StatusClass(signal.Status)">@UiText.Display(signal.Status)</span></td>
                         </tr>
                     }
                     </tbody>

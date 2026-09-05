@@ -20,9 +20,9 @@
             <a class="btn vpms-btn-secondary"
                asp-page="/AccountsReceivable/Statements/Index"
                data-vpms-dialog
-               data-vpms-dialog-title="Statement of Account">SOA</a>
+               data-vpms-dialog-title="Statement Of Account">SOA</a>
             <button type="button" class="btn vpms-btn-secondary" onclick="window.print()">Print</button>
-            <button type="button" class="btn vpms-btn-secondary" onclick="window.print()">Save as PDF</button>
+            <button type="button" class="btn vpms-btn-secondary" onclick="window.print()">Save As PDF</button>
             <a class="btn vpms-btn-primary"
                asp-page-handler="Csv"
                asp-route-AsOfDate="@Model.AsOfDate.ToString("yyyy-MM-dd")"
@@ -43,29 +43,29 @@
             <div class="col-md-3">
                 <label asp-for="ARAccountId" class="form-label">AR Account</label>
                 <select asp-for="ARAccountId" asp-items="Model.ARAccountOptions" class="form-select">
-                    <option value="">All accounts</option>
+                    <option value="">All Accounts</option>
                 </select>
             </div>
             <div class="col-md-2">
                 <label asp-for="Status" class="form-label">Status</label>
                 <select asp-for="Status" asp-items="Model.StatusOptions" class="form-select">
-                    <option value="">All statuses</option>
+                    <option value="">All Statuses</option>
                 </select>
             </div>
             <div class="col-md-2">
                 <label asp-for="AgingBucket" class="form-label">Aging Bucket</label>
                 <select asp-for="AgingBucket" asp-items="Model.AgingBucketOptions" class="form-select">
-                    <option value="">All buckets</option>
+                    <option value="">All Buckets</option>
                 </select>
             </div>
             <div class="col-md-3">
                 <label asp-for="Search" class="form-label">Search</label>
-                <input asp-for="Search" class="form-control" placeholder="Company or invoice number" />
+                <input asp-for="Search" class="form-control" placeholder="Company Or Invoice Number" />
             </div>
             <div class="col-md-3">
                 <div class="form-check">
                     <input asp-for="IncludePaid" class="form-check-input" />
-                    <label asp-for="IncludePaid" class="form-check-label">Include fully paid invoices</label>
+                    <label asp-for="IncludePaid" class="form-check-label">Include Fully Paid Invoices</label>
                 </div>
             </div>
             <div class="col-md-3 d-flex gap-2">
@@ -141,7 +141,7 @@
                                 <td><span class="vpms-badge">@row.AgingBucket</span></td>
                                 <td class="text-end">@row.DaysOverdue</td>
                                 <td>@(row.LastPaymentDate?.ToString("d") ?? "-")</td>
-                                <td>@row.Status</td>
+                                <td>@UiText.Display(row.Status)</td>
                             </tr>
                         }
                     </tbody>

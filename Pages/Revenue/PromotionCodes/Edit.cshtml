@@ -19,7 +19,7 @@
     </div>
     <div class="col-md-4">
         <label asp-for="PromotionCode.DiscountType" class="form-label"></label>
-        <select asp-for="PromotionCode.DiscountType" asp-items="Html.GetEnumSelectList<DiscountType>()" class="form-select"></select>
+        <select asp-for="PromotionCode.DiscountType" asp-items="Html.GetUiEnumSelectList<DiscountType>()" class="form-select"></select>
         <span asp-validation-for="PromotionCode.DiscountType" class="text-danger"></span>
     </div>
     <div class="col-md-4">
@@ -50,13 +50,13 @@
     <div class="col-md-4">
         <label asp-for="PromotionCode.AppliesToRatePlanId" class="form-label">Applies To Rate Plan</label>
         <select asp-for="PromotionCode.AppliesToRatePlanId" asp-items="Model.RatePlanOptions" class="form-select">
-            <option value="">Any rate plan</option>
+            <option value="">Any Rate Plan</option>
         </select>
     </div>
     <div class="col-md-4">
         <label asp-for="PromotionCode.AppliesToRoomTypeId" class="form-label">Applies To Room Type</label>
         <select asp-for="PromotionCode.AppliesToRoomTypeId" asp-items="Model.RoomTypeOptions" class="form-select">
-            <option value="">Any room type</option>
+            <option value="">Any Room Type</option>
         </select>
     </div>
     <div class="col-12">

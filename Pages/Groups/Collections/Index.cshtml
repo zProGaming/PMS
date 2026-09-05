@@ -5,7 +5,7 @@
     ViewData["Title"] = "Group Collections";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/Groups/Index">Group Bookings</a></li>
@@ -49,7 +49,7 @@
     </div>
     <div class="col-md-3">
         <div class="kpi-card">
-            <div class="kpi-label">Groups at Risk</div>
+            <div class="kpi-label">Groups At Risk</div>
             <div class="kpi-value">@Model.GroupsWithOutstandingBalance</div>
             <div class="kpi-note">With open collection balance</div>
         </div>
@@ -91,7 +91,7 @@
                             <div class="small text-muted">@group.GroupCode</div>
                         </td>
                         <td>@group.ArrivalDate.ToString("MMM d") - @group.DepartureDate.ToString("MMM d, yyyy")</td>
-                        <td><span class="status-badge">@group.BookingStatus</span></td>
+                        <td><span class="status-badge">@UiText.Display(group.BookingStatus)</span></td>
                         <td class="text-end">@group.RoomsPickedUp / @group.RoomsBlocked</td>
                         <td class="text-end">@group.DepositTotal.ToString("C")</td>
                         <td class="text-end">@group.AllocatedTotal.ToString("C")</td>

@@ -15,7 +15,7 @@
             <h1 class="page-title">Stock Adjustment @Model.StockAdjustment.AdjustmentNumber</h1>
             <p class="page-subtitle">@Model.StockAdjustment.AdjustmentDate.ToString("MMM d, yyyy") | Prepared by @(string.IsNullOrWhiteSpace(Model.StockAdjustment.PreparedBy) ? "System" : Model.StockAdjustment.PreparedBy)</p>
             <div class="vpms-hero-chip-row">
-                <span class="vpms-status-badge status-@statusClass">@Model.StockAdjustment.Status</span>
+                <span class="vpms-status-badge status-@statusClass">@UiText.Display(Model.StockAdjustment.Status)</span>
                 <span class="vpms-mini-chip">@itemCount item@(itemCount == 1 ? "" : "s")</span>
                 <span class="vpms-mini-chip">Variance @totalVariance.ToString("C")</span>
             </div>
@@ -23,7 +23,7 @@
         <div class="vpms-hero-actions">
             @if (Model.StockAdjustment.Status == Vantage.PMS.Models.Inventory.StockAdjustmentStatus.Draft)
             {
-                <a asp-page="./Details" asp-page-handler="ForApprovalNative" asp-route-id="@Model.StockAdjustment.Id" class="btn vpms-btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Submit Stock Adjustment">Submit for Approval</a>
+                <a asp-page="./Details" asp-page-handler="ForApprovalNative" asp-route-id="@Model.StockAdjustment.Id" class="btn vpms-btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Submit Stock Adjustment">Submit For Approval</a>
             }
             @if (Model.StockAdjustment.Status == Vantage.PMS.Models.Inventory.StockAdjustmentStatus.ForApproval)
             {
@@ -50,22 +50,22 @@
         <article class="@varianceTone">
             <span>Variance Amount</span>
             <strong>@totalVariance.ToString("C")</strong>
-            <small>Inventory value movement</small>
+            <small>Inventory Value Movement</small>
         </article>
         <article>
             <span>Line Count</span>
             <strong>@itemCount</strong>
-            <small>Items under review</small>
+            <small>Items Under Review</small>
         </article>
         <article class="@(Model.CanEditItems ? "warning" : "positive")">
             <span>Posting State</span>
             <strong>@(Model.CanEditItems ? "Draft variance" : "Approval controlled")</strong>
-            <small>Stock balance protection</small>
+            <small>Stock Balance Protection</small>
         </article>
         <article>
             <span>Reason</span>
             <strong>@(string.IsNullOrWhiteSpace(Model.StockAdjustment.Reason) ? "Not specified" : Model.StockAdjustment.Reason)</strong>
-            <small>Inventory audit context</small>
+            <small>Inventory Audit Context</small>
         </article>
     </section>
 

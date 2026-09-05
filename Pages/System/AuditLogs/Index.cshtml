@@ -36,7 +36,7 @@
         </div>
         <div class="col-md-2">
             <label class="form-label" asp-for="Action">Action</label>
-            <select class="form-select" asp-for="Action" asp-items="Html.GetEnumSelectList<AuditActionType>()">
+            <select class="form-select" asp-for="Action" asp-items="Html.GetUiEnumSelectList<AuditActionType>()">
                 <option value="">All</option>
             </select>
         </div>

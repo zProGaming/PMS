@@ -14,7 +14,7 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="col-md-2"><label asp-for="ChargeCode.Code" class="form-label"></label><input asp-for="ChargeCode.Code" class="form-control" /></div>
     <div class="col-md-3"><label asp-for="ChargeCode.Name" class="form-label"></label><input asp-for="ChargeCode.Name" class="form-control" /></div>
-    <div class="col-md-3"><label asp-for="ChargeCode.ChargeCategory" class="form-label"></label><select asp-for="ChargeCode.ChargeCategory" asp-items="Html.GetEnumSelectList<ChargeCategory>()" class="form-select"></select></div>
+    <div class="col-md-3"><label asp-for="ChargeCode.ChargeCategory" class="form-label"></label><select asp-for="ChargeCode.ChargeCategory" asp-items="Html.GetUiEnumSelectList<ChargeCategory>()" class="form-select"></select></div>
     <div class="col-md-2"><label asp-for="ChargeCode.DefaultAmount" class="form-label"></label><input asp-for="ChargeCode.DefaultAmount" class="form-control" /></div>
     <div class="col-md-2 align-self-end"><button class="btn btn-primary w-100">Save</button></div>
     <div class="col-12"><label asp-for="ChargeCode.Description" class="form-label"></label><textarea asp-for="ChargeCode.Description" class="form-control"></textarea></div>

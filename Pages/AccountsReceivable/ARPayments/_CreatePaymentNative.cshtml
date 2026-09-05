@@ -16,10 +16,10 @@
 <form method="post" asp-page-handler="Create" class="vpms-native-workflow-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="vpms-native-step-grid compact" aria-label="AR collection control path">
-        <span><strong>Account</strong><small>City ledger owner</small></span>
-        <span><strong>Collection</strong><small>Amount and tender</small></span>
-        <span><strong>Allocation</strong><small>Apply after posting</small></span>
+    <div class="vpms-native-step-grid compact" aria-label="AR Collection Control Path">
+        <span><strong>Account</strong><small>City Ledger Owner</small></span>
+        <span><strong>Collection</strong><small>Amount And Tender</small></span>
+        <span><strong>Allocation</strong><small>Apply After Posting</small></span>
     </div>
 
     <div class="vpms-modal-form-grid">
@@ -40,7 +40,7 @@
         </div>
         <div class="vpms-modal-field">
             <label asp-for="Payment.PaymentMethod" class="form-label">Method</label>
-            <select asp-for="Payment.PaymentMethod" asp-items="Html.GetEnumSelectList<FinancePaymentMethod>()" class="form-select"></select>
+            <select asp-for="Payment.PaymentMethod" asp-items="Html.GetUiEnumSelectList<FinancePaymentMethod>()" class="form-select"></select>
             <span asp-validation-for="Payment.PaymentMethod" class="text-danger"></span>
         </div>
         <div class="vpms-modal-field">

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Revenue Dashboard";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item active" aria-current="page">Revenue</li>
@@ -43,10 +43,10 @@
         <div class="kpi-card"><div class="kpi-label">ADR This Month</div><div class="kpi-value">@Model.AdrThisMonth.ToString("C")</div><div class="kpi-note">Month-to-date ADR</div></div>
     </div>
     <div class="col-md-3">
-        <div class="kpi-card"><div class="kpi-label">RevPAR Today</div><div class="kpi-value">@Model.RevParToday.ToString("C")</div><div class="kpi-note">Revenue per available room</div></div>
+        <div class="kpi-card"><div class="kpi-label">Revpar Today</div><div class="kpi-value">@Model.RevParToday.ToString("C")</div><div class="kpi-note">Revenue per available room</div></div>
     </div>
     <div class="col-md-3">
-        <div class="kpi-card"><div class="kpi-label">RevPAR This Month</div><div class="kpi-value">@Model.RevParThisMonth.ToString("C")</div><div class="kpi-note">Month-to-date RevPAR</div></div>
+        <div class="kpi-card"><div class="kpi-label">Revpar This Month</div><div class="kpi-value">@Model.RevParThisMonth.ToString("C")</div><div class="kpi-note">Month-to-date RevPAR</div></div>
     </div>
 </div>
 
@@ -55,7 +55,7 @@
         <div class="kpi-card"><div class="kpi-label">Available Rooms Today</div><div class="kpi-value">@Model.AvailableRoomsToday</div><div class="kpi-note">Sellable availability</div></div>
     </div>
     <div class="col-md-4">
-        <div class="kpi-card"><div class="kpi-label">Out of Order Rooms</div><div class="kpi-value">@Model.OutOfOrderRoomsToday</div><div class="kpi-note">Blocked inventory</div></div>
+        <div class="kpi-card"><div class="kpi-label">Out Of Order Rooms</div><div class="kpi-value">@Model.OutOfOrderRoomsToday</div><div class="kpi-note">Blocked inventory</div></div>
     </div>
     <div class="col-md-4">
         <div class="kpi-card"><div class="kpi-label">Reservations Next 7 Days</div><div class="kpi-value">@Model.ReservationsNextSevenDays</div><div class="kpi-note">On the books</div></div>

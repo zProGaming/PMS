@@ -108,7 +108,7 @@ else
                 <td><a asp-page="/FrontOffice/Reservations/Details" asp-route-id="@reservation.Id">@reservation.ConfirmationNumber</a></td>
                 <td>@reservation.Guest?.FirstName @reservation.Guest?.LastName</td>
                 <td>@reservation.ArrivalDate.ToString("d")</td>
-                <td>@reservation.Status</td>
+                <td>@UiText.Display(reservation.Status)</td>
             </tr>
         }
     </tbody>
@@ -131,7 +131,7 @@ else
                 <td><a asp-page="/FrontOffice/Reservations/Details" asp-route-id="@reservation.Id">@reservation.ConfirmationNumber</a></td>
                 <td>@reservation.Guest?.FirstName @reservation.Guest?.LastName</td>
                 <td>@reservation.DepartureDate.ToString("d")</td>
-                <td>@reservation.Status</td>
+                <td>@UiText.Display(reservation.Status)</td>
             </tr>
         }
     </tbody>
@@ -139,7 +139,7 @@ else
 
 <h2 class="h4 mt-4">Advisory Details</h2>
 
-<h3 class="h5 mt-3">Checked-in Guests With Outstanding Balances</h3>
+<h3 class="h5 mt-3">Checked-In Guests With Outstanding Balances</h3>
 <p class="text-muted small">These balances are shown for review and collection follow-up. They no longer block normal in-house night audit rollover.</p>
 <table class="table table-sm table-striped align-middle">
     <thead>
@@ -180,8 +180,8 @@ else
             <tr>
                 <td><a asp-page="/FrontOffice/Folios/Details" asp-route-id="@payment.FolioId">@payment.Folio?.FolioNumber</a></td>
                 <td>@payment.PaymentDate.ToString("g")</td>
-                <td>@payment.PaymentMethod</td>
-                <td>@payment.Status</td>
+                <td>@UiText.Display(payment.PaymentMethod)</td>
+                <td>@UiText.Display(payment.Status)</td>
                 <td class="text-end">@payment.Amount.ToString("N2")</td>
             </tr>
         }
@@ -202,7 +202,7 @@ else
         {
             <tr>
                 <td>@issue.RoomNumber</td>
-                <td>@issue.Status</td>
+                <td>@UiText.Display(issue.Status)</td>
                 <td>@issue.Issue</td>
             </tr>
         }
@@ -228,7 +228,7 @@ else
                 <td>@audit.BusinessDate.ToString("d")</td>
                 <td>@audit.StartedAt.ToString("g")</td>
                 <td>@(audit.CompletedAt?.ToString("g") ?? "-")</td>
-                <td>@audit.Status</td>
+                <td>@UiText.Display(audit.Status)</td>
                 <td>@audit.CompletedBy</td>
                 <td class="text-break" style="white-space: pre-wrap">@audit.Notes</td>
             </tr>

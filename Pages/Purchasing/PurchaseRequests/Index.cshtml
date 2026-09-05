@@ -34,7 +34,7 @@
                         <td>@request.RequestedBy</td>
                         <td>@request.RequestDate.ToString("d")</td>
                         <td>@request.NeededDate?.ToString("d")</td>
-                        <td><span class="badge text-bg-secondary">@request.Status</span></td>
+                        <td><span class="badge text-bg-secondary">@UiText.Display(request.Status)</span></td>
                         <td class="text-end">@request.Items.Sum(item => item.EstimatedAmount).ToString("C")</td>
                         <td class="text-end">
                             <a asp-page="Details"

@@ -51,7 +51,7 @@
                         <td><a asp-page="/Groups/Details" asp-route-id="@folio.GroupBookingId" data-vpms-dialog data-vpms-dialog-title="Group Folio Control">@folio.GroupBooking?.GroupName</a></td>
                         <td>@(folio.PseudoRoom?.PseudoRoomCode ?? "None")</td>
                         <td>@folio.BillingName</td>
-                        <td><span class="status-badge">@folio.Status</span></td>
+                        <td><span class="status-badge">@UiText.Display(folio.Status)</span></td>
                         <td class="text-end">@charges.ToString("C")</td>
                         <td class="text-end">@payments.ToString("C")</td>
                         <td class="text-end fw-semibold">@((charges - payments).ToString("C"))</td>

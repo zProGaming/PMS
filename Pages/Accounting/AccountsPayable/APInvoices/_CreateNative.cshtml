@@ -22,17 +22,17 @@
     <input asp-for="Input.PurchaseOrderId" type="hidden" />
     <input asp-for="Input.ReceivingRecordId" type="hidden" />
 
-    <div class="vpms-native-step-grid compact" aria-label="AP invoice control path">
-        <span><strong>Supplier</strong><small>Bill owner</small></span>
-        <span><strong>Reference</strong><small>Duplicate control</small></span>
-        <span><strong>Lines</strong><small>GL and tax split</small></span>
+    <div class="vpms-native-step-grid compact" aria-label="AP Invoice Control Path">
+        <span><strong>Supplier</strong><small>Bill Owner</small></span>
+        <span><strong>Reference</strong><small>Duplicate Control</small></span>
+        <span><strong>Lines</strong><small>GL And Tax Split</small></span>
     </div>
 
     <div class="vpms-modal-form-grid">
         <div class="vpms-modal-field">
             <label asp-for="Input.SupplierId" class="form-label">Supplier</label>
             <select asp-for="Input.SupplierId" asp-items="Model.SupplierOptions" class="form-select">
-                <option value="">Select supplier</option>
+                <option value="">Select Supplier</option>
             </select>
             <span asp-validation-for="Input.SupplierId" class="text-danger"></span>
         </div>

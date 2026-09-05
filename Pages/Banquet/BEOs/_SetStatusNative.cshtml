@@ -1,17 +1,17 @@
 @model Vantage.PMS.Pages.Banquet.BEOs.DetailsModel
 
 <div class="vpms-native-workflow-card">
-    <div class="vpms-native-workflow-kicker">Banquet control</div>
-    <h2>@Model.NativeActionTitle</h2>
+    <div class="vpms-native-workflow-kicker">Banquet Control</div>
+    <h2>@UiText.Label(Model.NativeActionTitle)</h2>
     <p>@Model.NativeActionMessage</p>
 
     <div class="vpms-native-workflow-summary">
         <span>Event</span>
         <strong>@Model.BanquetEvent.EventName</strong>
         <span>Current BEO Status</span>
-        <strong>@Model.BanquetEventOrder.Status</strong>
+        <strong>@UiText.Display(Model.BanquetEventOrder.Status)</strong>
         <span>Target Status</span>
-        <strong>@Model.NativeStatus</strong>
+        <strong>@UiText.Display(Model.NativeStatus)</strong>
         <span>Event Date</span>
         <strong>@Model.BanquetEvent.EventDate.ToString("d")</strong>
     </div>
@@ -22,7 +22,7 @@
     }
 
     <form method="post" asp-page="./Details" asp-page-handler="SetStatus" asp-route-eventId="@Model.BanquetEvent.Id" asp-route-status="@Model.NativeStatus" class="vpms-native-workflow-actions">
-        <button type="submit" class="btn @Model.NativeActionButtonClass">@Model.NativeActionButtonText</button>
+        <button type="submit" class="btn @Model.NativeActionButtonClass">@UiText.Label(Model.NativeActionButtonText)</button>
         <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Reviewing</a>
     </form>
 </div>

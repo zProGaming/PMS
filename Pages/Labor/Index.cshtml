@@ -28,19 +28,19 @@
 </div>
 
 <div class="quick-action-grid mt-4">
-    <a asp-page="/Labor/EmployeeCostProfiles/Index" class="quick-action-card"><strong>Employee Cost Profiles</strong><small>PMS-side HRIS-ready cost profiles</small></a>
-    <a asp-page="/Labor/PayrollPeriods/Index" class="quick-action-card"><strong>Payroll Periods</strong><small>Approve and post payroll cost</small></a>
-    <a asp-page="/Labor/PayrollCostEntries/Index" class="quick-action-card"><strong>Payroll Cost Entries</strong><small>Manual employee or department cost entry</small></a>
-    <a asp-page="/Labor/DepartmentLaborBudgets/Index" class="quick-action-card"><strong>Labor Budgets</strong><small>Monthly cost, hours, and headcount</small></a>
-    <a asp-page="/Labor/ServiceChargePools/Index" class="quick-action-card"><strong>Service Charge Pools</strong><small>Distribution and posting support</small></a>
-    <a asp-page="/Labor/Import/Index" class="quick-action-card"><strong>Payroll Import</strong><small>HRIS-ready payroll cost intake</small></a>
+    <a asp-page="/Labor/EmployeeCostProfiles/Index" class="quick-action-card"><strong>Employee Cost Profiles</strong><small>PMS-Side HRIS-Ready Cost Profiles</small></a>
+    <a asp-page="/Labor/PayrollPeriods/Index" class="quick-action-card"><strong>Payroll Periods</strong><small>Approve And Post Payroll Cost</small></a>
+    <a asp-page="/Labor/PayrollCostEntries/Index" class="quick-action-card"><strong>Payroll Cost Entries</strong><small>Manual Employee Or Department Cost Entry</small></a>
+    <a asp-page="/Labor/DepartmentLaborBudgets/Index" class="quick-action-card"><strong>Labor Budgets</strong><small>Monthly Cost, Hours, And Headcount</small></a>
+    <a asp-page="/Labor/ServiceChargePools/Index" class="quick-action-card"><strong>Service Charge Pools</strong><small>Distribution And Posting Support</small></a>
+    <a asp-page="/Labor/Import/Index" class="quick-action-card"><strong>Payroll Import</strong><small>HRIS-Ready Payroll Cost Intake</small></a>
 </div>
 
 <div class="row g-4 mt-1">
     <div class="col-xl-7">
         <section class="vpms-card">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="h5 mb-0">Labor Cost by Department</h2>
+                <h2 class="h5 mb-0">Labor Cost By Department</h2>
                 <a asp-page="/Labor/Reports/Index" class="btn btn-sm vpms-btn-secondary">View Reports</a>
             </div>
             @if (Model.DepartmentLabor.Count == 0)
@@ -76,7 +76,7 @@
             {
                 <div class="d-flex justify-content-between border-bottom py-2">
                     <a asp-page="/Labor/PayrollPeriods/Details" asp-route-id="@period.Id">@period.PeriodName</a>
-                    <span class="status-badge">@period.Status</span>
+                    <span class="status-badge">@UiText.Display(period.Status)</span>
                 </div>
             }
             @if (Model.RecentPayrollPeriods.Count == 0)

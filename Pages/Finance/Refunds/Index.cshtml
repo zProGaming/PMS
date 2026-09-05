@@ -14,16 +14,20 @@
 </div>
 @if (TempData["ErrorMessage"] is string error) { <div class="alert alert-danger">@error</div> }
 
+@if (TempData["SuccessMessage"] is string success) { <div class="alert alert-success" role="status">@success</div> }
+<div asp-validation-summary="All" class="text-danger"></div>
+<p class="text-muted">Requests need an independent manager approval. The approver cannot process the same request.</p>
+
 <details class="vpms-refined-card vpms-inline-create-panel mb-4">
-    <summary>Manual refund request entry</summary>
+    <summary>Manual Refund Request Entry</summary>
 <form method="post" asp-page-handler="Create" class="row g-3 mt-3">
     <div class="col-md-2"><label asp-for="Refund.RefundNumber" class="form-label"></label><input asp-for="Refund.RefundNumber" class="form-control" readonly /></div>
-    <div class="col-md-2"><label asp-for="Refund.RefundDate" class="form-label"></label><input asp-for="Refund.RefundDate" type="date" class="form-control" /></div>
+    <div class="col-md-2"><label asp-for="Refund.RefundDate" class="form-label"></label><input asp-for="Refund.RefundDate" type="date" class="form-control" readonly /></div>
     <div class="col-md-2"><label asp-for="Refund.Amount" class="form-label"></label><input asp-for="Refund.Amount" class="form-control" /></div>
-    <div class="col-md-2"><label asp-for="Refund.RefundMethod" class="form-label"></label><select asp-for="Refund.RefundMethod" asp-items="Html.GetEnumSelectList<FinancePaymentMethod>()" class="form-select"></select></div>
-    <div class="col-md-2"><label asp-for="Refund.FolioId" class="form-label">Folio</label><select asp-for="Refund.FolioId" asp-items="Model.FolioOptions" class="form-select"><option value="">None</option></select></div>
-    <div class="col-md-2"><label asp-for="Refund.PaymentId" class="form-label">Payment</label><select asp-for="Refund.PaymentId" asp-items="Model.PaymentOptions" class="form-select"><option value="">None</option></select></div>
-    <div class="col-md-3"><label asp-for="Refund.RequestedBy" class="form-label"></label><input asp-for="Refund.RequestedBy" class="form-control" /></div>
+    <div class="col-md-2"><label asp-for="Refund.RefundMethod" class="form-label"></label><select asp-for="Refund.RefundMethod" asp-items="Html.GetUiEnumSelectList<FinancePaymentMethod>()" class="form-select"></select></div>
+    <div class="col-md-2"><label asp-for="Refund.FolioId" class="form-label">Folio</label><select asp-for="Refund.FolioId" asp-items="Model.FolioOptions" class="form-select"><option value="">Select</option></select></div>
+    <div class="col-md-2"><label asp-for="Refund.PaymentId" class="form-label">Payment</label><select asp-for="Refund.PaymentId" asp-items="Model.PaymentOptions" class="form-select"><option value="">Select</option></select></div>
+    <div class="col-md-3"><label asp-for="Refund.RequestedBy" class="form-label"></label><input asp-for="Refund.RequestedBy" class="form-control" readonly /></div>
     <div class="col-md-9"><label asp-for="Refund.Reason" class="form-label"></label><input asp-for="Refund.Reason" class="form-control" /></div>
     <div class="col-12"><button class="btn btn-primary">Create Refund Request</button></div>
 </form>
@@ -51,23 +55,23 @@
                     <tr id="request-@refund.Id">
                         <td>@refund.RefundNumber</td>
                         <td>@refund.RefundDate.ToString("d")</td>
-                        <td><span class="badge text-bg-secondary">@refund.Status</span></td>
-                        <td>@refund.RefundMethod</td>
+                        <td><span class="badge text-bg-secondary">@UiText.Display(refund.Status)</span></td>
+                        <td>@UiText.Display(refund.RefundMethod)</td>
                         <td class="text-end">@refund.Amount.ToString("C")</td>
                         <td>@refund.Reason</td>
                         <td>@refund.ApprovedBy</td>
                         <td>@refund.ProcessedBy</td>
                         <td class="text-end">
-                            @if (refund.Status is RefundStatus.Requested or RefundStatus.ForApproval)
+                            @if ((refund.Status is RefundStatus.Requested or RefundStatus.ForApproval) && Model.CanReview(refund))
                             {
                                 <a asp-page="./Index" asp-page-handler="ApproveNative" asp-route-id="@refund.Id" class="btn btn-sm btn-success" data-vpms-native-dialog data-vpms-native-dialog-title="Approve Refund">Approve</a>
                                 <a asp-page="./Index" asp-page-handler="RejectNative" asp-route-id="@refund.Id" class="btn btn-sm btn-outline-danger" data-vpms-native-dialog data-vpms-native-dialog-title="Reject Refund">Reject</a>
                             }
-                            @if (refund.Status == RefundStatus.Approved)
+                            @if (refund.Status == RefundStatus.Approved && Model.CanProcess(refund))
                             {
                                 <a asp-page="./Index" asp-page-handler="ProcessNative" asp-route-id="@refund.Id" class="btn btn-sm btn-primary" data-vpms-native-dialog data-vpms-native-dialog-title="Process Refund">Process</a>
                             }
-                            @if (refund.Status != RefundStatus.Processed)
+                            @if ((refund.Status is RefundStatus.Requested or RefundStatus.ForApproval or RefundStatus.Approved) && Model.CanCancel(refund))
                             {
                                 <a asp-page="./Index" asp-page-handler="CancelNative" asp-route-id="@refund.Id" class="btn btn-sm btn-outline-secondary" data-vpms-native-dialog data-vpms-native-dialog-title="Cancel Refund">Cancel</a>
                             }

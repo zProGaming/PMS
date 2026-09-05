@@ -27,30 +27,30 @@
     </div>
 </section>
 
-<section class="vpms-signal-strip" aria-label="Reservation operating signals">
+<section class="vpms-signal-strip" aria-label="Reservation Operating Signals">
     <article>
         <span>Arrivals Today</span>
         <strong>@Model.ArrivalsToday</strong>
-        <small>Reserved arrivals</small>
+        <small>Reserved Arrivals</small>
     </article>
     <article>
         <span>Departures Today</span>
         <strong>@Model.DeparturesToday</strong>
-        <small>Expected check-outs</small>
+        <small>Expected Check-Outs</small>
     </article>
     <article>
         <span>In-House</span>
         <strong>@Model.InHouseReservations</strong>
-        <small>Checked-in stays</small>
+        <small>Checked-In Stays</small>
     </article>
     <article class="@(Model.UnassignedReservations > 0 ? "needs-attention" : "")">
         <span>Rooming Attention</span>
         <strong>@Model.UnassignedReservations</strong>
-        <small>Need rooming</small>
+        <small>Need Rooming</small>
     </article>
 </section>
 
-<nav class="vpms-status-dock" aria-label="Reservation status filters">
+<nav class="vpms-status-dock" aria-label="Reservation Status Filters">
     <a class="@(Model.Status is null ? "active" : "")" asp-page="./Index" asp-route-Search="@Model.Search" asp-route-StayDate="@(Model.StayDate?.ToString("yyyy-MM-dd"))">All</a>
     <a class="@(Model.Status == ReservationStatus.Reserved ? "active" : "")" asp-page="./Index" asp-route-Status="@ReservationStatus.Reserved" asp-route-Search="@Model.Search" asp-route-StayDate="@(Model.StayDate?.ToString("yyyy-MM-dd"))">Reserved</a>
     <a class="@(Model.Status == ReservationStatus.CheckedIn ? "active" : "")" asp-page="./Index" asp-route-Status="@ReservationStatus.CheckedIn" asp-route-Search="@Model.Search" asp-route-StayDate="@(Model.StayDate?.ToString("yyyy-MM-dd"))">In House</a>
@@ -62,12 +62,12 @@
 <form method="get" class="vpms-filter-bar">
     <div>
         <label class="form-label" for="reservationSearch">Search</label>
-        <input id="reservationSearch" class="form-control" asp-for="Search" placeholder="Guest, confirmation, or room" />
+        <input id="reservationSearch" class="form-control" asp-for="Search" placeholder="Guest, Confirmation, Or Room" />
     </div>
     <div>
         <label class="form-label" asp-for="Status">Status</label>
         <select class="form-select" asp-for="Status" asp-items="Model.StatusOptions">
-            <option value="">All statuses</option>
+            <option value="">All Statuses</option>
         </select>
     </div>
     <div>
@@ -115,7 +115,7 @@ else
                         <td>
                             <div class="vpms-stay-line">
                                 <span>@reservation.ArrivalDate.ToString("MMM d")</span>
-                                <span class="vpms-stay-arrow">to</span>
+                                <span class="vpms-stay-arrow">To</span>
                                 <span>@reservation.DepartureDate.ToString("MMM d, yyyy")</span>
                             </div>
                             <div class="vpms-muted-line">@nights night@(nights == 1 ? "" : "s")</div>
@@ -135,7 +135,7 @@ else
                                 <span class="vpms-mini-chip">@reservation.Children child@(reservation.Children == 1 ? "" : "ren")</span>
                             }
                         </td>
-                        <td><span class="vpms-status-badge status-@statusClass">@reservation.Status</span></td>
+                        <td><span class="vpms-status-badge status-@statusClass">@UiText.Display(reservation.Status)</span></td>
                         <td class="text-end">
                             <div class="vpms-row-actions">
                                 <a class="btn btn-sm vpms-btn-secondary"

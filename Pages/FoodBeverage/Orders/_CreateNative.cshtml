@@ -11,10 +11,10 @@
 <form method="post" asp-page="./Create" class="vpms-native-workflow-form vpms-native-pos-form">
     <div asp-validation-summary="ModelOnly" class="alert alert-danger vpms-alert"></div>
 
-    <div class="vpms-native-step-grid compact" aria-label="POS order workflow">
-        <span><strong>Outlet</strong><small>Revenue center</small></span>
-        <span><strong>Service</strong><small>Order type</small></span>
-        <span><strong>Guest</strong><small>Optional folio link</small></span>
+    <div class="vpms-native-step-grid compact" aria-label="POS Order Workflow">
+        <span><strong>Outlet</strong><small>Revenue Center</small></span>
+        <span><strong>Service</strong><small>Order Type</small></span>
+        <span><strong>Guest</strong><small>Optional Folio Link</small></span>
     </div>
 
     <div class="row g-3">
@@ -34,14 +34,14 @@
         <div class="col-md-6">
             <label asp-for="Order.DiningTableId" class="form-label">Dining Table</label>
             <select asp-for="Order.DiningTableId" class="form-select" asp-items="Model.TableOptions">
-                <option value="">Not assigned</option>
+                <option value="">Not Assigned</option>
             </select>
             <span asp-validation-for="Order.DiningTableId" class="text-danger"></span>
         </div>
         <div class="col-md-6">
-            <label asp-for="Order.ReservationId" class="form-label">Checked-in Guest / Reservation</label>
+            <label asp-for="Order.ReservationId" class="form-label">Checked-In Guest / Reservation</label>
             <select asp-for="Order.ReservationId" class="form-select" asp-items="Model.ReservationOptions">
-                <option value="">Not assigned</option>
+                <option value="">Not Assigned</option>
             </select>
             <span asp-validation-for="Order.ReservationId" class="text-danger"></span>
         </div>

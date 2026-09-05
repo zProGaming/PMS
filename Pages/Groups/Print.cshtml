@@ -6,8 +6,8 @@
 }
 
 <div class="vpms-report-actions vpms-print-hide mb-3">
-    <button type="button" class="btn vpms-btn-primary" onclick="window.print()">Print / Save as PDF</button>
-    <a class="btn vpms-btn-secondary" asp-page="/Groups/Index">Back to Groups</a>
+    <button type="button" class="btn vpms-btn-primary" onclick="window.print()">Print / Save As PDF</button>
+    <a class="btn vpms-btn-secondary" asp-page="/Groups/Index">Back To Groups</a>
 </div>
 
 <article class="vpms-print-document">
@@ -52,7 +52,7 @@
                         <tr>
                             <td>@folio.FolioName</td>
                             <td>@folio.GroupBooking?.GroupName</td>
-                            <td>@folio.Status</td>
+                            <td>@UiText.Display(folio.Status)</td>
                             <td class="text-end">@charges.ToString("C")</td>
                             <td class="text-end">@payments.ToString("C")</td>
                             <td class="text-end">@((charges - payments).ToString("C"))</td>
@@ -71,7 +71,7 @@
             <table class="vpms-print-table">
                 <tbody>
                 <tr><th>Arrival</th><td>@group.ArrivalDate.ToString("MMM d, yyyy")</td><th>Departure</th><td>@group.DepartureDate.ToString("MMM d, yyyy")</td></tr>
-                <tr><th>Status</th><td>@group.BookingStatus</td><th>Sales Account</th><td>@(group.SalesAccount?.AccountName ?? "Not linked")</td></tr>
+                <tr><th>Status</th><td>@UiText.Display(group.BookingStatus)</td><th>Sales Account</th><td>@(group.SalesAccount?.AccountName ?? "Not linked")</td></tr>
                 <tr><th>Contact</th><td>@group.ContactPerson</td><th>Email</th><td>@group.Email</td></tr>
                 <tr><th>Market Segment</th><td>@group.MarketSegment</td><th>Source</th><td>@group.Source</td></tr>
                 </tbody>
@@ -167,7 +167,7 @@
                             <tr>
                                 <td>@folio.FolioName</td>
                                 <td>@folio.PseudoRoom?.PseudoRoomCode</td>
-                                <td>@folio.Status</td>
+                                <td>@UiText.Display(folio.Status)</td>
                                 <td class="text-end">@charges.ToString("C")</td>
                                 <td class="text-end">@payments.ToString("C")</td>
                                 <td class="text-end">@((charges - payments).ToString("C"))</td>
@@ -193,9 +193,9 @@
                         {
                             <tr>
                                 <td>@deposit.DepositDate.ToString("MMM d, yyyy")</td>
-                                <td>@deposit.PaymentMethod</td>
+                                <td>@UiText.Display(deposit.PaymentMethod)</td>
                                 <td>@deposit.ReferenceNumber</td>
-                                <td>@deposit.Status</td>
+                                <td>@UiText.Display(deposit.Status)</td>
                                 <td class="text-end">@deposit.Amount.ToString("C")</td>
                             </tr>
                         }

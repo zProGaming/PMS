@@ -21,16 +21,16 @@ else
             <dl class="row mb-0">
                 <dt class="col-sm-3">Reference</dt>
                 <dd class="col-sm-9">@Model.Reference</dd>
-                <dt class="col-sm-3">Check-in</dt>
+                <dt class="col-sm-3">Check-In</dt>
                 <dd class="col-sm-9">@Model.CheckInDate</dd>
-                <dt class="col-sm-3">Check-out</dt>
+                <dt class="col-sm-3">Check-Out</dt>
                 <dd class="col-sm-9">@Model.CheckOutDate</dd>
                 <dt class="col-sm-3">Room Type</dt>
                 <dd class="col-sm-9">@Model.RoomType</dd>
                 <dt class="col-sm-3">Room Number</dt>
                 <dd class="col-sm-9">@Model.RoomNumber</dd>
                 <dt class="col-sm-3">Status</dt>
-                <dd class="col-sm-9">@Model.Status</dd>
+                <dd class="col-sm-9">@UiText.Display(Model.Status)</dd>
             </dl>
         </div>
     </div>

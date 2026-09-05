@@ -21,14 +21,14 @@
         <div class="col-md-6 mb-3">
             <label asp-for="Reservation.GuestId" class="form-label">Guest</label>
             <select asp-for="Reservation.GuestId" class="form-select" asp-items="Model.GuestOptions">
-                <option value="">Select guest</option>
+                <option value="">Select Guest</option>
             </select>
             <span asp-validation-for="Reservation.GuestId" class="text-danger"></span>
         </div>
         <div class="col-md-6 mb-3">
             <label asp-for="Reservation.RoomId" class="form-label">Room</label>
             <select asp-for="Reservation.RoomId" class="form-select" asp-items="Model.RoomOptions">
-                <option value="">Select room</option>
+                <option value="">Select Room</option>
             </select>
             <span asp-validation-for="Reservation.RoomId" class="text-danger"></span>
         </div>
@@ -37,19 +37,19 @@
     <div class="mb-3">
         <label asp-for="Reservation.RatePlanId" class="form-label">Rate Plan</label>
         <select asp-for="Reservation.RatePlanId" class="form-select" asp-items="Model.RatePlanOptions">
-            <option value="">Use room type base rate</option>
+            <option value="">Use Room Type Base Rate</option>
         </select>
         <span asp-validation-for="Reservation.RatePlanId" class="text-danger"></span>
     </div>
 
     <div class="row">
         <div class="col-md-3 mb-3">
-            <label asp-for="Reservation.ArrivalDate" class="form-label">Check-in Date</label>
+            <label asp-for="Reservation.ArrivalDate" class="form-label">Check-In Date</label>
             <input asp-for="Reservation.ArrivalDate" class="form-control" type="date" asp-format="{0:yyyy-MM-dd}" />
             <span asp-validation-for="Reservation.ArrivalDate" class="text-danger"></span>
         </div>
         <div class="col-md-3 mb-3">
-            <label asp-for="Reservation.DepartureDate" class="form-label">Check-out Date</label>
+            <label asp-for="Reservation.DepartureDate" class="form-label">Check-Out Date</label>
             <input asp-for="Reservation.DepartureDate" class="form-control" type="date" asp-format="{0:yyyy-MM-dd}" />
             <span asp-validation-for="Reservation.DepartureDate" class="text-danger"></span>
         </div>

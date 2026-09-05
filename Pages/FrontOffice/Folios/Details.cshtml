@@ -31,7 +31,7 @@
             Room @(Model.Folio.Reservation?.Room?.RoomNumber ?? "Unassigned")
         </p>
         <div class="vpms-hero-chip-row">
-            <span class="vpms-status-badge status-@statusClass">@Model.Folio.Status</span>
+            <span class="vpms-status-badge status-@statusClass">@UiText.Display(Model.Folio.Status)</span>
             <span class="vpms-mini-chip">@folioStage</span>
             <span class="vpms-mini-chip">Reservation: @reservationStatus</span>
             <span class="vpms-mini-chip">@chargeCount charge@(chargeCount == 1 ? "" : "s")</span>
@@ -66,12 +66,12 @@
     <article>
         <span>Total Charges</span>
         <strong>@Model.Folio.TotalCharges.ToString("C")</strong>
-        <small>Posted revenue and adjustments</small>
+        <small>Posted Revenue And Adjustments</small>
     </article>
     <article class="positive">
         <span>Total Payments</span>
         <strong>@Model.Folio.TotalPayments.ToString("C")</strong>
-        <small>Collected payments</small>
+        <small>Collected Payments</small>
     </article>
     <article class="@balanceTone">
         <span>Open Balance</span>
@@ -104,7 +104,7 @@
     <section class="vpms-card vpms-operational-panel">
         <div class="vpms-section-titlebar">
             <div>
-                <h2>Guest and Stay Context</h2>
+                <h2>Guest And Stay Context</h2>
                 <p>Reservation context for billing and checkout decisions.</p>
             </div>
         </div>
@@ -120,11 +120,11 @@
                     <a asp-page="/FrontOffice/Reservations/Details"
                        asp-route-id="@Model.Folio.ReservationId"
                        data-vpms-dialog
-                       data-vpms-dialog-title="Reservation Control">Open reservation</a>
+                       data-vpms-dialog-title="Reservation Control">Open Reservation</a>
                 }
                 else
                 {
-                    <span>Not linked</span>
+                    <span>Not Linked</span>
                 }
             </dd>
         </dl>
@@ -238,7 +238,7 @@
                     {
                         <tr>
                             <td>@payment.PaymentDate.ToString("g")</td>
-                            <td><span class="vpms-mini-chip">@payment.PaymentMethod</span></td>
+                            <td><span class="vpms-mini-chip">@UiText.Display(payment.PaymentMethod)</span></td>
                             <td>@payment.ReferenceNumber</td>
                             <td>@payment.Notes</td>
                             <td class="text-end vpms-money">@payment.Amount.ToString("C")</td>
@@ -256,7 +256,7 @@
        asp-page="/FrontOffice/Reservations/Details"
        asp-route-id="@Model.Folio.ReservationId"
        data-vpms-dialog
-       data-vpms-dialog-title="Reservation Control">Back to Reservation</a>
+       data-vpms-dialog-title="Reservation Control">Back To Reservation</a>
 </div>
 
 </div>

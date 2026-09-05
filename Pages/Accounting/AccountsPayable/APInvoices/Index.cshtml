@@ -24,13 +24,13 @@
     <div class="row g-3 align-items-end">
         <div class="col-md-3">
             <label class="form-label">Status</label>
-            <select name="status" class="form-select" asp-items="Html.GetEnumSelectList<APInvoiceStatus>()">
+            <select name="status" class="form-select" asp-items="Html.GetUiEnumSelectList<APInvoiceStatus>()">
                 <option value="">All</option>
             </select>
         </div>
         <div class="col-md-5">
             <label class="form-label">Search</label>
-            <input name="search" value="@Model.Search" class="form-control" placeholder="AP number, supplier reference, or supplier" />
+            <input name="search" value="@Model.Search" class="form-control" placeholder="AP Number, Supplier Reference, Or Supplier" />
         </div>
         <div class="col-md-2"><button class="btn vpms-btn-secondary" type="submit">Filter</button></div>
     </div>
@@ -48,7 +48,7 @@
                 <td>@invoice.Supplier?.SupplierName</td>
                 <td>@invoice.InvoiceDate.ToString("yyyy-MM-dd")</td>
                 <td>@invoice.DueDate.ToString("yyyy-MM-dd")</td>
-                <td><span class="status-badge">@invoice.Status</span></td>
+                <td><span class="status-badge">@UiText.Display(invoice.Status)</span></td>
                 <td class="text-end">@invoice.TotalAmount.ToString("C")</td>
                 <td class="text-end">@invoice.AmountPaid.ToString("C")</td>
                 <td class="text-end fw-semibold">@invoice.Balance.ToString("C")</td>

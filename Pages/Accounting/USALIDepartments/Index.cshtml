@@ -17,7 +17,7 @@
     <div class="row g-3">
         <div class="col-md-2"><label asp-for="Input.Code" class="form-label">Code</label><input asp-for="Input.Code" class="form-control" required /></div>
         <div class="col-md-4"><label asp-for="Input.Name" class="form-label">Name</label><input asp-for="Input.Name" class="form-control" required /></div>
-        <div class="col-md-3"><label asp-for="Input.DepartmentType" class="form-label">Type</label><select asp-for="Input.DepartmentType" asp-items="Html.GetEnumSelectList<USALIDepartmentType>()" class="form-select"></select></div>
+        <div class="col-md-3"><label asp-for="Input.DepartmentType" class="form-label">Type</label><select asp-for="Input.DepartmentType" asp-items="Html.GetUiEnumSelectList<USALIDepartmentType>()" class="form-select"></select></div>
         <div class="col-md-1"><label asp-for="Input.SortOrder" class="form-label">Sort</label><input asp-for="Input.SortOrder" class="form-control" type="number" /></div>
         <div class="col-md-2 d-flex align-items-end"><button class="btn vpms-btn-primary w-100" type="submit">Add</button></div>
         <div class="col-12"><label asp-for="Input.Description" class="form-label">Description</label><textarea asp-for="Input.Description" class="form-control" rows="2"></textarea></div>

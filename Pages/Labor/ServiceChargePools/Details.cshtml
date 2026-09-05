@@ -14,8 +14,8 @@
         <p class="page-subtitle">@pool.PeriodStart.ToString("yyyy-MM-dd") to @pool.PeriodEnd.ToString("yyyy-MM-dd")</p>
     </div>
     <div class="page-actions">
-        <span class="status-badge">@pool.Status</span>
-        <a class="btn vpms-btn-secondary" asp-page="Index">Back to Pools</a>
+        <span class="status-badge">@UiText.Display(pool.Status)</span>
+        <a class="btn vpms-btn-secondary" asp-page="Index">Back To Pools</a>
     </div>
 </div>
 
@@ -38,7 +38,7 @@
         <h2 class="h5">Add Manual Distribution Line</h2>
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row g-3 align-items-end">
-            <div class="col-md-3"><label class="form-label">Employee</label><select asp-for="Input.EmployeeCostProfileId" class="form-select" asp-items="Model.EmployeeOptions"><option value="">Department line</option></select></div>
+            <div class="col-md-3"><label class="form-label">Employee</label><select asp-for="Input.EmployeeCostProfileId" class="form-select" asp-items="Model.EmployeeOptions"><option value="">Department Line</option></select></div>
             <div class="col-md-2"><label class="form-label">Department</label><select asp-for="Input.DepartmentId" class="form-select" asp-items="Model.DepartmentOptions"><option value="">Unassigned</option></select></div>
             <div class="col-md-1"><label class="form-label">Days</label><input asp-for="Input.EligibleDays" class="form-control" /></div>
             <div class="col-md-1"><label class="form-label">Hours</label><input asp-for="Input.EligibleHours" class="form-control" /></div>

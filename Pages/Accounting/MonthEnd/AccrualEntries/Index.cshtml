@@ -42,7 +42,7 @@
                 <td>@accrual.Description</td>
                 <td>@accrual.DebitGLAccount?.AccountCode</td>
                 <td>@accrual.CreditGLAccount?.AccountCode</td>
-                <td><span class="status-badge">@accrual.Status</span></td>
+                <td><span class="status-badge">@UiText.Display(accrual.Status)</span></td>
                 <td class="text-end">@accrual.Amount.ToString("C")</td>
                 <td class="text-end">
                     @if (accrual.Status == AccrualEntryStatus.Draft)

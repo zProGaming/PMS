@@ -5,7 +5,7 @@
     ViewData["Title"] = "F&B Service POS";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item active" aria-current="page">F&amp;B Service</li>
@@ -48,7 +48,7 @@
     </div>
     <div class="col-md-4 col-xl-2">
         <div class="kpi-card">
-            <div class="kpi-label">Sent to Kitchen</div>
+            <div class="kpi-label">Sent To Kitchen</div>
             <div class="kpi-value">@Model.OrdersSentToKitchen</div>
             <div class="kpi-note">Production queue</div>
         </div>
@@ -106,7 +106,7 @@
                             <td>@order.Outlet?.Name</td>
                             <td>@order.OrderType</td>
                             <td>@(order.DiningTable?.TableName ?? "-")</td>
-                            <td><span class="status-badge status-@orderStatusClass">@order.OrderStatus</span></td>
+                            <td><span class="status-badge status-@orderStatusClass">@UiText.Display(order.OrderStatus)</span></td>
                             <td class="text-end">@order.TotalAmount.ToString("C")</td>
                         </tr>
                     }

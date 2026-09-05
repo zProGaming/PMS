@@ -24,7 +24,7 @@
     {
         <div class="vpms-actions">
             <a class="btn btn-primary" asp-page="./Index" asp-page-handler="AddNative" asp-route-eventId="@Model.BanquetEvent.Id" data-vpms-native-dialog data-vpms-native-dialog-title="Add Banquet Charge">Add Charge</a>
-            <a class="btn btn-outline-secondary" asp-page="/Banquet/Events/Details" asp-route-id="@Model.BanquetEvent.Id">Back to Event</a>
+            <a class="btn btn-outline-secondary" asp-page="/Banquet/Events/Details" asp-route-id="@Model.BanquetEvent.Id">Back To Event</a>
         </div>
     }
 </div>
@@ -32,7 +32,7 @@
 @if (Model.BanquetEvent is not null)
 {
 <details class="vpms-refined-card vpms-inline-create-panel mb-4">
-    <summary>Manual charge entry</summary>
+    <summary>Manual Charge Entry</summary>
 <form method="post" asp-page-handler="Add" asp-route-eventId="@Model.BanquetEvent.Id" class="row g-3 mt-3">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="row align-items-end">

@@ -11,7 +11,7 @@
         .ToList();
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/Finance/Index">Finance</a></li>
@@ -73,7 +73,7 @@
         <div>
             <label class="form-label" for="IssueType">Signal</label>
             <select class="form-select" id="IssueType" name="IssueType">
-                <option value="">All signals</option>
+                <option value="">All Signals</option>
                 @foreach (var type in issueTypes)
                 {
                     <option value="@type" selected="@(string.Equals(Model.IssueType, type, StringComparison.OrdinalIgnoreCase))">@type</option>

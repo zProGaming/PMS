@@ -25,14 +25,14 @@
         <div class="kpi-card">
             <span class="kpi-label">Unposted Transactions</span>
             <strong class="kpi-value">@Model.UnpostedTransactions</strong>
-            <span class="kpi-meta">Eligible source records</span>
+            <span class="kpi-meta">Eligible Source Records</span>
         </div>
     </div>
     <div class="col-6 col-xl-3">
         <div class="kpi-card">
             <span class="kpi-label">Journal Entries Today</span>
             <strong class="kpi-value">@Model.JournalEntriesToday</strong>
-            <span class="kpi-meta">Created today</span>
+            <span class="kpi-meta">Created Today</span>
         </div>
     </div>
     <div class="col-6 col-xl-3">
@@ -46,35 +46,35 @@
         <div class="kpi-card">
             <span class="kpi-label">Open Period</span>
             <strong class="kpi-value">@Model.OpenPeriodName</strong>
-            <span class="kpi-meta">Current accounting window</span>
+            <span class="kpi-meta">Current Accounting Window</span>
         </div>
     </div>
     <div class="col-6 col-xl-3">
         <div class="kpi-card">
             <span class="kpi-label">AP Balance</span>
             <strong class="kpi-value">@Model.APBalance.ToString("C")</strong>
-            <span class="kpi-meta">Open supplier invoices</span>
+            <span class="kpi-meta">Open Supplier Invoices</span>
         </div>
     </div>
     <div class="col-6 col-xl-3">
         <div class="kpi-card">
-            <span class="kpi-label">Vouchers for Release</span>
+            <span class="kpi-label">Vouchers For Release</span>
             <strong class="kpi-value">@Model.PaymentVouchersForRelease</strong>
-            <span class="kpi-meta">Approved AP payments</span>
+            <span class="kpi-meta">Approved AP Payments</span>
         </div>
     </div>
     <div class="col-6 col-xl-3">
         <div class="kpi-card">
             <span class="kpi-label">Bank Recons Pending</span>
             <strong class="kpi-value">@Model.BankReconciliationsPending</strong>
-            <span class="kpi-meta">Open bank controls</span>
+            <span class="kpi-meta">Open Bank Controls</span>
         </div>
     </div>
     <div class="col-6 col-xl-3">
         <div class="kpi-card">
             <span class="kpi-label">Ending Cash</span>
             <strong class="kpi-value">@Model.EndingCash.ToString("C")</strong>
-            <span class="kpi-meta">Month-to-date cash position</span>
+            <span class="kpi-meta">Month-To-Date Cash Position</span>
         </div>
     </div>
 </div>
@@ -87,7 +87,7 @@
         </div>
         <div class="vpms-actions">
             <a class="btn btn-sm vpms-btn-secondary" asp-page="/Accounting/Reports/CashMovement">Cash Movement</a>
-            <a class="btn btn-sm vpms-btn-primary" asp-page="/Accounting/Reports/StatementOfCashFlows">Statement of Cash Flows</a>
+            <a class="btn btn-sm vpms-btn-primary" asp-page="/Accounting/Reports/StatementOfCashFlows">Statement Of Cash Flows</a>
         </div>
     </div>
     <div class="row g-3">
@@ -110,7 +110,7 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <a class="vpms-module-card" asp-page="/Accounting/ChartOfAccounts/Index">
-                        <strong>Chart of Accounts</strong>
+                        <strong>Chart Of Accounts</strong>
                         <span>GL accounts, control flags, USALI mappings, and Philippine categories.</span>
                     </a>
                 </div>
@@ -140,7 +140,7 @@
                 </div>
                 <div class="col-md-6">
                     <a class="vpms-module-card" asp-page="/Accounting/Reports/USALI">
-                        <strong>USALI-style Statement</strong>
+                        <strong>USALI-Style Statement</strong>
                         <span>Management operating statement based on mapped GL activity.</span>
                     </a>
                 </div>
@@ -151,13 +151,13 @@
         <section class="vpms-card">
             <h2 class="h5">Posting Status</h2>
             <dl class="row small mb-0">
-                <dt class="col-7">Pending posting batches</dt>
+                <dt class="col-7">Pending Posting Batches</dt>
                 <dd class="col-5 text-end">@Model.PendingPostingBatches</dd>
-                <dt class="col-7">Latest posted batch</dt>
+                <dt class="col-7">Latest Posted Batch</dt>
                 <dd class="col-5 text-end">@Model.LatestPostedBatch</dd>
-                <dt class="col-7">Active posting rules</dt>
+                <dt class="col-7">Active Posting Rules</dt>
                 <dd class="col-5 text-end">@Model.ActivePostingRules</dd>
-                <dt class="col-7">Active GL accounts</dt>
+                <dt class="col-7">Active GL Accounts</dt>
                 <dd class="col-5 text-end">@Model.ActiveGLAccounts</dd>
             </dl>
         </section>

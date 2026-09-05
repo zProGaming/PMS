@@ -37,7 +37,7 @@ else
     <div class="vpms-native-workflow-summary mb-3">
         <div>
             <span>Cashier Trace</span>
-            <strong>@(Model.HasOpenCashierShift ? Model.CurrentCashierShiftNumber : "No open shift")</strong>
+            <strong>@(Model.HasOpenCashierShift ? Model.CurrentCashierShiftNumber : "No Open Shift")</strong>
         </div>
         <div>
             <span>Business Date</span>
@@ -45,7 +45,7 @@ else
         </div>
         <div>
             <span>Posting Control</span>
-            <strong>@(Model.HasOpenCashierShift ? "Shift-traced" : Model.CanPostWithoutOpenShift ? "Management override" : "Shift required")</strong>
+            <strong>@(Model.HasOpenCashierShift ? "Shift-Traced" : Model.CanPostWithoutOpenShift ? "Management Override" : "Shift Required")</strong>
         </div>
     </div>
 
@@ -55,7 +55,7 @@ else
             @Model.CashierShiftMessage
             @if (!Model.CanPostWithoutOpenShift)
             {
-                <a asp-page="/Finance/CashierShifts/Index">Open cashier shift</a>
+                <a asp-page="/Finance/CashierShifts/Index">Open Cashier Shift</a>
             }
         </div>
     }
@@ -63,7 +63,7 @@ else
     @if (isNativeWorkflow)
     {
         <div class="vpms-native-payment-preview">
-            <span>Balance after this payment</span>
+            <span>Balance After This Payment</span>
             <strong>@remainingAfterPayment.ToString("C")</strong>
             <small>Duplicate references and repeat submissions are blocked before posting.</small>
         </div>
@@ -100,8 +100,8 @@ else
     </div>
 
     <div class="vpms-native-action-row">
-        <a class="btn btn-outline-secondary" asp-page="./Details" asp-route-id="@Model.FolioId">Cancel</a>
-        <button type="submit" class="btn btn-primary" disabled="@(!Model.CanPostPayment)">Post Payment</button>
+        <a class="btn btn-outline-secondary" asp-page="@Model.ReturnPage" asp-route-id="@(Model.IsSettlementWorkspace ? (int?)null : Model.FolioId)" asp-route-folioId="@(Model.IsSettlementWorkspace ? Model.FolioId : (int?)null)">Cancel</a>
+        <button type="submit" class="btn btn-primary" disabled="@(!Model.CanSubmit)">Post Payment</button>
     </div>
 </form>
 

@@ -17,7 +17,7 @@
             <h1 class="page-title">@Model.Voucher.VoucherNumber</h1>
             <p class="page-subtitle">@supplierName | @Model.Voucher.PaymentMethod | @(Model.Voucher.APInvoice?.InvoiceNumber ?? "Standalone voucher")</p>
             <div class="vpms-hero-chip-row">
-                <span class="vpms-status-badge status-@statusClass">@Model.Voucher.Status</span>
+                <span class="vpms-status-badge status-@statusClass">@UiText.Display(Model.Voucher.Status)</span>
                 <span class="vpms-mini-chip">@disbursementCount disbursement@(disbursementCount == 1 ? "" : "s")</span>
                 <span class="vpms-mini-chip">@Model.Voucher.VoucherDate.ToString("MMM d, yyyy")</span>
             </div>
@@ -54,22 +54,22 @@
         <article>
             <span>Gross Amount</span>
             <strong>@Model.Voucher.Amount.ToString("C")</strong>
-            <small>AP liability reduction</small>
+            <small>AP Liability Reduction</small>
         </article>
         <article class="warning">
             <span>Withholding</span>
             <strong>@Model.Voucher.WithholdingTaxAmount.ToString("C")</strong>
-            <small>Tax payable control</small>
+            <small>Tax Payable Control</small>
         </article>
         <article class="positive">
             <span>Net Payment</span>
             <strong>@Model.Voucher.NetPaymentAmount.ToString("C")</strong>
-            <small>Cash or bank release</small>
+            <small>Cash Or Bank Release</small>
         </article>
         <article class="@voucherTone">
             <span>Release State</span>
             <strong>@releaseLabel</strong>
-            <small>@Model.Voucher.PaymentMethod</small>
+            <small>@UiText.Display(Model.Voucher.PaymentMethod)</small>
         </article>
     </section>
 
@@ -92,14 +92,14 @@
         <section class="vpms-card vpms-operational-panel">
             <div class="vpms-section-titlebar">
                 <div>
-                    <h2>Supplier and Invoice Link</h2>
+                    <h2>Supplier And Invoice Link</h2>
                     <p>Voucher context for approval, AP matching, and payment release.</p>
                 </div>
             </div>
             <dl class="vpms-definition-list">
                 <dt>Supplier</dt>
                 <dd>@supplierName</dd>
-                <dt>AP invoice</dt>
+                <dt>AP Invoice</dt>
                 <dd>
                     @if (Model.Voucher.APInvoiceId is not null)
                     {
@@ -110,12 +110,12 @@
                     }
                     else
                     {
-                        <span>Standalone voucher</span>
+                        <span>Standalone Voucher</span>
                     }
                 </dd>
-                <dt>Payment method</dt>
-                <dd>@Model.Voucher.PaymentMethod</dd>
-                <dt>Bank account</dt>
+                <dt>Payment Method</dt>
+                <dd>@UiText.Display(Model.Voucher.PaymentMethod)</dd>
+                <dt>Bank Account</dt>
                 <dd>@(string.IsNullOrWhiteSpace(Model.Voucher.BankAccountName) ? "Selected during release" : Model.Voucher.BankAccountName)</dd>
             </dl>
         </section>
@@ -123,16 +123,16 @@
         <section class="vpms-card vpms-operational-panel">
             <div class="vpms-section-titlebar">
                 <div>
-                    <h2>Approval and Release Trail</h2>
+                    <h2>Approval And Release Trail</h2>
                     <p>Finance sign-off and treasury release trace.</p>
                 </div>
             </div>
             <dl class="vpms-definition-list">
-                <dt>Prepared by</dt>
+                <dt>Prepared By</dt>
                 <dd>@(string.IsNullOrWhiteSpace(Model.Voucher.PreparedBy) ? "System" : Model.Voucher.PreparedBy)</dd>
-                <dt>Approved by</dt>
+                <dt>Approved By</dt>
                 <dd>@(string.IsNullOrWhiteSpace(Model.Voucher.ApprovedBy) ? "Pending approval" : $"{Model.Voucher.ApprovedBy} on {Model.Voucher.ApprovedAt:MMM d, yyyy}")</dd>
-                <dt>Released by</dt>
+                <dt>Released By</dt>
                 <dd>@(string.IsNullOrWhiteSpace(Model.Voucher.ReleasedBy) ? "Pending release" : $"{Model.Voucher.ReleasedBy} on {Model.Voucher.ReleasedAt:MMM d, yyyy}")</dd>
                 <dt>Reference</dt>
                 <dd>@(Model.Voucher.BankReferenceNumber ?? Model.Voucher.CheckNumber ?? "Not recorded")</dd>
@@ -194,8 +194,8 @@
                             <tr>
                                 <td>@disbursement.DisbursementNumber</td>
                                 <td>@disbursement.DisbursementDate.ToString("MMM d, yyyy")</td>
-                                <td>@disbursement.PaymentMethod</td>
-                                <td><span class="vpms-status-badge status-@disbursement.Status.ToString().ToLowerInvariant()">@disbursement.Status</span></td>
+                                <td>@UiText.Display(disbursement.PaymentMethod)</td>
+                                <td><span class="vpms-status-badge status-@disbursement.Status.ToString().ToLowerInvariant()">@UiText.Display(disbursement.Status)</span></td>
                                 <td>@(disbursement.ReferenceNumber ?? "-")</td>
                                 <td class="text-end vpms-money">@disbursement.Amount.ToString("C")</td>
                             </tr>

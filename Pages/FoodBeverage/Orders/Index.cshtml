@@ -22,21 +22,21 @@
     </div>
 </section>
 
-<section class="vpms-control-strip" aria-label="POS operating pulse">
+<section class="vpms-control-strip" aria-label="POS Operating Pulse">
     <article class="@(openOrders > 0 ? "warning" : "positive")">
         <span>Open Checks</span>
         <strong>@openOrders</strong>
-        <small>Need service or settlement</small>
+        <small>Need Service Or Settlement</small>
     </article>
     <article>
         <span>Closed Orders</span>
         <strong>@closedOrders</strong>
-        <small>Recently completed</small>
+        <small>Recently Completed</small>
     </article>
     <article class="positive">
         <span>Paid Orders</span>
         <strong>@paidOrders</strong>
-        <small>Settled checks</small>
+        <small>Settled Checks</small>
     </article>
     <article>
         <span>Register Total</span>
@@ -96,8 +96,8 @@
                                 <div class="vpms-primary-cell">@(order.DiningTable?.TableName ?? "No table")</div>
                                 <div class="vpms-muted-line">@($"{order.Guest?.FirstName} {order.Guest?.LastName}".Trim())</div>
                             </td>
-                            <td><span class="vpms-status-badge status-@orderStatusClass">@order.OrderStatus</span></td>
-                            <td><span class="vpms-status-badge status-@paymentStatusClass">@order.PaymentStatus</span></td>
+                            <td><span class="vpms-status-badge status-@orderStatusClass">@UiText.Display(order.OrderStatus)</span></td>
+                            <td><span class="vpms-status-badge status-@paymentStatusClass">@UiText.Display(order.PaymentStatus)</span></td>
                             <td class="text-end vpms-money">@order.TotalAmount.ToString("C")</td>
                             <td class="text-end">
                                 <div class="vpms-row-actions">

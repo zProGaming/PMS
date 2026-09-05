@@ -9,17 +9,17 @@
     </div>
     <div class="vpms-native-balance-pill">
         <span>Status</span>
-        <strong>@Model.Input.BookingStatus</strong>
+        <strong>@UiText.Display(Model.Input.BookingStatus)</strong>
     </div>
 </section>
 
 <form method="post" asp-page-handler="Create" class="vpms-native-workflow-form">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="vpms-native-step-grid compact" aria-label="Group booking control path">
-        <span><strong>Group</strong><small>Sales identity</small></span>
-        <span><strong>Stay</strong><small>Block window</small></span>
-        <span><strong>Billing</strong><small>Master controls</small></span>
+    <div class="vpms-native-step-grid compact" aria-label="Group Booking Control Path">
+        <span><strong>Group</strong><small>Sales Identity</small></span>
+        <span><strong>Stay</strong><small>Block Window</small></span>
+        <span><strong>Billing</strong><small>Master Controls</small></span>
     </div>
 
     <section class="vpms-form-section">
@@ -41,19 +41,19 @@
             <div class="col-md-6">
                 <label asp-for="Input.SalesAccountId" class="form-label">Sales Account</label>
                 <select asp-for="Input.SalesAccountId" asp-items="Model.SalesAccountOptions" class="form-select">
-                    <option value="">No linked account</option>
+                    <option value="">No Linked Account</option>
                 </select>
             </div>
             <div class="col-md-6">
                 <label asp-for="Input.BookingStatus" class="form-label">Status</label>
-                <select asp-for="Input.BookingStatus" asp-items="Html.GetEnumSelectList<GroupBookingStatus>()" class="form-select"></select>
+                <select asp-for="Input.BookingStatus" asp-items="Html.GetUiEnumSelectList<GroupBookingStatus>()" class="form-select"></select>
             </div>
         </div>
     </section>
 
     <section class="vpms-form-section">
         <div class="vpms-form-section-heading">
-            <h2>Stay and Contact</h2>
+            <h2>Stay And Contact</h2>
             <p>Define the group window and the person accountable for rooming and billing coordination.</p>
         </div>
         <div class="row g-3">
@@ -102,7 +102,7 @@
             <div class="col-md-4 d-flex align-items-end">
                 <div class="form-check">
                     <input asp-for="Input.DepositRequired" class="form-check-input" />
-                    <label asp-for="Input.DepositRequired" class="form-check-label">Deposit required</label>
+                    <label asp-for="Input.DepositRequired" class="form-check-label">Deposit Required</label>
                 </div>
             </div>
             <div class="col-12">

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Route Smoke Console";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">Pilot Readiness</a></li>
@@ -64,17 +64,17 @@
 <section class="vpms-product-proof-strip mb-4">
     <article>
         <span>Purpose</span>
-        <strong>Route control</strong>
+        <strong>Route Control</strong>
         <p>Critical route availability.</p>
     </article>
     <article>
         <span>Scope</span>
-        <strong>Route presence, not business validation</strong>
+        <strong>Route Presence, Not Business Validation</strong>
         <p>Route, health, and QA status are reviewed separately.</p>
     </article>
     <article>
-        <span>Next action</span>
-        <strong>Fix Missing first</strong>
+        <span>Next Action</span>
+        <strong>Fix Missing First</strong>
         <p>Review routes marked Missing, then inspect pages marked Needs Review for demo-safe language.</p>
     </article>
 </section>
@@ -116,7 +116,7 @@
                                 <div>@item.Evidence</div>
                                 <div class="small text-muted">@item.PageFile</div>
                             </td>
-                            <td><span class="@IndexModel.StatusBadge(item.Status)">@item.Status</span></td>
+                            <td><span class="@IndexModel.StatusBadge(item.Status)">@UiText.Display(item.Status)</span></td>
                             <td class="text-end">
                                 @if (item.Status != RouteSmokeStatus.Missing)
                                 {

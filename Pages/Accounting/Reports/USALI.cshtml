@@ -1,9 +1,9 @@
 @page
 @model Vantage.PMS.Pages.Accounting.Reports.USALIModel
 @{
-    ViewData["Title"] = "USALI-style Operating Statement";
+    ViewData["Title"] = "USALI-Style Operating Statement";
 }
-<div class="page-header"><div><div class="page-kicker">Accounting Reports</div><h1 class="page-title">USALI-style Operating Statement</h1><p class="page-subtitle">Management operating view based on configurable GL, department, and report-line mappings.</p></div><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div>
+<div class="page-header"><div><div class="page-kicker">Accounting Reports</div><h1 class="page-title">USALI-Style Operating Statement</h1><p class="page-subtitle">Management operating view based on configurable GL, department, and report-line mappings.</p></div><button class="btn vpms-btn-secondary" onclick="window.print()">Print</button></div>
 <div class="alert alert-warning">USALI-style management report. Configure mappings and validate with hotel accountant before production use.</div>
 <form method="get" class="vpms-card mb-3 report-filter"><div class="row g-3 align-items-end"><div class="col-md-4"><label class="form-label">From</label><input name="StartDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-4"><label class="form-label">To</label><input name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" type="date" class="form-control" /></div><div class="col-md-4"><button class="btn vpms-btn-primary w-100">Run</button></div></div></form>
 <section class="vpms-print-document">

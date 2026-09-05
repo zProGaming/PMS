@@ -15,7 +15,7 @@
     <dt class="col-sm-2">Account</dt>
     <dd class="col-sm-10">@Model.SalesLead.SalesAccount?.AccountName</dd>
     <dt class="col-sm-2">Status</dt>
-    <dd class="col-sm-10">@Model.SalesLead.Status</dd>
+    <dd class="col-sm-10">@UiText.Display(Model.SalesLead.Status)</dd>
     <dt class="col-sm-2">Value</dt>
     <dd class="col-sm-10">@Model.SalesLead.EstimatedValue.ToString("N2")</dd>
 </dl>

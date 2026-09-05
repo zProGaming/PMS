@@ -16,9 +16,9 @@
 <form method="post" class="vpms-form-card mb-4">
     <div class="row g-3">
         <div class="col-md-4"><label asp-for="Input.RuleName" class="form-label">Rule Name</label><input asp-for="Input.RuleName" class="form-control" required /></div>
-        <div class="col-md-2"><label asp-for="Input.SourceModule" class="form-label">Module</label><select asp-for="Input.SourceModule" asp-items="Html.GetEnumSelectList<SourceModule>()" class="form-select"></select></div>
-        <div class="col-md-3"><label asp-for="Input.TransactionType" class="form-label">Transaction Type</label><select asp-for="Input.TransactionType" asp-items="Html.GetEnumSelectList<SourceTransactionType>()" class="form-select"></select></div>
-        <div class="col-md-3"><label asp-for="Input.PaymentMethod" class="form-label">Payment Method</label><input asp-for="Input.PaymentMethod" class="form-control" placeholder="Cash, Card, EWallet" /></div>
+        <div class="col-md-2"><label asp-for="Input.SourceModule" class="form-label">Module</label><select asp-for="Input.SourceModule" asp-items="Html.GetUiEnumSelectList<SourceModule>()" class="form-select"></select></div>
+        <div class="col-md-3"><label asp-for="Input.TransactionType" class="form-label">Transaction Type</label><select asp-for="Input.TransactionType" asp-items="Html.GetUiEnumSelectList<SourceTransactionType>()" class="form-select"></select></div>
+        <div class="col-md-3"><label asp-for="Input.PaymentMethod" class="form-label">Payment Method</label><input asp-for="Input.PaymentMethod" class="form-control" placeholder="Cash, Card, Ewallet" /></div>
         <div class="col-md-4"><label asp-for="Input.DebitGLAccountId" class="form-label">Debit Account</label><select asp-for="Input.DebitGLAccountId" asp-items="Model.AccountOptions" class="form-select"></select></div>
         <div class="col-md-4"><label asp-for="Input.CreditGLAccountId" class="form-label">Credit Account</label><select asp-for="Input.CreditGLAccountId" asp-items="Model.AccountOptions" class="form-select"></select></div>
         <div class="col-md-4"><label asp-for="Input.USALIDepartmentId" class="form-label">USALI Department</label><select asp-for="Input.USALIDepartmentId" asp-items="Model.DepartmentOptions" class="form-select"><option value="">None</option></select></div>
@@ -38,7 +38,7 @@
                 <td>@rule.SourceModule / @rule.TransactionType</td>
                 <td>@rule.DebitGLAccount?.AccountCode - @rule.DebitGLAccount?.AccountName</td>
                 <td>@rule.CreditGLAccount?.AccountCode - @rule.CreditGLAccount?.AccountName</td>
-                <td>@rule.PaymentMethod</td>
+                <td>@UiText.Display(rule.PaymentMethod)</td>
                 <td><span class="status-badge @(rule.IsActive ? "status-paid" : "status-cancelled")">@(rule.IsActive ? "Active" : "Inactive")</span></td>
                 <td class="text-end">
                     @if (rule.IsActive)

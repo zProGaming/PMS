@@ -6,7 +6,7 @@
     ViewData["Title"] = "Data Validation Issues";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/System/HealthCheck/Index">System Health</a></li>
@@ -65,14 +65,14 @@
         </div>
         <div class="col-md-3">
             <label class="form-label" asp-for="Severity">Severity</label>
-            <select class="form-select" asp-for="Severity" asp-items="Html.GetEnumSelectList<SystemSeverity>()">
-                <option value="">All severities</option>
+            <select class="form-select" asp-for="Severity" asp-items="Html.GetUiEnumSelectList<SystemSeverity>()">
+                <option value="">All Severities</option>
             </select>
         </div>
         <div class="col-md-3">
             <div class="form-check mt-4">
                 <input class="form-check-input" asp-for="IncludeResolved" />
-                <label class="form-check-label" asp-for="IncludeResolved">Include resolved</label>
+                <label class="form-check-label" asp-for="IncludeResolved">Include Resolved</label>
             </div>
         </div>
         <div class="col-md-2 d-flex gap-2">

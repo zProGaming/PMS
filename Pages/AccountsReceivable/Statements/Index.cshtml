@@ -1,13 +1,13 @@
 @page
 @model Vantage.PMS.Pages.AccountsReceivable.Statements.IndexModel
 @{
-    ViewData["Title"] = "AR Statement of Account";
+    ViewData["Title"] = "AR Statement Of Account";
 }
 
-<h1 class="h3 mb-3">AR Statement of Account</h1>
+<h1 class="h3 mb-3">AR Statement Of Account</h1>
 
 <form method="get" class="row g-3 mb-4">
-    <div class="col-md-6"><label asp-for="ARAccountId" class="form-label">AR Account</label><select asp-for="ARAccountId" asp-items="Model.AccountOptions" class="form-select"><option value="">Select account</option></select></div>
+    <div class="col-md-6"><label asp-for="ARAccountId" class="form-label">AR Account</label><select asp-for="ARAccountId" asp-items="Model.AccountOptions" class="form-select"><option value="">Select Account</option></select></div>
     <div class="col-md-2 align-self-end"><button class="btn btn-primary">View</button></div>
 </form>
 
@@ -29,7 +29,7 @@
                     <td>@invoice.InvoiceNumber</td>
                     <td>@invoice.InvoiceDate.ToString("d")</td>
                     <td>@invoice.DueDate.ToString("d")</td>
-                    <td>@invoice.Status</td>
+                    <td>@UiText.Display(invoice.Status)</td>
                     <td class="text-end">@invoice.OriginalAmount.ToString("C")</td>
                     <td class="text-end">@invoice.AmountPaid.ToString("C")</td>
                     <td class="text-end">@invoice.Balance.ToString("C")</td>
@@ -46,7 +46,7 @@
             {
                 <tr>
                     <td>@payment.PaymentDate.ToString("d")</td>
-                    <td>@payment.PaymentMethod</td>
+                    <td>@UiText.Display(payment.PaymentMethod)</td>
                     <td>@payment.ReferenceNumber</td>
                     <td class="text-end">@payment.Amount.ToString("C")</td>
                     <td class="text-end">@payment.Allocations.Sum(item => item.AllocatedAmount).ToString("C")</td>

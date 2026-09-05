@@ -4,7 +4,7 @@
     ViewData["Title"] = "Company Access";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/Admin/Index">Admin</a></li>
@@ -35,7 +35,7 @@
                 <div class="mb-3">
                     <label asp-for="Input.UserId" class="form-label">User</label>
                     <select asp-for="Input.UserId" class="form-select" asp-items="Model.UserOptions">
-                        <option value="">Select user</option>
+                        <option value="">Select User</option>
                     </select>
                     <span asp-validation-for="Input.UserId" class="text-danger"></span>
                 </div>
@@ -43,7 +43,7 @@
                 <div class="mb-3">
                     <label asp-for="Input.HotelId" class="form-label">Company Code</label>
                     <select asp-for="Input.HotelId" class="form-select" asp-items="Model.HotelOptions">
-                        <option value="">Select company</option>
+                        <option value="">Select Company</option>
                     </select>
                     <span asp-validation-for="Input.HotelId" class="text-danger"></span>
                 </div>
@@ -56,7 +56,7 @@
 
                 <label class="form-check mb-3">
                     <input asp-for="Input.IsDefaultCompany" class="form-check-input" />
-                    <span class="form-check-label">Default company for this user</span>
+                    <span class="form-check-label">Default Company For This User</span>
                 </label>
 
                 <button class="btn vpms-btn-primary w-100" type="submit">Save Access</button>

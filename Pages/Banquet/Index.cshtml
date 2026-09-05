@@ -5,7 +5,7 @@
     ViewData["Title"] = "Banquet Dashboard";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item active" aria-current="page">Banquet</li>
@@ -110,7 +110,7 @@
                             <td><a asp-page="/Banquet/Events/Details" asp-route-id="@banquetEvent.Id">@banquetEvent.EventName</a></td>
                             <td>@banquetEvent.ClientName</td>
                             <td>@banquetEvent.FunctionRoom?.Name</td>
-                            <td><span class="status-badge status-@eventStatusClass">@banquetEvent.EventStatus</span></td>
+                            <td><span class="status-badge status-@eventStatusClass">@UiText.Display(banquetEvent.EventStatus)</span></td>
                             <td class="text-end">@banquetEvent.ExpectedPax</td>
                         </tr>
                     }

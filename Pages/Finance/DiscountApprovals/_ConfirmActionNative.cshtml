@@ -3,15 +3,15 @@
 @if (Model.NativeDiscount is not null)
 {
     <div class="vpms-native-workflow-card">
-        <div class="vpms-native-workflow-kicker">Discount control</div>
-        <h2>@Model.NativeActionTitle</h2>
+        <div class="vpms-native-workflow-kicker">Discount Control</div>
+        <h2>@UiText.Label(Model.NativeActionTitle)</h2>
         <p>@Model.NativeActionMessage</p>
 
         <div class="vpms-native-workflow-summary">
             <span>Target</span>
             <strong>@Model.NativeTarget</strong>
             <span>Status</span>
-            <strong>@Model.NativeDiscount.Status</strong>
+            <strong>@UiText.Display(Model.NativeDiscount.Status)</strong>
             <span>Type</span>
             <strong>@Model.NativeDiscount.DiscountType</strong>
             <span>Amount</span>
@@ -24,7 +24,7 @@
         }
 
         <form method="post" asp-page="./Index" asp-page-handler="@Model.NativeActionHandler" asp-route-id="@Model.NativeDiscount.Id" class="vpms-native-workflow-actions">
-            <button type="submit" class="btn @Model.NativeActionButtonClass">@Model.NativeActionButtonText</button>
+            <button type="submit" class="btn @Model.NativeActionButtonClass">@UiText.Label(Model.NativeActionButtonText)</button>
             <a href="#" class="btn vpms-btn-secondary" data-vpms-dialog-close>Keep Reviewing</a>
         </form>
     </div>

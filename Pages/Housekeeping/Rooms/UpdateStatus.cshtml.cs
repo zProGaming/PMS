@@ -4,19 +4,22 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Vantage.PMS.Data;
+using Vantage.PMS.Services;
 using Vantage.PMS.Models.FrontOffice;
 
 namespace Vantage.PMS.Pages.Housekeeping.Rooms;
 
-public class UpdateStatusModel(ApplicationDbContext context) : PageModel
+public class UpdateStatusModel(ApplicationDbContext context, HousekeepingWorkflowService workflow) : PageModel
 {
     private readonly ApplicationDbContext _context = context;
 
-    [BindProperty]
     public Room Room { get; set; } = default!;
 
     [BindProperty]
     public RoomStatus TargetStatus { get; set; }
+
+    [BindProperty]
+    public RoomStatus? ExpectedStatus { get; set; }
 
     [BindProperty]
     public string? Notes { get; set; }
@@ -59,20 +62,16 @@ public class UpdateStatusModel(ApplicationDbContext context) : PageModel
         }
 
         Room = room;
-        ValidateStatusTransition(room.Status, TargetStatus);
-
+        if (ModelState.IsValid)
+            foreach (var error in await workflow.UpdateRoomAsync(id.Value, ExpectedStatus, TargetStatus, Notes, User))
+                ModelState.AddModelError(string.Empty, error);
         if (!ModelState.IsValid)
         {
-            LoadStatusOptions(room.Status);
+            Room = (await LoadRoomAsync(id.Value, asTracking: false))!;
+            LoadStatusOptions(Room.Status);
             return NativePartialOrPage();
         }
-
-        room.Status = TargetStatus;
-        room.StatusNotes = TargetStatus == RoomStatus.OutOfOrder
-            ? Notes
-            : string.IsNullOrWhiteSpace(Notes) ? null : Notes;
-
-        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "Room status updated. Cleaning, inspection, and release are separate recorded steps.";
 
         return RedirectToPage("/Housekeeping/Index");
     }
@@ -92,6 +91,7 @@ public class UpdateStatusModel(ApplicationDbContext context) : PageModel
 
         Room = room;
         Notes = room.StatusNotes;
+        ExpectedStatus = room.Status;
         LoadStatusOptions(room.Status);
 
         return null;
@@ -114,43 +114,13 @@ public class UpdateStatusModel(ApplicationDbContext context) : PageModel
 
     private void LoadStatusOptions(RoomStatus currentStatus)
     {
-        StatusOptions = GetAllowedStatuses(currentStatus)
+        StatusOptions = HousekeepingWorkflowService.AllowedStatuses(currentStatus, User)
             .Select(status => new SelectListItem
             {
                 Value = status.ToString(),
-                Text = status.ToString(),
+                Text = Vantage.PMS.Presentation.UiText.Label(status.ToString()),
                 Selected = status == TargetStatus
             });
-    }
-
-    private void ValidateStatusTransition(RoomStatus currentStatus, RoomStatus targetStatus)
-    {
-        if (!GetAllowedStatuses(currentStatus).Contains(targetStatus))
-        {
-            ModelState.AddModelError(nameof(TargetStatus), $"Cannot change room from {currentStatus} to {targetStatus}.");
-        }
-
-        if (targetStatus == RoomStatus.OutOfOrder && string.IsNullOrWhiteSpace(Notes))
-        {
-            ModelState.AddModelError(nameof(Notes), "Notes are required when placing a room out of order.");
-        }
-    }
-
-    private static IEnumerable<RoomStatus> GetAllowedStatuses(RoomStatus currentStatus)
-    {
-        var statuses = currentStatus switch
-        {
-            RoomStatus.Dirty => new[] { RoomStatus.Clean },
-            RoomStatus.Clean => new[] { RoomStatus.Inspected },
-            RoomStatus.Inspected => new[] { RoomStatus.Available },
-            RoomStatus.Available => new[] { RoomStatus.Maintenance },
-            RoomStatus.Maintenance => new[] { RoomStatus.Available },
-            _ => Array.Empty<RoomStatus>()
-        };
-
-        return currentStatus == RoomStatus.OutOfOrder
-            ? statuses
-            : statuses.Append(RoomStatus.OutOfOrder);
     }
 
     private IActionResult NativePartialOrPage()

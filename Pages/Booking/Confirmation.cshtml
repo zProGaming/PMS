@@ -17,14 +17,14 @@
                 {
                     <p>Your booking request has been received. Our team will contact you to confirm your reservation.</p>
                     <dl class="row">
-                        <dt class="col-sm-4">Booking reference</dt>
+                        <dt class="col-sm-4">Booking Reference</dt>
                         <dd class="col-sm-8 fw-semibold">@Model.BookingRequest.BookingReference</dd>
                         <dt class="col-sm-4">Guest</dt>
                         <dd class="col-sm-8">@Model.BookingRequest.GuestFirstName @Model.BookingRequest.GuestLastName</dd>
-                        <dt class="col-sm-4">Stay dates</dt>
+                        <dt class="col-sm-4">Stay Dates</dt>
                         <dd class="col-sm-8">@Model.BookingRequest.CheckInDate.ToString("yyyy-MM-dd") - @Model.BookingRequest.CheckOutDate.ToString("yyyy-MM-dd")</dd>
                         <dt class="col-sm-4">Status</dt>
-                        <dd class="col-sm-8">@Model.BookingRequest.BookingStatus</dd>
+                        <dd class="col-sm-8">@UiText.Display(Model.BookingRequest.BookingStatus)</dd>
                     </dl>
                 }
                 <a asp-page="Index" class="btn btn-primary">Start New Search</a>

@@ -36,7 +36,7 @@
                 <td><a asp-page="/Banquet/Events/Details" asp-route-id="@banquetEvent.Id">@banquetEvent.EventName</a></td>
                 <td>@banquetEvent.ClientName</td>
                 <td>@banquetEvent.FunctionRoom?.Name</td>
-                <td><span class="badge @StatusBadgeClass(banquetEvent.EventStatus)">@banquetEvent.EventStatus</span></td>
+                <td><span class="badge @StatusBadgeClass(banquetEvent.EventStatus)">@UiText.Display(banquetEvent.EventStatus)</span></td>
                 <td class="text-end">@banquetEvent.ExpectedPax / @banquetEvent.GuaranteedPax</td>
             </tr>
             }

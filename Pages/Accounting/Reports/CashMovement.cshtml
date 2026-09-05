@@ -31,27 +31,27 @@
             <input name="EndDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" type="date" class="form-control" />
         </div>
         <div class="col-md-2">
-            <label asp-for="CashAccountId" class="form-label">Cash account</label>
+            <label asp-for="CashAccountId" class="form-label">Cash Account</label>
             <select asp-for="CashAccountId" asp-items="Model.CashAccountOptions" class="form-select">
-                <option value="">All cash accounts</option>
+                <option value="">All Cash Accounts</option>
             </select>
         </div>
         <div class="col-md-2">
             <label asp-for="Section" class="form-label">Section</label>
-            <select asp-for="Section" asp-items="Html.GetEnumSelectList<CashFlowSection>()" class="form-select">
-                <option value="">All sections</option>
+            <select asp-for="Section" asp-items="Html.GetUiEnumSelectList<CashFlowSection>()" class="form-select">
+                <option value="">All Sections</option>
             </select>
         </div>
         <div class="col-md-2">
             <label asp-for="CategoryId" class="form-label">Category</label>
             <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-select">
-                <option value="">All categories</option>
+                <option value="">All Categories</option>
             </select>
         </div>
         <div class="col-md-2">
             <label asp-for="SourceModule" class="form-label">Source</label>
-            <select asp-for="SourceModule" asp-items="Html.GetEnumSelectList<SourceModule>()" class="form-select">
-                <option value="">All sources</option>
+            <select asp-for="SourceModule" asp-items="Html.GetUiEnumSelectList<SourceModule>()" class="form-select">
+                <option value="">All Sources</option>
             </select>
         </div>
         <div class="col-md-2">
@@ -91,7 +91,7 @@
     @if (!Model.Rows.Any())
     {
         <div class="vpms-empty-state">
-            <h2>No cash movements found</h2>
+            <h2>No Cash Movements Found</h2>
             <p>No posted journal entries involving configured cash accounts were found for the selected filters.</p>
         </div>
     }
@@ -127,7 +127,7 @@
                         <td class="text-end">@row.CashOutflow.ToString("C")</td>
                         <td>@row.CashFlowSection / @row.CashFlowCategoryName</td>
                         <td>
-                            <span class="status-badge @(row.IsMapped ? "status-paid" : "status-pending")">@row.MappingStatus</span>
+                            <span class="status-badge @(row.IsMapped ? "status-paid" : "status-pending")">@UiText.Display(row.MappingStatus)</span>
                             @if (!row.IsMapped)
                             {
                                 <a class="btn btn-sm vpms-btn-secondary ms-2 vpms-no-print" asp-page="/Accounting/CashFlow/MappingRules/Index" asp-route-glAccountId="@row.OffsetAccountId" asp-route-sourceModule="@row.SourceModule" asp-route-sourceTransactionType="@row.SourceTransactionType">Map</a>

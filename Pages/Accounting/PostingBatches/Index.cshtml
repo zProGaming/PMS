@@ -9,7 +9,7 @@
 </div>
 <form method="post" class="vpms-form-card mb-4">
     <div class="row g-3 align-items-end">
-        <div class="col-md-3"><label asp-for="SourceModule" class="form-label">Source Module</label><select asp-for="SourceModule" asp-items="Html.GetEnumSelectList<SourceModule>()" class="form-select"></select></div>
+        <div class="col-md-3"><label asp-for="SourceModule" class="form-label">Source Module</label><select asp-for="SourceModule" asp-items="Html.GetUiEnumSelectList<SourceModule>()" class="form-select"></select></div>
         <div class="col-md-3"><label asp-for="StartDate" class="form-label">Start Date</label><input asp-for="StartDate" class="form-control" type="date" /></div>
         <div class="col-md-3"><label asp-for="EndDate" class="form-label">End Date</label><input asp-for="EndDate" class="form-control" type="date" /></div>
         <div class="col-md-3"><button class="btn vpms-btn-primary w-100" type="submit">Create Batch</button></div>
@@ -25,7 +25,7 @@
                 <td class="fw-semibold">@batch.BatchNumber</td>
                 <td>@batch.BatchDate.ToString("yyyy-MM-dd")</td>
                 <td>@batch.SourceModule</td>
-                <td><span class="status-badge">@batch.Status</span></td>
+                <td><span class="status-badge">@UiText.Display(batch.Status)</span></td>
                 <td>@batch.Items.Count</td>
                 <td>@batch.PostedAt?.ToString("g")</td>
                 <td class="text-end"><a asp-page="Details" asp-route-id="@batch.Id" class="btn btn-sm vpms-btn-secondary">Details</a></td>

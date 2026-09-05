@@ -53,11 +53,11 @@
     <div class="vpms-user-area">
         @if (Vantage.PMS.Authorization.PmsRoles.SystemManagement.Any(User.IsInRole))
         {
-        <a class="vpms-notification-link" asp-area="" asp-page="/System/Notifications/Index" aria-label="System notifications">
+        <a class="vpms-notification-link" asp-area="" asp-page="/System/Notifications/Index" aria-label="System Notifications">
             <span class="vpms-notification-dot"></span>
         </a>
         }
-        <a class="vpms-user-summary" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage account">
+        <a class="vpms-user-summary" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage Account">
             <span class="vpms-user-avatar">@initials</span>
             <span class="vpms-user-copy">
                 <strong>@displayName</strong>

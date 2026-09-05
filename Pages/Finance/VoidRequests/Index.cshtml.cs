@@ -9,10 +9,10 @@ using Vantage.PMS.Services;
 
 namespace Vantage.PMS.Pages.Finance.VoidRequests;
 
-public class IndexModel(ApplicationDbContext context, FinanceService financeService) : PageModel
+public class IndexModel(ApplicationDbContext context, FinanceAdjustmentService adjustments) : PageModel
 {
     private readonly ApplicationDbContext _context = context;
-    private readonly FinanceService _financeService = financeService;
+    private readonly FinanceAdjustmentService _adjustments = adjustments;
 
     public IList<VoidRequest> VoidRequests { get; set; } = new List<VoidRequest>();
 
@@ -76,68 +76,35 @@ public class IndexModel(ApplicationDbContext context, FinanceService financeServ
 
     public async Task<IActionResult> OnPostCreateAsync()
     {
-        if (string.IsNullOrWhiteSpace(VoidRequest.ReferenceType))
-        {
-            ModelState.AddModelError(nameof(VoidRequest.ReferenceType), "Reference type is required.");
-        }
-
-        if (VoidRequest.ReferenceId <= 0)
-        {
-            ModelState.AddModelError(nameof(VoidRequest.ReferenceId), "Reference ID is required.");
-        }
-
+        if (ModelState.IsValid)
+            foreach (var error in await _adjustments.CreateVoidAsync(VoidRequest, User))
+                ModelState.AddModelError(string.Empty, error);
         if (!ModelState.IsValid)
         {
             await OnGetAsync();
             return IsNativeWorkflowRequest() ? NativeCreatePartial() : Page();
         }
-
-        VoidRequest.Status = ApprovalStatus.Pending;
-        VoidRequest.RequestedAt = DateTime.Now;
-        _context.VoidRequests.Add(VoidRequest);
-        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "Void request created. A different manager must approve it.";
         return RedirectToPage();
     }
 
-    public async Task<IActionResult> OnPostApproveAsync(int id)
+    public Task<IActionResult> OnPostApproveAsync(int id) => DecideAsync(id, "Approve");
+    public Task<IActionResult> OnPostRejectAsync(int id) => DecideAsync(id, "Reject");
+    public Task<IActionResult> OnPostProcessAsync(int id) => DecideAsync(id, "Process");
+
+    private async Task<IActionResult> DecideAsync(int id, string action)
     {
-        if (!CanApprove()) return Forbid();
-        var request = await _context.VoidRequests.FindAsync(id);
-        if (request is null) return NotFound();
-        if (request.Status == ApprovalStatus.Pending)
-        {
-            request.Status = ApprovalStatus.Approved;
-            request.ApprovedBy = User.Identity?.Name ?? "System";
-            request.ApprovedAt = DateTime.Now;
-        }
-        await _context.SaveChangesAsync();
+        if (action is "Approve" or "Reject" && !CanApprove()) return Forbid();
+        var errors = await _adjustments.DecideVoidAsync(id, action, User);
+        TempData[errors.Count > 0 ? "ErrorMessage" : "SuccessMessage"] =
+            errors.Count > 0 ? string.Join(" ", errors) : "Void decision recorded. Review the current status below.";
         return RedirectToPage();
     }
 
-    public async Task<IActionResult> OnPostRejectAsync(int id)
-    {
-        if (!CanApprove()) return Forbid();
-        var request = await _context.VoidRequests.FindAsync(id);
-        if (request is null) return NotFound();
-        if (request.Status == ApprovalStatus.Pending)
-        {
-            request.Status = ApprovalStatus.Rejected;
-            request.RejectedBy = User.Identity?.Name ?? "System";
-            request.RejectedAt = DateTime.Now;
-        }
-        await _context.SaveChangesAsync();
-        return RedirectToPage();
-    }
-
-    public async Task<IActionResult> OnPostProcessAsync(int id)
-    {
-        var errors = await _financeService.ProcessVoidRequestAsync(id, User.Identity?.Name ?? "System");
-        if (errors.Count > 0)
-        {
-            TempData["ErrorMessage"] = string.Join(" ", errors);
-        }
-        return RedirectToPage();
-    }
+    public bool CanReview(VoidRequest request) => CanApprove() &&
+        !FinanceAdjustmentService.SameActor(request.RequestedBy, User.Identity?.Name);
+    public bool CanProcess(VoidRequest request) =>
+        !FinanceAdjustmentService.SameActor(request.ApprovedBy, User.Identity?.Name);
 
     private bool CanApprove() =>
         User.IsInRole(PmsRoles.SystemAdmin) ||

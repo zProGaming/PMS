@@ -42,7 +42,7 @@
                             <div class="text-danger small">Guest has outstanding balance. Settlement is required before checkout completion.</div>
                         }
                     </td>
-                    <td><span class="badge bg-secondary">@request.Status</span></td>
+                    <td><span class="badge bg-secondary">@UiText.Display(request.Status)</span></td>
                     <td>@request.GuestNotes</td>
                     <td class="text-end">
                         <form method="post" class="d-inline" asp-page-handler="SetStatus" asp-route-id="@request.Id" asp-route-status="@ExpressCheckoutRequestStatus.UnderReview">

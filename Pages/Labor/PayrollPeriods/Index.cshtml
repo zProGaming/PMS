@@ -38,7 +38,7 @@
             <tr>
                 <td><a class="fw-semibold" asp-page="Details" asp-route-id="@period.Id">@period.PeriodName</a><div class="text-muted small">Pay date @(period.PayDate?.ToString("yyyy-MM-dd") ?? "not set")</div></td>
                 <td>@period.StartDate.ToString("yyyy-MM-dd") - @period.EndDate.ToString("yyyy-MM-dd")</td>
-                <td><span class="status-badge">@period.Status</span></td>
+                <td><span class="status-badge">@UiText.Display(period.Status)</span></td>
                 <td class="text-end">@period.Entries.Count</td>
                 <td class="text-end">@period.Entries.Sum(entry => entry.GrossPay).ToString("C")</td>
                 <td>@(period.JournalEntry?.JournalNumber ?? "Not posted")</td>

@@ -1,8 +1,8 @@
 @model Vantage.PMS.Pages.Banquet.Charges.IndexModel
 
 <div class="vpms-native-workflow-card">
-    <div class="vpms-native-workflow-kicker">Banquet charges</div>
-    <h2>Add event charge</h2>
+    <div class="vpms-native-workflow-kicker">Banquet Charges</div>
+    <h2>Add Event Charge</h2>
     <p>@Model.BanquetEvent?.EventName</p>
 
     <form method="post" asp-page="./Index" asp-page-handler="Add" asp-route-eventId="@Model.BanquetEvent?.Id" class="vpms-native-workflow-form">

@@ -41,7 +41,7 @@ else
     <div class="col-md-3">
         <div class="border rounded p-3 h-100">
             <div class="text-muted small">Payment Status</div>
-            <div class="fs-5">@Model.Order.PaymentStatus</div>
+            <div class="fs-5">@UiText.Display(Model.Order.PaymentStatus)</div>
         </div>
     </div>
     <div class="col-md-3">
@@ -57,10 +57,10 @@ else
 
     @if (isNativeWorkflow)
     {
-        <div class="vpms-native-step-grid compact" aria-label="Settlement controls">
-            <span><strong>Cash/Card</strong><small>Settle immediately</small></span>
-            <span><strong>E-wallet</strong><small>Trace reference</small></span>
-            <span><strong>Room Charge</strong><small>In-house folio only</small></span>
+        <div class="vpms-native-step-grid compact" aria-label="Settlement Controls">
+            <span><strong>Cash/Card</strong><small>Settle Immediately</small></span>
+            <span><strong>E-Wallet</strong><small>Trace Reference</small></span>
+            <span><strong>Room Charge</strong><small>In-House Folio Only</small></span>
         </div>
     }
 
@@ -71,9 +71,9 @@ else
             <span asp-validation-for="SettlementMethod" class="text-danger"></span>
         </div>
         <div class="col-md-6">
-            <label asp-for="SelectedReservationId" class="form-label">Checked-in Guest / Reservation</label>
+            <label asp-for="SelectedReservationId" class="form-label">Checked-In Guest / Reservation</label>
             <select asp-for="SelectedReservationId" class="form-select" asp-items="Model.ReservationOptions">
-                <option value="">Not assigned</option>
+                <option value="">Not Assigned</option>
             </select>
             <span asp-validation-for="SelectedReservationId" class="text-danger"></span>
         </div>

@@ -2,8 +2,8 @@
 @using Vantage.PMS.Models.Finance
 
 <div class="vpms-native-workflow-card">
-    <div class="vpms-native-workflow-kicker">Discount request</div>
-    <h2>New discount request</h2>
+    <div class="vpms-native-workflow-kicker">Discount Request</div>
+    <h2>New Discount Request</h2>
     <p>Create a controlled discount approval request for folio, POS, or banquet targets.</p>
 
     <form method="post" asp-page="./Index" asp-page-handler="Create" class="vpms-native-workflow-form">
@@ -11,7 +11,7 @@
         <section class="vpms-form-section">
             <div class="vpms-form-section-heading">
                 <div>
-                    <h2>Target and Amount</h2>
+                    <h2>Target And Amount</h2>
                     <p>Enter one target reference and the proposed discount value.</p>
                 </div>
             </div>
@@ -34,7 +34,7 @@
                 </div>
                 <div class="col-md-4">
                     <label asp-for="Discount.DiscountType" class="form-label"></label>
-                    <select asp-for="Discount.DiscountType" asp-items="Html.GetEnumSelectList<DiscountType>()" class="form-select"></select>
+                    <select asp-for="Discount.DiscountType" asp-items="Html.GetUiEnumSelectList<DiscountType>()" class="form-select"></select>
                 </div>
                 <div class="col-md-4">
                     <label asp-for="Discount.DiscountValue" class="form-label"></label>

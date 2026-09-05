@@ -86,6 +86,8 @@ public class FinanceService(ApplicationDbContext context)
             {
                 errors.Add("Payment amount must be greater than zero.");
             }
+            if (decimal.Round(payment.Amount, 2) != payment.Amount)
+                errors.Add("Payment amount must have no more than two decimal places.");
 
             if (string.IsNullOrWhiteSpace(payment.PaymentMethod))
             {
@@ -157,7 +159,7 @@ public class FinanceService(ApplicationDbContext context)
                 }
             }
 
-            var shift = await GetOpenShiftForUserAsync(createdBy);
+            var shift = await CashierShiftLock.OpenForUserAsync(_context, createdBy);
             if (shift is null && !allowWithoutOpenShift)
             {
                 errors.Add("Open a cashier shift before posting payments.");
@@ -489,63 +491,4 @@ public class FinanceService(ApplicationDbContext context)
         return errors;
     }
 
-    public async Task<IList<string>> ProcessVoidRequestAsync(int id, string processedBy)
-    {
-        var errors = new List<string>();
-        var request = await _context.VoidRequests.FindAsync(id);
-        if (request is null)
-        {
-            errors.Add("Void request was not found.");
-            return errors;
-        }
-
-        if (request.Status != ApprovalStatus.Approved)
-        {
-            errors.Add("Only approved void requests can be processed.");
-            return errors;
-        }
-
-        switch (request.ReferenceType)
-        {
-            case "FolioItem":
-                var item = await _context.FolioItems.FindAsync(request.ReferenceId);
-                if (item is null) errors.Add("Folio item was not found."); else item.IsVoided = true;
-                break;
-            case "Payment":
-                var payment = await _context.Payments.FindAsync(request.ReferenceId);
-                if (payment is null) errors.Add("Payment was not found."); else payment.Status = PaymentStatus.Voided;
-                break;
-            case "POSOrder":
-                var posOrder = await _context.POSOrders.FindAsync(request.ReferenceId);
-                if (posOrder is null) errors.Add("POS order was not found."); else posOrder.PaymentStatus = POSPaymentStatus.Voided;
-                break;
-            case "FinanceDocument":
-                var document = await _context.FinanceDocuments.FindAsync(request.ReferenceId);
-                if (document is null)
-                {
-                    errors.Add("Finance document was not found.");
-                }
-                else
-                {
-                    document.Status = FinanceDocumentStatus.Voided;
-                    document.VoidedBy = processedBy;
-                    document.VoidedAt = DateTime.Now;
-                    document.VoidReason = request.Reason;
-                }
-                break;
-            default:
-                errors.Add("Unsupported void reference type.");
-                break;
-        }
-
-        if (errors.Count == 0)
-        {
-            request.Notes = string.IsNullOrWhiteSpace(request.Notes)
-                ? $"Processed by {processedBy}."
-                : $"{request.Notes} Processed by {processedBy}.";
-            await _context.SaveChangesAsync();
-        }
-
-        return errors;
-    }
 }

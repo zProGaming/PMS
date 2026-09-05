@@ -41,23 +41,23 @@
                 <div class="card-header">Stay Summary</div>
                 <div class="card-body">
                     <dl class="row mb-0">
-                        <dt class="col-sm-4">Stay dates</dt>
+                        <dt class="col-sm-4">Stay Dates</dt>
                         <dd class="col-sm-8">@Model.QuoteResult.Quote.CheckInDate.ToString("yyyy-MM-dd") - @Model.QuoteResult.Quote.CheckOutDate.ToString("yyyy-MM-dd")</dd>
                         <dt class="col-sm-4">Nights</dt>
                         <dd class="col-sm-8">@Model.QuoteResult.Quote.Nights</dd>
                         <dt class="col-sm-4">Guests</dt>
                         <dd class="col-sm-8">@Model.QuoteResult.Quote.AdultCount adult(s), @Model.QuoteResult.Quote.ChildCount child(ren)</dd>
-                        <dt class="col-sm-4">Room type</dt>
+                        <dt class="col-sm-4">Room Type</dt>
                         <dd class="col-sm-8">@Model.QuoteResult.Quote.RoomTypeName</dd>
-                        <dt class="col-sm-4">Rate plan</dt>
+                        <dt class="col-sm-4">Rate Plan</dt>
                         <dd class="col-sm-8">@(Model.QuoteResult.Quote.RatePlanId?.ToString() ?? "Base rate")</dd>
-                        <dt class="col-sm-4">Room rate</dt>
+                        <dt class="col-sm-4">Room Rate</dt>
                         <dd class="col-sm-8">@Model.QuoteResult.Quote.RoomRate.ToString("C")</dd>
-                        <dt class="col-sm-4">Room total</dt>
+                        <dt class="col-sm-4">Room Total</dt>
                         <dd class="col-sm-8">@Model.QuoteResult.Quote.RoomTotalBeforeDiscount.ToString("C")</dd>
-                        <dt class="col-sm-4">Promo discount</dt>
+                        <dt class="col-sm-4">Promo Discount</dt>
                         <dd class="col-sm-8">@Model.QuoteResult.Quote.DiscountAmount.ToString("C")</dd>
-                        <dt class="col-sm-4">Add-ons</dt>
+                        <dt class="col-sm-4">Add-Ons</dt>
                         <dd class="col-sm-8">
                             @if (Model.QuoteResult.Quote.AddOns.Count == 0)
                             {
@@ -73,9 +73,9 @@
                                 </ul>
                             }
                         </dd>
-                        <dt class="col-sm-4">Deposit required</dt>
+                        <dt class="col-sm-4">Deposit Required</dt>
                         <dd class="col-sm-8">@(Model.QuoteResult.Quote.DepositRequired ? Model.QuoteResult.Quote.DepositAmount.ToString("C") : "Not required")</dd>
-                        <dt class="col-sm-4">Final estimated total</dt>
+                        <dt class="col-sm-4">Final Estimated Total</dt>
                         <dd class="col-sm-8 fw-semibold">@Model.QuoteResult.Quote.FinalEstimatedTotal.ToString("C")</dd>
                     </dl>
                 </div>
@@ -108,7 +108,7 @@
                     {
                         <div class="small text-muted mb-3">@Model.QuoteResult.Quote.Setting.TermsAndConditions</div>
                     }
-                    <p class="small text-muted mb-3">Review the <a asp-page="/Privacy" target="_blank" rel="noopener">hotel privacy notice</a> before submitting your request.</p>
+                    <p class="small text-muted mb-3">Review the <a asp-page="/Privacy" target="_blank" rel="noopener">Hotel Privacy Notice</a> before submitting your request.</p>
                     <div class="form-check mb-3">
                         <input asp-for="SummaryAcceptedTerms" class="form-check-input" />
                         <label asp-for="SummaryAcceptedTerms" class="form-check-label">I confirm and accept the terms and conditions and acknowledge the privacy notice.</label>

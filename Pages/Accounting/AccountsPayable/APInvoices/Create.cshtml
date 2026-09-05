@@ -9,7 +9,7 @@
 </div>
 
 <section class="vpms-card mb-4">
-    <h2 class="h6">Create from source document</h2>
+    <h2 class="h6">Create From Source Document</h2>
     <form method="get" class="row g-3 align-items-end">
         <div class="col-md-5">
             <label class="form-label">Purchase Order</label>
@@ -17,7 +17,7 @@
         </div>
         <div class="col-md-5">
             <label class="form-label">Receiving Record</label>
-            <select name="receivingRecordId" class="form-select" asp-items="Model.ReceivingRecordOptions"><option value="">Select receiving</option></select>
+            <select name="receivingRecordId" class="form-select" asp-items="Model.ReceivingRecordOptions"><option value="">Select Receiving</option></select>
         </div>
         <div class="col-md-2"><button type="submit" class="btn vpms-btn-secondary w-100">Load</button></div>
     </form>
@@ -33,7 +33,7 @@
     <input asp-for="Input.PurchaseOrderId" type="hidden" />
     <input asp-for="Input.ReceivingRecordId" type="hidden" />
     <div class="row g-3">
-        <div class="col-md-3"><label asp-for="Input.SupplierId" class="form-label">Supplier</label><select asp-for="Input.SupplierId" asp-items="Model.SupplierOptions" class="form-select"><option value="">Select supplier</option></select></div>
+        <div class="col-md-3"><label asp-for="Input.SupplierId" class="form-label">Supplier</label><select asp-for="Input.SupplierId" asp-items="Model.SupplierOptions" class="form-select"><option value="">Select Supplier</option></select></div>
         <div class="col-md-3"><label asp-for="Input.InvoiceNumber" class="form-label">AP Number</label><input asp-for="Input.InvoiceNumber" class="form-control" /></div>
         <div class="col-md-3"><label asp-for="Input.SupplierInvoiceNumber" class="form-label">Supplier Invoice / Reference</label><input asp-for="Input.SupplierInvoiceNumber" class="form-control" /></div>
         <div class="col-md-2"><label asp-for="Input.InvoiceDate" class="form-label">Invoice Date</label><input asp-for="Input.InvoiceDate" type="date" class="form-control" /></div>

@@ -2,17 +2,17 @@
 @using Vantage.PMS.Models.Finance
 
 <div class="vpms-native-workflow-card">
-    <div class="vpms-native-workflow-kicker">Refund request</div>
-    <h2>New refund request</h2>
+    <div class="vpms-native-workflow-kicker">Refund Request</div>
+    <h2>New Refund Request</h2>
     <p>Create a controlled refund request for finance approval and cashier processing.</p>
 
     <form method="post" asp-page="./Index" asp-page-handler="Create" class="vpms-native-workflow-form">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div asp-validation-summary="All" class="text-danger"></div>
         <section class="vpms-form-section">
             <div class="vpms-form-section-heading">
                 <div>
                     <h2>Refund Details</h2>
-                    <p>Link the source folio or payment where available.</p>
+                    <p>Select the source receipt. The folio must match that receipt. Approval and processing require different operators.</p>
                 </div>
             </div>
             <div class="row g-3">
@@ -22,7 +22,7 @@
                 </div>
                 <div class="col-md-4">
                     <label asp-for="Refund.RefundDate" class="form-label"></label>
-                    <input asp-for="Refund.RefundDate" type="date" class="form-control" />
+                    <input asp-for="Refund.RefundDate" type="date" class="form-control" readonly />
                 </div>
                 <div class="col-md-4">
                     <label asp-for="Refund.Amount" class="form-label"></label>
@@ -31,19 +31,19 @@
                 </div>
                 <div class="col-md-4">
                     <label asp-for="Refund.RefundMethod" class="form-label"></label>
-                    <select asp-for="Refund.RefundMethod" asp-items="Html.GetEnumSelectList<FinancePaymentMethod>()" class="form-select"></select>
+                    <select asp-for="Refund.RefundMethod" asp-items="Html.GetUiEnumSelectList<FinancePaymentMethod>()" class="form-select"></select>
                 </div>
                 <div class="col-md-4">
                     <label asp-for="Refund.FolioId" class="form-label">Folio</label>
-                    <select asp-for="Refund.FolioId" asp-items="Model.FolioOptions" class="form-select"><option value="">None</option></select>
+                    <select asp-for="Refund.FolioId" asp-items="Model.FolioOptions" class="form-select"><option value="">Select</option></select>
                 </div>
                 <div class="col-md-4">
                     <label asp-for="Refund.PaymentId" class="form-label">Payment</label>
-                    <select asp-for="Refund.PaymentId" asp-items="Model.PaymentOptions" class="form-select"><option value="">None</option></select>
+                    <select asp-for="Refund.PaymentId" asp-items="Model.PaymentOptions" class="form-select"><option value="">Select</option></select>
                 </div>
                 <div class="col-md-4">
                     <label asp-for="Refund.RequestedBy" class="form-label"></label>
-                    <input asp-for="Refund.RequestedBy" class="form-control" />
+                    <input asp-for="Refund.RequestedBy" class="form-control" readonly />
                 </div>
                 <div class="col-md-8">
                     <label asp-for="Refund.Reason" class="form-label"></label>

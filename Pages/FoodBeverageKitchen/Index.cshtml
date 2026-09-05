@@ -6,7 +6,7 @@
     ViewData["Title"] = "Kitchen Display";
 }
 
-<nav aria-label="breadcrumb">
+<nav aria-label="Breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-page="/Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-page="/FoodBeverage/Index">F&amp;B Service</a></li>
@@ -106,7 +106,7 @@
                             </td>
                             <td class="text-end">@item.Quantity.ToString("N2")</td>
                             <td>
-                                <span class="status-badge status-@itemStatusClass">@item.ItemStatus</span>
+                                <span class="status-badge status-@itemStatusClass">@UiText.Display(item.ItemStatus)</span>
                                 @if (item.IsDelayed)
                                 {
                                     <span class="status-badge status-warning ms-1">Delayed</span>

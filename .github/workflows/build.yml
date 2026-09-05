@@ -30,6 +30,9 @@ jobs:
       - name: Restore
         run: dotnet restore tests/Vantage.PMS.Tests/Vantage.PMS.Tests.csproj
 
+      - name: Check UI Label Capitalization
+        run: node scripts/title-case-ui.cjs --check
+
       - name: Build
         run: dotnet build Vantage.PMS.csproj --configuration Release --no-restore
 

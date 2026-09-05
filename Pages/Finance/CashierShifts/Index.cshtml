@@ -18,7 +18,7 @@
 }
 
 <details class="vpms-refined-card vpms-inline-create-panel mb-4">
-    <summary>Manual shift opening</summary>
+    <summary>Manual Shift Opening</summary>
 <form method="post" asp-page-handler="Open" class="row g-3 mt-3">
     <div class="col-md-3"><label asp-for="OpeningCashFloat" class="form-label"></label><input asp-for="OpeningCashFloat" class="form-control" /></div>
     <div class="col-md-7"><label asp-for="Notes" class="form-label"></label><input asp-for="Notes" class="form-control" /></div>
@@ -51,7 +51,7 @@
                         <td>@shift.OpenedBy</td>
                         <td>@shift.OpenedAt.ToString("g")</td>
                         <td>@shift.ClosedAt?.ToString("g")</td>
-                        <td><span class="badge text-bg-secondary">@shift.Status</span></td>
+                        <td><span class="badge text-bg-secondary">@UiText.Display(shift.Status)</span></td>
                         <td class="text-end">@shift.ExpectedCashAmount?.ToString("C")</td>
                         <td class="text-end">@shift.CashOverShort?.ToString("C")</td>
                         <td class="text-end">

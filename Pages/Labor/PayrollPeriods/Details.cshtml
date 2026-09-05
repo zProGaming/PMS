@@ -13,8 +13,8 @@
         <p class="page-subtitle">@period.StartDate.ToString("yyyy-MM-dd") to @period.EndDate.ToString("yyyy-MM-dd")</p>
     </div>
     <div class="page-actions">
-        <span class="status-badge">@period.Status</span>
-        <a class="btn vpms-btn-secondary" asp-page="Index">Back to Periods</a>
+        <span class="status-badge">@UiText.Display(period.Status)</span>
+        <a class="btn vpms-btn-secondary" asp-page="Index">Back To Periods</a>
     </div>
 </div>
 
@@ -34,7 +34,7 @@
         <h2 class="h5">Add Payroll Cost Entry</h2>
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row g-3">
-            <div class="col-md-3"><label class="form-label">Employee</label><select asp-for="Input.EmployeeCostProfileId" class="form-select" asp-items="Model.EmployeeOptions"><option value="">Department-level entry</option></select></div>
+            <div class="col-md-3"><label class="form-label">Employee</label><select asp-for="Input.EmployeeCostProfileId" class="form-select" asp-items="Model.EmployeeOptions"><option value="">Department-Level Entry</option></select></div>
             <div class="col-md-2"><label class="form-label">Department</label><select asp-for="Input.DepartmentId" class="form-select" asp-items="Model.DepartmentOptions"><option value="">Unassigned</option></select></div>
             <div class="col-md-2"><label class="form-label">USALI</label><select asp-for="Input.USALIDepartmentId" class="form-select" asp-items="Model.USALIOptions"><option value="">Unmapped</option></select></div>
             <div class="col-md-2"><label class="form-label">Position</label><input asp-for="Input.Position" class="form-control" /></div>
@@ -48,8 +48,8 @@
             <div class="col-md-2"><label class="form-label">Service Charge</label><input asp-for="Input.ServiceChargeShare" class="form-control" /></div>
             <div class="col-md-2"><label class="form-label">Other Earnings</label><input asp-for="Input.OtherEarnings" class="form-control" /></div>
             <div class="col-md-2"><label class="form-label">Deductions</label><input asp-for="Input.Deductions" class="form-control" /></div>
-            <div class="col-md-3"><label class="form-label">Labor GL</label><select asp-for="Input.LaborGLAccountId" class="form-select" asp-items="Model.LaborAccountOptions"><option value="">Use employee/fallback</option></select></div>
-            <div class="col-md-3"><label class="form-label">Liability GL</label><select asp-for="Input.PayrollLiabilityGLAccountId" class="form-select" asp-items="Model.LiabilityAccountOptions"><option value="">Use employee/fallback</option></select></div>
+            <div class="col-md-3"><label class="form-label">Labor GL</label><select asp-for="Input.LaborGLAccountId" class="form-select" asp-items="Model.LaborAccountOptions"><option value="">Use Employee/Fallback</option></select></div>
+            <div class="col-md-3"><label class="form-label">Liability GL</label><select asp-for="Input.PayrollLiabilityGLAccountId" class="form-select" asp-items="Model.LiabilityAccountOptions"><option value="">Use Employee/Fallback</option></select></div>
             <div class="col-md-6"><label class="form-label">Notes</label><input asp-for="Input.Notes" class="form-control" /></div>
             <div class="col-12"><button class="btn vpms-btn-primary" type="submit">Add Entry</button></div>
         </div>
