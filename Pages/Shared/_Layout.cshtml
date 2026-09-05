@@ -41,6 +41,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Vantage.PMS.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/desktop-workspace.css" asp-append-version="true" />
 </head>
 <body class="vpms-body app-body @bodyClass @(isWorkflowDialogFrame ? "vpms-dialog-frame" : "")">
     @if (!isAuthenticated)
@@ -401,7 +402,10 @@
                     <small class="vpms-commandbar-label-copy">Daily controls</small>
                     <small class="vpms-commandbar-scroll-hint">Swipe for more</small>
                 </span>
-                <a class="vpms-command-item" asp-page="/System/Notifications/Index"><span class="vpms-command-icon"></span>Alerts</a>
+                @if (canAccessSystemManagement)
+                {
+                    <a class="vpms-command-item" asp-page="/System/Notifications/Index"><span class="vpms-command-icon"></span>Alerts</a>
+                }
                 @if (canAccessReports)
                 {
                     <a class="vpms-command-item" asp-page="/Reports/Center"><span class="vpms-command-icon"></span>Reports</a>

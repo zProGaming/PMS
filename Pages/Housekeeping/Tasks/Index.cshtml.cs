@@ -15,11 +15,15 @@ public class IndexModel(ApplicationDbContext context) : PageModel
 
     public HousekeepingTask? SelectedTask { get; private set; }
 
-    public async Task OnGetAsync()
+    public int? FilterTaskId { get; private set; }
+
+    public async Task OnGetAsync(int? taskId)
     {
+        FilterTaskId = taskId;
         Tasks = await _context.HousekeepingTasks
             .Include(task => task.Room)
             .AsNoTracking()
+            .Where(task => !taskId.HasValue || task.Id == taskId.Value)
             .OrderBy(task => task.TaskStatus == HousekeepingTaskStatus.Completed)
             .ThenByDescending(task => task.Priority)
             .ThenBy(task => task.Room!.RoomNumber)

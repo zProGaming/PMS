@@ -45,6 +45,7 @@ builder.Services.AddScoped<BookingNotificationService>();
 builder.Services.AddScoped<GuestPortalNotificationService>();
 builder.Services.AddScoped<GuestPortalService>();
 builder.Services.AddScoped<FinanceService>();
+builder.Services.AddScoped<CheckoutService>();
 builder.Services.AddScoped<PaymentIntegrityService>();
 builder.Services.AddScoped<ARCollectionReportService>();
 builder.Services.AddScoped<AccountingPostingService>();
@@ -137,6 +138,7 @@ builder.Services.AddHsts(options =>
 builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizePage("/Index");
+    options.Conventions.AuthorizePage("/Overview", PmsPolicies.ExecutiveManagement);
     options.Conventions.AllowAnonymousToPage("/Privacy");
     options.Conventions.AuthorizeAreaPage("Identity", "/Account/Register");
     options.Conventions.AuthorizeFolder("/Admin", PmsPolicies.AdminSetup);
@@ -300,3 +302,6 @@ app.MapRazorPages()
    .WithStaticAssets();
 
 app.Run();
+
+// Exposes the entry point to the separate integration-test assembly only.
+public partial class Program { }

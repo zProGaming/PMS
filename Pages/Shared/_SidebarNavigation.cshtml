@@ -39,8 +39,8 @@
     <nav class="vpms-nav app-nav vpms-sidebar-scroll" aria-label="Primary navigation" data-vpms-sidebar-nav>
         <div class="vpms-sidebar-nav-intro">
             <span>Workspace</span>
-            <strong>Operating Map</strong>
-            <small>Curated access to the hotel areas your role can operate.</small>
+            <strong>Your modules</strong>
+            <small>Access is based on your assigned role.</small>
         </div>
 
         <section class="vpms-sidebar-group is-open" data-sidebar-section data-vpms-sidebar-group data-group-id="command-center">
@@ -48,11 +48,11 @@
                 <span class="vpms-sidebar-group-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 </span>
-                <span class="vpms-sidebar-group-title">Command Center</span>
+                <span class="vpms-sidebar-group-title">Home &amp; management</span>
                 <span class="vpms-sidebar-chevron" aria-hidden="true"></span>
             </button>
             <div class="vpms-sidebar-group-body" id="sidebar-command-center" data-vpms-sidebar-body>
-                <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Index" data-sidebar-link><span>Dashboard</span></a>
+                <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Index" data-sidebar-link><span>Daily work</span></a>
                 @if (canAccessExecutiveReporting)
                 {
                     <a class="vpms-sidebar-link vpms-nav-link app-nav-link" asp-area="" asp-page="/Executive/Index" data-sidebar-link><span>Executive Dashboard</span></a>

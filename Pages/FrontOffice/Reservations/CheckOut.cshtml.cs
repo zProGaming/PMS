@@ -1,216 +1,63 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.EntityFrameworkCore;
-using Vantage.PMS.Authorization;
-using Vantage.PMS.Data;
-using Vantage.PMS.Models.Finance;
 using Vantage.PMS.Models.FrontOffice;
+using Vantage.PMS.Services;
 
 namespace Vantage.PMS.Pages.FrontOffice.Reservations;
 
-public class CheckOutModel(ApplicationDbContext context) : PageModel
+public class CheckOutModel(CheckoutService checkout) : PageModel
 {
-    private readonly ApplicationDbContext _context = context;
+    public Reservation Reservation { get; private set; } = default!;
+    public CheckoutReview Review { get; private set; } = default!;
+    [BindProperty] public string ReviewToken { get; set; } = string.Empty;
+    [BindProperty] public bool ManagerOverrideRequested { get; set; }
+    [BindProperty] public string? OverrideReason { get; set; }
+    [BindProperty] public bool CreditsAcknowledged { get; set; }
 
-    [BindProperty]
-    public Reservation Reservation { get; set; } = default!;
+    public bool CanUseManagerOverride => CheckoutReview.CanOverride(User);
+    public bool CanSubmitCheckOut => Reservation.Status == ReservationStatus.CheckedIn && Reservation.Room is not null;
+    public bool CanCheckOut => CanSubmitCheckOut && Review.Validate(Input(), User).Count == 0;
+    private CheckoutRequest Input() => new(ReviewToken, ManagerOverrideRequested, OverrideReason, CreditsAcknowledged);
 
-    [BindProperty]
-    public bool ManagerOverrideRequested { get; set; }
+    public async Task<IActionResult> OnGetAsync(int? id) =>
+        await LoadAsync(id) ? Page() : NotFound();
 
-    public int? FolioId { get; set; }
-
-    public decimal FolioBalance { get; set; }
-
-    public bool HasOutstandingBalance => FolioBalance > 0;
-
-    public bool CanUseManagerOverride =>
-        User.IsInRole(PmsRoles.SystemAdmin) ||
-        User.IsInRole(PmsRoles.GeneralManager) ||
-        User.IsInRole(PmsRoles.FrontOfficeManager) ||
-        User.IsInRole(PmsRoles.FinanceManager);
-
-    public bool BalanceOverrideAccepted => HasOutstandingBalance && ManagerOverrideRequested && CanUseManagerOverride;
-
-    public bool CanSubmitCheckOut =>
-        Reservation.Status == ReservationStatus.CheckedIn &&
-        Reservation.RoomId is not null;
-
-    public bool CanCheckOut =>
-        CanSubmitCheckOut &&
-        (!HasOutstandingBalance || BalanceOverrideAccepted);
-
-    public async Task<IActionResult> OnGetAsync(int? id)
-    {
-        var loadResult = await LoadCheckOutFormAsync(id);
-        if (loadResult is not null)
-        {
-            return loadResult;
-        }
-
-        return Page();
-    }
-
-    public async Task<IActionResult> OnGetNativeAsync(int? id)
-    {
-        var loadResult = await LoadCheckOutFormAsync(id);
-        if (loadResult is not null)
-        {
-            return loadResult;
-        }
-
-        return NativePartial();
-    }
+    public async Task<IActionResult> OnGetNativeAsync(int? id) =>
+        await LoadAsync(id) ? NativePartial() : NotFound();
 
     public async Task<IActionResult> OnPostAsync(int? id)
     {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var reservation = await LoadReservationAsync(id.Value, asTracking: true);
-        if (reservation is null)
-        {
-            return NotFound();
-        }
-
-        Reservation = reservation;
-        LoadFolioState();
-        Reservation.ManagerOverrideRequested = ManagerOverrideRequested && CanUseManagerOverride;
-        ValidateCanCheckOut();
-
+        if (id is null) return NotFound();
         if (!ModelState.IsValid)
         {
-            return NativePartialOrPage();
+            if (!await LoadAsync(id)) return NotFound();
+            ModelState.Remove(nameof(ReviewToken));
+            return IsNative() ? NativePartial() : Page();
         }
-
-        Reservation.Status = ReservationStatus.CheckedOut;
-        Reservation.ActualCheckOutDate = DateTime.Now;
-        Reservation.Room!.Status = RoomStatus.Dirty;
-        foreach (var folio in Reservation.Folios.Where(folio => folio.Status == FolioStatus.Open && folio.Balance <= 0))
-        {
-            folio.Status = FolioStatus.Closed;
-            folio.ClosedAtUtc = DateTime.UtcNow;
-        }
-
-        // Create one turnover task for the room. The normal checkout guard prevents
-        // repeat submissions after the state changes; this lookup also protects a
-        // retried request before the operator leaves the screen.
-        if (Reservation.RoomId.HasValue)
-        {
-            var turnoverNote = $"Automatically created after checkout (reservation {Reservation.Id}).";
-            var turnoverTaskAlreadyOpen = await _context.HousekeepingTasks.AnyAsync(task =>
-                task.RoomId == Reservation.RoomId.Value &&
-                task.TaskStatus == Vantage.PMS.Models.Housekeeping.HousekeepingTaskStatus.Open &&
-                task.Notes == turnoverNote);
-
-            if (!turnoverTaskAlreadyOpen)
-            {
-                _context.HousekeepingTasks.Add(new Vantage.PMS.Models.Housekeeping.HousekeepingTask
-                {
-                    RoomId = Reservation.RoomId.Value,
-                    Priority = Vantage.PMS.Models.Housekeeping.HousekeepingTaskPriority.High,
-                    TaskStatus = Vantage.PMS.Models.Housekeeping.HousekeepingTaskStatus.Open,
-                    AssignedTo = "Housekeeping Queue",
-                    Notes = turnoverNote
-                });
-            }
-        }
-
-        await _context.SaveChangesAsync();
-
-        return RedirectToPage("./Details", new { id = Reservation.Id });
+        // Only decision fields are bound; no posted reservation or ledger state.
+        var result = await checkout.CompleteAsync(id.Value, Input(), User);
+        if (!result.Found) return NotFound();
+        if (result.Completed) return RedirectToPage("./Details", new { id });
+        foreach (var error in result.Errors) ModelState.AddModelError(string.Empty, error);
+        if (!await LoadAsync(id)) return NotFound();
+        // Render the refreshed review, not the stale hidden POST value.
+        ModelState.Remove(nameof(ReviewToken));
+        return IsNative() ? NativePartial() : Page();
     }
 
-    private async Task<IActionResult?> LoadCheckOutFormAsync(int? id)
+    private async Task<bool> LoadAsync(int? id)
     {
-        if (id is null)
-        {
-            return NotFound();
-        }
-
-        var reservation = await LoadReservationAsync(id.Value, asTracking: false);
-        if (reservation is null)
-        {
-            return NotFound();
-        }
-
+        if (id is null || await checkout.LoadAsync(id.Value) is not { } reservation) return false;
         Reservation = reservation;
-        LoadFolioState();
-        ManagerOverrideRequested = Reservation.ManagerOverrideRequested;
-        ValidateCanCheckOut();
-
-        return null;
+        Review = new CheckoutReview(reservation);
+        ReviewToken = Review.Token;
+        return true;
     }
 
-    private async Task<Reservation?> LoadReservationAsync(int id, bool asTracking)
+    private bool IsNative() => Request.Query["vpmsNative"] == "1" || Request.Headers["X-VPMS-Native-Dialog"] == "1";
+    private PartialViewResult NativePartial() => new()
     {
-        var query = _context.Reservations
-            .Include(reservation => reservation.Guest)
-            .Include(reservation => reservation.Room)
-            .Include(reservation => reservation.Folios)
-                .ThenInclude(folio => folio.Items)
-            .Include(reservation => reservation.Folios)
-                .ThenInclude(folio => folio.Payments)
-            .Where(reservation => reservation.Id == id);
-
-        if (!asTracking)
-        {
-            query = query.AsNoTracking();
-        }
-
-        return await query.FirstOrDefaultAsync();
-    }
-
-    private void LoadFolioState()
-    {
-        var folio = Reservation.Folios.FirstOrDefault();
-        FolioId = folio?.Id;
-        FolioBalance = folio?.Balance ?? 0;
-    }
-
-    private void ValidateCanCheckOut()
-    {
-        if (Reservation.Status != ReservationStatus.CheckedIn)
-        {
-            ModelState.AddModelError(string.Empty, "Only checked-in reservations can be checked out.");
-        }
-
-        if (Reservation.RoomId is null || Reservation.Room is null)
-        {
-            ModelState.AddModelError(string.Empty, "A room must be assigned before check-out.");
-        }
-
-        if (HasOutstandingBalance && !ManagerOverrideRequested)
-        {
-            ModelState.AddModelError(string.Empty, "Guest has outstanding balance. Please settle the folio before check-out or request an authorized manager override.");
-        }
-
-        if (HasOutstandingBalance && ManagerOverrideRequested && !CanUseManagerOverride)
-        {
-            ModelState.AddModelError(string.Empty, "Only SystemAdmin, GeneralManager, FrontOfficeManager, or FinanceManager can override checkout with an outstanding balance.");
-        }
-    }
-
-    private IActionResult NativePartialOrPage()
-    {
-        return IsNativeWorkflowRequest() ? NativePartial() : Page();
-    }
-
-    private bool IsNativeWorkflowRequest()
-    {
-        return string.Equals(Request.Query["vpmsNative"], "1", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(Request.Headers["X-VPMS-Native-Dialog"], "1", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private PartialViewResult NativePartial()
-    {
-        return new PartialViewResult
-        {
-            ViewName = "_CheckOutNative",
-            ViewData = new ViewDataDictionary<CheckOutModel>(ViewData, this)
-        };
-    }
+        ViewName = "_CheckOutNative", ViewData = new ViewDataDictionary<CheckOutModel>(ViewData, this)
+    };
 }

@@ -48,7 +48,7 @@
             {
                 @foreach (var refund in Model.Refunds)
                 {
-                    <tr>
+                    <tr id="request-@refund.Id">
                         <td>@refund.RefundNumber</td>
                         <td>@refund.RefundDate.ToString("d")</td>
                         <td><span class="badge text-bg-secondary">@refund.Status</span></td>

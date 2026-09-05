@@ -1,254 +1,122 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Vantage.PMS.Authorization;
 using Vantage.PMS.Data;
-using Vantage.PMS.Models.Banquet;
 using Vantage.PMS.Models.Finance;
-using Vantage.PMS.Models.FoodBeverage;
 using Vantage.PMS.Models.FrontOffice;
-using Vantage.PMS.Models.GuestPortal;
 using Vantage.PMS.Models.Housekeeping;
-using Vantage.PMS.Models.Inventory;
-using Vantage.PMS.Models.ManagementAI;
 
 namespace Vantage.PMS.Pages;
 
+[ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
 public class IndexModel(ApplicationDbContext context) : PageModel
 {
-    private readonly ApplicationDbContext _context = context;
+    public sealed record WorkspaceOption(string Id, string Label);
+    public sealed record WorkItem(string Reference, string Detail, string Status, string Action, string Page,
+        Dictionary<string, string>? Route = null, decimal? Amount = null, string? Fragment = null);
+    public sealed record WorkQueue(string Title, string Description, int Total, string AllPage, IReadOnlyList<WorkItem> Items);
+    public IReadOnlyList<WorkspaceOption> Workspaces { get; private set; } = [];
+    public string Workspace { get; private set; } = string.Empty;
+    public string WorkspaceLabel => Workspaces.FirstOrDefault(w => w.Id == Workspace)?.Label ?? "Your workspace";
+    public DateTime BusinessDate { get; private set; }
+    public IList<WorkQueue> Queues { get; } = new List<WorkQueue>();
+    public const int QueueLimit = 8;
 
-    public DateTime BusinessDate { get; set; }
-    public decimal OccupancyPercentage { get; set; }
-    public int TotalRooms { get; set; }
-    public int AvailableRooms { get; set; }
-    public int OccupiedRooms { get; set; }
-    public int DirtyRooms { get; set; }
-    public int OutOfOrderRooms { get; set; }
-    public int ArrivalsToday { get; set; }
-    public int DeparturesToday { get; set; }
-    public int RealizedArrivalsToday { get; set; }
-    public int RealizedDeparturesToday { get; set; }
-    public int InHouseGuests { get; set; }
-    public int EndOfDayForecast { get; set; }
-    public int CurrentInHousePax { get; set; }
-    public int ExpectedArrivalPax { get; set; }
-    public int ExpectedDeparturePax { get; set; }
-    public int RealizedArrivalPax { get; set; }
-    public int RealizedDeparturePax { get; set; }
-    public int EndOfDayForecastPax { get; set; }
-    public int CleanStateRooms { get; set; }
-    public int CleanRooms { get; set; }
-    public int InspectedRooms { get; set; }
-    public int MaintenanceRooms { get; set; }
-    public int ReservedRooms { get; set; }
-    public int BlockRooms { get; set; }
-    public int DailyUseRooms { get; set; }
-    public int CancellationsToday { get; set; }
-    public int CancellationRoomNights { get; set; }
-    public int NoShowsToday { get; set; }
-    public decimal RoomRevenueToday { get; set; }
-    public decimal FoodBeverageRevenueToday { get; set; }
-    public decimal BanquetRevenueToday { get; set; }
-    public decimal TotalRevenueToday { get; set; }
-    public decimal TotalPaymentsToday { get; set; }
-    public decimal OutstandingGuestBalance { get; set; }
-    public decimal CancellationRevenueImpact { get; set; }
-    public decimal AdrToday { get; set; }
-    public decimal RevParToday { get; set; }
-    public int OpenServiceRequests { get; set; }
-    public int PendingApprovals { get; set; }
-    public int LowStockItems { get; set; }
-    public int HighBalanceFolios { get; set; }
-    public bool HasOperationalData { get; set; }
-    public IList<ManagementInsight> CriticalInsights { get; set; } = new List<ManagementInsight>();
-    public IList<ManagementInsight> HighPriorityInsights { get; set; } = new List<ManagementInsight>();
-
-    public async Task OnGetAsync()
+    public static IReadOnlyList<WorkspaceOption> AllowedWorkspaces(ClaimsPrincipal user)
     {
-        BusinessDate = await GetBusinessDateAsync();
-        var nextBusinessDate = BusinessDate.AddDays(1);
+        var result = new List<WorkspaceOption>();
+        if (PmsRoles.ExecutiveManagement.Any(user.IsInRole)) result.Add(new("manager", "Manager"));
+        if (PmsRoles.FrontOffice.Any(user.IsInRole)) result.Add(new("front-desk", "Front desk"));
+        if (PmsRoles.Finance.Any(user.IsInRole)) result.Add(new("cashier", "Cashier"));
+        if (PmsRoles.Housekeeping.Any(user.IsInRole)) result.Add(new("housekeeping", "Housekeeping"));
+        return result;
+    }
 
-        TotalRooms = await _context.Rooms.AsNoTracking().CountAsync(room => room.IsActive);
-        AvailableRooms = await _context.Rooms.AsNoTracking().CountAsync(room => room.IsActive && room.Status == RoomStatus.Available);
-        OccupiedRooms = await _context.Rooms.AsNoTracking().CountAsync(room => room.IsActive && room.Status == RoomStatus.Occupied);
-        DirtyRooms = await _context.Rooms.AsNoTracking().CountAsync(room => room.IsActive && room.Status == RoomStatus.Dirty);
-        OutOfOrderRooms = await _context.Rooms.AsNoTracking().CountAsync(room => room.IsActive && room.Status == RoomStatus.OutOfOrder);
-        CleanStateRooms = await _context.Rooms.AsNoTracking().CountAsync(room =>
-            room.IsActive && (room.Status == RoomStatus.Clean || room.Status == RoomStatus.Inspected || room.Status == RoomStatus.Available));
-        CleanRooms = await _context.Rooms.AsNoTracking().CountAsync(room => room.IsActive && room.Status == RoomStatus.Clean);
-        InspectedRooms = await _context.Rooms.AsNoTracking().CountAsync(room => room.IsActive && room.Status == RoomStatus.Inspected);
-        MaintenanceRooms = await _context.Rooms.AsNoTracking().CountAsync(room => room.IsActive && room.Status == RoomStatus.Maintenance);
-        OccupancyPercentage = TotalRooms <= 0 ? 0 : (decimal)OccupiedRooms / TotalRooms * 100;
+    public async Task<IActionResult> OnGetAsync(string? workspace)
+    {
+        Workspaces = AllowedWorkspaces(User);
+        if (workspace is not null && !Workspaces.Any(w => w.Id == workspace)) return Forbid();
+        Workspace = workspace ?? Workspaces.FirstOrDefault()?.Id ?? string.Empty;
+        // No other department's queries are executed for this request.
+        if (Workspace.Length == 0) return Page();
+        BusinessDate = (await context.BusinessDateSettings.AsNoTracking().OrderBy(s => s.Id)
+            .Select(s => (DateTime?)s.CurrentBusinessDate).FirstOrDefaultAsync() ?? DateTime.Today).Date;
+        switch (Workspace)
+        {
+            case "front-desk": await LoadFrontDeskAsync(); break;
+            case "cashier": await LoadCashierAsync(); break;
+            case "housekeeping": await LoadHousekeepingAsync(); break;
+            case "manager": await LoadManagerAsync(); break;
+        }
+        return Page();
+    }
 
-        ArrivalsToday = await _context.Reservations.AsNoTracking().CountAsync(reservation =>
-            reservation.ArrivalDate >= BusinessDate &&
-            reservation.ArrivalDate < nextBusinessDate &&
-            reservation.Status == ReservationStatus.Reserved);
-        ExpectedArrivalPax = await _context.Reservations.AsNoTracking()
-            .Where(reservation =>
-                reservation.ArrivalDate >= BusinessDate &&
-                reservation.ArrivalDate < nextBusinessDate &&
-                reservation.Status == ReservationStatus.Reserved)
-            .SumAsync(reservation => (int?)(reservation.Adults + reservation.Children)) ?? 0;
+    private static Dictionary<string, string> Id(int id, string key = "id") => new() { [key] = id.ToString() };
 
-        DeparturesToday = await _context.Reservations.AsNoTracking().CountAsync(reservation =>
-            reservation.DepartureDate >= BusinessDate &&
-            reservation.DepartureDate < nextBusinessDate &&
-            reservation.Status == ReservationStatus.CheckedIn);
-        ExpectedDeparturePax = await _context.Reservations.AsNoTracking()
-            .Where(reservation =>
-                reservation.DepartureDate >= BusinessDate &&
-                reservation.DepartureDate < nextBusinessDate &&
-                reservation.Status == ReservationStatus.CheckedIn)
-            .SumAsync(reservation => (int?)(reservation.Adults + reservation.Children)) ?? 0;
+    private async Task LoadFrontDeskAsync()
+    {
+        var tomorrow = BusinessDate.AddDays(1);
+        var arrivals = context.Reservations.AsNoTracking().Where(r => r.Status == ReservationStatus.Reserved && r.ArrivalDate < tomorrow);
+        var rows = await arrivals.Include(r => r.Guest).Include(r => r.Room).OrderBy(r => r.ArrivalDate).ThenBy(r => r.Id).Take(QueueLimit).ToListAsync();
+        Queues.Add(new("Arrivals to check in", "Today's arrivals and earlier reservations still awaiting a decision.", await arrivals.CountAsync(), "/FrontOffice/Reservations/Index",
+            rows.Select(r => new WorkItem(r.ConfirmationNumber, $"{r.Guest?.FirstName} {r.Guest?.LastName} · Room {r.Room?.RoomNumber ?? "unassigned"}",
+                r.ArrivalDate < BusinessDate ? "Overdue arrival" : r.RoomId == null ? "Assign room" : "Review room readiness", "Review arrival", "/FrontOffice/Reservations/Details", Id(r.Id))).ToList()));
+        var departures = context.Reservations.AsNoTracking().Where(r => r.Status == ReservationStatus.CheckedIn && r.DepartureDate < tomorrow);
+        rows = await departures.Include(r => r.Guest).Include(r => r.Room).OrderBy(r => r.DepartureDate).ThenBy(r => r.Id).Take(QueueLimit).ToListAsync();
+        Queues.Add(new("Departures to settle", "Review all folios before checkout. Late departures appear first.", await departures.CountAsync(), "/FrontOffice/Reservations/Index",
+            rows.Select(r => new WorkItem(r.ConfirmationNumber, $"{r.Guest?.FirstName} {r.Guest?.LastName} · Room {r.Room?.RoomNumber ?? "unassigned"}",
+                r.DepartureDate < BusinessDate ? "Overdue departure" : "Due today", "Review checkout", "/FrontOffice/Reservations/CheckOut", Id(r.Id))).ToList()));
+    }
 
-        RealizedArrivalsToday = await _context.Reservations.AsNoTracking().CountAsync(reservation =>
-            reservation.ActualCheckInDate >= BusinessDate &&
-            reservation.ActualCheckInDate < nextBusinessDate);
-        RealizedArrivalPax = await _context.Reservations.AsNoTracking()
-            .Where(reservation =>
-                reservation.ActualCheckInDate >= BusinessDate &&
-                reservation.ActualCheckInDate < nextBusinessDate)
-            .SumAsync(reservation => (int?)(reservation.Adults + reservation.Children)) ?? 0;
-
-        RealizedDeparturesToday = await _context.Reservations.AsNoTracking().CountAsync(reservation =>
-            reservation.ActualCheckOutDate >= BusinessDate &&
-            reservation.ActualCheckOutDate < nextBusinessDate);
-        RealizedDeparturePax = await _context.Reservations.AsNoTracking()
-            .Where(reservation =>
-                reservation.ActualCheckOutDate >= BusinessDate &&
-                reservation.ActualCheckOutDate < nextBusinessDate)
-            .SumAsync(reservation => (int?)(reservation.Adults + reservation.Children)) ?? 0;
-
-        CancellationsToday = await _context.Reservations.AsNoTracking().CountAsync(reservation =>
-            reservation.ArrivalDate >= BusinessDate &&
-            reservation.ArrivalDate < nextBusinessDate &&
-            reservation.Status == ReservationStatus.Cancelled);
-        NoShowsToday = await _context.Reservations.AsNoTracking().CountAsync(reservation =>
-            reservation.ArrivalDate >= BusinessDate &&
-            reservation.ArrivalDate < nextBusinessDate &&
-            reservation.Status == ReservationStatus.NoShow);
-        var cancelledReservations = await _context.Reservations.AsNoTracking()
-            .Where(reservation =>
-                reservation.ArrivalDate >= BusinessDate &&
-                reservation.ArrivalDate < nextBusinessDate &&
-                reservation.Status == ReservationStatus.Cancelled)
-            .Select(reservation => new
+    private async Task LoadCashierAsync()
+    {
+        var shifts = context.CashierShifts.AsNoTracking().Where(s => s.OpenedBy == User.Identity!.Name && s.Status == CashierShiftStatus.Open);
+        var shiftRows = await shifts.OrderBy(s => s.OpenedAt).Take(QueueLimit).ToListAsync();
+        Queues.Add(new("Your open shifts", "Check your shift before collecting payments and reconcile it at handover.", await shifts.CountAsync(), "/Finance/CashierShifts/Index",
+            shiftRows.Select(s => new WorkItem(s.ShiftNumber, $"Opened {s.OpenedAt:dd MMM, HH:mm}", "Open", "Review shift", "/Finance/CashierShifts/Index")).ToList()));
+        var folios = context.Folios.AsNoTracking().Where(f => f.Status == FolioStatus.Open)
+            .Select(f => new
             {
-                reservation.ArrivalDate,
-                reservation.DepartureDate,
-                reservation.RateAmount
-            })
-            .ToListAsync();
-        CancellationRoomNights = cancelledReservations.Sum(reservation => Math.Max(1, (reservation.DepartureDate.Date - reservation.ArrivalDate.Date).Days));
-        CancellationRevenueImpact = cancelledReservations.Sum(reservation => Math.Max(1, (reservation.DepartureDate.Date - reservation.ArrivalDate.Date).Days) * reservation.RateAmount);
-
-        InHouseGuests = await _context.Reservations.AsNoTracking().CountAsync(reservation => reservation.Status == ReservationStatus.CheckedIn);
-        CurrentInHousePax = await _context.Reservations.AsNoTracking()
-            .Where(reservation => reservation.Status == ReservationStatus.CheckedIn)
-            .SumAsync(reservation => (int?)(reservation.Adults + reservation.Children)) ?? 0;
-        EndOfDayForecast = Math.Max(0, InHouseGuests + ArrivalsToday - DeparturesToday);
-        EndOfDayForecastPax = Math.Max(0, CurrentInHousePax + ExpectedArrivalPax - ExpectedDeparturePax);
-        ReservedRooms = ArrivalsToday;
-        RoomRevenueToday = await SumRoomRevenueAsync(BusinessDate, nextBusinessDate);
-        FoodBeverageRevenueToday = await _context.POSOrders.AsNoTracking()
-            .Where(order =>
-                order.OrderDate >= BusinessDate &&
-                order.OrderDate < nextBusinessDate &&
-                (order.PaymentStatus == POSPaymentStatus.Paid || order.PaymentStatus == POSPaymentStatus.ChargedToRoom))
-            .SumAsync(order => (decimal?)order.TotalAmount) ?? 0;
-        BanquetRevenueToday = await _context.BanquetCharges.AsNoTracking()
-            .Where(charge => !charge.IsVoided && charge.ChargeDate >= BusinessDate && charge.ChargeDate < nextBusinessDate)
-            .SumAsync(charge => (decimal?)charge.Amount) ?? 0;
-        TotalRevenueToday = RoomRevenueToday + FoodBeverageRevenueToday + BanquetRevenueToday;
-        AdrToday = OccupiedRooms <= 0 ? 0 : RoomRevenueToday / OccupiedRooms;
-        RevParToday = TotalRooms <= 0 ? 0 : RoomRevenueToday / TotalRooms;
-        TotalPaymentsToday = await _context.Payments.AsNoTracking()
-            .Where(payment => payment.PaymentDate >= BusinessDate && payment.PaymentDate < nextBusinessDate && payment.Status == PaymentStatus.Completed)
-            .SumAsync(payment => (decimal?)payment.Amount) ?? 0;
-        OutstandingGuestBalance = await CalculateOutstandingGuestBalanceAsync();
-        OpenServiceRequests = await _context.GuestServiceRequests.AsNoTracking().CountAsync(request =>
-            request.Status != GuestServiceRequestStatus.Completed &&
-            request.Status != GuestServiceRequestStatus.Cancelled);
-        PendingApprovals = await CountPendingApprovalsAsync();
-        LowStockItems = await _context.InventoryItems.AsNoTracking().CountAsync(item => item.IsActive && item.CurrentStock <= item.ReorderLevel);
-
-        CriticalInsights = await _context.ManagementInsights.AsNoTracking()
-            .Where(insight => !insight.IsResolved && insight.Severity == ManagementInsightSeverity.Critical)
-            .OrderByDescending(insight => insight.CreatedAt)
-            .Take(5)
-            .ToListAsync();
-        HighPriorityInsights = await _context.ManagementInsights.AsNoTracking()
-            .Where(insight => !insight.IsResolved && insight.Severity == ManagementInsightSeverity.High)
-            .OrderByDescending(insight => insight.CreatedAt)
-            .Take(5)
-            .ToListAsync();
-
-        HasOperationalData = TotalRooms > 0 ||
-            InHouseGuests > 0 ||
-            ArrivalsToday > 0 ||
-            DeparturesToday > 0 ||
-            RoomRevenueToday > 0 ||
-            FoodBeverageRevenueToday > 0 ||
-            BanquetRevenueToday > 0 ||
-            TotalPaymentsToday > 0;
+                f.Id, f.FolioNumber, GuestName = f.Guest!.FirstName + " " + f.Guest.LastName,
+                Balance = f.Items.Where(i => !i.IsVoided).Sum(i => (decimal?)i.Amount) ?? 0,
+                Paid = f.Payments.Where(p => p.Status == PaymentStatus.Completed).Sum(p => (decimal?)p.Amount) ?? 0,
+                Departed = f.Reservation!.Status == ReservationStatus.CheckedOut
+            }).Where(f => f.Balance != f.Paid);
+        var folioRows = await folios.OrderByDescending(f => f.Departed).ThenBy(f => f.Id).Take(QueueLimit).ToListAsync();
+        Queues.Add(new("Collection and guest-credit follow-up", "Departed guests appear first. Front Desk posts folio payments; Finance reviews receipts and refunds.", await folios.CountAsync(), "/Finance/Payments/Index",
+            folioRows.Select(f => new WorkItem(f.FolioNumber, f.GuestName,
+                f.Balance < f.Paid ? "Guest credit" : f.Departed ? "Departed · unpaid" : "In-house · unpaid",
+                "Review receipts", "/Finance/Payments/Index", Id(f.Id, "folioId"), f.Balance - f.Paid)).ToList()));
     }
 
-    private async Task<DateTime> GetBusinessDateAsync()
+    private async Task LoadHousekeepingAsync()
     {
-        var setting = await _context.BusinessDateSettings.AsNoTracking().FirstOrDefaultAsync();
-        return setting?.CurrentBusinessDate.Date ?? DateTime.Today;
+        var tasks = context.HousekeepingTasks.AsNoTracking().Where(t => t.TaskStatus == HousekeepingTaskStatus.Open || t.TaskStatus == HousekeepingTaskStatus.InProgress);
+        var rows = await tasks.Include(t => t.Room).OrderByDescending(t => t.Priority).ThenBy(t => t.Id).Take(QueueLimit).ToListAsync();
+        Queues.Add(new("Team turnover tasks", "Highest priority first. Complete the task, then update the room's cleaning or inspection status.", await tasks.CountAsync(), "/Housekeeping/Tasks/Index",
+            rows.Select(t => new WorkItem($"Room {t.Room?.RoomNumber}", string.IsNullOrWhiteSpace(t.AssignedTo) ? "Awaiting assignment" : t.AssignedTo,
+                $"{t.Priority} · {(t.TaskStatus == HousekeepingTaskStatus.InProgress ? "In progress" : "To do")}", "Review task", "/Housekeeping/Tasks/Index", Id(t.Id, "taskId"))).ToList()));
+        var rooms = context.Rooms.AsNoTracking().Where(r => r.IsActive && (r.Status == RoomStatus.Dirty || r.Status == RoomStatus.Clean));
+        var roomRows = await rooms.OrderBy(r => r.RoomNumber).Take(QueueLimit).ToListAsync();
+        Queues.Add(new("Rooms awaiting readiness", "Cleaning and inspection are separate checks. Confirm the physical room condition before changing status.", await rooms.CountAsync(), "/Housekeeping/Index",
+            roomRows.Select(r => new WorkItem($"Room {r.RoomNumber}", r.Status == RoomStatus.Dirty ? "Cleaning required" : "Inspection required", r.Status.ToString(), "Review room", "/Housekeeping/Rooms/UpdateStatus", Id(r.Id))).ToList()));
     }
 
-    private async Task<decimal> SumRoomRevenueAsync(DateTime start, DateTime end)
+    private async Task LoadManagerAsync()
     {
-        return await _context.FolioItems.AsNoTracking()
-            .Where(item =>
-                !item.IsVoided &&
-                item.PostingDate >= start &&
-                item.PostingDate < end &&
-                (item.ChargeCode.StartsWith("ROOM") ||
-                    item.ChargeCodeDefinition != null &&
-                    item.ChargeCodeDefinition.ChargeCategory == ChargeCategory.Room))
-            .SumAsync(item => (decimal?)item.Amount) ?? 0;
-    }
-
-    private async Task<decimal> CalculateOutstandingGuestBalanceAsync()
-    {
-        var balances = await _context.Folios.AsNoTracking()
-            .Select(folio => new
-            {
-                Charges = _context.FolioItems
-                    .Where(item => item.FolioId == folio.Id && !item.IsVoided)
-                    .Sum(item => (decimal?)item.Amount) ?? 0,
-                Payments = _context.Payments
-                    .Where(payment =>
-                        payment.FolioId == folio.Id &&
-                        payment.Status != PaymentStatus.Voided &&
-                        payment.Status != PaymentStatus.Failed)
-                    .Sum(payment => (decimal?)payment.Amount) ?? 0
-            })
-            .ToListAsync();
-
-        var outstandingBalances = balances
-            .Select(folio => folio.Charges - folio.Payments)
-            .Where(balance => balance > 0)
-            .ToList();
-
-        HighBalanceFolios = outstandingBalances.Count(balance => balance >= 50000);
-
-        return outstandingBalances.Sum();
-    }
-
-    private async Task<int> CountPendingApprovalsAsync()
-    {
-        var refundApprovals = await _context.RefundTransactions.AsNoTracking().CountAsync(refund =>
-            refund.Status == RefundStatus.Requested || refund.Status == RefundStatus.ForApproval || refund.Status == RefundStatus.Approved);
-        var voidApprovals = await _context.VoidRequests.AsNoTracking().CountAsync(request => request.Status == ApprovalStatus.Pending);
-        var discountApprovals = await _context.DiscountApprovals.AsNoTracking().CountAsync(discount => discount.Status == ApprovalStatus.Pending);
-        var purchaseRequests = await _context.PurchaseRequests.AsNoTracking().CountAsync(request => request.Status == PurchaseRequestStatus.Submitted);
-        var purchaseOrders = await _context.PurchaseOrders.AsNoTracking().CountAsync(order => order.Status == PurchaseOrderStatus.ForApproval);
-        var stockAdjustments = await _context.StockAdjustments.AsNoTracking().CountAsync(adjustment => adjustment.Status == StockAdjustmentStatus.ForApproval);
-
-        return refundApprovals + voidApprovals + discountApprovals + purchaseRequests + purchaseOrders + stockAdjustments;
+        var voids = context.VoidRequests.AsNoTracking().Where(v => v.Status == ApprovalStatus.Pending);
+        var voidRows = await voids.OrderBy(v => v.RequestedAt).ThenBy(v => v.Id).Take(QueueLimit).ToListAsync();
+        Queues.Add(new("Voids awaiting approval", "Oldest requests first. Review the source transaction and reason before approving.", await voids.CountAsync(), "/Finance/VoidRequests/Index",
+            voidRows.Select(v => new WorkItem($"Void #{v.Id}", $"{v.ReferenceType} #{v.ReferenceId} · {v.RequestedBy}", "Pending approval", "Review request", "/Finance/VoidRequests/Index", Fragment: $"request-{v.Id}")).ToList()));
+        var refunds = context.RefundTransactions.AsNoTracking().Where(r => r.Status == RefundStatus.Requested || r.Status == RefundStatus.ForApproval || r.Status == RefundStatus.Approved);
+        var refundRows = await refunds.OrderBy(r => r.Id).Take(QueueLimit).ToListAsync();
+        Queues.Add(new("Refunds requiring action", "Separate approval from payout. Approved requests still need processing.", await refunds.CountAsync(), "/Finance/Refunds/Index",
+            refundRows.Select(r => new WorkItem(r.RefundNumber, "Guest refund", r.Status == RefundStatus.Approved ? "Awaiting payout" : "Awaiting approval", "Review refund", "/Finance/Refunds/Index", Amount: r.Amount, Fragment: $"request-{r.Id}")).ToList()));
+        var discounts = context.DiscountApprovals.AsNoTracking().Where(d => d.Status == ApprovalStatus.Pending);
+        var discountRows = await discounts.OrderBy(d => d.Id).Take(QueueLimit).ToListAsync();
+        Queues.Add(new("Discounts awaiting approval", "Confirm the policy, amount and approver before applying a discount.", await discounts.CountAsync(), "/Finance/DiscountApprovals/Index",
+            discountRows.Select(d => new WorkItem($"Discount #{d.Id}", d.RequestedBy, "Pending approval", "Review discount", "/Finance/DiscountApprovals/Index", Amount: d.DiscountAmount, Fragment: $"request-{d.Id}")).ToList()));
     }
 }

@@ -17,6 +17,8 @@
     </div>
 </div>
 
+@if (Model.FilterTaskId is not null)
+{ <div class="alert alert-info">Reviewing task #@Model.FilterTaskId. <a asp-page="./Index">Show all tasks</a>.</div> }
 <section class="vpms-card">
     @if (Model.Tasks.Count == 0)
     {

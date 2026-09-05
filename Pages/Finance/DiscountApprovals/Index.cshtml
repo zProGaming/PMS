@@ -53,7 +53,7 @@
                         discount.FolioItemId is not null ? $"FolioItem #{discount.FolioItemId}" :
                         discount.POSOrderId is not null ? $"POSOrder #{discount.POSOrderId}" :
                         discount.BanquetEventId is not null ? $"BanquetEvent #{discount.BanquetEventId}" : "Unassigned";
-                    <tr>
+                    <tr id="request-@discount.Id">
                         <td>@discount.RequestedAt.ToString("g")</td>
                         <td>@target</td>
                         <td><span class="badge text-bg-secondary">@discount.Status</span></td>

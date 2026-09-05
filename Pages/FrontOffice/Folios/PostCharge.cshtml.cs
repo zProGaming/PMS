@@ -66,70 +66,101 @@ public class PostChargeModel(ApplicationDbContext context, GroupManagementServic
             return NotFound();
         }
 
-        var folio = await _context.Folios
-            .AsNoTracking()
-            .Include(item => item.Guest)
-            .Include(item => item.Items)
-            .Include(item => item.Payments)
-            .FirstOrDefaultAsync(item => item.Id == folioId);
-        if (folio is null)
+        var originalDescription = Charge.Description;
+        var persistedChargeId = 0;
+        return await _context.Database.CreateExecutionStrategy().ExecuteAsync<IActionResult>(async () =>
         {
-            return NotFound();
-        }
+            _context.ChangeTracker.Clear();
+            // A connection failure during COMMIT may leave a successful posting.
+            // Verify its generated ID before replaying this request's transaction.
+            if (persistedChargeId > 0 && await _context.FolioItems.AsNoTracking().AnyAsync(i => i.Id == persistedChargeId))
+                return RedirectToPage("./Details", new { id = folioId.Value });
+            Charge.Id = 0;
+            Charge.Description = originalDescription;
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            var reservationId = await _context.Folios.AsNoTracking().Where(f => f.Id == folioId)
+                .Select(f => (int?)f.ReservationId).FirstOrDefaultAsync();
+            if (reservationId is not null)
+                await ReservationLedgerLock.AcquireAsync(_context, reservationId.Value);
 
-        FolioId = folio.Id;
-        FolioNumber = folio.FolioNumber;
-        FolioStatus = folio.Status;
-        FolioBalance = folio.Balance;
-        GuestName = $"{folio.Guest?.FirstName} {folio.Guest?.LastName}".Trim();
-        var businessDate = await GetBusinessDateAsync();
-        ValidateFolioCanPost();
-        ValidateCharge();
-        ValidatePostingDate(businessDate);
-
-        if (!ModelState.IsValid)
-        {
-            await LoadChargeCodesAsync();
-            return NativePartialOrPage();
-        }
-
-        Charge.FolioId = folio.Id;
-        if (Charge.ChargeCodeId is not null)
-        {
-            var chargeCode = await _context.ChargeCodes.AsNoTracking().FirstOrDefaultAsync(code => code.Id == Charge.ChargeCodeId);
-            if (chargeCode is not null)
+            var folio = await _context.Folios
+                .AsNoTracking()
+                .Include(item => item.Guest)
+                .Include(item => item.Items)
+                .Include(item => item.Payments)
+                .FirstOrDefaultAsync(item => item.Id == folioId);
+            if (folio is null)
             {
-                Charge.ChargeCode = chargeCode.Code;
-                if (string.IsNullOrWhiteSpace(Charge.Description))
-                {
-                    Charge.Description = chargeCode.Name;
-                }
+                return NotFound();
+            }
 
-                if (Charge.UnitPrice == 0 && chargeCode.DefaultAmount is not null)
+            FolioId = folio.Id;
+            FolioNumber = folio.FolioNumber;
+            FolioStatus = folio.Status;
+            FolioBalance = folio.Balance;
+            GuestName = $"{folio.Guest?.FirstName} {folio.Guest?.LastName}".Trim();
+            var businessDate = await GetBusinessDateAsync();
+            ValidateFolioCanPost();
+            ValidateCharge();
+            ValidatePostingDate(businessDate);
+
+            if (!ModelState.IsValid)
+            {
+                await LoadChargeCodesAsync();
+                return NativePartialOrPage();
+            }
+
+            Charge.FolioId = folio.Id;
+            if (Charge.ChargeCodeId is not null)
+            {
+                var chargeCode = await _context.ChargeCodes.AsNoTracking().FirstOrDefaultAsync(code => code.Id == Charge.ChargeCodeId);
+                if (chargeCode is not null)
                 {
-                    Charge.UnitPrice = chargeCode.DefaultAmount.Value;
+                    Charge.ChargeCode = chargeCode.Code;
+                    if (string.IsNullOrWhiteSpace(Charge.Description))
+                    {
+                        Charge.Description = chargeCode.Name;
+                    }
+
+                    if (Charge.UnitPrice == 0 && chargeCode.DefaultAmount is not null)
+                    {
+                        Charge.UnitPrice = chargeCode.DefaultAmount.Value;
+                    }
                 }
             }
-        }
 
-        Charge.Amount = Charge.Quantity * Charge.UnitPrice;
-        Charge.IsVoided = false;
+            Charge.Amount = Charge.Quantity * Charge.UnitPrice;
+            Charge.IsVoided = false;
+            Charge.PostedBy = User.Identity?.Name ?? "Front Desk";
 
-        var routing = await _groupManagementService.ResolveChargeRoutingAsync(folio, Charge);
-        if (routing.IsRouted && routing.TargetFolioId is not null)
-        {
-            Charge.FolioId = routing.TargetFolioId.Value;
-            Charge.Description = $"{Charge.Description} (Routed from folio {folio.FolioNumber} by routing rule {routing.RuleId})";
-        }
+            var routing = await _groupManagementService.ResolveChargeRoutingAsync(folio, Charge);
+            if (routing.IsRouted && routing.TargetFolioId is not null)
+            {
+                var targetReservationId = await _context.Folios.AsNoTracking()
+                    .Where(f => f.Id == routing.TargetFolioId).Select(f => (int?)f.ReservationId).FirstOrDefaultAsync();
+                if (targetReservationId is not null && targetReservationId != reservationId)
+                    await ReservationLedgerLock.AcquireAsync(_context, targetReservationId.Value);
+                if (!await _context.Folios.AnyAsync(f => f.Id == routing.TargetFolioId && f.Status == FolioStatus.Open))
+                {
+                    ModelState.AddModelError(string.Empty, "The routed folio is no longer open. Review the routing with Finance before posting.");
+                    await LoadChargeCodesAsync();
+                    return NativePartialOrPage();
+                }
+                Charge.FolioId = routing.TargetFolioId.Value;
+                Charge.Description = $"{Charge.Description} (Routed from folio {folio.FolioNumber} by routing rule {routing.RuleId})";
+            }
 
-        _context.FolioItems.Add(Charge);
-        await _context.SaveChangesAsync();
-        if (routing.IsRouted)
-        {
-            await _auditLogService.LogAsync(AuditActionType.Update, "Group Management", nameof(FolioItem), Charge.Id.ToString(), null, new { SourceFolioId = folio.Id, Charge.FolioId, routing.RuleId, routing.TargetFolioNumber });
-        }
+            _context.FolioItems.Add(Charge);
+            await _context.SaveChangesAsync();
+            persistedChargeId = Charge.Id;
+            if (routing.IsRouted)
+            {
+                await _auditLogService.LogAsync(AuditActionType.Update, "Group Management", nameof(FolioItem), Charge.Id.ToString(), null, new { SourceFolioId = folio.Id, Charge.FolioId, routing.RuleId, routing.TargetFolioNumber });
+            }
 
-        return RedirectToPage("./Details", new { id = folio.Id });
+            await transaction.CommitAsync();
+            return RedirectToPage("./Details", new { id = folio.Id });
+        });
     }
 
     private async Task<IActionResult?> LoadChargeFormAsync(int? folioId)

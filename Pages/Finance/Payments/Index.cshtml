@@ -20,12 +20,15 @@
         <p class="page-subtitle">Central payment landing page for guest folio settlements and finance review.</p>
     </div>
     <div class="d-flex flex-wrap gap-2">
-        <a class="btn vpms-btn-primary" asp-page="/FrontOffice/Folios/Index">Folios</a>
+        @if (Vantage.PMS.Authorization.PmsRoles.FrontOffice.Any(User.IsInRole))
+        { <a class="btn vpms-btn-primary" asp-page="/FrontOffice/Folios/Index">Folios</a> }
         <a class="btn vpms-btn-secondary" asp-page="/Finance/PaymentIntegrity/Index">Payment Integrity</a>
         <a class="btn vpms-btn-secondary" asp-page="/Finance/CashierShifts/Index">Cashier Shifts</a>
     </div>
 </div>
 
+@if (Model.SelectedFolioId is not null)
+{ <div class="alert alert-info">Receipts for folio #@Model.SelectedFolioId. <a asp-page="./Index">Show all payments</a>. Receipt totals apply to this folio; integrity signals cover all payments.</div> }
 <div class="row g-3 mb-4">
     <div class="col-md-6 col-xl-3">
         <div class="kpi-card">

@@ -69,97 +69,104 @@ public class FinanceService(ApplicationDbContext context)
 
     public async Task<IList<string>> PostFolioPaymentAsync(Payment payment, string createdBy, bool allowWithoutOpenShift)
     {
-        var errors = new List<string>();
-        if (payment.Amount <= 0)
+        var originalNotes = payment.Notes;
+        return await _context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
         {
-            errors.Add("Payment amount must be greater than zero.");
-        }
-
-        if (string.IsNullOrWhiteSpace(payment.PaymentMethod))
-        {
-            errors.Add("Payment method is required.");
-        }
-
-        var folio = await _context.Folios
-            .AsNoTracking()
-            .Include(item => item.Reservation)
-            .Include(item => item.Items)
-            .Include(item => item.Payments)
-            .FirstOrDefaultAsync(item => item.Id == payment.FolioId);
-
-        if (folio is null)
-        {
-            errors.Add("Folio was not found.");
-        }
-        else
-        {
-            if (folio.Status != FolioStatus.Open)
+            _context.ChangeTracker.Clear();
+            payment.Id = 0;
+            payment.Notes = originalNotes;
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            var reservationId = await _context.Folios.AsNoTracking()
+                .Where(f => f.Id == payment.FolioId).Select(f => (int?)f.ReservationId).FirstOrDefaultAsync();
+            if (reservationId is not null)
+                await ReservationLedgerLock.AcquireAsync(_context, reservationId.Value);
+            // All status, balance and duplicate checks run AFTER acquiring the ledger lock.
+            var errors = new List<string>();
+            if (payment.Amount <= 0)
             {
-                errors.Add($"Payments cannot be posted to a {FormatFolioStatus(folio.Status)} folio. Reopen or transfer the folio through an authorized finance workflow before posting.");
+                errors.Add("Payment amount must be greater than zero.");
             }
 
-            if (payment.Amount > folio.Balance)
+            if (string.IsNullOrWhiteSpace(payment.PaymentMethod))
             {
-                errors.Add($"Payment cannot exceed the open folio balance of {folio.Balance:C}.");
+                errors.Add("Payment method is required.");
             }
 
-            var normalizedPaymentMethod = NormalizePaymentMethod(payment.PaymentMethod);
-            var normalizedReference = NormalizeReference(payment.ReferenceNumber);
-            if (!string.IsNullOrWhiteSpace(normalizedReference))
+            var folio = await _context.Folios
+                .AsNoTracking()
+                .Include(item => item.Reservation)
+                .Include(item => item.Items)
+                .Include(item => item.Payments)
+                .FirstOrDefaultAsync(item => item.Id == payment.FolioId);
+
+            if (folio is null)
             {
-                var duplicateReferenceExists = await _context.Payments
+                errors.Add("Folio was not found.");
+            }
+            else
+            {
+                if (folio.Status != FolioStatus.Open)
+                {
+                    errors.Add($"Payments cannot be posted to a {FormatFolioStatus(folio.Status)} folio. Reopen or transfer the folio through an authorized finance workflow before posting.");
+                }
+
+                if (payment.Amount > folio.Balance)
+                {
+                    errors.Add($"Payment cannot exceed the open folio balance of {folio.Balance:C}.");
+                }
+
+                var normalizedPaymentMethod = NormalizePaymentMethod(payment.PaymentMethod);
+                var normalizedReference = NormalizeReference(payment.ReferenceNumber);
+                if (!string.IsNullOrWhiteSpace(normalizedReference))
+                {
+                    var duplicateReferenceExists = await _context.Payments
+                        .AsNoTracking()
+                        .AnyAsync(existing =>
+                            existing.FolioId == payment.FolioId &&
+                            existing.Status != PaymentStatus.Voided &&
+                            existing.Status != PaymentStatus.Failed &&
+                            existing.ReferenceNumber != null &&
+                            existing.ReferenceNumber.Trim().ToUpper() == normalizedReference);
+
+                    if (duplicateReferenceExists)
+                    {
+                        errors.Add("A payment with the same reference number already exists on this folio. Review the existing receipt before posting again.");
+                    }
+                }
+
+                var duplicateWindowStart = payment.PaymentDate.AddMinutes(-10);
+                var duplicateWindowEnd = payment.PaymentDate.AddMinutes(10);
+                var recentCandidates = await _context.Payments
                     .AsNoTracking()
-                    .AnyAsync(existing =>
+                    .Where(existing =>
                         existing.FolioId == payment.FolioId &&
                         existing.Status != PaymentStatus.Voided &&
                         existing.Status != PaymentStatus.Failed &&
-                        existing.ReferenceNumber != null &&
-                        existing.ReferenceNumber.Trim().ToUpper() == normalizedReference);
+                        existing.Amount == payment.Amount &&
+                        existing.PaymentDate >= duplicateWindowStart &&
+                        existing.PaymentDate <= duplicateWindowEnd)
+                    .Select(existing => new { existing.PaymentMethod, existing.ReferenceNumber })
+                    .ToListAsync();
 
-                if (duplicateReferenceExists)
+                if (recentCandidates.Any(existing =>
+                        NormalizePaymentMethod(existing.PaymentMethod) == normalizedPaymentMethod &&
+                        (string.IsNullOrWhiteSpace(normalizedReference) ||
+                            NormalizeReference(existing.ReferenceNumber) == normalizedReference)))
                 {
-                    errors.Add("A payment with the same reference number already exists on this folio. Review the existing receipt before posting again.");
+                    errors.Add("A similar payment was already posted recently. Review the folio before retrying to avoid duplicate settlement.");
                 }
             }
 
-            var duplicateWindowStart = payment.PaymentDate.AddMinutes(-10);
-            var duplicateWindowEnd = payment.PaymentDate.AddMinutes(10);
-            var recentCandidates = await _context.Payments
-                .AsNoTracking()
-                .Where(existing =>
-                    existing.FolioId == payment.FolioId &&
-                    existing.Status != PaymentStatus.Voided &&
-                    existing.Status != PaymentStatus.Failed &&
-                    existing.Amount == payment.Amount &&
-                    existing.PaymentDate >= duplicateWindowStart &&
-                    existing.PaymentDate <= duplicateWindowEnd)
-                .Select(existing => new { existing.PaymentMethod, existing.ReferenceNumber })
-                .ToListAsync();
-
-            if (recentCandidates.Any(existing =>
-                    NormalizePaymentMethod(existing.PaymentMethod) == normalizedPaymentMethod &&
-                    (string.IsNullOrWhiteSpace(normalizedReference) ||
-                        NormalizeReference(existing.ReferenceNumber) == normalizedReference)))
+            var shift = await GetOpenShiftForUserAsync(createdBy);
+            if (shift is null && !allowWithoutOpenShift)
             {
-                errors.Add("A similar payment was already posted recently. Review the folio before retrying to avoid duplicate settlement.");
+                errors.Add("Open a cashier shift before posting payments.");
             }
-        }
 
-        var shift = await GetOpenShiftForUserAsync(createdBy);
-        if (shift is null && !allowWithoutOpenShift)
-        {
-            errors.Add("Open a cashier shift before posting payments.");
-        }
-
-        if (errors.Count > 0)
-        {
-            return errors;
-        }
-
-        var executionStrategy = _context.Database.CreateExecutionStrategy();
-        return await executionStrategy.ExecuteAsync(async () =>
-        {
-            await using var transaction = await _context.Database.BeginTransactionAsync();
+            if (errors.Count > 0)
+            {
+                return errors;
+            }
 
             payment.Status = PaymentStatus.Completed;
             payment.PaymentMethod = payment.PaymentMethod.Trim();
@@ -204,7 +211,7 @@ public class FinanceService(ApplicationDbContext context)
         if (folio is null ||
             folio.Status != FolioStatus.Open ||
             folio.Reservation?.Status != Models.FrontOffice.ReservationStatus.CheckedOut ||
-            folio.Balance > 0)
+            folio.Balance != 0)
         {
             return;
         }

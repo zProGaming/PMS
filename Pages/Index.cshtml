@@ -1,293 +1,49 @@
 @page
 @model Vantage.PMS.Pages.IndexModel
-@{
-    ViewData["Title"] = "Dashboard";
-
-    var insightCount = Model.CriticalInsights.Count + Model.HighPriorityInsights.Count;
-    var riskCount = Model.HighBalanceFolios + Model.PendingApprovals + Model.OpenServiceRequests + Model.LowStockItems + insightCount;
-    var readinessPercent = Percent(Model.AvailableRooms + Model.InspectedRooms, Model.TotalRooms);
-    var revenueBase = Model.TotalRevenueToday <= 0 ? 1 : Model.TotalRevenueToday;
-    var roomRevenueShare = Share(Model.RoomRevenueToday, revenueBase);
-    var fbRevenueShare = Share(Model.FoodBeverageRevenueToday, revenueBase);
-    var banquetRevenueShare = Share(Model.BanquetRevenueToday, revenueBase);
-    var roomReadinessHeadline = readinessPercent >= 80 ? "Protect ready rooms" : readinessPercent >= 55 ? "Tighten turnaround" : "Escalate turnover";
-    var revenueHeadline = Model.TotalRevenueToday > 0 ? "Revenue is posting" : "Revenue setup pending";
-    var serviceHeadline = riskCount <= 0 ? "Controls are calm" : riskCount <= 5 ? "Watch open signals" : "Management attention";
-}
-
-@functions {
-    private static decimal Percent(int value, int total) => total <= 0 ? 0 : Math.Round((decimal)value / total * 100, 1);
-
-    private static decimal Share(decimal value, decimal total) => total <= 0 ? 0 : Math.Round(value / total * 100, 1);
-
-    private static string ProgressWidth(decimal percent)
-    {
-        var safePercent = Math.Clamp(percent, 0, 100);
-        return $"width: {safePercent:0.#}%";
-    }
-
-    private static string RiskLabel(int riskCount) => riskCount switch
-    {
-        0 => "Controlled",
-        <= 5 => "Watch",
-        _ => "Action Required"
-    };
-
-    private static string RiskTone(int riskCount) => riskCount switch
-    {
-        0 => "positive",
-        <= 5 => "warning",
-        _ => "danger"
-    };
-}
-
-<div class="vpms-dashboard vpms-dashboard-refined vpms-luxury-command vpms-density-command">
-    <header class="vpms-ops-hero vpms-dashboard-hero vpms-dashboard-compact-command">
-        <div class="vpms-dashboard-title-block">
-            <div class="page-kicker">Command Center</div>
-            <h1 class="page-title">Hotel Command Center</h1>
-            <p class="page-subtitle">Rooms movement, revenue pulse, service readiness, and management attention.</p>
-            <div class="vpms-hero-chip-row">
-                <span class="vpms-mini-chip">Business date @Model.BusinessDate.ToString("MMM d, yyyy")</span>
-                <span class="vpms-mini-chip">@Model.TotalRooms active rooms</span>
-                <span class="vpms-mini-chip">@riskCount open signal@(riskCount == 1 ? "" : "s")</span>
-            </div>
-        </div>
-        <div class="vpms-dashboard-metric-ribbon" aria-label="Command center operating metrics">
-            <article>
-                <span>Occupancy</span>
-                <strong>@Model.OccupancyPercentage.ToString("0.#")%</strong>
-                <small>@Model.OccupiedRooms/@Model.TotalRooms rooms</small>
-            </article>
-            <article>
-                <span>Revenue</span>
-                <strong>@Model.TotalRevenueToday.ToString("C0")</strong>
-                <small>Posted today</small>
-            </article>
-            <article>
-                <span>Flow</span>
-                <strong>@Model.ArrivalsToday / @Model.DeparturesToday</strong>
-                <small>Arrivals / departures</small>
-            </article>
-            <article class="@RiskTone(riskCount)">
-                <span>Stability</span>
-                <strong>@RiskLabel(riskCount)</strong>
-                <small>@riskCount signal@(riskCount == 1 ? "" : "s")</small>
-            </article>
-        </div>
-        <div class="vpms-dashboard-refined-actions">
-            <button type="button" class="btn vpms-btn-secondary" data-bs-toggle="modal" data-bs-target="#dashboardCommandReview">Review Signals</button>
-            <a class="btn vpms-btn-secondary" asp-page="/FrontOffice/RoomRack/Index">Room Calendar</a>
-            <a class="btn vpms-btn-primary" asp-page="/FrontOffice/Reservations/Create" data-vpms-native-dialog data-vpms-native-handler="Native" data-vpms-native-dialog-title="Create Reservation">Reservation</a>
-        </div>
+@{ ViewData["Title"] = "Daily work"; }
+<div class="daily-work">
+    <header class="work-heading">
+        <div><p class="work-eyebrow">Your working day</p><h1>Daily work</h1><p>See what needs attention and open the next step.</p></div>
+        @if (Model.Workspaces.Count > 0)
+        { <div class="work-date"><span>Business date</span><strong>@Model.BusinessDate.ToString("ddd, dd MMM yyyy")</strong><a asp-page="/Index" asp-route-workspace="@Model.Workspace">Refresh queues</a></div> }
     </header>
-
-    @if (!Model.HasOperationalData)
+    @if (Model.Workspaces.Count > 0)
     {
-        <div class="vpms-empty-state">
-            No operational activity is available for the current business date.
+        <nav class="work-tabs" aria-label="Daily work areas">
+            @foreach (var area in Model.Workspaces)
+            { <a asp-page="/Index" asp-route-workspace="@area.Id" aria-current="@(area.Id == Model.Workspace ? "page" : null)">@area.Label</a> }
+        </nav>
+        <div class="work-section-heading"><h2>@Model.WorkspaceLabel work queues</h2>
+            @if (Model.Workspace == "manager") { <a asp-page="/Overview">Open management overview</a> }
+            @if (Model.Workspace == "front-desk") { <a asp-page="/FrontOffice/Reservations/Create">New reservation</a> }
+            @if (Model.Workspace == "cashier") { <a asp-page="/Finance/CashierShifts/Index">Manage cashier shifts</a> }
         </div>
+        @foreach (var queue in Model.Queues.OrderBy(q => q.Total == 0))
+        {
+            var showAmounts = queue.Items.Any(item => item.Amount is not null);
+            <section class="work-panel">
+                <header class="work-queue-heading"><div><h3>@queue.Title <span class="work-count">@queue.Total</span></h3><p>@queue.Description</p></div><a asp-page="@queue.AllPage">Open module</a></header>
+                @if (queue.Total == 0)
+                { <div class="work-empty"><p>No items currently waiting. Open the module to review history or start new work.</p></div> }
+                else
+                {
+                    <div class="table-responsive"><table class="table work-table">
+                        <caption class="visually-hidden">@queue.Title — showing @queue.Items.Count of @queue.Total</caption>
+                        <thead><tr><th scope="col">Reference</th><th scope="col">Details</th><th scope="col">Needs attention</th>@if (showAmounts) { <th scope="col" class="text-end">Amount</th> }<th scope="col">Next step</th></tr></thead>
+                        <tbody>
+                        @foreach (var item in queue.Items)
+                        {
+                            <tr><th scope="row">@item.Reference</th><td>@item.Detail</td><td><span class="work-status">@item.Status</span></td>@if (showAmounts) { <td class="text-end work-money">@(item.Amount?.ToString("C") ?? "—")</td> }<td class="work-next"><a asp-page="@item.Page" asp-all-route-data="@item.Route" asp-fragment="@item.Fragment">@item.Action<span class="visually-hidden"> for @item.Reference</span></a></td></tr>
+                        }
+                        </tbody>
+                    </table></div>
+                    <footer class="work-queue-footer">Showing @queue.Items.Count of @queue.Total. Open the module to view the full list.</footer>
+                }
+            </section>
+        }
     }
-
-    <div class="vpms-refined-grid">
-        <main class="vpms-refined-main">
-            <section class="vpms-refined-card">
-                <div class="vpms-refined-card-header">
-                    <div>
-                        <h2>Rooms Movement</h2>
-                        <p>Current stay movement and end-of-day operating position.</p>
-                    </div>
-                    <a asp-page="/FrontOffice/Reservations/Index">Reservations</a>
-                </div>
-
-                <div class="vpms-flow-list">
-                    <div class="vpms-flow-item primary">
-                        <span>In-House Now</span>
-                        <strong>@Model.InHouseGuests</strong>
-                        <small>@Model.CurrentInHousePax pax</small>
-                    </div>
-                    <div class="vpms-flow-item">
-                        <span>Expected Arrivals</span>
-                        <strong>@Model.ArrivalsToday</strong>
-                        <small>@Model.ExpectedArrivalPax pax</small>
-                    </div>
-                    <div class="vpms-flow-item">
-                        <span>Expected Departures</span>
-                        <strong>@Model.DeparturesToday</strong>
-                        <small>@Model.ExpectedDeparturePax pax</small>
-                    </div>
-                    <div class="vpms-flow-item">
-                        <span>End-of-Day</span>
-                        <strong>@Model.EndOfDayForecast</strong>
-                        <small>@Model.EndOfDayForecastPax pax</small>
-                    </div>
-                </div>
-            </section>
-
-            <section class="vpms-refined-card">
-                <div class="vpms-refined-card-header">
-                    <div>
-                        <h2>Readiness and Release</h2>
-                        <p>@readinessPercent.ToString("0.#")% of rooms are available or inspected for confident rooming.</p>
-                    </div>
-                    <a asp-page="/Housekeeping/Index">Housekeeping</a>
-                </div>
-
-                <div class="vpms-compact-status">
-                    <div>
-                        <span><i class="vpms-status-dot available"></i>Available</span>
-                        <strong>@Model.AvailableRooms</strong>
-                        <div class="progress"><div class="progress-bar available" style="@ProgressWidth(Percent(Model.AvailableRooms, Model.TotalRooms))"></div></div>
-                    </div>
-                    <div>
-                        <span><i class="vpms-status-dot inspected"></i>Inspected</span>
-                        <strong>@Model.InspectedRooms</strong>
-                        <div class="progress"><div class="progress-bar inspected" style="@ProgressWidth(Percent(Model.InspectedRooms, Model.TotalRooms))"></div></div>
-                    </div>
-                    <div>
-                        <span><i class="vpms-status-dot dirty"></i>Dirty</span>
-                        <strong>@Model.DirtyRooms</strong>
-                        <div class="progress"><div class="progress-bar dirty" style="@ProgressWidth(Percent(Model.DirtyRooms, Model.TotalRooms))"></div></div>
-                    </div>
-                    <div>
-                        <span><i class="vpms-status-dot outoforder"></i>Out of Order</span>
-                        <strong>@Model.OutOfOrderRooms</strong>
-                        <div class="progress"><div class="progress-bar outoforder" style="@ProgressWidth(Percent(Model.OutOfOrderRooms, Model.TotalRooms))"></div></div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="vpms-refined-card">
-                <div class="vpms-refined-card-header">
-                    <div>
-                        <h2>Commercial Pulse</h2>
-                        <p>Today's posted revenue mix across primary hotel streams.</p>
-                    </div>
-                    <a asp-page="/Reports/DailyRevenue">Daily Revenue</a>
-                </div>
-
-                <div class="vpms-compact-revenue">
-                    <div>
-                        <span>Rooms</span>
-                        <strong>@Model.RoomRevenueToday.ToString("C0")</strong>
-                        <small>@roomRevenueShare.ToString("0.#")%</small>
-                        <div class="progress"><div class="progress-bar available" style="@ProgressWidth(roomRevenueShare)"></div></div>
-                    </div>
-                    <div>
-                        <span>F&amp;B</span>
-                        <strong>@Model.FoodBeverageRevenueToday.ToString("C0")</strong>
-                        <small>@fbRevenueShare.ToString("0.#")%</small>
-                        <div class="progress"><div class="progress-bar occupied" style="@ProgressWidth(fbRevenueShare)"></div></div>
-                    </div>
-                    <div>
-                        <span>Banquet</span>
-                        <strong>@Model.BanquetRevenueToday.ToString("C0")</strong>
-                        <small>@banquetRevenueShare.ToString("0.#")%</small>
-                        <div class="progress"><div class="progress-bar reserved" style="@ProgressWidth(banquetRevenueShare)"></div></div>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <aside class="vpms-refined-side vpms-dashboard-detail-stack">
-            <details class="vpms-refined-card vpms-dashboard-detail-panel" @(riskCount > 0 ? "open" : "")>
-                <summary class="vpms-dashboard-detail-summary">
-                    <div>
-                        <h2>Operational Attention</h2>
-                        <p>Signals that should not be allowed to drift.</p>
-                    </div>
-                    <span>@riskCount</span>
-                </summary>
-                <div class="vpms-dashboard-detail-body">
-                    <ul class="vpms-signal-list">
-                        <li><span>High-balance folios</span><strong>@Model.HighBalanceFolios</strong></li>
-                        <li><span>Pending approvals</span><strong>@Model.PendingApprovals</strong></li>
-                        <li><span>Service requests</span><strong>@Model.OpenServiceRequests</strong></li>
-                        <li><span>Low-stock items</span><strong>@Model.LowStockItems</strong></li>
-                        <li><span>High/Critical insights</span><strong>@insightCount</strong></li>
-                    </ul>
-                    <a class="vpms-dashboard-detail-link" asp-page="/ManagementAI/Insights/Index">View management insights</a>
-                </div>
-            </details>
-
-            <details class="vpms-refined-card vpms-dashboard-detail-panel">
-                <summary class="vpms-dashboard-detail-summary">
-                    <div>
-                        <h2>Operational Shortcuts</h2>
-                        <p>Daily control points.</p>
-                    </div>
-                    <span>5</span>
-                </summary>
-                <div class="vpms-dashboard-detail-body">
-                    <div class="vpms-compact-actions">
-                        <a asp-page="/FrontOffice/Index">Front Office</a>
-                        <a asp-page="/FoodBeverage/Orders/Index">POS Orders</a>
-                        <a asp-page="/Finance/NightAudit/Index">Night Audit</a>
-                        <a asp-page="/Inventory/Index">Inventory</a>
-                        <a asp-page="/Reports/Center">Report Center</a>
-                    </div>
-                </div>
-            </details>
-
-            <details class="vpms-refined-card vpms-dashboard-detail-panel">
-                <summary class="vpms-dashboard-detail-summary">
-                    <div>
-                        <h2>Cash and Exposure</h2>
-                        <p>Payments, guest ledger, and room revenue.</p>
-                    </div>
-                    <span>@Model.TotalPaymentsToday.ToString("C0")</span>
-                </summary>
-                <div class="vpms-dashboard-detail-body">
-                    <dl class="summary-list">
-                        <dt>Payments</dt><dd>@Model.TotalPaymentsToday.ToString("C")</dd>
-                        <dt>Guest Balance</dt><dd>@Model.OutstandingGuestBalance.ToString("C")</dd>
-                        <dt>ADR</dt><dd>@Model.AdrToday.ToString("C")</dd>
-                        <dt>RevPAR</dt><dd>@Model.RevParToday.ToString("C")</dd>
-                    </dl>
-                </div>
-            </details>
-        </aside>
-    </div>
-</div>
-
-<div class="modal fade vpms-command-modal" id="dashboardCommandReview" tabindex="-1" aria-labelledby="dashboardCommandReviewLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div>
-                    <div class="page-kicker">Command Review</div>
-                    <h2 class="modal-title" id="dashboardCommandReviewLabel">Operational Signals</h2>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="vpms-modal-signal-grid">
-                    <article>
-                        <span>Room Readiness</span>
-                        <strong>@roomReadinessHeadline</strong>
-                        <p>@readinessPercent.ToString("0.#")% readiness with @Model.DirtyRooms dirty room@(Model.DirtyRooms == 1 ? "" : "s") and @Model.OutOfOrderRooms out of order.</p>
-                    </article>
-                    <article>
-                        <span>Commercial Pulse</span>
-                        <strong>@revenueHeadline</strong>
-                        <p>@Model.TotalRevenueToday.ToString("C0") posted today across rooms, F&amp;B, and banquet outlets.</p>
-                    </article>
-                    <article class="@RiskTone(riskCount)">
-                        <span>Operational Attention</span>
-                        <strong>@serviceHeadline</strong>
-                        <p>@riskCount open signal@(riskCount == 1 ? "" : "s") across approvals, folios, service, stock, and insights.</p>
-                    </article>
-                </div>
-
-                <div class="vpms-modal-action-grid" aria-label="Command review actions">
-                    <a asp-page="/FrontOffice/RoomRack/Index"><strong>Room Calendar</strong><span>Stays and room readiness.</span></a>
-                    <a asp-page="/FrontOffice/Reservations/Index"><strong>Reservations</strong><span>Arrivals, departures, and rooming.</span></a>
-                    <a asp-page="/ManagementAI/Insights/Index"><strong>Open Insights</strong><span>Management signals.</span></a>
-                    <a asp-page="/Finance/NightAudit/Index"><strong>Night Audit</strong><span>Daily close controls.</span></a>
-                    <a asp-page="/Reports/Center"><strong>Report Center</strong><span>Owner, finance, and operating reports.</span></a>
-                    <a asp-page="/Housekeeping/Index"><strong>Room Readiness</strong><span>Clean, dirty, and blocked inventory.</span></a>
-                </div>
-            </div>
-        </div>
-    </div>
+    else
+    {
+        <section class="work-panel"><div class="work-empty"><h2>Open your department</h2><p>Your assigned modules are in the left navigation. These daily queues are available to Front Desk, Cashier, Housekeeping and management roles.</p><p>If an expected module is missing, ask your administrator to review your role access.</p></div></section>
+    }
 </div>

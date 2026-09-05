@@ -18,13 +18,18 @@ public class IndexModel(ApplicationDbContext context, PaymentIntegrityService pa
 
     public PaymentIntegritySummary IntegritySummary { get; private set; } = new(0, 0, 0, 0, 0, 0);
 
-    public async Task OnGetAsync()
+    public int? SelectedFolioId { get; private set; }
+
+    public async Task OnGetAsync(int? folioId)
     {
+        SelectedFolioId = folioId;
         var today = DateTime.Today;
         var tomorrow = today.AddDays(1);
         var monthStart = new DateTime(today.Year, today.Month, 1);
 
-        Payments = await context.Payments
+        var paymentQuery = context.Payments.AsNoTracking()
+            .Where(payment => !folioId.HasValue || payment.FolioId == folioId.Value);
+        Payments = await paymentQuery
             .Include(payment => payment.Folio).ThenInclude(folio => folio!.Guest)
             .Include(payment => payment.Folio).ThenInclude(folio => folio!.Reservation).ThenInclude(reservation => reservation!.Room)
             .AsNoTracking()
@@ -32,13 +37,13 @@ public class IndexModel(ApplicationDbContext context, PaymentIntegrityService pa
             .Take(250)
             .ToListAsync();
 
-        TodayPayments = Payments
+        TodayPayments = await paymentQuery
             .Where(payment => payment.Status == PaymentStatus.Completed && payment.PaymentDate >= today && payment.PaymentDate < tomorrow)
-            .Sum(payment => payment.Amount);
-        MonthToDatePayments = Payments
+            .SumAsync(payment => payment.Amount);
+        MonthToDatePayments = await paymentQuery
             .Where(payment => payment.Status == PaymentStatus.Completed && payment.PaymentDate >= monthStart && payment.PaymentDate < tomorrow)
-            .Sum(payment => payment.Amount);
-        PendingPayments = Payments.Count(payment => payment.Status is PaymentStatus.Pending or PaymentStatus.Authorized);
+            .SumAsync(payment => payment.Amount);
+        PendingPayments = await paymentQuery.CountAsync(payment => payment.Status == PaymentStatus.Pending || payment.Status == PaymentStatus.Authorized);
         IntegritySummary = await paymentIntegrityService.GetSummaryAsync();
     }
 }

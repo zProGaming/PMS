@@ -123,14 +123,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const baseCanSubmit = button.dataset.vpmsBaseCanSubmit === "true";
       const hasBalance = button.dataset.vpmsHasBalance === "true";
       const canOverride = button.dataset.vpmsCanOverride === "true";
-      const overrideAccepted = Boolean(override?.checked && canOverride);
+      const reason = form?.querySelector("[data-vpms-checkout-reason]")?.value.trim() || "";
+      const overrideAccepted = Boolean(override?.checked && canOverride && reason.length >= 10 && reason.length <= 500);
+      const hasCredit = button.dataset.vpmsHasCredit === "true";
+      const creditAccepted = Boolean(form?.querySelector("[data-vpms-checkout-credit]")?.checked);
 
-      button.disabled = !baseCanSubmit || (hasBalance && !overrideAccepted);
+      button.disabled = !baseCanSubmit || (hasBalance && !overrideAccepted) || (hasCredit && !creditAccepted);
     });
   };
 
-  document.addEventListener("change", (event) => {
-    if (!event.target?.matches?.("[data-vpms-checkout-override]")) {
+  document.addEventListener("input", (event) => {
+    if (!event.target?.matches?.("[data-vpms-checkout-override], [data-vpms-checkout-reason], [data-vpms-checkout-credit]")) {
       return;
     }
 
@@ -140,6 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateCheckoutSubmitState(document);
 
   const navIconMap = {
+    "daily work": "home",
     "dashboard": "home",
     "executive dashboard": "chart",
     "front office": "desk",
